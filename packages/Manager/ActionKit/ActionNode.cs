@@ -98,7 +98,9 @@ namespace YukiFrameWork.Events
         ///</summary>>
         void InitExcutePredicate(Func<bool> predicate, Action OnFinish = null);
 
-        event Action<IActionExcuteFrame> ExcuteFrameEnquene;     
+        event Action<IActionExcuteFrame> ExcuteFrameEnquene;
+
+        UniTask<IActionExcuteFrame> ToUniTask();
     }
 
     public interface IActionNextFrame
@@ -120,7 +122,7 @@ namespace YukiFrameWork.Events
     /// </summary>
     public class ActionDelay : IActionDelay
     {
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
         private Action CallBack;
         private float currentTime;
         private bool isFirstTrigger;
@@ -146,10 +148,11 @@ namespace YukiFrameWork.Events
         }
 
         private async UniTask Delay()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(currentTime), cancellationToken: CancellationToken.Token);
+        {            
+            await UniTask.Delay(TimeSpan.FromSeconds(currentTime), cancellationToken: CancellationToken.Token);           
             CallBack?.Invoke();
             if (!isFirstTrigger) isFirstTrigger = true;
+            await ToUniTask();
             if (!isUpdate)
             {
                 Clear();
@@ -158,6 +161,7 @@ namespace YukiFrameWork.Events
 
         public void InitDelay(float time, Action callBack = null)
         {           
+            CancellationToken = new CancellationTokenSource();
             this.currentTime = time;
             this.CallBack = callBack;           
             _ = Delay();
@@ -205,7 +209,7 @@ namespace YukiFrameWork.Events
 
     public class ActionSequene : IActionSequence
     {
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
         private List<Action> sequences = new List<Action>();
         private float currentTime = 0;
 
@@ -228,6 +232,7 @@ namespace YukiFrameWork.Events
 
         public ActionSequene(Func<bool> predicate = null)
         {
+            CancellationToken = new CancellationTokenSource();
             isUpdate = false;
             this.predicate = predicate;
         }
@@ -283,6 +288,7 @@ namespace YukiFrameWork.Events
                 quence?.Invoke();
             }
             if (!isFirstTrigger) isFirstTrigger = true;
+            await ToUniTask();
             if (!isUpdate)
             {
                 Clear();
@@ -323,7 +329,8 @@ namespace YukiFrameWork.Events
         }
 
         public void InitSequence(Func<bool> predicate = null)
-        {           
+        {
+            CancellationToken = new CancellationTokenSource();
             this.predicate = predicate;
         }
 
@@ -347,7 +354,7 @@ namespace YukiFrameWork.Events
             Predicate
         }
         private ExcuteType excuteType;
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
         private bool isFirstTrigger = false;
         private bool isUpdate = false;
         private float maxTime;
@@ -435,6 +442,7 @@ namespace YukiFrameWork.Events
 
         public void InitExcuteTimer(float maxTime, Action<float> TimeTemp, bool isConstraint = false, Action OnFinish = null)
         {
+            CancellationToken = new CancellationTokenSource();
             this.maxTime = maxTime;
             this.TimeTemp = TimeTemp;
             this.isConstraint = isConstraint;
@@ -445,6 +453,7 @@ namespace YukiFrameWork.Events
 
         public void InitExcutePredicate(Func<bool> predicate, Action OnFinish = null)
         {
+            CancellationToken = new CancellationTokenSource();
             this.predicate = predicate;
             this.OnFinish = OnFinish;
             excuteType = ExcuteType.Predicate;
@@ -462,17 +471,24 @@ namespace YukiFrameWork.Events
                 else TimeTemp?.Invoke(time);
             }
             if (!isFirstTrigger) isFirstTrigger = true;
-            OnFinish?.Invoke();           
+            OnFinish?.Invoke();
+            await ToUniTask();
             if (!isUpdate) Clear();
         }
 
         private async UniTask ExcutePredicate()
         {
-            await UniTask.WaitUntil(predicate,cancellationToken:CancellationToken.Token);
+            await UniTask.WaitUntil(predicate,cancellationToken:CancellationToken.Token);          
             if (!isFirstTrigger) isFirstTrigger = true;
             OnFinish?.Invoke();
-
+            await ToUniTask();
             if (!isUpdate) Clear();
+        }
+
+        public async UniTask<IActionExcuteFrame> ToUniTask()
+        {
+            await UniTask.WaitUntil(() => isFirstTrigger);
+            return this;
         }
     }
 
@@ -480,7 +496,7 @@ namespace YukiFrameWork.Events
     {
         private MonoUpdateType updateType;
         private bool isFirstTrigger;
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
         public event Action<IActionNextFrame> ActionNextEnquene;
         public ActionNextFrame(Action callBack,MonoUpdateType updateType)
         {
@@ -489,6 +505,7 @@ namespace YukiFrameWork.Events
 
         public void InitNextFrame(Action callBack,MonoUpdateType updateType)
         {
+            CancellationToken = new CancellationTokenSource();
             this.updateType = updateType;
             NextFrame(callBack);
         }
@@ -515,6 +532,7 @@ namespace YukiFrameWork.Events
             }            
             isFirstTrigger = true;
             callBack?.Invoke();
+            await ToUniTask();
             Clear();
         }
 

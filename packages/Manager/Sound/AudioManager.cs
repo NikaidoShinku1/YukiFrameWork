@@ -15,6 +15,7 @@ using System.Threading;
 using YukiFrameWork.Res;
 using UnityEngine.Audio;
 using System.Collections.Generic;
+using System;
 
 namespace YukiFrameWork.Manager
 {
@@ -164,10 +165,14 @@ namespace YukiFrameWork.Manager
             var source = AudioData.GetAudioSource(name);
             currentVoices.Enqueue(source);
             source.Play();
-            var tempVolume = currentSource.volume;
+            var tempVolume = 1f;
+            if(currentSource != null)
+            tempVolume = currentSource.volume;
             if (currentSource != null) currentSource.volume = tempVolume / 2;
             await UniTask.WaitUntil(() => !source.isPlaying);
             currentVoices.Dequeue();
+
+            if(currentSource != null)
             currentSource.volume = tempVolume;
         }
 
@@ -245,6 +250,41 @@ namespace YukiFrameWork.Manager
         public void Clear()
         {
             AudioData.Clear();
+        }
+
+        public void SetVolume(string audioName, float volume)
+        {
+            foreach(var item in AudioData.GetAudioDicts().Values)
+            {
+                if (item.name == audioName)               
+                    item.volume = volume;
+                
+                if (currentSource != null && item.name == currentSource.name)              
+                    currentSource.volume =  item.volume = volume;
+
+
+                if (currentVoices.Count > 0)
+                {
+                    foreach (var voices in currentVoices)
+                    {
+                        if(voices.name == audioName)
+                            voices.volume = volume;
+                    }
+                }
+            }            
+        }
+
+        public void SetGroupVolume(string groupName, float volume)
+        {
+            foreach (var item in AudioData.GetAudioDicts().Values)
+            {
+                if (item.outputAudioMixerGroup.name == groupName)
+                {
+                    Debug.Log(item.outputAudioMixerGroup.audioMixer.name);
+                    item.outputAudioMixerGroup.audioMixer.SetFloat(groupName, volume);
+                    break;
+                }
+            }
         }
     }
 

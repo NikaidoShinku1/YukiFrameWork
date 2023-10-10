@@ -30,7 +30,7 @@ namespace YukiFrameWork.Events
     {
         private Action<object> callBack;     
 
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public event Action UpdateConditionEnqueue;
 
@@ -65,16 +65,19 @@ namespace YukiFrameWork.Events
       
         public void Update(Func<bool> condition = null,Func<bool> predicate = null,bool isImposeCount = false,object data = null)
         {
+            CancellationToken = new CancellationTokenSource();
             _ = ToUpdateFunction(PlayerLoopTiming.LastUpdate, condition, predicate,isImposeCount,data);
         }
 
         public void FixedUpdate(Func<bool> condition = null, Func<bool> predicate = null, bool isImposeCount = false,object data = null)
         {
+            CancellationToken = new CancellationTokenSource();
             _ = ToUpdateFunction(PlayerLoopTiming.LastFixedUpdate, condition, predicate,isImposeCount,data);
         }
 
         public void LateUpdate(Func<bool> condition = null, Func<bool> predicate = null, bool isImposeCount = false,object data = null)
         {
+            CancellationToken = new CancellationTokenSource();
             _ = ToUpdateFunction(PlayerLoopTiming.PostLateUpdate, condition, predicate,isImposeCount,data);
         }
 

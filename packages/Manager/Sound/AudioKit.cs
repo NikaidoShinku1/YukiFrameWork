@@ -73,5 +73,25 @@ namespace YukiFrameWork
         }
         #endregion
 
+        /// <summary>
+        /// 调节指定音频的音量
+        /// </summary>
+        /// <param name="audioName">音频名</param>
+        /// <param name="volume">音量大小，默认最大值为1</param>
+        public static void SetVolume(string audioName, float volume = 1)
+        {
+            AudioManager.SetVolume(audioName, volume);
+        }
+
+        /// <summary>
+        /// 调节指定音频分组的音量
+        /// </summary>
+        /// <param name="groupName">分组名</param>
+        /// <param name="volume">音量大小，默认最大值为0(注意：使用此方法前请提前往AudioMixer暴露参数！)</param>
+        public static void SetGroupVolume(string groupName, float volume = 0)
+        {
+            AudioManager.SetGroupVolume(groupName, volume);
+        }
+
     }
 }
