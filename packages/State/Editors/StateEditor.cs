@@ -125,7 +125,7 @@ namespace YukiFrameWork.States
                         if(item.type != AnimType.None)
                             item.isActiveNormalAnim = EditorGUILayout.ToggleLeft("是否需要使该状态拥有默认动画", item.isActiveNormalAnim);
                         if (item.isActiveNormalAnim && animClipsName.Count > 0)
-                        {                           
+                        {
                             item.currentStateIndex = EditorGUILayout.Popup("默认动画选择", item.currentStateIndex, animClipsName.ToArray());
 
                             if (item.currentStateIndex != -1)
@@ -133,6 +133,18 @@ namespace YukiFrameWork.States
 
                             item.animSpeed = EditorGUILayout.FloatField("默认动画速度", item.animSpeed);
                             item.animLength = EditorGUILayout.FloatField("默认动画长度", item.animLength);
+                        }
+                        else if (item.isActiveNormalAnim)
+                        {
+                            switch (item.type)
+                            {                            
+                                case AnimType.Animation:
+                                    GUILayout.Label("当前没有添加动画剪辑在animation内");
+                                    break;
+                                case AnimType.Animator:
+                                    GUILayout.Label("当前没有在Animator的状态内添加至少一个动画剪辑！");
+                                    break;                             
+                            }                           
                         }
                         else
                         {
