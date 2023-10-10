@@ -13,14 +13,7 @@ namespace YukiFrameWork.States
     }
     [Serializable]
     public class State : StateBase
-    {
-        [Header("动画选择")]
-        public AnimType type;
-
-        public Animator animator;
-
-        public Animation animation;
-
+    {       
         public bool IsTransition;
 
         //当状态播放完
@@ -28,7 +21,13 @@ namespace YukiFrameWork.States
 
         public bool isNextState;
 
-        public int nextStateID = 0;        
+        public int nextStateID = 0;
+
+        public string normalAnimClipName;
+
+        public float animSpeed = 1;
+
+        public float animLength = 100;
        
         public State() { }
 
@@ -41,15 +40,14 @@ namespace YukiFrameWork.States
 
         public void OnEnterState(Action action)
         {
-            CheckAnim();
-
+            CheckAnim();         
             foreach (StateBehaviour behaviour in stateBehaviours)
-            {
+            {               
                 if (behaviour.IsActive)
                 {                    
                     behaviour.OnEnter(action);
                 }
-            }
+            }          
         }
 
         public void CheckAnim()
@@ -58,33 +56,18 @@ namespace YukiFrameWork.States
             {
                 case AnimType.None:
                     break;
-                case AnimType.Animation:
-                    if (animation == null)
+                case AnimType.Animation:                   
+                    if (normalAnimClipName != string.Empty)
                     {
-                        animation = stateManager.GetComponent<Animation>();
-                        if (animation == null)
-                        {
-                            animation = stateManager.GetComponentInChildren<Animation>();
-                            if (animation == null)
-                            {
-                                throw new NullReferenceException("The Animation is Empty!");
-                            }
-                        }
+                        animation.Play(normalAnimClipName);
+                        animation[normalAnimClipName].speed = animSpeed;                      
                     }
                     break;
-                case AnimType.Animator:                  
-                    if (animator == null)
+                case AnimType.Animator:                                      
+                    if (normalAnimClipName != string.Empty)
                     {                      
-                        animator = stateManager.GetComponent<Animator>();
-                        if (animator == null)
-                        {
-                            Debug.Log("The Animator is Empty");
-                            animator = stateManager.GetComponentInChildren<Animator>();
-                            if (animator == null)
-                            {
-                                throw new NullReferenceException("The Animation is Empty!");
-                            }
-                        }
+                        animator.Play(normalAnimClipName);
+                        animator.speed = animSpeed;                       
                     }
                     break;
                 default:
@@ -114,11 +97,47 @@ namespace YukiFrameWork.States
         {                    
             if (isNextState)
             {
-                if (stateBehaviours == null || stateBehaviours.Count <= 0)
-                {                  
-                    //如果没有状态脚本直接完成状态
-                    IsEnter = true;
+                if (isActiveNormalAnim)
+                {
+                    if (normalAnimClipName != string.Empty)
+                    {
+                        switch (type)
+                        {
+                            case AnimType.None:
+                                break;
+                            case AnimType.Animation:
+                                {
+                                    float normalTime = animation[normalAnimClipName].normalizedTime;                                  
+                                    if (!animation[normalAnimClipName].clip.isLooping && normalTime * 100 >= (animLength - 5 / animLength))
+                                    {
+                                        animation.Stop();
+                                        IsEnter = true;
+                                        Debug.Log(IsEnter);
+                                    }
+                                }
+                                break;
+                            case AnimType.Animator:
+                                {                                    
+                                    var info = animator.GetCurrentAnimatorStateInfo(0);
+
+                                    if (!info.loop && info.normalizedTime * 100 >= animLength)
+                                    {                                     
+                                        IsEnter = true;
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                    else IsEnter = true;
                 }
+                else
+                {
+                    if (stateBehaviours == null || stateBehaviours.Count <= 0)
+                    {
+                        //如果没有状态脚本直接完成状态
+                        IsEnter = true;
+                    }
+                }           
             }
 
             if (IsEnter)

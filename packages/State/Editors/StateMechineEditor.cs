@@ -18,6 +18,7 @@ namespace YukiFrameWork.States
         private static StateMechineEditor instance;
         private bool IsInit;
         private static bool isTranslation;
+
         private GUIContent Create;
         private GUIContent Delete;
         private GUIContent Normal;
@@ -38,15 +39,7 @@ namespace YukiFrameWork.States
             instance.stateManager = manager;
             instance.stateMechine = manager.stateMechine;            
             instance.IsInit = instance.EditorInit();           
-        }
-
-        private void OnEnable()
-        {           
-            if (stateMechine != null)
-            {
-                selectedState = stateManager.stateMechine.states[stateManager.controllerID];
-            }
-        }
+        }    
 
         private bool EditorInit()
         {
@@ -359,10 +352,10 @@ namespace YukiFrameWork.States
                         name = typeof(StateMechine).Name
                     };
                     obj.transform.SetParent(stateManager.transform);
-                    stateMechine = obj.AddComponent<StateMechine>();
-                    stateManager.stateMechine = stateMechine;
+                    stateMechine = obj.AddComponent<StateMechine>();                   
                     IsInit = EditorInit();                   
                 }
+                stateManager.stateMechine = stateMechine;
                 return;
             }
             State state = new State(position);
@@ -451,7 +444,8 @@ namespace YukiFrameWork.States
 
         private void OnDisable()
         {
-            IsInit = false;          
+            stateManager.controllerID = -1;
+            IsInit = false;              
         }
     }
 }

@@ -13,7 +13,9 @@ namespace YukiFrameWork.States
     {
         private StateManager stateManager;
         
-        private bool isRecomposeScript = false;             
+        private bool isRecomposeScript = false;
+
+        private readonly static List<string> animClipsName = new List<string>();               
 
         private void OnEnable()
         {           
@@ -85,9 +87,59 @@ namespace YukiFrameWork.States
                         GUILayout.Label($"动画类型：{animType}");
 
                         item.type = (AnimType)EditorGUILayout.EnumPopup(item.type, GUILayout.Width(180));
-
                         EditorGUILayout.EndHorizontal();
+                        animClipsName.Clear();
+                     
+                        switch (item.type)
+                        {
+                            case AnimType.None:
+                                item.stateIndex = 0;
+                                item.currentStateIndex = -1;
+                                break;
+                            case AnimType.Animation:
+                                {
+                                    if (item.animation != null)
+                                    {                                       
+                                        foreach (AnimationState clip in item.animation)
+                                        {
+                                            animClipsName.Add(clip.clip.name);
+                                        }
+                                    }                 
+                                }
+                                break;
+                            case AnimType.Animator:
+                                {
+                                    if (item.animator != null && item.animator.runtimeAnimatorController != null)
+                                    {                                      
+                                        var animState = item.animator.runtimeAnimatorController;
+                                        var animClips = animState.animationClips;
 
+                                        foreach (var clip in animClips)
+                                        {
+                                            animClipsName.Add(clip.name);
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        if(item.type != AnimType.None)
+                            item.isActiveNormalAnim = EditorGUILayout.ToggleLeft("是否需要使该状态拥有默认动画", item.isActiveNormalAnim);
+                        if (item.isActiveNormalAnim && animClipsName.Count > 0)
+                        {                           
+                            item.currentStateIndex = EditorGUILayout.Popup("默认动画选择", item.currentStateIndex, animClipsName.ToArray());
+
+                            if (item.currentStateIndex != -1)
+                                item.normalAnimClipName = animClipsName[item.currentStateIndex];
+
+                            item.animSpeed = EditorGUILayout.FloatField("默认动画速度", item.animSpeed);
+                            item.animLength = EditorGUILayout.FloatField("默认动画长度", item.animLength);
+                        }
+                        else
+                        {
+                            item.currentStateIndex = -1;
+                            item.normalAnimClipName = string.Empty;
+                        }
+                        EditorGUILayout.Space(10);
                         item.isNextState = EditorGUILayout.Toggle("是否自动进入下一个状态", item.isNextState);
 
                         if (item.isNextState)
@@ -97,16 +149,16 @@ namespace YukiFrameWork.States
                         else item.nextStateID = -1;
 
                         GUILayout.Space(20);
-                        if (item.behaviours.Count > 0)
+                        if (item.stateBehaviours.Count > 0)
                         {
-                            for (int i = 0; i < item.behaviours.Count; i++)
+                            for (int i = 0; i < item.stateBehaviours.Count; i++)
                             {
                                 EditorGUILayout.Space(10);
                                 EditorGUILayout.BeginHorizontal();
-                                item.behaviours[i].IsActive = EditorGUILayout.ToggleLeft(item.behaviours[i].name, item.behaviours[i].IsActive);
+                                item.stateBehaviours[i].IsActive = EditorGUILayout.ToggleLeft(item.stateBehaviours[i].name, item.stateBehaviours[i].IsActive);
                                 if (GUILayout.Button("删除脚本"))
                                 {
-                                    item.behaviours.RemoveAt(i);
+                                    item.stateBehaviours.RemoveAt(i);
                                     continue;
                                 }
                                 EditorGUILayout.EndHorizontal();
@@ -147,9 +199,9 @@ namespace YukiFrameWork.States
                         {                            
                             StateBehaviour obj = Activator.CreateInstance(infoType) as StateBehaviour;
 
-                            if (state.behaviours.Count > 0)
+                            if (state.stateBehaviours.Count > 0)
                             {
-                                if (state.behaviours.Find(x => x.GetType() == infoType) != null)
+                                if (state.stateBehaviours.Find(x => x.GetType() == infoType) != null)
                                 {
                                     isRecomposeScript = false;
                                     return;                                   
@@ -157,7 +209,7 @@ namespace YukiFrameWork.States
                             }
                             
                             obj.name = infoType.ToString();
-                            obj.ID = state.index;
+                            obj.index = state.index;
                             state.AddBehaviours(obj);
                             isRecomposeScript = false;
                             Repaint();

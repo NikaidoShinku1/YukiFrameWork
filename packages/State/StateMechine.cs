@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Reflection;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 
 namespace YukiFrameWork.States
 {
@@ -39,26 +40,31 @@ namespace YukiFrameWork.States
                 CurrentState.OnExitState();
                 CurrentState.IsTransition = false;
             }
-            var newState = states.Find(x => x.index == index);
+            var newState = states.Find(x => x.index == index);         
             if (newState == null) return;
             newState.OnEnterState(action);
             CurrentState = newState;
             CurrentIndex = index;                     
         }
 
-        
+        /// <summary>
+        /// 根据名称改变状态
+        /// </summary>
+        /// <param name="name">状态名称</param>
+        /// <param name="action">状态退出回调，用于过渡</param>
         public void OnChangeState(string name, Action action = null)
         {
             if (CurrentState != null)
             {
                 CurrentState.IsTransition = true;
                 CurrentState.OnExitState();
+                CurrentState.IsTransition = false;
             }
-            CurrentState.IsTransition = false;
-            CurrentState = states.Find(x => x.name == name);
+            var newState = states.Find(x => x.name == name);        
+            if (newState == null) return;
+            newState.OnEnterState(action);
+            CurrentState = newState;
             CurrentIndex = CurrentState.index;
-
-            CurrentState.OnEnterState(action);
         }       
        
         /// <summary>
