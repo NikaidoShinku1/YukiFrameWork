@@ -43,6 +43,8 @@ namespace YukiFrameWork.States
 
         public StateManager stateManager = null;
 
+        public Stack<Action> actionStack = new Stack<Action>();
+
         public virtual void Init(StateManager stateManager)
         { 
             this.stateManager = stateManager;

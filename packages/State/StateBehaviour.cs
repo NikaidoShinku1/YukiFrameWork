@@ -19,9 +19,7 @@ namespace YukiFrameWork.States
         ///当前状态
         public State state => stateMechine.states[index];
 
-        public Transform transform => stateManager.transform;
-
-        public Stack<Action> actionStack = new Stack<Action>();
+        public Transform transform => stateManager.transform;      
 
         protected Animator animator;
 
@@ -92,9 +90,9 @@ namespace YukiFrameWork.States
         /// <summary>
         /// 进入状态时
         /// </summary>
-        public virtual void OnEnter(Action action = null)
+        public virtual void OnEnter()
         {           
-            actionStack.Push(action);
+            
         }
 
         /// <summary>
@@ -109,8 +107,7 @@ namespace YukiFrameWork.States
         /// </summary>
         public virtual void OnExit()
         {
-            if(actionStack.Count>0)
-            actionStack.Pop()?.Invoke();
+            
         }
     }
 }
