@@ -27,7 +27,7 @@ namespace YukiFrameWork.UI
 
         public GameObject FindChildGameObject(string name)
         { 
-            Transform[] transforms = panel.GetComponentsInChildren<Transform>();
+            Transform[] transforms = panel.GetComponentsInChildren<Transform>(true);
             foreach (Transform item in transforms)
             {
                 if (item.name == name)
@@ -51,8 +51,7 @@ namespace YukiFrameWork.UI
             {
                 Debug.LogError($"当前面板下没有这个GameObject，obj名字为{name}");
                 return null;
-            }
-
+            }          
             var component = obj.GetComponent<T>();
             if(component == null)
                 component= panel.gameObject.AddComponent<T>();

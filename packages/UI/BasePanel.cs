@@ -6,19 +6,22 @@ namespace YukiFrameWork.UI
     [RequireComponent(typeof(CanvasGroup))]
     public class BasePanel : MonoBehaviour
     {
-        public CanvasGroup canvasGroup;
+        protected CanvasGroup canvasGroup;
         public PanelManager PanelManager { get; private set; }
         public UIManager UIManager { get; private set; }
         public UITools UITools { get; private set; }
+        public UIPanelType PanelType { get; private set; }
         public Stack<Action> Actions { get; private set; }     
-
+        
         public bool IsInit { get;private set; } = false;
-        public void Init(PanelManager PanelManager,UIManager manager,UITools uITools)
+        public virtual void Init(PanelManager PanelManager,UIManager manager,UITools UITools,UIPanelType type)
         {
+            if (IsInit) return;
             this.PanelManager = PanelManager;
             this.UIManager = manager;
-            this.UITools = uITools;
+            this.UITools = UITools;
             Actions = new Stack<Action>();
+            this.PanelType = type;
             IsInit = true;
         }
 

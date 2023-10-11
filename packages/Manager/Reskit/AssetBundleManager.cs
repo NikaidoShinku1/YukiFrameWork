@@ -32,7 +32,7 @@ namespace YukiFrameWork.Res
             string json = File.ReadAllText(overPath);
             JsonData data = JsonMapper.ToObject(json);
             
-            assetBundlePath = Application.streamingAssetsPath + "/" + data[0];
+            assetBundlePath = Application.streamingAssetsPath + @"\" + data[0];
 
             IsInit = true;
         }
@@ -172,17 +172,17 @@ namespace YukiFrameWork.Res
             
             List<T> pathList = new List<T>();
 
-            if (result != null)
-            {              
+            if (result != null && result.Length > 0)
+            {                
                 foreach (T obj in result)
                 {
                     pathList.Add(obj);
                 }
             }
             else
-            {
+            {               
                 foreach (var item in loadedAssetBundles[assetBundleName].LoadAllAssets<GameObject>())
-                {
+                {                   
                     T obj = item.GetComponent<T>();
                     pathList.Add(obj);
                 }

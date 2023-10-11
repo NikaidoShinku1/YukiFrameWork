@@ -1,7 +1,9 @@
 using UnityEngine;
-using YukiFrameWork.UI;
 
+namespace YukiFrameWork.UI
+{
     public enum UIPanelType
     {
 
     }
+}
