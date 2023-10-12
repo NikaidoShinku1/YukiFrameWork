@@ -51,14 +51,24 @@ namespace YukiFrameWork.States
 
         public virtual void Init() { }
 
+        /// <summary>
+        /// 根据状态名称切换状态
+        /// </summary>
+        /// <param name="index">状态名称</param>
+        /// <param name="action">回调，在切换状态后保存在下一个状态内，直到下一个状态退出时触发</param>
         public void OnChangeState(string name, Action action = null)
         {
             stateManager.stateMechine.OnChangeState(name, action);
         }
 
-        public void OnChangeState(int id, Action action = null)
+        /// <summary>
+        /// 根据状态标识切换状态
+        /// </summary>
+        /// <param name="index">状态标识</param>
+        /// <param name="action">回调，在切换状态后保存在下一个状态内，直到下一个状态退出时触发</param>
+        public void OnChangeState(int index, Action action = null)
         {
-            stateManager.stateMechine.OnChangeState(id, action);
+            stateManager.stateMechine.OnChangeState(index, action);
         }
 
         public T GetComponent<T>() where T : Component

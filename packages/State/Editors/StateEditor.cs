@@ -51,7 +51,7 @@ namespace YukiFrameWork.States
                         GUILayout.Label("状态：" + $"{item.name}");
                         item.name = EditorGUILayout.TextField("状态名称：", item.name);
                         item.index = EditorGUILayout.IntField("状态标识：", item.index);
-                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.BeginHorizontal();                   
                         string animType = "";
                         switch (item.type)
                         {
@@ -88,6 +88,9 @@ namespace YukiFrameWork.States
 
                         item.type = (AnimType)EditorGUILayout.EnumPopup(item.type, GUILayout.Width(180));
                         EditorGUILayout.EndHorizontal();
+
+                        EditorGUILayout.Space(10);
+
                         animClipsName.Clear();
                      
                         switch (item.type)
@@ -130,7 +133,10 @@ namespace YukiFrameWork.States
 
                             if (item.currentStateIndex != -1)
                                 item.normalAnimClipName = animClipsName[item.currentStateIndex];
-
+                            if (item.type == AnimType.Animator)
+                                item.stateIndex = EditorGUILayout.IntField("默认动画状态图层", item.stateIndex);
+                            else
+                                item.stateIndex = 0;
                             item.animSpeed = EditorGUILayout.FloatField("默认动画速度", item.animSpeed);
                             item.animLength = EditorGUILayout.FloatField("默认动画长度", item.animLength);
                         }
