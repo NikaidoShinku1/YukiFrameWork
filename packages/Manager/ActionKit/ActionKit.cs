@@ -23,11 +23,13 @@ namespace YukiFrameWork.Events
     {
         #region 队列列表合集
         private readonly static Queue<IActionNode> nodes = new Queue<IActionNode>();
-        private readonly static Queue<IActionDelay> actionDelays = new Queue<IActionDelay>();        
-        private readonly static Queue<IActionSequence> actionSequences = new Queue<IActionSequence>();
+        private readonly static Queue<IActionDelay> actionDelays = new Queue<IActionDelay>();
+        private readonly static Queue<IActionSequenceCondition> actionSequenceConditions = new Queue<IActionSequenceCondition>();
+        private readonly static Queue<IActionDelayFrame> actionDelayFrames = new Queue<IActionDelayFrame>();
         private readonly static Queue<IActionNextFrame> actionNextFrames = new Queue<IActionNextFrame>();
         private readonly static Queue<IActionExcuteFrame> actionExcuteFrames = new Queue<IActionExcuteFrame>();
         private readonly static Queue<IActionUpdateCondition> updateConditions = new Queue<IActionUpdateCondition>();
+        private readonly static Queue<IActionRepaint> actionRepaints = new Queue<IActionRepaint>();
         #endregion
 
         #region 动作异步时序管理
@@ -93,19 +95,41 @@ namespace YukiFrameWork.Events
             return nextFrameItem;
         }
 
-        /// <summary>
-        /// 队列时序回调
-        /// </summary>
-        /// <param name="predicate">执行条件</param>
-        /// <returns>返回一个Node</returns>
-        public static IActionSequence Sequence(Func<bool> predicate = null)
+        public static IActionDelayFrame DelayFrame(int delayFrameCount, Action callBack = null, MonoUpdateType type = MonoUpdateType.Update)
         {
-            var sequeneItem = CheckSequene();
-            if (sequeneItem == null) sequeneItem = new ActionSequene(predicate);
-            else sequeneItem.InitSequence(predicate);
-            sequeneItem.SequenceEnqueue += Enqueue;
-            return sequeneItem;
-        }         
+            var delayFrameItem = CheckDelayFrame();
+            if (delayFrameItem == null) delayFrameItem = new ActionDelayFrame(callBack, type, delayFrameCount);
+            else delayFrameItem.InitDelayFrame(callBack, type, delayFrameCount);
+            delayFrameItem.ActionNextEnquene += Enquence;
+            return delayFrameItem;
+        }
+
+        /// <summary>
+        /// 队列时序回调，注意：队列与队列之间是并行的，可以同时启动多个队列，一个队列内所有的回调都是连续的
+        /// </summary>
+        /// <returns>返回本体</returns>
+        public static IActionSequenceCondition Sequence()
+        {
+            var sequence = CheckSequenceCondition();
+            if (sequence == null) sequence = new ActionSequenceCondition();
+            else sequence.InitSequenceCondition();
+            sequence.EnquenceCondition += Enquence;
+            return sequence;
+        }
+
+        /// <summary>
+        /// 循环时间(事件)检测
+        /// </summary>
+        /// <param name="reapaintCount">循环次数，默认无限循环(值为-1)</param>
+        /// <returns>返回本体</returns>
+        public static IActionRepaint Repaint(int reapaintCount = -1)
+        {
+            var repaint = CheckRepaint();
+            if (repaint == null) repaint = new ActionRepaint(reapaintCount);
+            else repaint.InitRepaint(reapaintCount);
+            repaint.EnquenceRepaint += Enquence;
+            return repaint;          
+        }
 
         private static IActionDelay CheckDelays()
         {
@@ -116,15 +140,15 @@ namespace YukiFrameWork.Events
             return null;
         }
 
-        private static IActionSequence CheckSequene()
-        {
-            if (actionSequences.Count > 0) return actionSequences.Dequeue();
-            return null;
-        }
-
         private static IActionExcuteFrame CheckExcuteFrame()
         {
             if (actionExcuteFrames.Count > 0) return actionExcuteFrames.Dequeue();
+            return null;
+        }
+
+        private static IActionDelayFrame CheckDelayFrame()
+        {
+            if(actionDelayFrames.Count > 0)return actionDelayFrames.Dequeue();
             return null;
         }
 
@@ -133,10 +157,17 @@ namespace YukiFrameWork.Events
             if (actionNextFrames.Count > 0) return actionNextFrames.Dequeue();
             return null;
         }
-      
-        private static void Enqueue(IActionNode node)
+
+        private static IActionSequenceCondition CheckSequenceCondition()
         {
-            nodes.Enqueue(node);
+            if (actionSequenceConditions.Count > 0) return actionSequenceConditions.Dequeue();
+            return null;
+        }
+
+        private static IActionRepaint CheckRepaint()
+        {
+            if(actionRepaints.Count > 0) return actionRepaints.Dequeue();
+            return null;
         }
 
         private static void Enqueue(IActionDelay actionDelay)
@@ -152,6 +183,21 @@ namespace YukiFrameWork.Events
         private static void Enqueue(IActionNextFrame actionNextFrame)
         {
             actionNextFrames.Enqueue(actionNextFrame);
+        }
+
+        private static void Enquence(IActionSequenceCondition actionSequenceCondition)
+        {
+            actionSequenceConditions.Enqueue(actionSequenceCondition);
+        }
+
+        private static void Enquence(IActionDelayFrame actionDelayFrame)
+        {
+            actionDelayFrames.Enqueue(actionDelayFrame);
+        }
+
+        private static void Enquence(IActionRepaint repaint)
+        {
+            actionRepaints.Enqueue(repaint);
         }
         #endregion
 

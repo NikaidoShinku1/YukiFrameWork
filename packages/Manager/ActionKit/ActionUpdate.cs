@@ -3,7 +3,7 @@
 /// - NameSpace:     YukiFrameWork.Project
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
-/// - Description:   这是一个框架工具创建的脚本
+/// - Description:   这是Update管理脚本
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
@@ -23,7 +23,7 @@ namespace YukiFrameWork.Events
         void Update(Func<bool> condition = null, Func<bool> predicate = null, bool isImposeCount = false, object data = null);
         void FixedUpdate(Func<bool> condition = null, Func<bool> predicate = null, bool isImposeCount = false, object data = null);
         void LateUpdate(Func<bool> condition = null, Func<bool> predicate = null, bool isImposeCount = false, object data = null);
-        void AddTo<T>(T mono, Action cancelCallBack = null) where T : MonoBehaviour;
+        void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component;
     }
 
     public class ActionUpdate : IActionUpdate
@@ -34,12 +34,12 @@ namespace YukiFrameWork.Events
 
         public event Action UpdateConditionEnqueue;
 
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : MonoBehaviour
+        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = ToAddTo(mono, cancelCallBack);  
         }
 
-        private async UniTaskVoid ToAddTo<T>(T mono, Action cancelCallBack = null) where T : MonoBehaviour
+        private async UniTaskVoid ToAddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             await mono.gameObject.OnDestroyAsync();
             Recyle();

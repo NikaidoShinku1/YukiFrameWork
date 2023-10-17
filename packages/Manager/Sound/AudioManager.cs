@@ -157,7 +157,12 @@ namespace YukiFrameWork.Manager
                 {
                     foreach (var voices in currentVoices)
                     {
-                        await UniTask.WaitUntil(() => !voices.isPlaying);
+                        await UniTask.WaitUntil(() =>
+                        {
+                            if(voices != null)
+                                return !voices.isPlaying;
+                            return true;
+                        });
                     }
                 }
             }
@@ -169,7 +174,12 @@ namespace YukiFrameWork.Manager
             if(currentSource != null)
             tempVolume = currentSource.volume;
             if (currentSource != null) currentSource.volume = tempVolume / 2;
-            await UniTask.WaitUntil(() => !source.isPlaying);
+            await UniTask.WaitUntil(() =>
+                {
+                    if(source != null)
+                        return !source.isPlaying;
+                    return true;
+                });
             currentVoices.Dequeue();
 
             if(currentSource != null)
@@ -198,7 +208,12 @@ namespace YukiFrameWork.Manager
             {
                 if (isWait)
                 {
-                    await UniTask.WaitUntil(() => !currentSource.isPlaying, cancellationToken: tokenSource.Token);                 
+                    await UniTask.WaitUntil(() => 
+                    { 
+                        if (currentSource != null) 
+                            return !currentSource.isPlaying;
+                        return true; 
+                    }, cancellationToken: tokenSource.Token);                 
                 }
                 currentSource.Stop();
                 currentSource = source;

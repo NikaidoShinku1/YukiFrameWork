@@ -3,7 +3,7 @@
 /// - NameSpace:     YukiFrameWork.Project
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
-/// - Description:   这是一个框架工具创建的脚本
+/// - Description:   这是Update控制脚本
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
