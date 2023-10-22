@@ -1,11 +1,11 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace YukiFrameWork.UI
 {
     public class UITools
     {
-        private BasePanel panel;
+        private readonly BasePanel panel;
 
         public UITools(BasePanel panel)
         {
@@ -13,11 +13,11 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// »ñÈ¡»òÕßÉú³ÉBasepanelÏÂµÄ×é¼ş
+        /// è·å–æˆ–è€…ç”ŸæˆBasepanelä¸‹çš„ç»„ä»¶
         /// </summary>
-        /// <typeparam name="T">ÀàĞÍ</typeparam>
-        /// <returns>·µ»ØÒ»¸ö×é¼ş</returns>
-        public T GetComponent<T>() where T : Component
+        /// <typeparam name="T">ç±»å‹</typeparam>
+        /// <returns>è¿”å›ä¸€ä¸ªç»„ä»¶</returns>
+        public T GetOrAddComponent<T>() where T : Component
         {
             var component = panel.GetComponent<T>();
             if(component == null)
@@ -39,17 +39,17 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// ²éÕÒµ±Ç°Ãæ°åÏÂµÄ×ÓÎïÌåµÄ×é¼ş
+        /// æŸ¥æ‰¾å½“å‰é¢æ¿ä¸‹çš„å­ç‰©ä½“çš„ç»„ä»¶
         /// </summary>
-        /// <typeparam name="T">ÀàĞÍ</typeparam>
-        /// <param name="name">objÃû</param>
-        /// <returns>·µ»ØÒ»¸ö×é¼ş</returns>
-        public T GetComponentInChildren<T>(string name) where T : Component
+        /// <typeparam name="T">ç±»å‹</typeparam>
+        /// <param name="name">objå</param>
+        /// <returns>è¿”å›ä¸€ä¸ªç»„ä»¶</returns>
+        public T GetOrAddComponentInChildren<T>(string name) where T : Component
         {
             GameObject obj = FindChildGameObject(name);
             if (obj == null)
             {
-                Debug.LogError($"µ±Ç°Ãæ°åÏÂÃ»ÓĞÕâ¸öGameObject£¬objÃû×ÖÎª{name}");
+                Debug.LogError($"å½“å‰é¢æ¿ä¸‹æ²¡æœ‰è¿™ä¸ªGameObjectï¼Œobjåå­—ä¸º{name}");
                 return null;
             }          
             var component = obj.GetComponent<T>();

@@ -20,8 +20,11 @@ namespace YukiFrameWork.Events
     public interface IActionRepaint : IActionNode
     {
         public int RepaintCount { get; }
+        public bool IsFinish { get; }
         event Action<IActionRepaint> EnquenceRepaint;
         void InitRepaint(int repaintCount);
+        void InitRepaint(Func<bool> condition);
+        void InitRepaint(int count, Func<bool> condition);
         IActionNode Delay(float time, Action callBack);
         IActionNode StartTimer(float maxTime, Action<float> callBack, bool isConstraint = false, Action OnFinish = null);
         IActionNode ExcuteFrame(Func<bool> predicate, Action OnFinish = null);
@@ -30,25 +33,63 @@ namespace YukiFrameWork.Events
     {
         public int RepaintCount { get; private set; }
         public bool IsLoop { get; private set; } = false;
-        public bool IsEnter { get; private set; }       
+        public bool IsEnter { get; private set; }
+        public bool IsFinish { get; private set; } = false;
+
+        private Func<bool> Condition;
         public ActionRepaint(int count)
         {
             InitRepaint(count);
+        }
+
+        public ActionRepaint(Func<bool> condition)
+        {
+            InitRepaint(condition);
+        }
+
+        public ActionRepaint(int count, Func<bool> condition)
+        {
+            InitRepaint(count, condition);
         }
 
         public event Action<IActionRepaint> EnquenceRepaint;
 
         public void InitRepaint(int count)
         {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
             RepaintCount = count;
             if (RepaintCount == -1) IsLoop = true;
         }
 
+        public void InitRepaint(Func<bool> condition)
+        {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
+            this.Condition = condition;
+            IsLoop = true;
+        }
+
+        public void InitRepaint(int count, Func<bool> condition)
+        {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
+            RepaintCount = count;
+            if (RepaintCount == -1) IsLoop = true;
+            this.Condition = condition;
+        }
+
         public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
 
-        public void AddTo<T>(T component, Action cancelCallBack = null) where T : Component
+        public bool IsCompleted { get; private set; }
+
+        public IActionNode AddTo<T>(T component, Action cancelCallBack = null) where T : Component
         {
             OnAddTo(component, cancelCallBack).Forget();
+            return this;
         }
 
         private async UniTaskVoid OnAddTo<T>(T component, Action cancelCallBack = null) where T : Component
@@ -65,15 +106,22 @@ namespace YukiFrameWork.Events
         }
 
         private async UniTask OnDelay(float time, Action callBack)
-        {          
+        {
+            if (IsCompleted) return;
             while (IsLoop ? IsLoop : RepaintCount > 0 && !CancellationToken.IsCancellationRequested)
             {
+                if (Condition?.Invoke() == false)
+                {
+                    IsFinish = true;
+                    break;
+                }
                 await UniTask.Delay(TimeSpan.FromSeconds(time));
                 callBack?.Invoke();
-                if (!IsLoop) RepaintCount--;
+                if (!IsLoop) RepaintCount--;               
             }
             IsEnter = true;
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
@@ -84,14 +132,21 @@ namespace YukiFrameWork.Events
         }
 
         private async UniTask OnStartTimer(float maxTime, Action<float> callBack, bool isConstraint = false, Action OnFinish = null)
-        {         
+        {
+            if (IsCompleted) return;
             while (IsLoop ? IsLoop : RepaintCount > 0 && !CancellationToken.IsCancellationRequested)
-            {              
+            {
+                if (Condition?.Invoke() == false)
+                {
+                    IsFinish = true;
+                    break;
+                }
                 await ActionKit.StartTimer(maxTime, callBack, isConstraint, OnFinish).ToUniTask();
-                if (!IsLoop) RepaintCount--;                
+                if (!IsLoop) RepaintCount--;             
             }
             IsEnter = true;
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
@@ -103,13 +158,20 @@ namespace YukiFrameWork.Events
 
         private async UniTask OnExcuteFrame(Func<bool> predicate, Action onFinish)
         {
-            while (IsLoop ? IsLoop : RepaintCount > 0 && !CancellationToken.IsCancellationRequested)
+            if (IsCompleted) return;
+            while (IsLoop ? IsLoop : RepaintCount > 0 && !IsFinish && !CancellationToken.IsCancellationRequested)
             {
+                if (Condition?.Invoke() == false)
+                {
+                    IsFinish = true;
+                    break;
+                }
                 await ActionKit.ExcuteFrame(predicate, onFinish).ToUniTask();
-                if (!IsLoop) RepaintCount--;
+                if (!IsLoop) RepaintCount--;              
             }
             IsEnter = true;
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }      
 

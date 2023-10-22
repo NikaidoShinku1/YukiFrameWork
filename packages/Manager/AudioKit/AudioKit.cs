@@ -44,9 +44,9 @@ namespace YukiFrameWork
         /// </summary>
         /// <param name="name">音频名</param>
         /// <param name="isWait">是否等待当前音频播放完毕</param>
-        public static void PlayerVoices(string name, bool isWait = false)
+        public static void PlayVoices(string name, bool isWait = false)
         {
-            AudioManager.PlayerVoices(name, isWait);
+            AudioManager.PlayVoices(name, isWait);
         }
         /// <summary>
         /// 播放音频
@@ -59,17 +59,56 @@ namespace YukiFrameWork
         }
 
         /// <summary>
-        /// 结束正在播放的音频
+        /// 结束正在播放的音频或者音效
         /// </summary>
         /// <param name="name">名字</param>
-        public static void StopAudio(string name)
+        public static void StopAudioOrVoices(string name)
         {
-            AudioManager.StopAudio(name);
+            AudioManager.StopAudioOrVoices(name);
         }
 
-        public static void RemoveAudio(string name)
+        /// <summary>
+        /// 结束所有正在播放的音频
+        /// </summary>
+        public static void StopAllSource()
+        {
+            AudioManager.StopAllSource();
+        }
+
+        /// <summary>
+        /// 清空容器
+        /// </summary>
+        public static void Clear()
+        {
+            AudioManager.Clear();
+        }
+
+        /// <summary>
+        /// 暂停正在播放的音频或音效
+        /// </summary>
+        /// <param name="name">名字</param>
+        public static void PauseAudioOrVoices(string name)
+        {
+            AudioManager.PauseAudioOrVoices(name);
+        }
+
+        /// <summary>
+        /// 删除音频
+        /// </summary>
+        /// <param name="name">音频名</param>
+        public static void RemoveSource(string name)
         {
             AudioManager.RemoveSource(name);
+        }
+
+        /// <summary>
+        /// 获取音频
+        /// </summary>
+        /// <param name="name">音频名</param>
+        /// <returns></returns>
+        public static AudioSource GetSource(string name)
+        {
+            return AudioManager.GetSource(name);
         }
         #endregion
 

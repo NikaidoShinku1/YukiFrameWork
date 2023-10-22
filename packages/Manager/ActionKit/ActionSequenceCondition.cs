@@ -44,6 +44,8 @@ namespace YukiFrameWork.Events
 
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
+        public bool IsCompleted { get; private set; }
+
         private float currentTime = 0;
         private Func<bool> predicate;
         private bool isFinish = false;
@@ -56,6 +58,9 @@ namespace YukiFrameWork.Events
 
         public void InitSequenceCondition()
         {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
             currentTime = 0;
             predicate = null;
             CancellationToken = new CancellationTokenSource();
@@ -98,6 +103,7 @@ namespace YukiFrameWork.Events
 
         private async UniTaskVoid OnStart(Action OnFinish)
         {
+            if (IsCompleted) return;
             while (sequenceQueue.Count > 0)
             {
                 var sequence = sequenceQueue.Dequeue();
@@ -116,6 +122,7 @@ namespace YukiFrameWork.Events
             }
             isFinish = true;
             await ToUniTask();
+            IsCompleted = true;
             OnFinish?.Invoke();
             Clear();
         }
@@ -140,9 +147,10 @@ namespace YukiFrameWork.Events
             return ActionSequenceExcute;
         }
 
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = ToAddTo(mono, cancelCallBack);
+            return this;
         }
 
         private async UniTaskVoid ToAddTo<T>(T mono, Action cancelCallBack = null) where T : Component

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
 using System.IO;
@@ -10,11 +10,13 @@ namespace YukiFrameWork.UI
 {
     public class UIManager
     {
-        private static readonly Dictionary<UIPanelType, BasePanel> panelsDict = new Dictionary<UIPanelType, BasePanel>();        
+        private static readonly Dictionary<Type, BasePanel> panelsDict = new Dictionary<Type, BasePanel>();        
         
-        private Transform mCanvasTransform => UnityEngine.Object.FindObjectOfType<Canvas>().transform;       
+        private Transform mCanvasTransform => UnityEngine.Object.FindObjectOfType<Canvas>().transform;
 
-        public Dictionary<UIPanelType,BasePanel> PanelsDict => panelsDict;    
+        private static readonly List<BasePanel> activePanels = new List<BasePanel>();
+
+        public Dictionary<Type,BasePanel> PanelsDict => panelsDict;    
         
         public string PanelPath { get; private set; }
 
@@ -34,7 +36,7 @@ namespace YukiFrameWork.UI
             }
             catch 
             {
-                Debug.LogWarning("Î´Ê¹ÓÃUIToolKit½øĞĞÂ·¾¶³õÊ¼»¯£¬½«±£³ÖÂ·¾¶Ä¬ÈÏ²¢¼ìË÷ËùÓĞResources");
+                Debug.LogWarning("æœªä½¿ç”¨UIToolKitè¿›è¡Œè·¯å¾„åˆå§‹åŒ–ï¼Œå°†ä¿æŒè·¯å¾„é»˜è®¤å¹¶æ£€ç´¢æ‰€æœ‰Resources");
                 PanelPath = string.Empty;
             }
 
@@ -46,66 +48,77 @@ namespace YukiFrameWork.UI
             switch (panelLoadType)
             {
                 case Attribution.Resources:
-                    ResKit.LoadAllAsync<BasePanel>(Attribution.Resources, PanelPath).Forget();
+                    ResKit.LoadAllAsync<BasePanel>(Attribution.Resources, PanelPath, panels => 
+                    {
+                        foreach (var panel in panels)
+                        {
+                            CreateParentPanels(panel.GetType(), panel);
+                        }
+                    }).Forget();
                     break;
                 case Attribution.AssetBundle:
-                    ResKit.LoadAllAsync<BasePanel>(Attribution.AssetBundle, AssetBundleName).Forget();
+                    ResKit.LoadAllAsync<BasePanel>(Attribution.AssetBundle, AssetBundleName,panels => 
+                    {
+                        foreach (var panel in panels)
+                        {                            
+                            CreateParentPanels(panel.GetType(),panel);
+                        }
+                    }).Forget();
                     break;              
             }           
-        }
+        }        
 
-        public void AddPanels(UIPanelType type, BasePanel panel)
+        public void CreateParentPanels(Type type, BasePanel panel)
         {
+            if(!panelsDict.ContainsKey(type))
             panelsDict.Add(type, panel);
         }
 
-        public BasePanel GetPanel(UIPanelType type)
+        public BasePanel GetPanel(Type type)
         {
+            Debug.Log(type);
             BasePanel panel = CheckOrCreatePanel(type);
             return panel;
            
         }
 
-        /// <summary>
-        /// ¼ì²é²¢Éú³ÉÃæ°å
-        /// </summary>
-        /// <param name="type">Ãæ°åÀàĞÍ</param>
-        /// <returns>·µ»ØÒ»¸öÃæ°å</returns>
-        private BasePanel CheckOrCreatePanel(UIPanelType type)
+        public void RemovePanel(BasePanel panel)
         {
-            BasePanel panel = null;
-            if (!PanelsDict.ContainsKey(type))
-            {
-                List<BasePanel> panels = null;
-                switch (panelLoadType)
-                {
-                    case Attribution.Resources:
-                        panels = ResKit.LoadAllSync<BasePanel>(Attribution.Resources, PanelPath);
-                        break;
-                    case Attribution.AssetBundle:
-                        panels = ResKit.LoadAllSync<BasePanel>(Attribution.AssetBundle, AssetBundleName);
-                        break;                 
-                }
-                foreach (var item in panels)
-                {
-                    Enum.TryParse(item.name, out UIPanelType tempType);
-                    if (tempType == type)
-                    {
-                        panel = GameObject.Instantiate(item, mCanvasTransform, false);
-                        panel.name = item.name;
-                        PanelsDict.Add(type, panel);
-                        return panel;
-                    }
-                }
+            activePanels.Remove(panel);
+        }
 
+        /// <summary>
+        /// æ£€æŸ¥å¹¶ç”Ÿæˆé¢æ¿
+        /// </summary>
+        /// <param name="type">é¢æ¿ç±»å‹</param>
+        /// <returns>è¿”å›ä¸€ä¸ªé¢æ¿</returns>
+        private BasePanel CheckOrCreatePanel(Type type)
+        {           
+            BasePanel panel = null;
+            if (activePanels.Count > 0)
+            {            
+                BasePanel newPanel = activePanels.Find(x => x.GetType() == type);
+                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
             }
-            else panel = PanelsDict[type];
+            else if (!panelsDict.TryGetValue(type, out var newPanel))
+            {              
+                newPanel = ResKit.LoadSync<BasePanel>(Attribution.Resources, panel.name);
+
+                CreateParentPanels(type, newPanel);
+                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
+            }
+            else
+            {
+                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
+            }
+           
             return panel;
         }
 
         public void Clear()
         {
             panelsDict.Clear();
+            activePanels.Clear();
         }
 
     }

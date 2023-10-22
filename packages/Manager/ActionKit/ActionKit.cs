@@ -131,6 +131,34 @@ namespace YukiFrameWork.Events
             return repaint;          
         }
 
+        /// <summary>
+        /// 循环时间(事件)检测
+        /// </summary>
+        /// <param name="condition">循环判断，当为False时终止循环</param>
+        /// <returns>返回本体</returns>
+        public static IActionRepaint Repaint(Func<bool> condition)
+        {
+            var repaint = CheckRepaint();
+            if (repaint == null) repaint = new ActionRepaint(condition);
+            else repaint.InitRepaint(condition);
+            repaint.EnquenceRepaint += Enquence;
+            return repaint;
+        }
+
+        /// <summary>
+        /// 循环时间(事件)检测
+        /// </summary>
+        /// <param name="condition">循环判断，当为True时终止循环</param>
+        /// <returns>返回本体</returns>
+        public static IActionRepaint Repaint(int repaintCount, Func<bool> condition)
+        {
+            var repaint = CheckRepaint();
+            if (repaint == null) repaint = new ActionRepaint(repaintCount,condition);
+            else repaint.InitRepaint(repaintCount, condition);
+            repaint.EnquenceRepaint += Enquence;
+            return repaint;
+        }
+
         private static IActionDelay CheckDelays()
         {
             if (actionDelays.Count > 0)

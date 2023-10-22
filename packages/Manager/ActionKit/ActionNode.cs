@@ -28,11 +28,14 @@ namespace YukiFrameWork.Events
         /// <typeparam name="T">类型</typeparam>
         /// <param name="component">本体</param>
         /// <param name="cancelCallBack">回调</param>
-        void AddTo<T>(T component, Action cancelCallBack = null) where T : Component;     
+        IActionNode AddTo<T>(T component, Action cancelCallBack = null) where T : Component;
+
+        bool IsCompleted { get; }
+
         /// <summary>
         /// 清除
         /// </summary>
-        void Clear();
+        void Clear();       
 
         /// <summary>
         /// 可等待，转换为UniTask
@@ -97,6 +100,9 @@ namespace YukiFrameWork.Events
     public class ActionDelay : IActionDelay
     {
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+
+        public bool IsCompleted { get; private set; }
+
         private Action CallBack;
         private float currentTime;
         private bool isFirstTrigger;     
@@ -108,9 +114,10 @@ namespace YukiFrameWork.Events
             InitDelay(currentTime, CallBack);
         }
 
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = _AddTo(mono, cancelCallBack);
+            return this;
         }
 
         private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
@@ -127,11 +134,13 @@ namespace YukiFrameWork.Events
             CallBack?.Invoke();
             if (!isFirstTrigger) isFirstTrigger = true;
             await ToUniTask();
+            IsCompleted = true;
             Clear();           
         }    
 
         public void InitDelay(float time, Action callBack = null)
-        {           
+        {
+            IsCompleted = false;
             CancellationToken = new CancellationTokenSource();
             this.currentTime = time;
             this.CallBack = callBack;           
@@ -160,6 +169,9 @@ namespace YukiFrameWork.Events
     public class ActionExcuteFrame : IActionExcuteFrame
     {    
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+
+        public bool IsCompleted { get; private set; }
+
         private bool isFirstTrigger = false;       
         private float maxTime;
         private Action<float> TimeTemp;
@@ -183,9 +195,10 @@ namespace YukiFrameWork.Events
         {
 
         }
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = _AddTo(mono, cancelCallBack);
+            return this;
         }
 
         private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
@@ -211,17 +224,22 @@ namespace YukiFrameWork.Events
 
         public void InitExcuteTimer(float maxTime, Action<float> TimeTemp, bool isConstraint = false, Action OnFinish = null)
         {
+            if(IsCompleted)
+               IsCompleted = false;
+            else CancellationToken.Cancel();          
             CancellationToken = new CancellationTokenSource();
             this.maxTime = maxTime;
             this.TimeTemp = TimeTemp;
             this.isConstraint = isConstraint;
-            this.OnFinish = OnFinish;
-           
+            this.OnFinish = OnFinish;           
             _ = ExcuteTimer();
         }
 
         public void InitExcutePredicate(Func<bool> predicate, Action OnFinish = null)
         {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
             CancellationToken = new CancellationTokenSource();
             this.predicate = predicate;
             this.OnFinish = OnFinish;
@@ -231,9 +249,10 @@ namespace YukiFrameWork.Events
 
         private async UniTask ExcuteTimer()
         {
+            if (IsCompleted) return;         
             float time = 0;
             while (time < maxTime && !CancellationToken.IsCancellationRequested)
-            {
+            {                             
                 await UniTask.Yield(PlayerLoopTiming.LastUpdate);
                 time += Time.deltaTime;
                 if (isConstraint) TimeTemp?.Invoke(time / maxTime);
@@ -242,15 +261,18 @@ namespace YukiFrameWork.Events
             if (!isFirstTrigger) isFirstTrigger = true;
             OnFinish?.Invoke();
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
         private async UniTask ExcutePredicate()
         {
+            if (IsCompleted) return;
             await UniTask.WaitUntil(predicate,cancellationToken:CancellationToken.Token);          
             if (!isFirstTrigger) isFirstTrigger = true;
             OnFinish?.Invoke();
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
@@ -271,6 +293,9 @@ namespace YukiFrameWork.Events
         private MonoUpdateType updateType;
         private bool isFirstTrigger;
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+
+        public bool IsCompleted { get; private set; }
+
         public event Action<IActionDelayFrame> ActionNextEnquene;
         public ActionDelayFrame(Action callBack, MonoUpdateType updateType,int delayFrameCount)
         {
@@ -279,19 +304,23 @@ namespace YukiFrameWork.Events
 
         public void InitDelayFrame(Action callBack, MonoUpdateType updateType, int delayFrameCount)
         {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();         
             CancellationToken = new CancellationTokenSource();
             this.updateType = updateType;
             DelayFrame(callBack,delayFrameCount);
         }
 
         public IActionDelayFrame DelayFrame(Action callBack,int delayFrameCount)
-        {
+        {           
             _ = _DelayFrame(callBack,delayFrameCount);
             return this;
         }
 
         private async UniTask _DelayFrame(Action callBack, int delayFrameCount)
         {
+            if (IsCompleted) return;
             switch (updateType)
             {
                 case MonoUpdateType.Update:
@@ -307,6 +336,7 @@ namespace YukiFrameWork.Events
             isFirstTrigger = true;
             callBack?.Invoke();
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
@@ -322,9 +352,10 @@ namespace YukiFrameWork.Events
             return this;
         }
 
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = _AddTo(mono, cancelCallBack);
+            return this;
         }
 
         private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
@@ -345,6 +376,9 @@ namespace YukiFrameWork.Events
         private MonoUpdateType updateType;
         private bool isFirstTrigger;
         public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+
+        public bool IsCompleted { get; private set; }
+
         public event Action<IActionNextFrame> ActionNextEnquene;
         public ActionNextFrame(Action callBack,MonoUpdateType updateType)
         {
@@ -353,6 +387,9 @@ namespace YukiFrameWork.Events
 
         public void InitNextFrame(Action callBack,MonoUpdateType updateType)
         {
+            if (IsCompleted)
+                IsCompleted = false;
+            else CancellationToken.Cancel();
             CancellationToken = new CancellationTokenSource();
             this.updateType = updateType;
             NextFrame(callBack);
@@ -381,6 +418,7 @@ namespace YukiFrameWork.Events
             isFirstTrigger = true;
             callBack?.Invoke();
             await ToUniTask();
+            IsCompleted = true;
             Clear();
         }
 
@@ -396,9 +434,10 @@ namespace YukiFrameWork.Events
             return this;
         }
 
-        public void AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
         {
             _ = _AddTo(mono, cancelCallBack);
+            return this;
         }
 
         private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component

@@ -1,9 +1,9 @@
-///=====================================================
+ï»¿///=====================================================
 /// - FileName:      AudioManager.cs
 /// - NameSpace:     YukiFrameWork.Manager
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
-/// - Description:   AudioManager£ºÒôÀÖ¹ÜÀí
+/// - Description:   AudioManagerï¼šéŸ³ä¹ç®¡ç†
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
@@ -21,11 +21,11 @@ namespace YukiFrameWork.Manager
 {
     public enum LoadMode
     {
-        Í¬²½,
-        Òì²½
+        åŒæ­¥,
+        å¼‚æ­¥
     }
     /// <summary>
-    /// ÉùÒô¹ÜÀíÆ÷
+    /// å£°éŸ³ç®¡ç†å™¨
     /// </summary>
     public class AudioManager : MonoBehaviour
     {
@@ -34,21 +34,21 @@ namespace YukiFrameWork.Manager
         private Queue<AudioSource> currentVoices = new Queue<AudioSource>();
         private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        [Header("ÊÇ·ñ¶¯Ì¬¼ÓÔØÒôÆµ")]
+        [Header("æ˜¯å¦åŠ¨æ€åŠ è½½éŸ³é¢‘")]
         [SerializeField]
         private bool IsLoad;
 
         [SerializeField]
-        [Header("¼ÓÔØÀàĞÍ")]
+        [Header("åŠ è½½ç±»å‹")]
         private Attribution attributionType;
         [SerializeField]
-        [Header("¼ÓÔØ·½Ê½")]
+        [Header("åŠ è½½æ–¹å¼")]
         private LoadMode loadMode;
-        [Header("×ÊÔ´Â·¾¶")]
+        [Header("èµ„æºè·¯å¾„")]
         [SerializeField]
         private string ClipPath;
 
-        [Header("¶¯Ì¬¼ÓÔØ×ÊÔ´Ëù°ó¶¨µÄ·Ö×é")]
+        [Header("åŠ¨æ€åŠ è½½èµ„æºæ‰€ç»‘å®šçš„åˆ†ç»„")]
         [SerializeField]
         private AudioMixerGroup AudioMixerGroup;
         private void Awake()
@@ -69,7 +69,7 @@ namespace YukiFrameWork.Manager
                 }
                 catch
                 {
-                    Debug.LogWarning($"¿ÉÊÓ»¯ÒôÆµ¼ô¼­Î´Ìí¼Ó!Checked {Audio.GetType()}");
+                    Debug.LogWarning($"å¯è§†åŒ–éŸ³é¢‘å‰ªè¾‘æœªæ·»åŠ !Checked {Audio.GetType()}");
                     break;
                 }
 
@@ -78,11 +78,11 @@ namespace YukiFrameWork.Manager
             {
                 switch (loadMode)
                 {
-                    case LoadMode.Í¬²½:
+                    case LoadMode.åŒæ­¥:
                         var audioClips = ResKit.LoadAllSync<AudioClip>(attributionType, ClipPath);
                         InitClip(audioClips);
                         break;
-                    case LoadMode.Òì²½:
+                    case LoadMode.å¼‚æ­¥:
                         _ = ResKit.LoadAllAsync<AudioClip>(attributionType, ClipPath, clips =>
                         {
                             InitClip(clips);
@@ -106,10 +106,10 @@ namespace YukiFrameWork.Manager
         }
 
         /// <summary>
-        /// Ìí¼Ó±£´æËùÓĞµÄÒôÀÖ
+        /// æ·»åŠ ä¿å­˜æ‰€æœ‰çš„éŸ³ä¹
         /// </summary>
-        /// <param name="Audio">ÒôÆµ</param>
-        /// <param name="source">ÒôÆµ¹ÜÀí</param>
+        /// <param name="Audio">éŸ³é¢‘</param>
+        /// <param name="source">éŸ³é¢‘ç®¡ç†</param>
         private void SetSource(Audio Audio, AudioSource source)
         {
             source.transform.SetParent(transform);
@@ -124,21 +124,21 @@ namespace YukiFrameWork.Manager
         }
 
         /// <summary>
-        /// Ìí¼ÓÒôÆµ
+        /// æ·»åŠ éŸ³é¢‘
         /// </summary>
-        /// <param name="name">ÒôÆµÃû×Ö</param>
-        /// <param name="source">ÒôÆµ¹ÜÀí</param>
+        /// <param name="name">éŸ³é¢‘åå­—</param>
+        /// <param name="source">éŸ³é¢‘ç®¡ç†</param>
         public void AddSource(string name, AudioSource source)
         {
             AudioData.AddSource(name, source);
         }
 
         /// <summary>
-        /// ²¥·ÅÈËÉù(ÒôĞ§µÈ)
+        /// æ’­æ”¾äººå£°(éŸ³æ•ˆç­‰)
         /// </summary>
-        /// <param name="name">ÒôÆµÃû</param>
-        /// <param name="isWait">ÊÇ·ñµÈ´ıµ±Ç°ÒôÆµ²¥·ÅÍê±Ï</param>
-        public void PlayerVoices(string name, bool isWait = false)
+        /// <param name="name">éŸ³é¢‘å</param>
+        /// <param name="isWait">æ˜¯å¦ç­‰å¾…å½“å‰éŸ³é¢‘æ’­æ”¾å®Œæ¯•</param>
+        public void PlayVoices(string name, bool isWait = false)
         {
             _ = _PlayerVoices(name, isWait);
         }
@@ -147,27 +147,18 @@ namespace YukiFrameWork.Manager
         {
             if (!AudioData.Exist(name))
             {
-                Debug.LogError($"µ±Ç°Ãû×ÖÃ»ÓĞ¶ÔÓ¦ÒôÆµÎŞ·¨²¥·Å£¡ÒôÆµÃûÎª{name}");
+                Debug.LogError($"å½“å‰åå­—æ²¡æœ‰å¯¹åº”éŸ³é¢‘æ— æ³•æ’­æ”¾ï¼éŸ³é¢‘åä¸º{name}");
                 return;
-            }
-
-            if (isWait)
-            {
-                if(currentVoices.Count > 0)
-                {
-                    foreach (var voices in currentVoices)
-                    {
-                        await UniTask.WaitUntil(() =>
-                        {
-                            if(voices != null)
-                                return !voices.isPlaying;
-                            return true;
-                        });
-                    }
-                }
-            }
+            }           
 
             var source = AudioData.GetAudioSource(name);
+            if (isWait)
+            {
+                await UniTask.WaitUntil(() => 
+                {
+                    return !currentVoices.Peek().isPlaying;
+                },cancellationToken:tokenSource.Token);
+            }
             currentVoices.Enqueue(source);
             source.Play();
             var tempVolume = 1f;
@@ -180,6 +171,8 @@ namespace YukiFrameWork.Manager
                         return !source.isPlaying;
                     return true;
                 });
+
+            if(currentVoices.Count >= 5)
             currentVoices.Dequeue();
 
             if(currentSource != null)
@@ -187,10 +180,10 @@ namespace YukiFrameWork.Manager
         }
 
         /// <summary>
-        /// ²¥·ÅÒôÆµ
+        /// æ’­æ”¾éŸ³é¢‘
         /// </summary>
-        /// <param name="name">ÒôÆµÃû×Ö</param>
-        /// <param name="isWait">Èç¹ûÕıÔÚ²¥·ÅÕâ¸öÒôÀÖ£¬ÄÇÃ´¼ì²éÊÇ·ñµÈ´ıÒôÀÖ²¥·ÅÍê</param>
+        /// <param name="name">éŸ³é¢‘åå­—</param>
+        /// <param name="isWait">å¦‚æœæ­£åœ¨æ’­æ”¾è¿™ä¸ªéŸ³ä¹ï¼Œé‚£ä¹ˆæ£€æŸ¥æ˜¯å¦ç­‰å¾…éŸ³ä¹æ’­æ”¾å®Œ</param>
         public void PlayAudio(string name, bool isWait = false)
         {
             _ = _PlayerAudio(name, isWait);
@@ -200,47 +193,55 @@ namespace YukiFrameWork.Manager
         {
             if (!AudioData.Exist(name))
             {
-                Debug.LogError($"µ±Ç°Ãû×ÖÃ»ÓĞ¶ÔÓ¦ÒôÆµÎŞ·¨²¥·Å£¡ÒôÆµÃûÎª{name}");
+                Debug.LogError($"å½“å‰åå­—æ²¡æœ‰å¯¹åº”éŸ³é¢‘æ— æ³•æ’­æ”¾ï¼éŸ³é¢‘åä¸º{name}");
                 return;
-            }
+            }          
             var source = AudioData.GetAudioSource(name);
-            if (currentSource != null)
+            if (currentSource != null && currentSource.name != name)
             {
                 if (isWait)
                 {
-                    await UniTask.WaitUntil(() => 
-                    { 
-                        if (currentSource != null) 
+                    await UniTask.WaitUntil(() =>
+                    {
+                        if (currentSource != null)
                             return !currentSource.isPlaying;
-                        return true; 
-                    }, cancellationToken: tokenSource.Token);                 
+                        return true;
+                    }, cancellationToken: tokenSource.Token);
                 }
                 currentSource.Stop();
                 currentSource = source;
-            }                      
-            else
-            {                
-                currentSource = source;               
+                currentSource.Play();
+
             }
-            currentSource.Play();
+            else if (currentSource != null)
+            {
+                Debug.Log(currentSource.name);                 
+                currentSource.UnPause();
+            }
+            else
+            {
+                currentSource = source;
+                currentSource.Play();
+            }            
         }
 
         /// <summary>
-        /// Í£Ö¹ÒôÆµ
+        /// åœæ­¢éŸ³é¢‘
         /// </summary>
-        /// <param name="name">ÒôÆµÃû×Ö</param>
-        public void StopAudio(string name)
+        /// <param name="name">éŸ³é¢‘åå­—</param>
+        public void StopAudioOrVoices(string name)
         {
             if (!AudioData.Exist(name))
             {
-                Debug.LogError($"µ±Ç°Ãû×ÖÃ»ÓĞ¶ÔÓ¦ÒôÆµÎŞ·¨Í£Ö¹£¡ÒôÆµÃûÎª{name}");
+                Debug.LogError($"å½“å‰åå­—æ²¡æœ‰å¯¹åº”éŸ³é¢‘æ— æ³•åœæ­¢ï¼éŸ³é¢‘åä¸º{name}");
                 return;
             }
 
             var source = AudioData.GetAudioSource(name);
+           
             if (!source.isPlaying)
             {
-                Debug.LogError($"µ±Ç°ÒôÆµÃ»ÓĞ±»²¥·Å£¡ÒôÆµÃûÎª{name}");
+                Debug.LogError($"å½“å‰éŸ³é¢‘æ²¡æœ‰è¢«æ’­æ”¾ï¼éŸ³é¢‘åä¸º{name}");
                 return;
             }
 
@@ -248,13 +249,49 @@ namespace YukiFrameWork.Manager
 
         }
 
+        public void PauseAudioOrVoices(string name)
+        {
+            if (!AudioData.Exist(name))
+            {
+                Debug.LogError($"å½“å‰åå­—æ²¡æœ‰å¯¹åº”éŸ³é¢‘æ— æ³•æš‚åœï¼éŸ³é¢‘åä¸º{name}");
+                return;
+            }
+
+            var source = AudioData.GetAudioSource(name);
+
+            if (!source.isPlaying)
+            {
+                Debug.LogError($"å½“å‰éŸ³é¢‘æ²¡æœ‰è¢«æ’­æ”¾ï¼éŸ³é¢‘åä¸º{name}");
+                return;
+            }
+
+            source.Pause();
+        }
+
         /// <summary>
-        /// É¾³ıÒôÆµ
+        /// åœæ­¢æ‰€æœ‰æ­£åœ¨æ’­æ”¾çš„éŸ³é¢‘
+        /// </summary>
+        public void StopAllSource()
+        {
+            if (currentSource != null) currentSource.Stop();
+            while(currentVoices.Count > 0)
+            {
+                currentVoices.Dequeue().Stop();
+            }
+        }
+
+        /// <summary>
+        /// åˆ é™¤éŸ³é¢‘
         /// </summary>
         /// <param name="name"></param>
         public void RemoveSource(string name)
         {
             AudioData.RemoveSource(name);
+        }
+
+        public AudioSource GetSource(string name)
+        {
+            return AudioData.GetAudioSource(name);
         }
 
         private void OnDestroy()

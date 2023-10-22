@@ -1,28 +1,24 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using YukiFrameWork.MVC;
 namespace YukiFrameWork.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
-    public class BasePanel : MonoBehaviour
+    public class BasePanel : MonoBehaviour, IView
     {
         protected CanvasGroup canvasGroup;
-        public PanelManager PanelManager { get; private set; }
-        public UIManager UIManager { get; private set; }
-        public UITools UITools { get; private set; }
-        public UIPanelType PanelType { get; private set; }
-        public Stack<Action> Actions { get; private set; }     
-        
-        public bool IsInit { get;private set; } = false;
-        public virtual void Init(PanelManager PanelManager,UIManager manager,UITools UITools,UIPanelType type)
+        private IArchitecture architecture;
+        protected UITools UITools;
+        protected virtual void Awake()
         {
-            if (IsInit) return;
-            this.PanelManager = PanelManager;
-            this.UIManager = manager;
-            this.UITools = UITools;
-            Actions = new Stack<Action>();
-            this.PanelType = type;
-            IsInit = true;
+            UITools = new UITools(this);
+            canvasGroup = GetComponent<CanvasGroup>();
+        }
+
+        public virtual void Init()
+        {
+            
         }
 
         #region UI面板生命周期
@@ -34,9 +30,7 @@ namespace YukiFrameWork.UI
             if(canvasGroup == null)
             canvasGroup = GetComponent<CanvasGroup>();
             canvasGroup.alpha = 1;
-            canvasGroup.blocksRaycasts = true;
-            Actions.Push(action);
-            
+            canvasGroup.blocksRaycasts = true;                      
         }
 
         /// <summary>
@@ -63,11 +57,27 @@ namespace YukiFrameWork.UI
             if (canvasGroup == null)
                 canvasGroup = GetComponent<CanvasGroup>();
             canvasGroup.alpha = 0;
-            canvasGroup.blocksRaycasts = false;
-            if(isBack) Actions.Pop()?.Invoke();
+            canvasGroup.blocksRaycasts = false;        
         }
         #endregion
 
-       
+        #region 面板结合MVC架构
+        public virtual void Unified_UpdateView(IModel model)
+        {
+
+        }
+
+        public void SetArchitecture(IArchitecture architecture)
+        {
+            this.architecture = architecture;
+        }
+
+        public IArchitecture GetArchitecture()
+        {
+            return architecture;
+        }
+        #endregion
+      
+
     }
 }
