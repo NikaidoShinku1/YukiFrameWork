@@ -29,7 +29,7 @@ namespace YukiFrameWork.Events
         private readonly static Queue<IActionNextFrame> actionNextFrames = new Queue<IActionNextFrame>();
         private readonly static Queue<IActionExcuteFrame> actionExcuteFrames = new Queue<IActionExcuteFrame>();
         private readonly static Queue<IActionUpdateCondition> updateConditions = new Queue<IActionUpdateCondition>();
-        private readonly static Queue<IActionRepaint> actionRepaints = new Queue<IActionRepaint>();
+        private readonly static Queue<IActionRepeat> ActionRepeats = new Queue<IActionRepeat>();
         #endregion
 
         #region 动作异步时序管理
@@ -122,10 +122,10 @@ namespace YukiFrameWork.Events
         /// </summary>
         /// <param name="reapaintCount">循环次数，默认无限循环(值为-1)</param>
         /// <returns>返回本体</returns>
-        public static IActionRepaint Repaint(int reapaintCount = -1)
+        public static IActionRepeat Repeat(int reapaintCount = -1)
         {
             var repaint = CheckRepaint();
-            if (repaint == null) repaint = new ActionRepaint(reapaintCount);
+            if (repaint == null) repaint = new ActionRepeat(reapaintCount);
             else repaint.InitRepaint(reapaintCount);
             repaint.EnquenceRepaint += Enquence;
             return repaint;          
@@ -136,10 +136,10 @@ namespace YukiFrameWork.Events
         /// </summary>
         /// <param name="condition">循环判断，当为False时终止循环</param>
         /// <returns>返回本体</returns>
-        public static IActionRepaint Repaint(Func<bool> condition)
+        public static IActionRepeat Repeat(Func<bool> condition)
         {
             var repaint = CheckRepaint();
-            if (repaint == null) repaint = new ActionRepaint(condition);
+            if (repaint == null) repaint = new ActionRepeat(condition);
             else repaint.InitRepaint(condition);
             repaint.EnquenceRepaint += Enquence;
             return repaint;
@@ -150,10 +150,10 @@ namespace YukiFrameWork.Events
         /// </summary>
         /// <param name="condition">循环判断，当为True时终止循环</param>
         /// <returns>返回本体</returns>
-        public static IActionRepaint Repaint(int repaintCount, Func<bool> condition)
+        public static IActionRepeat Repeat(int repaintCount, Func<bool> condition)
         {
             var repaint = CheckRepaint();
-            if (repaint == null) repaint = new ActionRepaint(repaintCount,condition);
+            if (repaint == null) repaint = new ActionRepeat(repaintCount,condition);
             else repaint.InitRepaint(repaintCount, condition);
             repaint.EnquenceRepaint += Enquence;
             return repaint;
@@ -192,9 +192,9 @@ namespace YukiFrameWork.Events
             return null;
         }
 
-        private static IActionRepaint CheckRepaint()
+        private static IActionRepeat CheckRepaint()
         {
-            if(actionRepaints.Count > 0) return actionRepaints.Dequeue();
+            if(ActionRepeats.Count > 0) return ActionRepeats.Dequeue();
             return null;
         }
 
@@ -223,9 +223,9 @@ namespace YukiFrameWork.Events
             actionDelayFrames.Enqueue(actionDelayFrame);
         }
 
-        private static void Enquence(IActionRepaint repaint)
+        private static void Enquence(IActionRepeat repaint)
         {
-            actionRepaints.Enqueue(repaint);
+            ActionRepeats.Enqueue(repaint);
         }
         #endregion
 

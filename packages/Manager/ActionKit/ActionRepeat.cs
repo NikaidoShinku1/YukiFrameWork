@@ -1,5 +1,5 @@
 ///=====================================================
-/// - FileName:      ActionRepaint.cs
+/// - FileName:      ActionRepeat.cs
 /// - NameSpace:     YukiFrameWork.Events
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
@@ -17,11 +17,11 @@ using System.Collections;
 
 namespace YukiFrameWork.Events
 {
-    public interface IActionRepaint : IActionNode
+    public interface IActionRepeat : IActionNode
     {
         public int RepaintCount { get; }
         public bool IsFinish { get; }
-        event Action<IActionRepaint> EnquenceRepaint;
+        event Action<IActionRepeat> EnquenceRepaint;
         void InitRepaint(int repaintCount);
         void InitRepaint(Func<bool> condition);
         void InitRepaint(int count, Func<bool> condition);
@@ -29,7 +29,7 @@ namespace YukiFrameWork.Events
         IActionNode StartTimer(float maxTime, Action<float> callBack, bool isConstraint = false, Action OnFinish = null);
         IActionNode ExcuteFrame(Func<bool> predicate, Action OnFinish = null);
     }
-    public class ActionRepaint : IActionRepaint
+    public class ActionRepeat : IActionRepeat
     {
         public int RepaintCount { get; private set; }
         public bool IsLoop { get; private set; } = false;
@@ -37,28 +37,29 @@ namespace YukiFrameWork.Events
         public bool IsFinish { get; private set; } = false;
 
         private Func<bool> Condition;
-        public ActionRepaint(int count)
+        public ActionRepeat(int count)
         {
             InitRepaint(count);
         }
 
-        public ActionRepaint(Func<bool> condition)
+        public ActionRepeat(Func<bool> condition)
         {
             InitRepaint(condition);
         }
 
-        public ActionRepaint(int count, Func<bool> condition)
+        public ActionRepeat(int count, Func<bool> condition)
         {
             InitRepaint(count, condition);
         }
 
-        public event Action<IActionRepaint> EnquenceRepaint;
+        public event Action<IActionRepeat> EnquenceRepaint;
 
         public void InitRepaint(int count)
         {
             if (IsCompleted)
                 IsCompleted = false;
             else CancellationToken.Cancel();
+            CancellationToken = new CancellationTokenSource();
             RepaintCount = count;
             if (RepaintCount == -1) IsLoop = true;
         }
@@ -68,6 +69,7 @@ namespace YukiFrameWork.Events
             if (IsCompleted)
                 IsCompleted = false;
             else CancellationToken.Cancel();
+            CancellationToken = new CancellationTokenSource();
             this.Condition = condition;
             IsLoop = true;
         }
@@ -77,12 +79,13 @@ namespace YukiFrameWork.Events
             if (IsCompleted)
                 IsCompleted = false;
             else CancellationToken.Cancel();
+            CancellationToken = new CancellationTokenSource();
             RepaintCount = count;
             if (RepaintCount == -1) IsLoop = true;
             this.Condition = condition;
         }
 
-        public CancellationTokenSource CancellationToken { get; } = new CancellationTokenSource();
+        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
 
         public bool IsCompleted { get; private set; }
 
@@ -107,9 +110,12 @@ namespace YukiFrameWork.Events
 
         private async UniTask OnDelay(float time, Action callBack)
         {
+            Debug.Log(IsCompleted);
+            Debug.Log(RepaintCount);
+            Debug.Log(!CancellationToken.IsCancellationRequested);
             if (IsCompleted) return;
             while (IsLoop ? IsLoop : RepaintCount > 0 && !CancellationToken.IsCancellationRequested)
-            {
+            {               
                 if (Condition?.Invoke() == false)
                 {
                     IsFinish = true;
