@@ -1,0 +1,1207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace>
+    </RootNamespace>
+    <ProjectGuid>{E9BFC580-B3DD-8564-4F46-5DF62CFB245E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>.</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\Bin\Debug\</OutputPath>
+    <DefineConstants>UNITY_2020_3_42;UNITY_2020_3;UNITY_2020;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;USE_SEARCH_ENGINE_API;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_MONO_BDWGC;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;PLATFORM_STANDALONE;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;UNITY_UGP_API;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_STANDARD_2_0;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_IG;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_CLOUD_FEATURES;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoConfig>true</NoConfig>
+    <NoStdLib>true</NoStdLib>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
+    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <UnityProjectGenerator>Package</UnityProjectGenerator>
+    <UnityProjectGeneratorVersion>2.0.16</UnityProjectGeneratorVersion>
+    <UnityProjectType>Game:1</UnityProjectType>
+    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
+    <UnityVersion>2020.3.42f1c1</UnityVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="YukiFrameWork\Editor\BuildingAssetBundle.cs" />
+    <Compile Include="YukiFrameWork\Editor\UIKit.cs" />
+    <Compile Include="YukiFrameWork\Framework\Events\EventCenter.cs" />
+    <Compile Include="YukiFrameWork\Framework\IOCContainer\ContainerBuilder.cs" />
+    <Compile Include="YukiFrameWork\Framework\IOCContainer\IOContainer.cs" />
+    <Compile Include="YukiFrameWork\Framework\IOCContainer\LifeTimeScope.cs" />
+    <Compile Include="YukiFrameWork\Framework\IOCContainer\ObjectResolver.cs" />
+    <Compile Include="YukiFrameWork\Framework\MVC\IController\IController.cs" />
+    <Compile Include="YukiFrameWork\Framework\MVC\IModel\IModel.cs" />
+    <Compile Include="YukiFrameWork\Framework\MVC\IRegister\IRegisterCenter.cs" />
+    <Compile Include="YukiFrameWork\Framework\MVC\IView\IView.cs" />
+    <Compile Include="YukiFrameWork\Framework\Singleton\Singleton.cs" />
+    <Compile Include="YukiFrameWork\Framework\Singleton\SingletonMono.cs" />
+    <Compile Include="YukiFrameWork\Framework\YukiFrameWork.cs" />
+    <Compile Include="YukiFrameWork\Manager\Command\CommandCenter.cs" />
+    <Compile Include="YukiFrameWork\Manager\Command\ICommand.cs" />
+    <Compile Include="YukiFrameWork\Manager\Pools\Pools\DictionaryPools.cs" />
+    <Compile Include="YukiFrameWork\Manager\Pools\Pools\ListPools.cs" />
+    <Compile Include="YukiFrameWork\Manager\Pools\Pools\PoolsKit.cs" />
+    <Compile Include="YukiFrameWork\Manager\Pools\Pools\SimpleObjectPools.cs" />
+    <Compile Include="YukiFrameWork\Manager\RangeIndicators\Editor\RangeIndicatorsEditor.cs" />
+    <Compile Include="YukiFrameWork\Manager\RangeIndicators\RangeIndicators.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionKit.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionNode.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionRepeat.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionSequenceCondition.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionUpdate.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\ActionKit\ActionUpdateCondition.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Audio\Audio.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Audio\AudioData.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Audio\AudioKit.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Audio\AudioManager.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Bezier\BezierManager.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\BindableProperty.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Reskit\AssetBundleManager.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Reskit\ResKit.cs" />
+    <Compile Include="YukiFrameWork\Manager\Tool\Reskit\ResourcesManager.cs" />
+    <Compile Include="YukiFrameWork\Plugins\Direction\DirectionEditor.cs" />
+    <Compile Include="YukiFrameWork\Plugins\Example\FrameworkEditor.cs" />
+    <Compile Include="YukiFrameWork\Plugins\Excel\Editor\ExcelTools.cs" />
+    <Compile Include="YukiFrameWork\Plugins\Excel\ExcelReslover.cs" />
+    <Compile Include="YukiFrameWork\Plugins\Excel\ExcelUtility.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample01_ObservableWWW.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample02_ObservableTriggers.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample03_GameObjectAsObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample04_ConvertFromUnityCallback.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample05_ConvertFromCoroutine.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample06_ConvertToCoroutine.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample07_OrchestratIEnumerator.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample08_DetectDoubleClick.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample09_EventHandling.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample10_MainThreadDispatcher.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample11_Logger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample12_ReactiveProperty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Examples\Sample13_ToDoApp.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Asynchronous\WebRequestExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\BooleanDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\CancellationDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\CompositeDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\DictionaryDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\Disposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\DisposableExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\ICancelable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\MultipleAssignmentDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\RefCountDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\ScheduledDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\SerialDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\SingleAssignmentDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Disposables\StableCompositeDisposable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\EventPattern.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\AscynLock.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\CancellableTaskCompletionSource.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\ExceptionExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\ImmutableList.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\ListObserver.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\MicroCoroutine.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\PriorityQueue.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\PromiseHelper.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\ScheduledItem.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\ThreadSafeQueueWorker.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\InternalUtil\UnityEqualityComparer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Notification.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Notifiers\BooleanNotifier.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Notifiers\CountNotifier.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Notifiers\MessageBroker.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Notifiers\ScheduledNotifier.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Aggregate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Awaiter.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Binding.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Blocking.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Concatenate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Concurrency.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Conversions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Creation.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.ErrorHandling.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Events.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.FromAsync.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Joins.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Paging.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observable.Time.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Observer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Aggregate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Amb.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\AsObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\AsSingleUnitObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\AsUnitObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Buffer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Cast.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Catch.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\CombineLatest.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Concat.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ContinueWith.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Create.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\DefaultIfEmpty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Defer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Delay.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\DelaySubscription.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Dematerialize.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Distinct.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\DistinctUntilChanged.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Do.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Empty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Finally.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\First.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ForEachAsync.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\FromEvent.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\GroupBy.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\IgnoreElements.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Last.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Materialize.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Merge.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Never.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ObserveOn.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\OfType.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\OperatorObservableBase.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\OperatorObserverBase.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\PairWise.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Range.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\RefCount.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Repeat.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\RepeatSafe.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Return.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Sample.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Scan.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Select.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SelectMany.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SelectWhere.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Single.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Skip.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SkipUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SkipWhile.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Start.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\StartWith.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SubscribeOn.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Switch.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Synchronize.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\SynchronizedObserver.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Take.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\TakeLast.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\TakeUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\TakeWhile.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Throttle.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ThrottleFirst.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Throw.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\TimeInterval.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Timeout.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Timer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Timestamp.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ToArray.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ToList.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ToObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Wait.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\WhenAll.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Where.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\WhereSelect.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\WithLatestFrom.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\Zip.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Operators\ZipLatest.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Pair.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Schedulers\CurrentThreadScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Schedulers\ImmediateScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Schedulers\IScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Schedulers\Scheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Schedulers\ThreadPoolScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\AsyncSubject.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\BehaviorSubject.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\ConnectableObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\ISubject.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\ReplaySubject.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\Subject.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Subjects\SubjectExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\IObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\IObserver.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\IOptimizedObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\IProgress.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\Tuple.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\System\Unit.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Tasks\TaskObservableExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\TimeInterval.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\Timestamped.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\AsyncOperationExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\CancellationToken.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\CoroutineAsyncBridge.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\LogEntry.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\LogEntryExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\Logger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\ObservableDebugExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\ObservableLogger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Diagnostics\UnityDebugSink.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\FrameInterval.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\InspectableReactiveProperty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\InspectorDisplayDrawer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\LifetimeDisposableExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\MainThreadDispatcher.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\MainThreadScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Observable.Unity.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ObservableWWW.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ObserveExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\BatchFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\DelayFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\DelayFrameSubscription.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\FrameInterval.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\FrameTimeInterval.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\FromCoroutine.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\RepeatUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\SampleFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\SubscribeOnMainThread.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\ThrottleFirstFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\ThrottleFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Operators\TimeoutFrame.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ReactiveCollection.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ReactiveCommand.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ReactiveDictionary.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ReactiveProperty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\ScenePlaybackDetector.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Toolkit\ObjectPool.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableAnimatorTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableBeginDragTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableCancelTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableCanvasGroupChangedTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableCollision2DTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableCollisionTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableDeselectTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableDestroyTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableDragTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableDropTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableEnableTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableEndDragTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableEventTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableFixedUpdateTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableInitializePotentialDragTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableJointTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableLateUpdateTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableMouseTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableMoveTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableParticleTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservablePointerClickTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservablePointerDownTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservablePointerEnterTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservablePointerExitTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservablePointerUpTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableRectTransformTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableScrollTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableSelectTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableStateMachineTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableSubmitTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTransformChangedTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTrigger2DTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTriggerBase.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTriggerExtensions.Component.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTriggerExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableTriggerTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableUpdateSelectedTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableUpdateTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\Triggers\ObservableVisibleTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\UnityEventExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\UnityGraphicExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\UnityUIComponentExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityEngineBridge\YieldInstructionCache.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityWinRTBridge\Thread.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniRx\Scripts\UnityWinRTBridge\ThreadPoolScheduler_UnityWinRT.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Editor\SplitterGUILayout.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Editor\UniTaskTrackerTreeView.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Editor\UniTaskTrackerWindow.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\AsyncLazy.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\AsyncReactiveProperty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\AsyncUnit.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CancellationTokenEqualityComparer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CancellationTokenExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CancellationTokenSourceExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Channel.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CompilerServices\AsyncMethodBuilderAttribute.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CompilerServices\AsyncUniTaskMethodBuilder.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CompilerServices\AsyncUniTaskVoidMethodBuilder.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\CompilerServices\StateMachineRunner.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\EnumerableAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\EnumeratorAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\ExceptionExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\External\Addressables\AddressablesAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\External\DOTween\DOTweenAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\External\TextMeshPro\TextMeshProAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\External\TextMeshPro\TextMeshProAsyncExtensions.InputField.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\ArrayPool.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\ArrayPoolUtil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\ArrayUtil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\ContinuationQueue.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\DiagnosticsExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\Error.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\MinimumQueue.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\PlayerLoopRunner.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\PooledDelegate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\RuntimeHelpersAbstraction.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\StatePool.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\TaskTracker.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\UnityEqualityComparer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\UnityWebRequestExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\ValueStopwatch.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Internal\WeakDictionary.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\IUniTaskAsyncEnumerable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\IUniTaskSource.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Aggregate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\All.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Any.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\AppendPrepend.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\AsUniTaskAsyncEnumerable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\AsyncEnumeratorBase.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Average.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Buffer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Cast.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\CombineLatest.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Concat.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Contains.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Count.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Create.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\DefaultIfEmpty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Distinct.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\DistinctUntilChanged.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Do.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ElementAt.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Empty.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Except.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\First.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ForEach.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\GroupBy.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\GroupJoin.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Intersect.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Join.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Last.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\LongCount.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Max.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Min.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\MinMax.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Never.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\OfType.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\OrderBy.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Pairwise.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Publish.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Queue.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Range.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Repeat.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Return.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Reverse.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Select.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SelectMany.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SequenceEqual.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Single.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Skip.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SkipLast.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SkipUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SkipUntilCanceled.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\SkipWhile.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Subscribe.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Sum.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Take.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\TakeLast.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\TakeUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\TakeUntilCanceled.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\TakeWhile.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Throw.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToArray.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToDictionary.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToHashSet.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToList.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToLookup.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToObservable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\ToUniTaskAsyncEnumerable.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Union.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\UnityExtensions\EveryUpdate.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\UnityExtensions\EveryValueChanged.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\UnityExtensions\Timer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Where.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\Zip.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\MoveNextSource.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\PlayerLoopHelper.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\PlayerLoopTimer.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Progress.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\TaskPool.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\TimeoutController.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\TriggerEvent.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\AsyncAwakeTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\AsyncDestroyTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\AsyncStartTrigger.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\AsyncTriggerBase.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\AsyncTriggerExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\Triggers\MonoBehaviourMessagesTriggers.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.Bridge.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.Delay.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.Factory.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.Run.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.Threading.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.WaitUntil.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.WhenAll.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.WhenAll.Generated.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.WhenAny.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.WhenAny.Generated.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskCompletionSource.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskExtensions.Shorthand.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskObservableExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskScheduler.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskSynchronizationContext.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTaskVoid.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.AssetBundleRequestAllAssets.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.AsyncGPUReadback.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.Jobs.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.MonoBehaviour.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityAsyncExtensions.uGUI.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityBindingExtensions.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\UnityWebRequestException.cs" />
+    <Compile Include="YukiFrameWork\Plugins\UniTask\Runtime\_InternalVisibleTo.cs" />
+    <Compile Include="YukiFrameWork\State\Editors\StateEditor.cs" />
+    <Compile Include="YukiFrameWork\State\Editors\StateMechineEditor.cs" />
+    <Compile Include="YukiFrameWork\State\State.cs" />
+    <Compile Include="YukiFrameWork\State\StateBase.cs" />
+    <Compile Include="YukiFrameWork\State\StateBehaviour.cs" />
+    <Compile Include="YukiFrameWork\State\StateManager.cs" />
+    <Compile Include="YukiFrameWork\State\StateMechine.cs" />
+    <Compile Include="YukiFrameWork\UI\BasePanel.cs" />
+    <Compile Include="YukiFrameWork\UI\PanelManager.cs" />
+    <Compile Include="YukiFrameWork\UI\UIManager.cs" />
+    <Compile Include="YukiFrameWork\UI\UIPanelType.cs" />
+    <Compile Include="YukiFrameWork\UI\UIPath.cs" />
+    <Compile Include="YukiFrameWork\UI\UITools.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\1.简介.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\10.声音管理模块.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\11.全局广播.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\12.Command.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\13.BindableProperty.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\2.LifeTimeScope.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\3.Architecture.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\4.MVC.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\5.单例.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\6.状态机.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\7.资源管理模块.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\8.动作时序管理模块.md" />
+    <None Include="YukiFrameWork\Plugins\Direction\Resources\9.UI模块.md" />
+    <None Include="YukiFrameWork\Plugins\UniRx\Examples\Sample12Scene.unity" />
+    <None Include="YukiFrameWork\Plugins\UniRx\Examples\Sample13Scene.unity" />
+    <None Include="YukiFrameWork\Plugins\UniRx\Examples\Sample13_ToDoItem.prefab" />
+    <None Include="YukiFrameWork\Plugins\UniRx\Examples\UniRx.Examples.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniRx\Scripts\UniRx.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Editor\UniTask.Editor.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\package.json" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Runtime\External\Addressables\UniTask.Addressables.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Runtime\External\DOTween\UniTask.DOTween.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Runtime\External\TextMeshPro\UniTask.TextMeshPro.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Runtime\Linq\UniTask.Linq.asmdef" />
+    <None Include="YukiFrameWork\Plugins\UniTask\Runtime\UniTask.asmdef" />
+    <None Include="YukiFrameWork\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ARModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AccessibilityModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AndroidJNIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AutoStreamingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AutoStreamingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ClothModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CloudFoundationModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.CloudFoundationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterInputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterRendererModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.CrashReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DSPGraphModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.DSPGraphModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.DirectorModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.GIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.GameCenterModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.GridModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.HotReloadModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.LocalizationModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.LocalizationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PerformanceReportingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.PerformanceReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ProfilerModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ProfilerModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.ScreenCaptureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.SharedInternalsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteMaskModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.SpriteMaskModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteShapeModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.SpriteShapeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.StreamingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.StreamingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SubstanceModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.SubstanceModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SubsystemsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.SubsystemsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TLSModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TLSModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TerrainModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TilemapModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.TilemapModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsNativeModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UIElementsNativeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIWidgetsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UIWidgetsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UNETModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UNETModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UmbraModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UmbraModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityAnalyticsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsCommonModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityAnalyticsCommonModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityConnectModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityCurlModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityCurlModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityTestProtocolModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityTestProtocolModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VFXModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.VFXModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VehiclesModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.VehiclesModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.VideoModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VirtualTexturingModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.VirtualTexturingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.WindModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.XRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.CoreModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.GraphViewModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.GraphViewModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.PackageManagerUIModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.PackageManagerUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.SceneTemplateModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.SceneTemplateModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UIElementsModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UIElementsSamplesModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.UIElementsSamplesModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UIServiceModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.UIServiceModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UnityConnectModule">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>Assets\YukiFrameWork\Plugins\Excel\Dll\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="LitJson">
+      <HintPath>Assets\YukiFrameWork\Plugins\LitJson.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\YukiFrameWork\Plugins\Excel\Dll\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Excel">
+      <HintPath>Assets\YukiFrameWork\Plugins\Excel\Dll\Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus">
+      <HintPath>Assets\YukiFrameWork\Plugins\Excel\Dll\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\ref\2.0.0\netstandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\Microsoft.Win32.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.AppContext">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.AppContext.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Concurrent">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Collections.Concurrent.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.NonGeneric">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Collections.NonGeneric.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Specialized">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Collections.Specialized.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ComponentModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.EventBasedAsync">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ComponentModel.EventBasedAsync.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ComponentModel.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.TypeConverter">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ComponentModel.TypeConverter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Console">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.Common">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Data.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Contracts">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Debug">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.Debug.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.FileVersionInfo">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.FileVersionInfo.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Process">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.Process.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.StackTrace">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.StackTrace.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.TextWriterTraceListener">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.TextWriterTraceListener.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Tools">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.Tools.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.TraceSource">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.TraceSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Tracing">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Diagnostics.Tracing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Drawing.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Dynamic.Runtime">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Dynamic.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization.Calendars">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Globalization.Calendars.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Globalization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization.Extensions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Globalization.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.Compression.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression.ZipFile">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.Compression.ZipFile.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.FileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.DriveInfo">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.FileSystem.DriveInfo.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.FileSystem.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Watcher">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.FileSystem.Watcher.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.IsolatedStorage">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.IsolatedStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.MemoryMappedFiles">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.MemoryMappedFiles.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipes">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.Pipes.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.UnmanagedMemoryStream">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.IO.UnmanagedMemoryStream.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Expressions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Linq.Expressions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Parallel">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Linq.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Queryable">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Linq.Queryable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.NameResolution">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.NameResolution.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.NetworkInformation">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.NetworkInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Ping">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Ping.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Requests">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Requests.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Security">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Sockets">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.Sockets.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebHeaderCollection">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.WebHeaderCollection.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebSockets.Client">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.WebSockets.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebSockets">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Net.WebSockets.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ObjectModel">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Extensions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Reflection.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Reflection.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Reader">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Resources.Reader.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.ResourceManager">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Resources.ResourceManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Writer">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Resources.Writer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.VisualC">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.CompilerServices.VisualC.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Extensions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Handles">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Handles.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.InteropServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Numerics">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Formatters">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Serialization.Formatters.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Json">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Serialization.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Serialization.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Xml">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Runtime.Serialization.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Claims">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Claims.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Csp">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Cryptography.Csp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Cryptography.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Cryptography.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Cryptography.X509Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.Principal.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.SecureString">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Security.SecureString.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Text.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.Extensions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Text.Encoding.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.RegularExpressions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Text.RegularExpressions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Overlapped">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.Overlapped.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Parallel">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.Tasks.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Thread">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.Thread.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.ThreadPool">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.ThreadPool.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Timer">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Threading.Timer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.ReaderWriter">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.ReaderWriter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XDocument">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.XDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XmlDocument">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.XmlDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XmlSerializer">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.XmlSerializer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XPath">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.XPath.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XPath.XDocument">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netstandard\System.Xml.XPath.XDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\Extensions\2.0.0\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.WindowsRuntime">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\Extensions\2.0.0\System.Runtime.InteropServices.WindowsRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.ComponentModel.Composition.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.IO.Compression.FileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Runtime.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.ServiceModel.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Transactions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Serialization">
+      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\NetStandard\compat\2.0.0\shims\netfx\System.Xml.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VSCode.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualStudio.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Rider.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="UniTask.Addressables.csproj">
+      <Project>{FC519EF1-4078-48D3-3927-EAF5FA3EFAEF}</Project>
+      <Name>UniTask.Addressables</Name>
+    </ProjectReference>
+    <ProjectReference Include="UniTask.DOTween.csproj">
+      <Project>{567BE2F1-17B1-5425-2CB1-A0D7687158E9}</Project>
+      <Name>UniTask.DOTween</Name>
+    </ProjectReference>
+    <ProjectReference Include="UniTask.csproj">
+      <Project>{0FE99DBA-F9C7-09FE-3FF2-2AE112E7376B}</Project>
+      <Name>UniTask</Name>
+    </ProjectReference>
+    <ProjectReference Include="UniTask.Linq.csproj">
+      <Project>{74A6AC8D-10C8-71A5-E900-B6910F29CB64}</Project>
+      <Name>UniTask.Linq</Name>
+    </ProjectReference>
+    <ProjectReference Include="UniTask.TextMeshPro.csproj">
+      <Project>{8FBE0459-093F-9AB5-37B1-C6985DA6BFBE}</Project>
+      <Name>UniTask.TextMeshPro</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="YukiFrameWork\Plugins\Example\Example\C#FrameScripts.txt" />
+    <Content Include="YukiFrameWork\Plugins\Example\Example\C#MonoScripts.txt" />
+    <Content Include="YukiFrameWork\Plugins\Example\Example\C#Scripts.txt" />
+    <Content Include="YukiFrameWork\Plugins\Example\Example\StateBehaviourScripts.txt" />
+    <Content Include="YukiFrameWork\Plugins\Example\Example\UIPanelScripts.txt" />
+    <Content Include="YukiFrameWork\Plugins\Excel\Dll\EPPlus.dll" />
+    <Content Include="YukiFrameWork\Plugins\Excel\Dll\Excel.dll" />
+    <Content Include="YukiFrameWork\Plugins\Excel\Dll\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="YukiFrameWork\Plugins\Excel\Dll\Newtonsoft.Json.dll" />
+    <Content Include="YukiFrameWork\Plugins\LitJson.dll" />
+    <Content Include="YukiFrameWork\Plugins\UniRx\ReadMe.txt" />
+    <Content Include="YukiFrameWork\State\Gizmos\Btn.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="GenerateTargetFrameworkMonikerAttribute" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
