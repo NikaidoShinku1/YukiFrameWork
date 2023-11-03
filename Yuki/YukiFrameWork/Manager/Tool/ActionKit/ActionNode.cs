@@ -1,457 +1,231 @@
 ///=====================================================
 /// - FileName:      ActionNode.cs
-/// - NameSpace:     YukiFrameWork.Events
+/// - NameSpace:     YukiFrameWork
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
-/// - Description:   这是动作时序根脚本
+/// - Description:   Action本体
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
 
 using UnityEngine;
 using System;
-using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
-using System.Threading;
 using System.Collections;
-namespace YukiFrameWork.Events
+using System.Collections.Generic;
+using YukiFrameWork.Pools;
+
+namespace YukiFrameWork
 {
     public interface IActionNode
     {
-        /// <summary>
-        /// Token手动取消异步
-        /// </summary>
-        CancellationTokenSource CancellationToken { get; }
-        /// <summary>
-        /// 绑定Mono生命周期
-        /// </summary>
-        /// <typeparam name="T">类型</typeparam>
-        /// <param name="component">本体</param>
-        /// <param name="cancelCallBack">回调</param>
-        IActionNode AddTo<T>(T component, Action cancelCallBack = null) where T : Component;
+        Queue<IActionNode> actions { get; }       
 
-        bool IsCompleted { get; }
+        bool OnExecute(float delta);
 
-        /// <summary>
-        /// 清除
-        /// </summary>
-        void Clear();       
+        bool IsInit { get; }
 
-        /// <summary>
-        /// 可等待，转换为UniTask
-        /// </summary>
-        /// <returns></returns>
-        UniTask<IActionNode> ToUniTask();
+        bool IsPaused { get; set; }
 
-        IEnumerator ToCoroutine();
+        bool IsResume { get; set; }
+
+        bool IsFinish { get; }
+
+        IActionNode AddNode<TNode>(TNode node) where TNode : IActionNode;
+
+        abstract void OnInit();
+
+        abstract void OnFinish();
+
+        abstract IEnumerator ToCoroutine();
     }
 
-    public interface IActionDelay : IActionNode
+    public interface ISequence : IActionNode
     {
-        /// <summary>
-        /// 初始化
-        /// </summary>
-        /// <param name="time">时间</param>
-        /// <param name="callBack">回调</param>
-        void InitDelay(float time, Action callBack = null);
-      
-        event Action<IActionDelay> DelayEnqueue;       
-       
+        ISequence AddSequence(IActionNode node);
     }
 
-    public interface IActionExcuteFrame : IActionNode
+    public interface IParallel : IActionNode
     {
-        /// <summary>
-        /// 初始化
-        ///</summary>>
-        void InitExcuteTimer(float maxTime, Action<float> TimeTemp, bool isConstraint = false, Action OnFinish = null);
-
-        /// <summary>
-        /// 初始化
-        ///</summary>>
-        void InitExcutePredicate(Func<bool> predicate, Action OnFinish = null);
-
-        event Action<IActionExcuteFrame> ExcuteFrameEnquene;      
-      
+        IParallel AddParallel(IActionNode node);
     }
 
-    public interface IActionNextFrame : IActionNode
+    public interface IRepeat : IActionNode
     {
-        /// <summary>
-        /// 初始化
-        /// </summary>  
-        void InitNextFrame(Action callBack,MonoUpdateType type);
-       
-        event Action<IActionNextFrame> ActionNextEnquene;
-    }
-    public interface IActionDelayFrame : IActionNode
-    {
-        /// <summary>
-        /// 初始化
-        /// </summary>  
-        void InitDelayFrame(Action callBack, MonoUpdateType type,int delayFrameCount);
-
-        event Action<IActionDelayFrame> ActionNextEnquene;
+        int CurrentCount { get; }
+        IActionNode ActionNode { get; set; }
     }
 
-    /// <summary>
-    /// 定时回调
-    /// </summary>
-    public class ActionDelay : IActionDelay
+    public interface IActionNodeController
     {
-        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+        IActionNodeController Start<T>(T component, Action callBack = null) where T : Component;
+    }
 
-        public bool IsCompleted { get; private set; }
+    public interface IActionUpdateNodeController : IActionNodeController
+    {
 
-        private Action CallBack;
-        private float currentTime;
-        private bool isFirstTrigger;     
-        public event Action<IActionDelay> DelayEnqueue;
+    }
+    public enum UpdateStatus
+    {
+        OnUpdate = 0,
+        OnFixedUpdate,
+        OnLateUpdate
+    }
 
-        public ActionDelay(float currentTime, Action CallBack)
+    public interface IActionUpdateNode
+    {
+        UpdateStatus UpdateStatus { get; }
+        bool IsFirstExecute { get; set; }      
+        IActionUpdateNode Register(Action<long> OnEvent, Action OnError = null, Action OnFinish = null);
+        bool OnExecute(float delta);
+        void OnFinish();
+    }
+
+    public interface IActionUpdateCondition
+    {
+        ActionUpdateNode Action { get; }
+        IActionUpdateNode Register(Action<long> onEvent, Action OnError = null, Action OnFinish = null);
+        IActionUpdateCondition Where(Func<bool> condition);
+        IActionUpdateCondition First(Func<bool> condition = null);
+        IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition);
+    }
+
+    public abstract class ActionNode : IActionNode
+    {      
+        public abstract bool OnExecute(float delta);
+
+        public Queue<IActionNode> actions { get; } = new Queue<IActionNode>();
+
+        public bool IsPaused { get; set; }
+
+        public bool IsResume
         {
-            Debug.Log("Init初始化");
-            InitDelay(currentTime, CallBack);
+            get => !IsPaused;
+            set => IsPaused = !value;
         }
 
-        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public bool IsFinish { get; protected set; }
+
+        public bool IsInit { get; protected set; } = false;
+
+        public abstract IEnumerator ToCoroutine();
+
+        public abstract void OnFinish();
+    
+        public abstract void OnInit();
+
+        public IActionNode AddNode<TNode>(TNode node) where TNode : IActionNode
         {
-            _ = _AddTo(mono, cancelCallBack);
+            actions.Enqueue(node);
             return this;
         }
-
-        private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
-        {
-            await mono.gameObject.OnDestroyAsync();
-            Clear();
-            cancelCallBack?.Invoke();
-           
-        }
-
-        private async UniTask Delay()
-        {            
-            await UniTask.Delay(TimeSpan.FromSeconds(currentTime), cancellationToken: CancellationToken.Token);           
-            CallBack?.Invoke();
-            if (!isFirstTrigger) isFirstTrigger = true;
-            await ToUniTask();
-            IsCompleted = true;
-            Clear();           
-        }    
-
-        public void InitDelay(float time, Action callBack = null)
-        {
-            IsCompleted = false;
-            CancellationToken = new CancellationTokenSource();
-            this.currentTime = time;
-            this.CallBack = callBack;           
-            _ = Delay();
-        }      
-
-        public void Clear()
-        {           
-            DelayEnqueue?.Invoke(this);
-            DelayEnqueue = null;
-            CancellationToken.Cancel();
-        }
-
-        public async UniTask<IActionNode> ToUniTask()
-        {
-            await UniTask.WaitUntil(() => isFirstTrigger);
-            return this;
-        }
-
-        public IEnumerator ToCoroutine()
-        {
-            yield return ToUniTask().ToCoroutine();
-        }
     }
 
-    public class ActionExcuteFrame : IActionExcuteFrame
-    {    
-        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
-
-        public bool IsCompleted { get; private set; }
-
-        private bool isFirstTrigger = false;       
-        private float maxTime;
-        private Action<float> TimeTemp;
-        private bool isConstraint = false;
-        private Func<bool> predicate;
-        private Action OnFinish;
-
-        public event Action<IActionExcuteFrame> ExcuteFrameEnquene;
-
-        public ActionExcuteFrame(float maxTime, Action<float> TimeTemp, bool isConstraint = false, Action OnFinish = null)
-        {
-            InitExcuteTimer(maxTime, TimeTemp, isConstraint, OnFinish);
-        }
-
-        public ActionExcuteFrame(Func<bool> predicate, Action OnFinish = null)
-        {
-            InitExcutePredicate(predicate, OnFinish);
-        }
-
-        public ActionExcuteFrame() 
-        {
-
-        }
-        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
-        {
-            _ = _AddTo(mono, cancelCallBack);
-            return this;
-        }
-
-        private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
-        {
-            await mono.gameObject.OnDestroyAsync();
-            Clear();
-            cancelCallBack?.Invoke();
-        }
-
-        public void Clear()
-        {
-            CancellationToken.Cancel();
-            maxTime = 0;
-            TimeTemp = null;
-            OnFinish = null;
-            predicate = null;
-            isConstraint = false;
-            isFirstTrigger = false;
-          
-            ExcuteFrameEnquene?.Invoke(this);
-            ExcuteFrameEnquene = null;
-        }     
-
-        public void InitExcuteTimer(float maxTime, Action<float> TimeTemp, bool isConstraint = false, Action OnFinish = null)
-        {
-            if(IsCompleted)
-               IsCompleted = false;
-            else CancellationToken.Cancel();          
-            CancellationToken = new CancellationTokenSource();
-            this.maxTime = maxTime;
-            this.TimeTemp = TimeTemp;
-            this.isConstraint = isConstraint;
-            this.OnFinish = OnFinish;           
-            _ = ExcuteTimer();
-        }
-
-        public void InitExcutePredicate(Func<bool> predicate, Action OnFinish = null)
-        {
-            if (IsCompleted)
-                IsCompleted = false;
-            else CancellationToken.Cancel();
-            CancellationToken = new CancellationTokenSource();
-            this.predicate = predicate;
-            this.OnFinish = OnFinish;
-           
-            _ = ExcutePredicate();
-        }
-
-        private async UniTask ExcuteTimer()
-        {
-            if (IsCompleted) return;         
-            float time = 0;
-            while (time < maxTime && !CancellationToken.IsCancellationRequested)
-            {                             
-                await UniTask.Yield(PlayerLoopTiming.LastUpdate);
-                time += Time.deltaTime;
-                if (isConstraint) TimeTemp?.Invoke(time / maxTime);
-                else TimeTemp?.Invoke(time);
-            }
-            if (!isFirstTrigger) isFirstTrigger = true;
-            OnFinish?.Invoke();
-            await ToUniTask();
-            IsCompleted = true;
-            Clear();
-        }
-
-        private async UniTask ExcutePredicate()
-        {
-            if (IsCompleted) return;
-            await UniTask.WaitUntil(predicate,cancellationToken:CancellationToken.Token);          
-            if (!isFirstTrigger) isFirstTrigger = true;
-            OnFinish?.Invoke();
-            await ToUniTask();
-            IsCompleted = true;
-            Clear();
-        }
-
-        public async UniTask<IActionNode> ToUniTask()
-        {
-            await UniTask.WaitUntil(() => isFirstTrigger);
-            return this;
-        }
-
-        public IEnumerator ToCoroutine()
-        {
-            yield return ToUniTask().ToCoroutine();
-        }
-    }
-
-    public class ActionDelayFrame : IActionDelayFrame
+    public class ActionUpdateNode : ActionNode, IActionUpdateNode
     {
-        private MonoUpdateType updateType;
-        private bool isFirstTrigger;
-        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
+        private static SimpleObjectPools<ActionUpdateNode> simpleObjectPools
+            = new SimpleObjectPools<ActionUpdateNode>(() => new ActionUpdateNode(), null, 10);
 
-        public bool IsCompleted { get; private set; }
+        public UpdateStatus UpdateStatus { get; private set; }
 
-        public event Action<IActionDelayFrame> ActionNextEnquene;
-        public ActionDelayFrame(Action callBack, MonoUpdateType updateType,int delayFrameCount)
+        protected long data;
+        protected Action<long> onEvent;
+
+        protected Action onError;
+        protected Action onFinish;
+
+        public Func<bool> OnFinishCondition { get; set; }
+
+        public bool IsFirstExecute { get; set; }
+
+        public ActionUpdateNode(UpdateStatus updateStatus)
         {
-            InitDelayFrame(callBack, updateType,delayFrameCount);
+            OnReset(updateStatus);
         }
 
-        public void InitDelayFrame(Action callBack, MonoUpdateType updateType, int delayFrameCount)
+        public static ActionUpdateNode Get(UpdateStatus updateStatus)
         {
-            if (IsCompleted)
-                IsCompleted = false;
-            else CancellationToken.Cancel();         
-            CancellationToken = new CancellationTokenSource();
-            this.updateType = updateType;
-            DelayFrame(callBack,delayFrameCount);
+            var updateNode = simpleObjectPools.Get();
+            updateNode.OnReset(updateStatus);
+            return updateNode;
         }
 
-        public IActionDelayFrame DelayFrame(Action callBack,int delayFrameCount)
-        {           
-            _ = _DelayFrame(callBack,delayFrameCount);
-            return this;
+        public ActionUpdateNode() { }
+
+        public void OnReset(UpdateStatus updateStatus)
+        {
+            UpdateStatus = updateStatus;
         }
 
-        private async UniTask _DelayFrame(Action callBack, int delayFrameCount)
+        public override bool OnExecute(float delta)
         {
-            if (IsCompleted) return;
-            switch (updateType)
+            try
             {
-                case MonoUpdateType.Update:
-                    await UniTask.DelayFrame(delayFrameCount,PlayerLoopTiming.LastUpdate);
-                    break;
-                case MonoUpdateType.FixedUpdate:
-                    await UniTask.DelayFrame(delayFrameCount,PlayerLoopTiming.FixedUpdate);
-                    break;
-                case MonoUpdateType.LateUpdate:
-                    await UniTask.DelayFrame(delayFrameCount,PlayerLoopTiming.PostLateUpdate);
-                    break;
+                foreach (var action in actions)
+                {
+                    IsPaused = !action.OnExecute(delta);
+                }
+
+                if (IsPaused) return false;
+                data++;
+                onEvent?.Invoke(data);
+                if (IsFirstExecute)
+                {
+                    onFinish?.Invoke();
+                    return true;
+                }
+                if (OnFinishCondition != null && OnFinishCondition?.Invoke() == true)
+                {
+                    onFinish?.Invoke();
+                    return true;
+                }
+                return false;
             }
-            isFirstTrigger = true;
-            callBack?.Invoke();
-            await ToUniTask();
-            IsCompleted = true;
-            Clear();
-        }
-
-        public void Clear()
-        {
-            isFirstTrigger = false;
-            ActionNextEnquene?.Invoke(this);
-        }
-
-        public async UniTask<IActionNode> ToUniTask()
-        {
-            await UniTask.WaitUntil(() => isFirstTrigger);
-            return this;
-        }
-
-        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
-        {
-            _ = _AddTo(mono, cancelCallBack);
-            return this;
-        }
-
-        private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
-        {
-            await mono.gameObject.OnDestroyAsync();
-            Clear();
-            cancelCallBack?.Invoke();
-        }
-
-        public IEnumerator ToCoroutine()
-        {
-            yield return ToUniTask().ToCoroutine();
-        }
-    }
-
-    public class ActionNextFrame : IActionNextFrame
-    {
-        private MonoUpdateType updateType;
-        private bool isFirstTrigger;
-        public CancellationTokenSource CancellationToken { get; private set; } = new CancellationTokenSource();
-
-        public bool IsCompleted { get; private set; }
-
-        public event Action<IActionNextFrame> ActionNextEnquene;
-        public ActionNextFrame(Action callBack,MonoUpdateType updateType)
-        {
-            InitNextFrame(callBack,updateType);
-        }
-
-        public void InitNextFrame(Action callBack,MonoUpdateType updateType)
-        {
-            if (IsCompleted)
-                IsCompleted = false;
-            else CancellationToken.Cancel();
-            CancellationToken = new CancellationTokenSource();
-            this.updateType = updateType;
-            NextFrame(callBack);
-        }
-
-        public IActionNextFrame NextFrame(Action callBack)
-        {
-            _ = _NextFrame(callBack);
-            return this;
-        }
-
-        private async UniTask _NextFrame(Action callBack)
-        {
-            switch (updateType)
+            catch
             {
-                case MonoUpdateType.Update:
-                    await UniTask.NextFrame(PlayerLoopTiming.LastUpdate);
-                    break;
-                case MonoUpdateType.FixedUpdate:
-                    await UniTask.NextFrame(PlayerLoopTiming.FixedUpdate);
-                    break;
-                case MonoUpdateType.LateUpdate:
-                    await UniTask.NextFrame(PlayerLoopTiming.PostLateUpdate);
-                    break;
-            }            
-            isFirstTrigger = true;
-            callBack?.Invoke();
-            await ToUniTask();
-            IsCompleted = true;
-            Clear();
+                if (onError != null)
+                {
+                    onError?.Invoke();
+                    return true;
+                }
+                else
+                {
+                    throw new Exception("当前Update内涵错误代码！The Update is OnError!");
+                }
+            }
         }
 
-        public void Clear()
+        public override void OnFinish()
         {
-            isFirstTrigger = false;
-            ActionNextEnquene?.Invoke(this);
+            IsInit = false;
+           
+            
+            IsFinish = true;
+            data = 0;
+            onEvent = null;
+            IsPaused = false;
+            simpleObjectPools.Release(this);
         }
 
-        public async UniTask<IActionNode> ToUniTask()
+        public IActionUpdateNode Register(Action<long> onEvent, Action OnError = null, Action OnFinish = null)
         {
-            await UniTask.WaitUntil(() => isFirstTrigger);          
+            this.onEvent = onEvent;
+            this.onError = OnError;
+            this.onFinish = OnFinish;
             return this;
         }
 
-        public IActionNode AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public override IEnumerator ToCoroutine()
         {
-            _ = _AddTo(mono, cancelCallBack);
-            return this;
+            if (!IsInit) OnInit();
+            yield return new WaitUntil(() => OnExecute(Time.deltaTime));
+            OnFinish();
         }
 
-        private async UniTaskVoid _AddTo<T>(T mono, Action cancelCallBack = null) where T : Component
+        public override void OnInit()
         {
-            await mono.gameObject.OnDestroyAsync();
-            Clear();
-            cancelCallBack?.Invoke();
-        }
-
-        public IEnumerator ToCoroutine()
-        {
-            yield return ToUniTask().ToCoroutine();
+            IsInit = true;
+            data = 0;
+            IsFinish = false;
         }
     }
-
-
 }

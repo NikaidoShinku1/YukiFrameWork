@@ -197,8 +197,8 @@ namespace YukiFrameWork
     }
 
     public interface IUnRegister
-    {       
-        void UnRegisterWithGameObjectDestroy<T>(T component,Action OnFinish = null) where T : Component;
+    {
+        void UnRegisterAllEvent();
     }
 
     public class TypeEventSystem
@@ -291,25 +291,16 @@ namespace YukiFrameWork
             OnEasyEvent?.Invoke();
         }
 
-        public void UnRegister(Action onEvent = null)
+        public void UnRegister(Action onEvent)
         {
-            if (onEvent == null) OnEasyEvent = null;
-            else OnEasyEvent -= onEvent;
-        }
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
-        public void UnRegisterWithGameObjectDestroy<T1>(T1 component,Action OnFinish = null) where T1 : Component
-        {
-            UnRegisterWithDestroy(component, onFinish: OnFinish).Forget();
+            OnEasyEvent -= onEvent;
         }
 
-        private async UniTaskVoid UnRegisterWithDestroy<T1>(T1 component, Action onFinish) where T1 : Component
+        public void UnRegisterAllEvent()
         {
-            await component.gameObject.OnDestroyAsync();
-            onFinish?.Invoke();
-            UnRegister();
+            OnEasyEvent = null;
         }
     }
-#endif
 
     public class EasyEvent<T> : IEasyEventSystem
     {
@@ -326,24 +317,15 @@ namespace YukiFrameWork
             OnEasyEvent?.Invoke(t);
         }
 
-        public void UnRegister(Action<T> onEvent = null)
+        public void UnRegister(Action<T> onEvent)
         {
-            if (onEvent == null) OnEasyEvent = null;
-            else OnEasyEvent -= onEvent;
-        }
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
-        public void UnRegisterWithGameObjectDestroy<T1>(T1 component, Action OnFinish = null) where T1 : Component
-        {
-            UnRegisterWithDestroy(component, onFinish: OnFinish).Forget();
+            OnEasyEvent -= onEvent;
         }
 
-        private async UniTaskVoid UnRegisterWithDestroy<T1>(T1 component, Action onFinish) where T1 : Component
+        public void UnRegisterAllEvent()
         {
-            await component.gameObject.OnDestroyAsync();
-            onFinish?.Invoke();
-            UnRegister();
+            OnEasyEvent = null;
         }
-#endif
     }
 
     public class EasyEvent<T, K> : IEasyEventSystem
@@ -359,24 +341,15 @@ namespace YukiFrameWork
         public void EventTrigger(T t, K k)
             => OnEasyEvent?.Invoke(t, k);
 
-        public void UnRegister(Action<T, K> onEvent = null)
+        public void UnRegister(Action<T, K> onEvent)
         {
-            if (onEvent == null) OnEasyEvent = null;
-            else OnEasyEvent -= onEvent;
-        }
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
-        public void UnRegisterWithGameObjectDestroy<T1>(T1 component, Action OnFinish = null) where T1 : Component
-        {
-            UnRegisterWithDestroy(component, onFinish: OnFinish).Forget();
+             OnEasyEvent -= onEvent;
         }
 
-        private async UniTaskVoid UnRegisterWithDestroy<T1>(T1 component, Action onFinish) where T1 : Component
+        public void UnRegisterAllEvent()
         {
-            await component.gameObject.OnDestroyAsync();
-            onFinish?.Invoke();
-            UnRegister();
+            OnEasyEvent = null;
         }
-#endif
     }
 
     public class EasyEvent<T, K, Q> : IEasyEventSystem
@@ -392,24 +365,15 @@ namespace YukiFrameWork
         public void EventTrigger(T t, K k,Q q)
             => OnEasyEvent?.Invoke(t, k, q);
 
-        public void UnRegister(Action<T, K, Q> onEvent = null)
+        public void UnRegister(Action<T, K, Q> onEvent)
         {
-            if (onEvent == null) OnEasyEvent = null;
-            else OnEasyEvent -= onEvent;
-        }
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
-        public void UnRegisterWithGameObjectDestroy<T1>(T1 component, Action OnFinish = null) where T1 : Component
-        {
-            UnRegisterWithDestroy(component, onFinish: OnFinish).Forget();
+             OnEasyEvent -= onEvent;
         }
 
-        private async UniTaskVoid UnRegisterWithDestroy<T1>(T1 component, Action onFinish) where T1 : Component
+        public void UnRegisterAllEvent()
         {
-            await component.gameObject.OnDestroyAsync();
-            onFinish?.Invoke();
-            UnRegister();
+            OnEasyEvent = null;
         }
-#endif
     }
 
     public class EasyEvent<T, K, Q, P> : IEasyEventSystem
@@ -425,25 +389,36 @@ namespace YukiFrameWork
         public void EventTrigger(T t, K k, Q q,P p)
             => OnEasyEvent?.Invoke(t, k, q,p);
 
-        public void UnRegister(Action<T, K, Q,P> onEvent = null)
+        public void UnRegister(Action<T, K, Q,P> onEvent)
         {
-            if (onEvent == null) OnEasyEvent = null;
-            else OnEasyEvent -= onEvent;
-        }
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
-        public void UnRegisterWithGameObjectDestroy<T1>(T1 component, Action OnFinish = null) where T1 : Component
-        {
-            UnRegisterWithDestroy(component, onFinish: OnFinish).Forget();
+            OnEasyEvent -= onEvent;
         }
 
-        private async UniTaskVoid UnRegisterWithDestroy<T1>(T1 component, Action onFinish) where T1 : Component
+        public void UnRegisterAllEvent()
         {
-            await component.gameObject.OnDestroyAsync();
-            onFinish?.Invoke();
-            UnRegister();
+            OnEasyEvent = null;
         }
-#endif
     }
+
+    public static class BindablePropertyOrEventExtension
+    {
+#if UNITY_2020 || UNITY_2021 || UNITY_2022
+        /// <summary>
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动注销事件
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action callBack = null) where Component : UnityEngine.Component
+        {
+            if (!component.TryGetComponent(out OnGameObjectTrigger objectTrigger))
+            {
+                objectTrigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
+            }
+            callBack += () => property.UnRegisterAllEvent();
+            objectTrigger.PushFinishEvent(callBack);
+
+        }
+    }
+#endif
 
     /// <summary>
     /// 控制器拓展
