@@ -534,7 +534,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
+      <HintPath>D:\unity\2020.3.33f1c2\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.AIModule.dll</HintPath>
@@ -741,7 +741,7 @@
       <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.dll</HintPath>
+      <HintPath>D:\unity\2020.3.33f1c2\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.CoreModule">
       <HintPath>E:\unity\2020.3.42f1c1\Editor\Data\Managed\UnityEngine\UnityEditor.CoreModule.dll</HintPath>

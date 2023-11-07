@@ -4,7 +4,6 @@ using LitJson;
 using System.IO;
 using System;
 using YukiFrameWork.Res;
-using Cysharp.Threading.Tasks;
 
 namespace YukiFrameWork.UI
 {
@@ -27,8 +26,7 @@ namespace YukiFrameWork.UI
         private ResNode resNode = ResKit.Get();
 
         public UIManager() 
-        {
-            Debug.Log("lailo");
+        {         
             try
             {
                 string jsonPath = Application.streamingAssetsPath + "/UIPanel" + "/UIPath.Json";
@@ -58,7 +56,7 @@ namespace YukiFrameWork.UI
                         {
                             CreateParentPanels(panel.GetType(), panel);
                         }
-                    }).Forget();
+                    }).Start();
                     break;
                 case Attribution.AssetBundle:
                     resNode.LoadAllAsync<BasePanel>(Attribution.AssetBundle, AssetBundleName,panels => 
@@ -67,7 +65,7 @@ namespace YukiFrameWork.UI
                         {                            
                             CreateParentPanels(panel.GetType(),panel);
                         }
-                    }).Forget();
+                    }).Start();
                     break;              
             }           
         }        

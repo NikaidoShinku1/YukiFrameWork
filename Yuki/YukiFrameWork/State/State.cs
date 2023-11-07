@@ -34,7 +34,7 @@ namespace YukiFrameWork.States
 
         public State(Vector2 position)
         {
-            this.rect = new Rect(position.x, position.y, 100, 40);    
+            this.rect = new Rect(position.x, position.y, 150, 40);     
             this.initRectPositionX = position.x;
             this.initRectPositionY = position.y;
         }       

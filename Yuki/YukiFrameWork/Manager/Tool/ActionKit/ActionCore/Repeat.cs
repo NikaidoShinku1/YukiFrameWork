@@ -67,7 +67,7 @@ namespace YukiFrameWork
         {
             CurrentCount = 0;
             IsInit = false;
-            IsFinish = true;
+            IsCompleted = true;
             ActionNode = null;
             simpleObjectPools.Release(this);
         }
@@ -77,7 +77,7 @@ namespace YukiFrameWork
             CurrentCount--;
             ActionNode.OnInit();
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()

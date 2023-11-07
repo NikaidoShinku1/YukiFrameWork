@@ -28,13 +28,15 @@ namespace YukiFrameWork
 
         bool IsResume { get; set; }
 
-        bool IsFinish { get; }
+        bool IsCompleted { get; }
 
         IActionNode AddNode<TNode>(TNode node) where TNode : IActionNode;
 
         abstract void OnInit();
 
         abstract void OnFinish();
+
+        void Cancel();
 
         abstract IEnumerator ToCoroutine();
     }
@@ -103,7 +105,7 @@ namespace YukiFrameWork
             set => IsPaused = !value;
         }
 
-        public bool IsFinish { get; protected set; }
+        public bool IsCompleted { get; protected set; }
 
         public bool IsInit { get; protected set; } = false;
 
@@ -117,6 +119,11 @@ namespace YukiFrameWork
         {
             actions.Enqueue(node);
             return this;
+        }
+
+        public void Cancel()
+        {
+            IsCompleted = true;
         }
     }
 
@@ -199,7 +206,7 @@ namespace YukiFrameWork
             IsInit = false;
            
             
-            IsFinish = true;
+            IsCompleted = true;
             data = 0;
             onEvent = null;
             IsPaused = false;
@@ -225,7 +232,7 @@ namespace YukiFrameWork
         {
             IsInit = true;
             data = 0;
-            IsFinish = false;
+            IsCompleted = false;
         }
     }
 }

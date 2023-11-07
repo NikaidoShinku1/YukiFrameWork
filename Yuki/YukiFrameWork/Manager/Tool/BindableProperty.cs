@@ -10,8 +10,6 @@
 
 using UnityEngine;
 using System;
-#if UNITY_2020_3 || UNITY_2021_3 || UNITY_2022_3
-#endif
 namespace YukiFrameWork
 {   
     public interface IBindableProperty<TValue>

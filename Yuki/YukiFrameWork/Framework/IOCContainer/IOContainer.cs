@@ -48,7 +48,7 @@ namespace YukiFrameWork
     public interface IObjectContainer
     {
         T Resolve<T>() where T : class;
-        T ResolveMono<T>() where T : MonoBehaviour;
+        T ResolveComponent<T>(string name = "") where T : MonoBehaviour;
         object InstanceInject<T>(object obj);
         bool Equals(Type type, LifeTime life = LifeTime.Transient);
         List<object> GetAllScopeInstance();
@@ -67,9 +67,7 @@ namespace YukiFrameWork
 
         protected readonly Dictionary<Type, Type> restrainTransientDict = new Dictionary<Type, Type>();
 
-        protected readonly List<GameObject> gameObjectContainer = new List<GameObject>();
-
-        protected readonly List<Component> components = new List<Component>();
+        protected readonly List<GameObject> gameObjectContainer = new List<GameObject>();      
         
         //储存类型注册时构造函数所带有的参数
         public Dictionary<Type,object[]> transientObject = new Dictionary<Type, object[]>();
@@ -128,8 +126,30 @@ namespace YukiFrameWork
             return transientObject[type];
         }
 
-        public T GetComponent<T>() where T : class
-        {           
+        public T GetComponent<T>(string name = "") where T : class
+        {          
+            if (name != string.Empty)
+            {
+                GameObject obj = gameObjectContainer.Find(x => x.name == name);
+                if (obj != null)
+                {
+                    Transform[] transforms = obj.GetComponentsInChildren<Transform>(true);
+                    for (int j = 0; j < transforms.Length; j++)
+                    {
+                        T component = transforms[j].GetComponent<T>();
+                        if (component != null)
+                        {
+                            return component;
+                        }
+                    }
+                    Debug.LogError($"指定的GameObject下没有对应的组件！GameObject name: {name}");
+                    return null;
+                }
+                else
+                {
+                    Debug.LogWarning($"指定的GameObject不存在，将从容器中重新查找正确的Component！GameObject name: {name}");
+                }
+            }
             for (int i = 0; i < gameObjectContainer.Count; i++)
             {
                 Transform[] transforms = gameObjectContainer[i].GetComponentsInChildren<Transform>(true);

@@ -11,7 +11,7 @@ namespace YukiFrameWork.States
         public int CurrentIndex { get; private set; } = -1;
         public State CurrentState { get; private set; }  
                        
-        public List<State> states = new List<State>();      
+        [field:SerializeField]public List<State> states { get;private set; } = new List<State>();      
 
         public State GetState(int index)
             => states.Find(x => x.index == index);
@@ -24,7 +24,7 @@ namespace YukiFrameWork.States
 
         public void RemoveState(int stateID)
         {
-            states.Remove(states.Find(x => x.index == stateID));
+            states.Remove(states.Find(x => x.index == stateID));          
         }
       
         /// <summary>

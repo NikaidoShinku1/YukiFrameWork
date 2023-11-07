@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using static UnityEngine.Networking.UnityWebRequest;
 
 namespace YukiFrameWork
 {

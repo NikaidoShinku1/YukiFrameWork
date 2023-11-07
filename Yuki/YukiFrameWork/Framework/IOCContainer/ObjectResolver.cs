@@ -39,9 +39,9 @@ namespace YukiFrameWork
             return null;
         }
 
-        public T ResolveMono<T>() where T : MonoBehaviour
+        public T ResolveComponent<T>(string name = "") where T : MonoBehaviour
         {
-            T component = GetComponent<T>();
+            T component = GetComponent<T>(name);
             return component;
         }            
 

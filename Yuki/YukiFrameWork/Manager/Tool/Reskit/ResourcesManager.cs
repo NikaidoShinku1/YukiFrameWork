@@ -10,16 +10,16 @@
 
 using UnityEngine;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using System.Collections;
 
 namespace YukiFrameWork.Res
 {
     public class ResourcesManager
     {
-        private  readonly Dictionary<string,ResourceRequest> resDict = new Dictionary<string,ResourceRequest>();
-        private  readonly Dictionary<string, Object[]> resallDict = new Dictionary<string, Object[]>();     
+        private readonly Dictionary<string,ResourceRequest> resDict = new Dictionary<string,ResourceRequest>();
+        private readonly Dictionary<string, Object[]> resallDict = new Dictionary<string, Object[]>();     
         public  T Load<T>(string path) where T : Object
         {
             if (resDict.TryGetValue(path, out var item))
@@ -37,7 +37,7 @@ namespace YukiFrameWork.Res
             return Resources.Load<T>(path);
         }
 
-        public  List<T> LoadAll<T>(string path) where T : Object
+        public List<T> LoadAll<T>(string path) where T : Object
         {
             if (resallDict.TryGetValue(path, out var items))
             {
@@ -47,8 +47,7 @@ namespace YukiFrameWork.Res
                     T obj = item as T;
                     if (obj == null) obj = (item as GameObject).GetComponent<T>();
                     newObjs.Add(obj);
-                }
-                Debug.Log("资源前置");
+                }                
                 return newObjs;
             }
             var newItems = Resources.LoadAll<T>(path);
@@ -60,7 +59,7 @@ namespace YukiFrameWork.Res
             return new List<T>(newItems);
         }
 
-        public  ResourceRequest LoadAsync(string path)
+        public ResourceRequest LoadAsync(string path)
         {
             var item = Resources.LoadAsync(path);
             if (item == null)
@@ -75,7 +74,7 @@ namespace YukiFrameWork.Res
             return item;
         }
 
-        public  async UniTask<List<T>> LoadAllAsync<T>(string path) where T : Object
+        public IEnumerator LoadAllAsync<T>(string path) where T : Object
         {
             List<T> newObjs = new List<T>();
 
@@ -83,18 +82,16 @@ namespace YukiFrameWork.Res
             if (items == null)
             {
                 Debug.LogError($"路径错误请重试，当前你输入的路径是{path}");
-                return null;
+                yield break;
             }
             foreach (var item in items)
             {
-                
-                await UniTask.NextFrame();
+                yield return null;
                 T obj = item as T;
                 if(obj == null)obj = (item as GameObject).GetComponent<T>();             
                 newObjs.Add(obj);
             }
-            resallDict.Add(path, items);
-            return newObjs;
+            resallDict.Add(path, items);            
         }
 
         public void UnLoadResourcesAssets()

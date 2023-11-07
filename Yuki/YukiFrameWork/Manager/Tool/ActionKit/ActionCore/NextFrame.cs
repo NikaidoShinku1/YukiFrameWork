@@ -60,7 +60,7 @@ namespace YukiFrameWork
            
             
             IsInit = false;
-            IsFinish = true;
+            IsCompleted = true;
             frameCount = 0;
             callBack = null;
             simpleObjectPools.Release(this);
@@ -69,7 +69,7 @@ namespace YukiFrameWork
         public override void OnInit()
         {
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()

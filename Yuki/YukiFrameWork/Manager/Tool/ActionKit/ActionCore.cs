@@ -11,6 +11,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     public static class RepeatExtension
@@ -48,14 +49,14 @@ namespace YukiFrameWork
         public static IActionNode Sequence(this IRepeat repeat, Action<ISequence> sequenceEvent)
         {
             var sequence = ActionKit.Sequence();
-            repeat.ActionNode = new CallBack<ISequence>(sequence, sequenceEvent);
+            repeat.ActionNode = CallBack<ISequence>.Get(sequence, sequenceEvent);
             return repeat;
         }
 
         public static IActionNode Parallel(this IRepeat repeat, Action<IParallel> parallelEvent)
         {
             var parallel = ActionKit.Parallel();
-            repeat.ActionNode = new CallBack<IParallel>(parallel, parallelEvent);
+            repeat.ActionNode = YukiFrameWork.CallBack<IParallel>.Get(parallel, parallelEvent);
             return repeat;
         }
     }
@@ -63,25 +64,36 @@ namespace YukiFrameWork
     public static class ActionSequenceExtension
     {
         public static ISequence Delay(this ISequence sequence, float currentTime, Action onDelayFinish = null)
-            => sequence.AddSequence(new Delay(currentTime, onDelayFinish));
+            => sequence.AddSequence(YukiFrameWork.Delay.Get(currentTime, onDelayFinish));
 
         public static ISequence CallBack(this ISequence sequence, Action callBack)
-            => sequence.AddSequence(new CallBack(callBack));
+            => sequence.AddSequence(YukiFrameWork.CallBack.Get(callBack));
 
         public static ISequence Condition(this ISequence sequence, Func<bool> condition)
-            => sequence.AddSequence(new Condition(condition));
+            => sequence.AddSequence(YukiFrameWork.Condition.Get(condition));
 
-        public static ISequence Parallel(this ISequence sequence, Action<IParallel> onEvent)
+        public static ISequence Parallel(this ISequence sequence, Action<IParallel> parallelEvent)
         {
-            var parallel = new Parallel();
-            sequence.AddSequence(new CallBack<IParallel>(parallel, onEvent));
+            var parallel = YukiFrameWork.Parallel.Get();
+            sequence.AddSequence(CallBack<IParallel>.Get(parallel, parallelEvent)) ;
             return sequence;
         }
 
-        public static ISequence Sequence(this ISequence sequence, Action<ISequence> onEvent)
+        public static ISequence Repeat(this ISequence sequence,int Count, Action<IRepeat> repeatEvent)
         {
-            var newSequence = new Sequence();
-            sequence.AddSequence(new CallBack<ISequence>(newSequence, onEvent));
+            var repeat = YukiFrameWork.Repeat.Get(Count);
+            sequence.AddSequence(CallBack<IRepeat>.Get(repeat, repeatEvent));
+            return sequence;
+        }
+
+        public static ISequence StartTimer(this ISequence sequence, float maxTime, Action<float> TimpTemp, Action callBack = null, bool isConstraint = false)
+            => sequence.AddSequence(Timer.Get(maxTime, TimpTemp, callBack, isConstraint));
+       
+
+        public static ISequence Sequence(this ISequence sequence, Action<ISequence> sequenceEvent)
+        {
+            var newSequence = YukiFrameWork.Sequence.Get();
+            sequence.AddSequence(CallBack<ISequence>.Get(newSequence, sequenceEvent));
             return sequence;
         }
     }
@@ -89,31 +101,40 @@ namespace YukiFrameWork
     public static class ParallelExtension
     {
         public static IParallel Delay(this IParallel parallel, float currentTime, Action callBack = null)
-            => parallel.AddParallel(new Delay(currentTime, callBack));
+            => parallel.AddParallel(YukiFrameWork.Delay.Get(currentTime, callBack));
 
         public static IParallel Condition(this IParallel parallel, Func<bool> condition)
-            => parallel.AddParallel(new Condition(condition));
+            => parallel.AddParallel(YukiFrameWork.Condition.Get(condition));
 
         public static IParallel CallBack(this IParallel parallel, Action callBack)
-            => parallel.AddParallel(new CallBack(callBack));
+            => parallel.AddParallel(YukiFrameWork.CallBack.Get(callBack));
+
+        public static IParallel Repeat(this IParallel parallel, int count, Action<IRepeat> repeatEvent)
+        {
+            var repeat = YukiFrameWork.Repeat.Get(count);
+            parallel.AddParallel(CallBack<IRepeat>.Get(repeat, repeatEvent));
+            return parallel;
+        }
 
         public static IParallel Sequence(this IParallel parallel, Action<ISequence> sequenceEvent)
         {
-            var sequence = new Sequence();
-            parallel.AddParallel(new CallBack<ISequence>(sequence, sequenceEvent));
+            var sequence = YukiFrameWork.Sequence.Get();
+            parallel.AddParallel(YukiFrameWork.CallBack<ISequence>.Get(sequence, sequenceEvent));
             return parallel;
         }
 
         public static IParallel Parallel(this IParallel parallel, Action<IParallel> parallelEvent)
         {
-            var newParallel = new Parallel();
-            parallel.AddParallel(new CallBack<IParallel>(newParallel, parallelEvent));
+            var newParallel = YukiFrameWork.Parallel.Get();
+            parallel.AddParallel(YukiFrameWork.CallBack<IParallel>.Get(newParallel, parallelEvent));
             return parallel;
         }
     }
 
     public class Condition : ActionNode
     {
+        private static SimpleObjectPools<Condition> simpleObjectPools
+            = new SimpleObjectPools<Condition>(() => new Condition(), null, 10);
         private Func<bool> condition;
         public Condition(Func<bool> condition)
         {
@@ -124,6 +145,18 @@ namespace YukiFrameWork
             this.condition = condition;
         }
 
+        public Condition() 
+        {
+
+        }
+
+        public static Condition Get(Func<bool> condition)
+        {
+            var c = simpleObjectPools.Get();
+            c.OnReset(condition);
+            return c;
+        }
+
         public override bool OnExecute(float delta)
         {
             if (IsPaused) return false;
@@ -132,16 +165,15 @@ namespace YukiFrameWork
 
         public override void OnFinish()
         {
-            IsFinish = true;
-            IsInit = false;
-           
-            
+            IsCompleted = true;
+            IsInit = false;                       
             condition = null;
+            simpleObjectPools.Release(this);
         }
 
         public override void OnInit()
         {
-            IsFinish = false;
+            IsCompleted = false;
             IsInit = true;
         }
 
@@ -150,15 +182,27 @@ namespace YukiFrameWork
             if (!IsInit) OnInit();
             if (condition == null) yield break;
             yield return new WaitUntil(condition);
+            OnFinish();
         }
     }
 
     public class CallBack : ActionNode
     {
+        private static SimpleObjectPools<CallBack> simpleObjectPools
+             = new SimpleObjectPools<CallBack>(() => new CallBack(), null, 10);
         private Action callBack;
         public CallBack(Action callBack)
         {
             OnReset(callBack);
+        }
+
+        public CallBack() { }
+
+        public static CallBack Get(Action callBack)
+        {
+            var c = simpleObjectPools.Get();
+            c.OnReset(callBack);
+            return c;
         }
 
         public void OnReset(Action callBack)
@@ -174,15 +218,16 @@ namespace YukiFrameWork
 
         public override void OnFinish()
         {
-            IsFinish = true;
+            IsCompleted = true;
             IsInit = false;                     
             callBack = null;
+            simpleObjectPools.Release(this);
         }
 
         public override void OnInit()
         {
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()
@@ -194,11 +239,22 @@ namespace YukiFrameWork
     }
     public class CallBack<TNode> : ActionNode where TNode : IActionNode
     {
+        private static SimpleObjectPools<CallBack<TNode>> simpleObjectPools
+               = new SimpleObjectPools<CallBack<TNode>>(() => new CallBack<TNode>(), null, 10);
         private TNode callBack;
         private Action<TNode> onEvent;
         public CallBack(TNode TNode, Action<TNode> onEvent)
         {
             OnReset(TNode, onEvent);
+        }
+
+        public CallBack() { }
+
+        public static CallBack<TNode> Get(TNode TNode, Action<TNode> onEvent)
+        {
+            var cT = simpleObjectPools.Get();
+            cT.OnReset(TNode, onEvent);
+            return cT;
         }
 
         public void OnReset(TNode TNode, Action<TNode> onEvent)
@@ -222,13 +278,14 @@ namespace YukiFrameWork
             callBack = default;
             onEvent = null;
             IsInit = false;
-            IsFinish = true;
+            IsCompleted = true;
+            simpleObjectPools.Release(this);
         }
 
         public override void OnInit()
         {
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
             onEvent?.Invoke(callBack);
         }
 
@@ -321,7 +378,7 @@ namespace YukiFrameWork
         public IActionUpdateCondition First(Func<bool> condition = null)
         {
             Action.IsFirstExecute = true;
-            Action.AddNode(new Condition(condition));
+            Action.AddNode(YukiFrameWork.Condition.Get(condition));
             return this;
         }
 
@@ -339,7 +396,7 @@ namespace YukiFrameWork
 
         public IActionUpdateCondition Where(Func<bool> condition)
         {
-            Action.AddNode(new Condition(condition));
+            Action.AddNode(YukiFrameWork.Condition.Get(condition));
             return this;
         }
     }

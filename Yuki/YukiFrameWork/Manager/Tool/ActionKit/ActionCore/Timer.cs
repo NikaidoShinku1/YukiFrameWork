@@ -71,7 +71,7 @@ namespace YukiFrameWork
         {
            
             
-            IsFinish = true;
+            IsCompleted = true;
             IsInit = false;
             currentTime = 0;
             IsConstranit = false;
@@ -98,7 +98,7 @@ namespace YukiFrameWork
         {
             IsInit = true;
             currentTime = Time.time;
-            IsFinish = false;
+            IsCompleted = false;
         }
     }
 }

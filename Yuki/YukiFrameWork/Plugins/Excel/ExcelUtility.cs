@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿
 using System.Collections.Generic;
 using UnityEngine;
 using Excel;
@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace YukiFrameWork.Excel
 {
     /// <summary>
-    /// ExcelÉú³É¹¤¾ß
+    /// Excelç”Ÿæˆå·¥å…·
     /// </summary>
     public class ExcelUtility
     {
@@ -27,7 +27,7 @@ namespace YukiFrameWork.Excel
         {
             if (mResultSet.Tables.Count < 1)
             {
-                Debug.LogError($"²»´æÔÚÊı¾İ±íÇëÖØÊÔ,Êı¾İ¼¯ºÏ{mResultSet}");
+                Debug.LogError($"ä¸å­˜åœ¨æ•°æ®è¡¨è¯·é‡è¯•,æ•°æ®é›†åˆ{mResultSet}");
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace YukiFrameWork.Excel
                 table.Add(row);
             }
             
-            //¸ñÊ½»¯Json
+            //æ ¼å¼åŒ–Json
             string json = JsonConvert.SerializeObject(table, Formatting.Indented,new ExcelReslover());
             Debug.Log(json);
             using (FileStream stream = new FileStream(JsonPath, FileMode.Create, FileAccess.Write))

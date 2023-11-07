@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
@@ -7,7 +7,7 @@ using System;
 namespace YukiFrameWork.Excel
 {
     /// <summary>
-    /// ÖØĞ´Excel½âÎöÆ÷
+    /// é‡å†™Excelè§£æå™¨
     /// </summary>
     public class ExcelReslover : JsonConverter
     {

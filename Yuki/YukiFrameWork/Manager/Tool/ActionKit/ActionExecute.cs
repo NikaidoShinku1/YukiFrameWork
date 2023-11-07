@@ -46,7 +46,7 @@ namespace YukiFrameWork
             {
                 if (!actionNodes[i].IsInit) actionNodes[i].OnInit();
 
-                if (actionNodes[i].OnExecute(Time.deltaTime))
+                if (actionNodes[i].OnExecute(Time.deltaTime) || actionNodes[i].IsCompleted)
                 {
                     actionNodes[i].OnFinish();
                     actionNodes.RemoveAt(i);

@@ -9,10 +9,10 @@ namespace YukiFrameWork
     {
         private readonly static object _lock = new object();
 
-        private Stack<Action> OnBack = new Stack<Action>();
+        private readonly Stack<Action> OnBack = new Stack<Action>();
 
         private static T instance;
-        [field: SerializeField] public bool IsDonDestroyLoad { get; private set; }
+        [field: SerializeField] public bool IsDonDestroyLoad { get; protected set; }
         public static T Instance
         {
             get
@@ -35,6 +35,8 @@ namespace YukiFrameWork
             }
         }
 
+        public static T I => Instance;
+
         protected virtual void Awake()
         {
             if (instance != null && instance != this)
@@ -50,7 +52,7 @@ namespace YukiFrameWork
            
         }
 
-        public virtual void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if(!IsDonDestroyLoad)
             instance = null;

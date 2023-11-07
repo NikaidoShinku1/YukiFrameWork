@@ -57,7 +57,7 @@ namespace YukiFrameWork
         {
            
             
-            IsFinish = true;
+            IsCompleted = true;
             IsInit = false;
             predicate = null;
             callBack = null;
@@ -74,7 +74,7 @@ namespace YukiFrameWork
 
         public override void OnInit()
         {
-            IsFinish = false;
+            IsCompleted = false;
             IsInit = true;
         }
     }

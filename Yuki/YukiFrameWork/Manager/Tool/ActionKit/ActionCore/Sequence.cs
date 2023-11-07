@@ -61,7 +61,7 @@ namespace YukiFrameWork
         public override void OnFinish()
         {
             IsInit = false;
-            IsFinish = true;
+            IsCompleted = true;
            
             
             sequenes.Clear();
@@ -71,7 +71,7 @@ namespace YukiFrameWork
         public override void OnInit()
         {
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()

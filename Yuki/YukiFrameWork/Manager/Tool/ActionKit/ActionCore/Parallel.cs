@@ -65,7 +65,7 @@ namespace YukiFrameWork
 
         public override void OnFinish()
         {
-            IsFinish = true;
+            IsCompleted = true;
             IsInit = false;
            
             
@@ -76,7 +76,7 @@ namespace YukiFrameWork
         public override void OnInit()
         {
             IsInit = true;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()

@@ -66,7 +66,7 @@ namespace YukiFrameWork
         public override void OnFinish()
         {
             IsInit = false;
-            IsFinish = true;
+            IsCompleted = true;
            
             
             callBack = null;
@@ -78,7 +78,7 @@ namespace YukiFrameWork
         {
             IsInit = true;
             currentTime = Time.time;
-            IsFinish = false;
+            IsCompleted = false;
         }
 
         public override IEnumerator ToCoroutine()

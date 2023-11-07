@@ -10,11 +10,11 @@
 
 
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 using System.Threading;
 using YukiFrameWork.Res;
 using UnityEngine.Audio;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace YukiFrameWork.Manager
 {
@@ -23,6 +23,13 @@ namespace YukiFrameWork.Manager
         同步,
         异步
     }
+
+    public enum Safe
+    {
+        默认模式 = 0,
+        安全模式
+    }
+
     /// <summary>
     /// 声音管理器
     /// </summary>
@@ -30,8 +37,7 @@ namespace YukiFrameWork.Manager
     {
         [SerializeField] private AudioData AudioData = new AudioData();
         private AudioSource currentSource;
-        private Queue<AudioSource> currentVoices = new Queue<AudioSource>();
-        private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
+        private Queue<AudioSource> currentVoices = new Queue<AudioSource>();     
         private readonly ResNode resNode = ResKit.Get();
         [Header("是否动态加载音频")]
         [SerializeField]
@@ -50,9 +56,16 @@ namespace YukiFrameWork.Manager
         [Header("动态加载资源所绑定的分组")]
         [SerializeField]
         private AudioMixerGroup AudioMixerGroup;
+
+        [Header("模式选择,安全模式在使用异步加载时有效，播放前强制检查音频是否完全加载完毕")]
+        [SerializeField]
+        private Safe safeType;
+
+        private bool isCompleted;
         private void Awake()
         {
             Init();
+            isCompleted = false;
         }
 
         private void Init()
@@ -78,14 +91,29 @@ namespace YukiFrameWork.Manager
                 switch (loadMode)
                 {
                     case LoadMode.同步:
-                        var audioClips = resNode.LoadAllSync<AudioClip>(attributionType, ClipPath);
-                        InitClip(audioClips);
+                        try
+                        {
+                            var audioClips = resNode.LoadAllSync<AudioClip>(attributionType, ClipPath);
+                            InitClip(audioClips);
+                        }
+                        catch
+                        {
+                            Debug.LogError("动态加载失败,请检查路径！");
+                        }
                         break;
                     case LoadMode.异步:
-                        _ = resNode.LoadAllAsync<AudioClip>(attributionType, ClipPath, clips =>
+                        try
                         {
-                            InitClip(clips);
-                        });
+                            resNode.LoadAllAsyncExecute<AudioClip>(attributionType, ClipPath, clips =>
+                            {
+                                InitClip(clips);
+                                isCompleted = true;
+                            });
+                        }
+                        catch
+                        {
+                            Debug.LogError("动态加载失败,请检查路径！");
+                        }
                         break;
                 }
             }
@@ -102,6 +130,7 @@ namespace YukiFrameWork.Manager
                 SetSource(audio, source);
                 Debug.Log(audio);
             }
+
         }
 
         /// <summary>
@@ -139,24 +168,26 @@ namespace YukiFrameWork.Manager
         /// <param name="isWait">是否等待当前音频播放完毕</param>
         public void PlayVoices(string name, bool isWait = false)
         {
-            _ = _PlayerVoices(name, isWait);
+             _PlayerVoices(name, isWait).Start();
         }
 
-        private async UniTaskVoid _PlayerVoices(string name, bool isWait = false)
+        private IEnumerator _PlayerVoices(string name, bool isWait = false)
         {
+            if (safeType == Safe.安全模式)
+                yield return new WaitUntil(() => isCompleted);
             if (!AudioData.Exist(name))
             {
                 Debug.LogError($"当前名字没有对应音频无法播放！音频名为{name}");
-                return;
+                yield break;
             }           
 
             var source = AudioData.GetAudioSource(name);
             if (isWait)
             {
-                await UniTask.WaitUntil(() => 
+                yield return new WaitUntil(() => 
                 {
                     return !currentVoices.Peek().isPlaying;
-                },cancellationToken:tokenSource.Token);
+                });
             }
             currentVoices.Enqueue(source);
             source.Play();
@@ -164,7 +195,7 @@ namespace YukiFrameWork.Manager
             if(currentSource != null)
             tempVolume = currentSource.volume;
             if (currentSource != null) currentSource.volume = tempVolume / 2;
-            await UniTask.WaitUntil(() =>
+            yield return new WaitUntil(() =>
                 {
                     if(source != null)
                         return !source.isPlaying;
@@ -185,27 +216,29 @@ namespace YukiFrameWork.Manager
         /// <param name="isWait">如果正在播放这个音乐，那么检查是否等待音乐播放完</param>
         public void PlayAudio(string name, bool isWait = false)
         {
-            _ = _PlayerAudio(name, isWait);
+            _PlayerAudio(name, isWait).Start();
         }
 
-        private async UniTaskVoid _PlayerAudio(string name,bool isWait)
+        private IEnumerator _PlayerAudio(string name,bool isWait)
         {
+            if (safeType == Safe.安全模式)
+                yield return new WaitUntil(() => isCompleted);
             if (!AudioData.Exist(name))
             {
                 Debug.LogError($"当前名字没有对应音频无法播放！音频名为{name}");
-                return;
+                yield break;
             }          
             var source = AudioData.GetAudioSource(name);
             if (currentSource != null)
             {
                 if (isWait)
                 {
-                    await UniTask.WaitUntil(() =>
+                    yield return new WaitUntil(() =>
                     {
                         if (currentSource != null)
                             return !currentSource.isPlaying;
                         return true;
-                    }, cancellationToken: tokenSource.Token);
+                    });
                 }
                 currentSource.Stop();
                 currentSource = source;

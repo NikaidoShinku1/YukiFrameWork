@@ -11,15 +11,8 @@
 using System.Collections.Generic;
 using System;
 using YukiFrameWork.Command;
-#if UNITY_2020_3 || UNITY_2021_3 || UNITY_2022_3
-using Cysharp.Threading.Tasks;
-#endif
 using YukiFrameWork.MVC;
 using YukiFrameWork.UI;
-using UnityEngine;
-#if UNITY_2020_3 || UNITY_2021_3 || UNITY_2022_3
-using Cysharp.Threading.Tasks.Triggers;
-#endif
 using System.Collections;
 
 namespace YukiFrameWork
@@ -497,9 +490,16 @@ namespace YukiFrameWork
         /// <returns>返回一个面板</returns>
         public static TPanel PushPanel<TPanel>(this IUIPanelController controller, UIPanelType type) where TPanel : BasePanel
         {
-            var panel = controller.GetArchitecture().PanelManager.PushPanel<TPanel>(type);
-            panel.SetArchitecture(controller.GetArchitecture());
-            return panel;
+            try
+            {
+                var panel = controller.GetArchitecture().PanelManager.PushPanel<TPanel>(type);
+                panel.SetArchitecture(controller.GetArchitecture());
+                return panel;
+            }
+            catch
+            {
+                throw new Exception("没有对PanelManager进行初始化，在控制器类调用UIPanelInit方法");
+            }
         }
 
         /// <summary>

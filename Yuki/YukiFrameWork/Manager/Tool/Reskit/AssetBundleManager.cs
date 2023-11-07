@@ -27,14 +27,21 @@ namespace YukiFrameWork.Res
 
         public  void Init()
         {
-            string jsonpath = "AssetBundlesPath.Json";
-            string overPath = Path.Combine(Application.streamingAssetsPath, jsonpath);
-            string json = File.ReadAllText(overPath);
-            JsonData data = JsonMapper.ToObject(json);
-            
-            assetBundlePath = Application.streamingAssetsPath + @"\" + data[0];
+            try
+            {
+                string jsonpath = "AssetBundlesPath.Json";
+                string overPath = Path.Combine(Application.streamingAssetsPath, jsonpath);
+                string json = File.ReadAllText(overPath);
+                JsonData data = JsonMapper.ToObject(json);
 
-            IsInit = true;
+                assetBundlePath = Application.streamingAssetsPath + @"\" + data[0];
+
+                IsInit = true;
+            }
+            catch 
+            {
+                Debug.LogWarning("没有使用框架工具对资源进行AB包打包，顾AB包资源加载暂无法使用");
+            }
         }
 
         /// <summary>

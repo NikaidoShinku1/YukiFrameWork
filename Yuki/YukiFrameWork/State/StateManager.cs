@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace YukiFrameWork.States
@@ -22,13 +23,10 @@ namespace YukiFrameWork.States
         public StateMechine stateMechine;
                
         [HideInInspector]
-        public int normalID;  
+        public int normalID;    
 
-        /// <summary>
-        /// µ±Ç°¿ØÖÆid
-        /// </summary>
         [HideInInspector]
-        public int controllerID;
+        public Stack<int> stateIndexs = new Stack<int>();
 
         [HideInInspector]
         public bool isController;
@@ -72,6 +70,11 @@ namespace YukiFrameWork.States
             }
             stateMechine.OnChangeState(normalID);
             
+        }
+
+        public bool GetStateByIndex(int index)
+        {
+            return stateIndexs.Contains(index);
         }
     }
 

@@ -9,9 +9,9 @@
 ///======================================================
 
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
+using System.Collections;
 
 namespace YukiFrameWork.Res
 {
@@ -22,6 +22,53 @@ namespace YukiFrameWork.Res
     {
         Resources = 0,
         AssetBundle       
+    }
+
+    public static class ResNodeExtension
+    {
+        /// <summary>
+        /// 不需要手动启动协程而立刻执行异步加载资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="node">资源管理器</param>
+        /// <param name="attribution">加载方式</param>
+        /// <param name="path">加载地址</param>
+        /// <param name="objName">物品名字(当使用ab包加载时务必填写)</param>
+        /// <param name="loadAsset">接收物品的回调方法(自动调用)</param>
+        /// <returns></returns>
+        public static IYukiTask LoadAsyncExecute<T>(this ResNode node,Attribution attribution, string path, string objName, System.Action<T> loadAsset = null) where T : Object
+        {
+            return YukiTask.Get(node.LoadAsync(attribution, path, objName, loadAsset));
+        }
+
+        /// <summary>
+        /// 不需要手动启动协程而立刻执行异步加载资源(重载)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="node">资源管理器</param>
+        /// <param name="attribution">加载方式</param>
+        /// <param name="path">加载地址</param>      
+        /// <param name="loadAsset">接收物品的回调方法(自动调用)</param>
+        /// <returns></returns>
+        public static IYukiTask LoadAsyncExecute<T>(this ResNode node, Attribution attribution, string path,  System.Action<T> loadAsset = null) where T : Object
+        {
+            return YukiTask.Get(node.LoadAsync(attribution, path, string.Empty, loadAsset));
+        }
+
+
+        /// <summary>
+        /// (可等待)不需要手动启动协程而立刻执行异步加载资源
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="node">资源管理器</param>
+        /// <param name="attribution">加载方式</param>
+        /// <param name="path">加载地址</param>       
+        /// <param name="loadAsset">接收物品的回调方法(自动调用)</param>
+        /// <returns></returns>
+        public static IYukiTask LoadAllAsyncExecute<T>(this ResNode node,Attribution attribution, string path, System.Action<List<T>> loadAsset = null) where T : Object
+        {
+            return YukiTask.Get(node.LoadAllAsync(attribution, path, loadAsset));
+        }
     }
 
     public class ResNode
@@ -72,9 +119,9 @@ namespace YukiFrameWork.Res
         /// <param name="objName">物品的名称，当使用ab包进行加载时则需要填写该参数</param>
         /// <param name="loadAsset">自动回调，如想在等待结束后立刻获得资源则可以使用/param>
         /// <returns>返回路径下所有资源</returns>
-        public async UniTask<T> LoadAsync<T>(Attribution attribution, string path, string objName, System.Action<T> loadAsset = null) where T : Object
+        public IEnumerator LoadAsync<T>(Attribution attribution, string path, string objName, System.Action<T> loadAsset = null) where T : Object
         {
-            return await CheckAsyncRes(attribution, path, objName, loadAsset);
+             yield return CheckAsyncRes(attribution, path, objName, loadAsset);
         }
         /// <summary>
         /// 异步加载指定下资源
@@ -83,9 +130,9 @@ namespace YukiFrameWork.Res
         /// <param name="path">物品的位置，如果路径内含有resources则从Resources加载，如没有则从ab包进行加载</param>
         /// <param name="loadAsset">自动回调，如想在等待结束后立刻获得资源则可以使用/param>
         /// <returns>返回路径下所有资源</returns>
-        public async UniTask<T> LoadAsync<T>(Attribution attribution, string path, System.Action<T> loadAsset = null) where T : Object
+        public IEnumerator LoadAsync<T>(Attribution attribution, string path, System.Action<T> loadAsset = null) where T : Object
         {
-            return await CheckAsyncRes(attribution, path, string.Empty, loadAsset);
+            yield return CheckAsyncRes(attribution, path, string.Empty, loadAsset);
         }
 
         /// <summary>
@@ -95,12 +142,12 @@ namespace YukiFrameWork.Res
         /// <param name="path">物品的位置，如果路径内含有Resources则从Resources加载，如没有则从ab包进行加载</param>        
         /// <param name="loadAsset">自动回调，如想在等待结束后立刻获得资源则可以使用/param>
         /// <returns>返回路径下所有资源</returns>
-        public async UniTask<List<T>> LoadAllAsync<T>(Attribution attribution, string path, System.Action<List<T>> loadAsset = null) where T : Object
+        public IEnumerator LoadAllAsync<T>(Attribution attribution, string path, System.Action<List<T>> loadAsset = null) where T : Object
         {
-            return await CheckAllAsyncRes(attribution, path, loadAsset);
+            yield  return CheckAllAsyncRes(attribution, path, loadAsset);
         }
 
-        private async UniTask<List<T>> CheckAllAsyncRes<T>(Attribution attribution, string path, System.Action<List<T>> loadAsset) where T : Object
+        private IEnumerator CheckAllAsyncRes<T>(Attribution attribution, string path, System.Action<List<T>> loadAsset) where T : Object
         {
             string resPath = path;
             switch (attribution)
@@ -108,15 +155,17 @@ namespace YukiFrameWork.Res
                 case Attribution.Resources:
                     {
                         var item = ResourcesManager.LoadAllAsync<T>(resPath);
-                        var obj = await item;
+                        yield return item;
+                        var obj = ResourcesManager.LoadAll<T>(resPath);
 
                         loadAsset?.Invoke(obj);
-                        return obj;
+                        yield return obj;
                     }
+                    break;
                 case Attribution.AssetBundle:
                     {
                         var items = AssetBundleManager.LoadFromAsyncAllAssetBundle<T>(path);
-                        await items;
+                        yield return items;
                         var list = new List<T>();
                         foreach (var item in items.allAssets)
                         {
@@ -126,14 +175,13 @@ namespace YukiFrameWork.Res
                             list.Add(obj);
                         }
                         loadAsset?.Invoke(list);
-                        return list;
+                        yield  return list;
                     }
-            }
-            return null;
-
+                    break;
+            }          
         }
 
-        private async UniTask<T> CheckAsyncRes<T>(Attribution attribution, string path, string objName = null, System.Action<T> loadAsset = null) where T : Object
+        private IEnumerator CheckAsyncRes<T>(Attribution attribution, string path, string objName = null, System.Action<T> loadAsset = null) where T : Object
         {
             string resPath = path;
             switch (attribution)
@@ -141,37 +189,34 @@ namespace YukiFrameWork.Res
                 case Attribution.Resources:
                     {
                         var item = ResourcesManager.LoadAsync(resPath);
-                        await item;
+                        yield return item;
                         var obj = item.asset as T;
                         if (obj == null)
                         {
                             obj = (item.asset as GameObject).GetComponent<T>();
                         }
                         loadAsset?.Invoke(obj);
-                        return obj;
-                    }
+                        yield break;
+                    }                 
                 case Attribution.AssetBundle:
                     {
                         if (objName == string.Empty)
                         {
                             Debug.LogError("请输入包内资源名！如果想获取此包所有的资源请选择ResKit.LoadAllAsync");
-                            await UniTask.Delay(System.TimeSpan.FromSeconds(100000));
-                            return null;
+                            yield break;
                         }
                         var item = AssetBundleManager.LoadFromAsyncAssetBundle<T>(path, objName);
-                        await item;
+                        yield return item;
                         var obj = item.asset as T;
                         if (obj == null)
                         {
                             obj = (item.asset as GameObject).GetComponent<T>();
                         }
                         loadAsset?.Invoke(obj);
-                        return obj;
-
+                        yield break;
                     }
             }
-            loadAsset?.Invoke(default(T));
-            return null;
+            loadAsset?.Invoke(default(T));          
         }
 
         /// <summary>
@@ -261,7 +306,7 @@ namespace YukiFrameWork.Res
 
         public static ResNode Get() => resNodePools.Get();
 
-        public static bool Release(ResNode node, bool isUnLoad = false,System.Action callBack = null)
+        public static bool Release(ResNode node, bool isUnLoad = false)
         {
             node.IsUnload = isUnLoad;
             return resNodePools.Release(node);

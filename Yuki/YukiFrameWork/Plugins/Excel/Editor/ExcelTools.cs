@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -30,7 +30,7 @@ namespace YukiFrameWork.Excel
 
         private static bool keepSource = true;
 
-        [MenuItem("YukiFrameWork/ExcelToJson")]
+        [MenuItem("YukiFrameWork/ExcelToJson(å¼ƒç”¨)")]
         private static void ExcelToJson()
         {
             Init();
@@ -45,7 +45,7 @@ namespace YukiFrameWork.Excel
             createJsonPath = "";
             rect = new Rect(0, 0, 400, 300);
             instance.position = rect;
-            instance.titleContent = new GUIContent("Excel×ªjson¹¤¾ß");
+            instance.titleContent = new GUIContent("Excelè½¬jsonå·¥å…·");
             pathRoot = Application.dataPath;
             pathRoot = pathRoot.Substring(0, pathRoot.LastIndexOf("/"));          
 
@@ -62,7 +62,7 @@ namespace YukiFrameWork.Excel
             if (excelList == null) return;
             if (excelList.Count < 1)
             {
-                EditorGUILayout.LabelField("µ±Ç°²¢Ã»Ñ¡ÔñexcelÎÄ¼þ");
+                EditorGUILayout.LabelField("å½“å‰å¹¶æ²¡é€‰æ‹©excelæ–‡ä»¶");
             }
             else
             {
@@ -75,7 +75,7 @@ namespace YukiFrameWork.Excel
                 }
                 GUILayout.EndVertical();
 
-                if (GUILayout.Button("Éú³ÉJsonÎÄ¼þ"))
+                if (GUILayout.Button("ç”ŸæˆJsonæ–‡ä»¶"))
                 {
                     Convert();
                 }
@@ -86,7 +86,7 @@ namespace YukiFrameWork.Excel
         {
             if (String.IsNullOrEmpty(createJsonPath))
             {
-                Debug.LogError("Â·¾¶²»´æÔÚ");
+                Debug.LogError("è·¯å¾„ä¸å­˜åœ¨");
                 return;
             }
             foreach (var excelPath in excelList)
@@ -124,14 +124,14 @@ namespace YukiFrameWork.Excel
         private void DrawOptions()
         {
             GUILayout.BeginHorizontal();
-            type = (EncodingType)EditorGUILayout.EnumPopup("ÇëÑ¡Ôñ±àÂëÀàÐÍ", type);
+            type = (EncodingType)EditorGUILayout.EnumPopup("è¯·é€‰æ‹©ç¼–ç ç±»åž‹", type);
 
             GUILayout.EndHorizontal();
-            keepSource = EditorGUILayout.Toggle("ÊÇ·ñ±£ÁôÔ´ÎÄ¼þ", keepSource);
+            keepSource = EditorGUILayout.Toggle("æ˜¯å¦ä¿ç•™æºæ–‡ä»¶", keepSource);
 
             GUILayout.BeginHorizontal();
             createJsonPath = GUILayout.TextField(createJsonPath);
-            if (GUILayout.Button("Ñ¡ÔñÉú³ÉÎÄ¼þ¼Ð", GUILayout.Width(150)))
+            if (GUILayout.Button("é€‰æ‹©ç”Ÿæˆæ–‡ä»¶å¤¹", GUILayout.Width(150)))
             {
                 createJsonPath = EditorUtility.SaveFolderPanel("Save Json Folder", "", "");
             }
