@@ -4,68 +4,71 @@ using LitJson;
 using System.IO;
 using System;
 using YukiFrameWork.Res;
+using System.Collections;
 
 namespace YukiFrameWork.UI
 {
-    public class UIManager
+    public class UIManager : Singleton<UIManager>
     {
-        private static readonly Dictionary<Type, BasePanel> panelsDict = new Dictionary<Type, BasePanel>();        
+        private readonly Dictionary<Type, BasePanel> panelsDict = new Dictionary<Type, BasePanel>();        
         
         private Transform mCanvasTransform => UnityEngine.Object.FindObjectOfType<Canvas>().transform;
 
-        private static readonly List<BasePanel> activePanels = new List<BasePanel>();
+        /// <summary>
+        /// 保存所有已经弹出来的面板
+        /// </summary>
+        private readonly Dictionary<Type,BasePanel> activePanelsDict = new Dictionary<Type, BasePanel>();
 
         public Dictionary<Type,BasePanel> PanelsDict => panelsDict;    
         
         public string PanelPath { get; private set; }
 
-        public string AssetBundleName { get; private set; }
+        public string AssetBundleName { get; private set; }      
 
-        private Attribution panelLoadType;
+        private readonly ResLoader resNode = ResKit.GetLoader();
 
-        private ResNode resNode = ResKit.Get();
+        private LoadMode panelLoadType;
 
-        public UIManager() 
-        {         
-            try
-            {
-                string jsonPath = Application.streamingAssetsPath + "/UIPanel" + "/UIPath.Json";
-                UIPath path = JsonMapper.ToObject<UIPath>(File.ReadAllText(jsonPath));                
-                PanelPath = path.UIPanelPath;
-                panelLoadType = path.type;
-                AssetBundleName = path.assetBundleName;
-            }
-            catch 
-            {
-                Debug.LogWarning("未使用UIToolKit进行路径初始化，将保持路径默认并检索所有Resources");
-                PanelPath = string.Empty;
-                return;
-            }
+        public bool IsInit { get; private set; } = false;
 
+        public bool IsCompleted { get; private set; } = false;
+
+        public void Init(string panelPath, LoadMode mode)
+        {
+            if (IsInit) return;
+            this.PanelPath = panelPath;
+            panelLoadType = mode;
             InitAllPanelPrefab();
+            IsInit = true;
+        }
+
+        public IEnumerator InitAsync()
+        {
+            yield return new WaitUntil(() => IsCompleted);
         }
 
         private void InitAllPanelPrefab()
         {
             switch (panelLoadType)
             {
-                case Attribution.Resources:
-                    resNode.LoadAllAsync<BasePanel>(Attribution.Resources, PanelPath, panels => 
+                case LoadMode.同步:
+                    var panels = resNode.LoadAllAssetsFromComponent<BasePanel>(PanelPath);
+                    foreach (var panel in panels)
                     {
-                        foreach (var panel in panels)
-                        {
-                            CreateParentPanels(panel.GetType(), panel);
-                        }
-                    }).Start();
+                        CreateParentPanels(panel.GetType(), panel);
+                    }
+                    IsCompleted = true;
                     break;
-                case Attribution.AssetBundle:
-                    resNode.LoadAllAsync<BasePanel>(Attribution.AssetBundle, AssetBundleName,panels => 
+                case LoadMode.异步:
+                    resNode.InitAsync();
+                    resNode.LoadAllAssetsFromComponentsAsync<BasePanel>(PanelPath,(panels,a,b,c) => 
                     {
                         foreach (var panel in panels)
                         {                            
                             CreateParentPanels(panel.GetType(),panel);
                         }
-                    }).Start();
+                        IsCompleted = true;
+                    });
                     break;              
             }           
         }        
@@ -84,9 +87,9 @@ namespace YukiFrameWork.UI
            
         }
 
-        public void RemovePanel(BasePanel panel)
+        public void RemovePanel(Type panelType)
         {
-            activePanels.Remove(panel);
+            activePanelsDict.Remove(panelType);
         }
 
         /// <summary>
@@ -95,41 +98,31 @@ namespace YukiFrameWork.UI
         /// <param name="type">面板类型</param>
         /// <returns>返回一个面板</returns>
         private BasePanel CheckOrCreatePanel(Type type)
-        {           
-            BasePanel panel = null;
-            if (activePanels.Count > 0)
-            {            
-                BasePanel newPanel = activePanels.Find(x => x.GetType() == type);
-                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
-            }
-            else if (!panelsDict.TryGetValue(type, out var newPanel))
+        {
+            activePanelsDict.TryGetValue(type, out var panel);
+            if (panel != null)
             {
-                switch (panelLoadType)
-                {
-                    case Attribution.Resources:
-                        newPanel = resNode.LoadSync<BasePanel>(Attribution.Resources, panel.name);
-                        break;
-                    case Attribution.AssetBundle:
-                        newPanel = resNode.LoadSync<BasePanel>(Attribution.AssetBundle,AssetBundleName, panel.name);
-                        break;
-                
-                }
-
-                CreateParentPanels(type, newPanel);
-                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
+                panel.transform.SetParent(mCanvasTransform);
+                return panel;
+            }
+            if (!panelsDict.TryGetValue(type, out var newPanel))
+            {
+                Debug.LogError("UIManager 没有储存该面板，请检查！Panel：" + type);
             }
             else
             {
-                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);
-            }
-           
+                panel = GameObject.Instantiate(newPanel, mCanvasTransform, false);                
+                activePanelsDict.Add(panel.GetType(),panel);
+            }               
+
             return panel;
         }
 
         public void Clear()
         {
+            resNode.Release();
             panelsDict.Clear();
-            activePanels.Clear();
+            activePanelsDict.Clear();
         }
 
     }

@@ -10,20 +10,15 @@
 
 
 using UnityEngine;
-using System.Threading;
+using System.Linq;
 using YukiFrameWork.Res;
 using UnityEngine.Audio;
 using System.Collections.Generic;
 using System.Collections;
+using System;
 
 namespace YukiFrameWork.Manager
-{
-    public enum LoadMode
-    {
-        同步,
-        异步
-    }
-
+{    
     public enum Safe
     {
         默认模式 = 0,
@@ -37,19 +32,20 @@ namespace YukiFrameWork.Manager
     {
         [SerializeField] private AudioData AudioData = new AudioData();
         private AudioSource currentSource;
-        private Queue<AudioSource> currentVoices = new Queue<AudioSource>();     
-        private readonly ResNode resNode = ResKit.Get();
+        private readonly Queue<AudioSource> currentVoices = new Queue<AudioSource>();     
+        private ResLoader ResLoader;
         [Header("是否动态加载音频")]
         [SerializeField]
-        private bool IsLoad;
+        private bool IsAutoLoad = true;
 
         [SerializeField]
-        [Header("加载类型")]
-        private Attribution attributionType;
+        [Header("加载源")]
+        private ResourceType resType;
+    
         [SerializeField]
-        [Header("加载方式")]
+        [Header("加载方式(使用Resources加载强制同步(选择异步也保持同步加载))")]
         private LoadMode loadMode;
-        [Header("资源路径")]
+        [Header("资源路径(使用前需要)")]
         [SerializeField]
         private string ClipPath;
 
@@ -64,7 +60,10 @@ namespace YukiFrameWork.Manager
         private bool isCompleted;
         private void Awake()
         {
-            Init();
+            if(resType == ResourceType.ResKit资源管理套件) 
+                ResKit.Init();
+            ResLoader = ResKit.GetLoader();
+            Init();           
             isCompleted = false;
         }
 
@@ -81,42 +80,71 @@ namespace YukiFrameWork.Manager
                 }
                 catch
                 {
-                    Debug.LogWarning($"可视化音频剪辑未添加!Checked {Audio.GetType()}");
+                    Debug.LogWarning($"Visual audio not added !Checked {Audio.GetType()}");
                     break;
                 }
 
             }
-            if (IsLoad)
+            if (IsAutoLoad)
             {
                 switch (loadMode)
                 {
                     case LoadMode.同步:
                         try
                         {
-                            var audioClips = resNode.LoadAllSync<AudioClip>(attributionType, ClipPath);
-                            InitClip(audioClips);
+                            switch (resType)
+                            {
+                                case ResourceType.Resources:
+                                    {
+                                        var audioClips = Resources.LoadAll<AudioClip>(ClipPath);
+                                        InitClip(audioClips.ToList());
+                                    }
+                                    break;
+                                case ResourceType.ResKit资源管理套件:
+                                    {
+                                        var audioClips = ResLoader.LoadAllAssets<AudioClip>(ClipPath);
+                                        InitClip(audioClips);
+                                    }
+                                    break;                             
+                            }
+                          
                         }
                         catch
                         {
-                            Debug.LogError("动态加载失败,请检查路径！");
+                            Debug.LogError("Dynamic loading failed. Please check the path！path: " + ClipPath);
                         }
                         break;
                     case LoadMode.异步:
                         try
                         {
-                            resNode.LoadAllAsyncExecute<AudioClip>(attributionType, ClipPath, clips =>
+                            switch (resType)
                             {
-                                InitClip(clips);
-                                isCompleted = true;
-                            });
+                                case ResourceType.Resources:
+                                    {
+                                        var audioClips = Resources.LoadAll<AudioClip>(ClipPath);
+                                        InitClip(audioClips.ToList());
+                                    }
+                                    break;
+                                case ResourceType.ResKit资源管理套件:
+                                    {
+                                        ResLoader.InitAsync();
+                                        ResLoader.LoadAllAssetsAsync<AudioClip>(ClipPath,(a,b,c,d)=> InitClip(a));                                        
+                                    }
+                                    break;
+                            }
                         }
                         catch
                         {
-                            Debug.LogError("动态加载失败,请检查路径！");
+                            Debug.LogError("Dynamic loading failed. Please check the path！path: " + ClipPath);
                         }
                         break;
                 }
             }
+        }
+
+        public IEnumerator LoadAsync()
+        {
+            yield return new WaitUntil(() => isCompleted);
         }
 
         private void InitClip(List<AudioClip> audioClips)
@@ -127,10 +155,9 @@ namespace YukiFrameWork.Manager
                 GameObject sourceObj = new GameObject(audio.clip.name);
                 AudioSource source = sourceObj.AddComponent<AudioSource>();
                 sourceObj.transform.SetParent(transform);
-                SetSource(audio, source);
-                Debug.Log(audio);
+                SetSource(audio, source);                
             }
-
+            isCompleted = true;
         }
 
         /// <summary>
@@ -186,15 +213,13 @@ namespace YukiFrameWork.Manager
             {
                 yield return new WaitUntil(() => 
                 {
-                    return !currentVoices.Peek().isPlaying;
+                    if(currentVoices.Count > 0)
+                        return !currentVoices.Peek().isPlaying;
+                    return true;
                 });
             }
             currentVoices.Enqueue(source);
-            source.Play();
-            var tempVolume = 1f;
-            if(currentSource != null)
-            tempVolume = currentSource.volume;
-            if (currentSource != null) currentSource.volume = tempVolume / 2;
+            source.Play();         
             yield return new WaitUntil(() =>
                 {
                     if(source != null)
@@ -204,9 +229,7 @@ namespace YukiFrameWork.Manager
 
             if(currentVoices.Count >= 5)
             currentVoices.Dequeue();
-
-            if(currentSource != null)
-            currentSource.volume = tempVolume;
+           
         }
 
         /// <summary>
@@ -241,6 +264,7 @@ namespace YukiFrameWork.Manager
                     });
                 }
                 currentSource.Stop();
+                
                 currentSource = source;
                 currentSource.Play();
 
@@ -319,6 +343,32 @@ namespace YukiFrameWork.Manager
         public AudioSource GetSource(string name)
         {
             return AudioData.GetAudioSource(name);
+        }
+
+        private void Update()
+        {
+            Update_SourceVolume();
+        }
+
+        private void Update_SourceVolume()
+        {
+            if (currentSource != null)
+            {
+                bool isVoices = false;
+                foreach (var v in currentVoices)
+                {
+                    if (v.isPlaying)
+                    {
+                        isVoices = true;
+                        break;
+                    }
+                }
+
+                if (isVoices)                
+                    currentSource.volume = (float)(AudioData.GetAudioData(currentSource.clip.name)?.volume) / 2;                
+                else
+                    currentSource.volume = (float)(AudioData.GetAudioData(currentSource.clip.name)?.volume);
+            }
         }
 
         private void OnDestroy()

@@ -24,20 +24,53 @@ namespace YukiFrameWork.States
 
         private readonly static List<string> animClipsName = new List<string>();
 
+        private static SerializedProperty initType;
+        private static SerializedProperty isDebugLog;
+        private static SerializedProperty stateMechine;
+        private new static SerializedObject serializedObject;
+
         private void OnEnable()
-        {
+        {          
             stateManager = (StateManager)target;
+            serializedObject = new SerializedObject(stateManager);
+            initType = serializedObject.FindProperty("initType");
+            isDebugLog = serializedObject.FindProperty("IsDebugLog");
+            stateMechine = serializedObject.FindProperty("stateMechine");
 
         }
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
+            SetField();          
+
             OpenStateGraphEditor();
 
             Statusdetails();
 
             EditorUtility.SetDirty(target);
+        }
+
+        private void SetField()
+        {
+            GUILayout.BeginVertical();
+            EditorGUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("状态机初始化方式");
+            EditorGUILayout.PropertyField(initType,GUIContent.none,GUILayout.Width(400));
+            GUILayout.EndHorizontal();
+            EditorGUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("状态机调试");
+            EditorGUILayout.PropertyField(isDebugLog,GUIContent.none, GUILayout.Width(400));
+            GUILayout.EndHorizontal();
+            EditorGUILayout.Space(10);
+            GUILayout.BeginHorizontal(); 
+            GUILayout.Label("状态编辑器");
+            stateManager.stateMechine = (StateMechine)EditorGUILayout.ObjectField(stateManager.stateMechine,typeof(StateMechine),true,GUILayout.Width(400));
+            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void OpenStateGraphEditor()

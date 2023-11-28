@@ -14,7 +14,8 @@ using YukiFrameWork.Command;
 using YukiFrameWork.MVC;
 using YukiFrameWork.UI;
 using System.Collections;
-
+using YukiFrameWork.Res;
+using YukiFrameWork.Events;
 namespace YukiFrameWork
 {
     /// <summary>
@@ -26,7 +27,8 @@ namespace YukiFrameWork
         IPanelManager PanelManager { get; }
         void RegisterModel<T>(T model) where T : class, IModel;
         void RegisterView<T>(T view) where T : class, IView;
-        void InitPanelManager();
+        void InitPanelManager(string panelPath);
+        IAsyncExtensionCore InitPanelManagerAsync(string panelPath,Action onFinish = null);
         void UnRegisterModel<T>(T model = default) where T : class,IModel;
         void UnRegisterView<T>(T view = default) where T : class, IView;
         T GetModel<T>() where T : class, IModel;
@@ -126,7 +128,6 @@ namespace YukiFrameWork
         private bool Contains<T>(T t = default) where T : class      
             => architectureContainer.ContainsKey(t.GetType());
         
-
         public T GetModel<T>() where T : class, IModel
             => Get<T>();           
 
@@ -178,9 +179,19 @@ namespace YukiFrameWork
         public void UnRegisterEvent<T>(Action<T> onEvent = null)
             => eventSystem.UnRegister(onEvent);
 
-        public void InitPanelManager()
+        /// <summary>
+        /// 初始化面板管理器
+        /// </summary>
+        /// <param name="panelPath">填写面板对应的路径文件夹</param>
+        public void InitPanelManager(string panelPath)
         {
-            PanelManager = new PanelManager();
+            PanelManager = new PanelManager(panelPath, LoadMode.同步);
+        }
+
+        public IAsyncExtensionCore InitPanelManagerAsync(string panelPath,Action onFinish = null)
+        {
+            PanelManager = new PanelManager(panelPath, LoadMode.同步);
+            return ((PanelManager)PanelManager).InitAsync(onFinish);
         }
     }
 
@@ -395,7 +406,7 @@ namespace YukiFrameWork
 
     public static class BindablePropertyOrEventExtension
     {
-#if UNITY_2020 || UNITY_2021 || UNITY_2022
+
         /// <summary>
         /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动注销事件
         /// </summary>
@@ -411,7 +422,7 @@ namespace YukiFrameWork
 
         }
     }
-#endif
+
 
     /// <summary>
     /// 控制器拓展
@@ -466,11 +477,11 @@ namespace YukiFrameWork
         public static bool SendCommand<T>(this IGetCommandCenter CommandCenter, T command, IObjectContainer container = null, object data = null) where T : ICommand
             => CommandCenter.GetArchitecture().CommandCenter.SendCommand(command, container, data);
 
-        public static IEnumerator Send_AsyncCommand<T>(this IGetCommandCenter CommandCenter, T command, IObjectContainer container = null, object data = null) where T : ICommand
-            =>  CommandCenter.GetArchitecture().CommandCenter.Send_AsyncCommand<T>(command, container, data);
+        public static IAsyncExtensionCore Send_AsyncCommand<T>(this IGetCommandCenter CommandCenter, T command, IObjectContainer container = null, object data = null) where T : ICommand
+            =>  CommandCenter.GetArchitecture().CommandCenter.Send_AsyncCommand<T>(command, container, data).Start();
 
-        public static IEnumerator Send_AsyncCommand<T>(this IGetCommandCenter CommandCenter, IObjectContainer container = null, object data = null) where T : ICommand,new()
-            => CommandCenter.GetArchitecture().CommandCenter.Send_AsyncCommand<T>(container, data);
+        public static IAsyncExtensionCore Send_AsyncCommand<T>(this IGetCommandCenter CommandCenter, IObjectContainer container = null, object data = null) where T : ICommand,new()
+            => CommandCenter.GetArchitecture().CommandCenter.Send_AsyncCommand<T>(container, data).Start();
     }
 
     /// <summary>
@@ -478,8 +489,17 @@ namespace YukiFrameWork
     /// </summary>
     public static class UIFrameWorkExtension
     {
-        public static void UIPanelInit(this IUIPanelController controller)
-            => controller.GetArchitecture().InitPanelManager();
+        /// <summary>
+        /// 初始化UI框架(仅在任一控制器下调用一次即可，无需在其他控制器重复调用)
+        /// panelPath: ui面板所在的文件夹路径(通过ResKit资源配置加载，使用前需要提前配置)
+        /// </summary>
+        /// <param name="controller">控制器</param>
+        /// <param name="panelPath">ui面板所在的文件夹路径(通过ResKit资源配置加载，使用前需要提前配置)</param>
+        public static void UIFrameWorkInit(this IUIPanelController controller,string panelPath)
+            => controller.GetArchitecture().InitPanelManager(panelPath);
+
+        public static IAsyncExtensionCore UIFrameWorkInitAsync(this IUIPanelController controller, string panelPath, Action onFinish = null)
+            => controller.GetArchitecture().InitPanelManagerAsync(panelPath, onFinish);
 
         /// <summary>
         /// 面板入栈(注意：使用UI控制器前都需要在控制器初始化一次)
@@ -519,7 +539,7 @@ namespace YukiFrameWork
         public static TPanel PushChildPanel<TPanel>(this BasePanel panel) where TPanel : BasePanel
         {
             Type type = panel.GetType();
-            var childPanel = panel.GetArchitecture().PanelManager.PushChildPanel<TPanel>(type);
+            var childPanel = panel.GetArchitecture().PanelManager.PushChildPanel<TPanel>(type);                      
             childPanel.SetArchitecture(panel.GetArchitecture());
             return childPanel;
         }

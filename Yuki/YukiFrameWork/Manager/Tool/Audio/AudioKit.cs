@@ -18,8 +18,11 @@ namespace YukiFrameWork
     {
         private static AudioManager AudioManager;
 
+        private static bool isInit = false;     
+
         public static void Init()
         {
+            if (isInit) return;
             var SceneAudioManager = UnityEngine.Object.FindObjectOfType<AudioManager>();
             if (SceneAudioManager == null)
             {
@@ -28,14 +31,23 @@ namespace YukiFrameWork
             }
             if (AudioManager != null && AudioManager != SceneAudioManager)
             {
-                UnityEngine.Object.Destroy(AudioManager);
+                UnityEngine.Object.Destroy(AudioManager.gameObject);
             }
             else
             {
                 AudioManager = SceneAudioManager;
                 UnityEngine.Object.DontDestroyOnLoad(AudioManager.gameObject);
-            }
+            }           
+
+            isInit = true;
         }
+
+        /// <summary>
+        /// 等待音频完全加载完毕
+        /// </summary>
+        /// <returns></returns>
+        public static IAsyncExtensionCore WaitCompleted()
+            => AudioManager.LoadAsync().Start();
 
         #region 音乐时序播放管理
 

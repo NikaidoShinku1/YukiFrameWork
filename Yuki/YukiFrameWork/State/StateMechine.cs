@@ -21,7 +21,7 @@ namespace YukiFrameWork.States
             states.Add(state);
             CheckStateCount(state);
         }
-
+          
         public void RemoveState(int stateID)
         {
             states.Remove(states.Find(x => x.index == stateID));          

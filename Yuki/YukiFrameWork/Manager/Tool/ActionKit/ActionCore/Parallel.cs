@@ -55,7 +55,7 @@ namespace YukiFrameWork
                         parallelConditions[i].OnInit();
                     if (parallelConditions[i].OnExecute(delta))
                     {
-                        parallelConditions.RemoveAt(i);
+                        parallelConditions.RemoveAt(i);                        
                     }
                 }
                 return false;

@@ -196,7 +196,7 @@ namespace YukiFrameWork
                 }
                 else
                 {
-                    throw new Exception("当前Update内涵错误代码！The Update is OnError!");
+                    throw new Exception("当前Update内涵错误代码！The Update is OnError!");                   
                 }
             }
         }

@@ -41,7 +41,7 @@ namespace YukiFrameWork.States
 
         public void OnEnterState(Action action)
         {
-            if (stateManager.IsDebugLog)
+            if (stateManager.IsDebugLog == DeBugLog.¿ªÆô)
             {
                 Debug.Log($"½øÈë{name}×´Ì¬£¬×´Ì¬»ú¹éÊô£º{stateManager.gameObject.name}");
 
@@ -177,8 +177,8 @@ namespace YukiFrameWork.States
         }
 
         public void OnExitState()
-        {
-            if (stateManager.IsDebugLog)
+        { 
+            if (stateManager?.IsDebugLog == DeBugLog.¿ªÆô) 
             {
                 Debug.Log($"ÍË³ö{name}×´Ì¬£¬×´Ì¬»ú¹éÊô£º{stateManager.gameObject.name}");
             }

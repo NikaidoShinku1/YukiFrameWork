@@ -10,6 +10,7 @@ namespace YukiFrameWork.UI
         protected CanvasGroup canvasGroup;
         private IArchitecture architecture;
         protected UITools UITools;
+        protected bool IsInit = false;
         protected virtual void Awake()
         {
             UITools = new UITools(this);

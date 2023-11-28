@@ -314,21 +314,7 @@ namespace YukiFrameWork
             }
             foreach (var obj in Action.actions)
             {
-                objectTrigger.AddAction(obj);
-
-                foreach (var p in obj.actions)
-                {
-                    if (p is IParallel parallel)
-                    {
-                        if (parallel.GetHashCode() != obj.GetHashCode())
-                            parallel?.Start(component);
-                    }
-                    else if (p is ISequence sequence)
-                    {
-                        if (sequence.GetHashCode() != obj.GetHashCode())
-                            sequence?.Start(component);
-                    }
-                }
+                objectTrigger.AddAction(obj);           
             }
 
             objectTrigger.PushFinishEvent(callBack);

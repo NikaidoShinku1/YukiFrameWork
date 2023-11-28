@@ -345,7 +345,7 @@ namespace Cysharp.Threading.Tasks
             {
                 foreach (var item in yielders)
                 {
-                    //if (item != null) item.Run();
+                    if (item != null) item.Run();
                 }
             }
 
@@ -353,7 +353,7 @@ namespace Cysharp.Threading.Tasks
             {
                 foreach (var item in runners)
                 {
-                    //if (item != null) item.Run();
+                    if (item != null) item.Run();
                 }
             }
 

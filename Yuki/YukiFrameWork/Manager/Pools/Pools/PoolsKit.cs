@@ -43,6 +43,8 @@ namespace YukiFrameWork.Pools
 
         protected IFectoryPool<T> fectoryPool;
 
+        protected Action<T> recycleMethod;
+
         public void SetFectoryPool(IFectoryPool<T> fectoryPool)
             => this.fectoryPool = fectoryPool;
 

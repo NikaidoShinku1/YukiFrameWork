@@ -10,7 +10,7 @@ namespace YukiFrameWork.UI
     public class UIPath
     {
         [NonSerialized]
-        public Attribution type;      
+        public LoadMode type;      
        
         public string UIPanelPath;
         public string assetBundleName;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using YukiFrameWork.Res;
 
 namespace YukiFrameWork.UI
 {
@@ -21,21 +22,25 @@ namespace YukiFrameWork.UI
     }
     public class PanelManager : IPanelManager
     {
-        private static UIManager UIManager;
+        private static UIManager UIManager => UIManager.Instance;
 
-        public PanelManager()
+        public PanelManager(string panelPath,LoadMode mode)
         {
-            UIManager = new UIManager();
+            UIManager.Init(panelPath, mode);
         }
         private readonly static Dictionary<UIPanelType, Stack<BasePanel>> uiStacks = new Dictionary<UIPanelType, Stack<BasePanel>>();
 
-        private readonly static Dictionary<Type, Stack<BasePanel>> childStacks = new Dictionary<Type, Stack<BasePanel>>();
+        private readonly static Dictionary<Type, Stack<BasePanel>> childStacks = new Dictionary<Type, Stack<BasePanel>>();      
 
         public T PushPanel<T>(UIPanelType type) where T : BasePanel
         {
             return (T)OnPushPanel<T>(type);
 
         }
+
+        public IAsyncExtensionCore InitAsync(Action onFinish)
+            => UIManager.InitAsync().Start(onFinish);
+
         private BasePanel OnPushPanel<T>(UIPanelType type) where T : BasePanel
         {
             if (!uiStacks.TryGetValue(type, out var panelStack))
@@ -58,7 +63,9 @@ namespace YukiFrameWork.UI
                 return null;
             }           
             panel.OnEnter();
-            panelStack.Push(panel);
+            panelStack.Push(panel);          
+            panel.transform.SetAsLastSibling();
+            Debug.Log("面板入栈！该面板 " + panel + " 为层级面板," + "：" + type);
             return panel;
         }
 
@@ -68,7 +75,8 @@ namespace YukiFrameWork.UI
         }
 
         private void OnPopPanel(UIPanelType type,bool isDestroy = false)
-        {
+        {          
+
             if (!uiStacks.TryGetValue(type, out var panelStack))
             {
                 Debug.LogError("当前层级没有初始化该堆栈，请尝试重试");                
@@ -80,8 +88,16 @@ namespace YukiFrameWork.UI
                 {
                     var tempPanel = panelStack.Pop();
                     tempPanel.OnExit();
+                    if (childStacks.TryGetValue(tempPanel.GetType(), out var child))
+                    {
+                        foreach (var p in child)
+                        {
+                            p.OnExit();
+                        }
+                    }
                     if (isDestroy)
-                    {                       
+                    {
+                        UIManager.RemovePanel(tempPanel.GetType());
                         GameObject.Destroy(tempPanel.gameObject);
                     }
                 }
@@ -103,18 +119,20 @@ namespace YukiFrameWork.UI
             if (!childStacks.TryGetValue(type, out var stack))
             {
                 stack = new Stack<BasePanel>();
-                childStacks.Add(type, stack);
+                childStacks.Add(type, stack);            
             }
             else
             {
                 if (stack.Count > 0)
                 {
                     stack.Peek().OnPause();
-                }
-            }
+                }          
+            }          
             var panel = UIManager.GetPanel(typeof(TPanel));           
             stack.Push(panel);
             panel.OnEnter();
+            panel.transform.SetParent(UIManager.GetPanel(type).transform);
+            Debug.Log("面板入栈！该面板 " + panel + " 为子面板," + "该分支权限最高级面板为：" + type);
             return panel;
         }
 
@@ -131,18 +149,23 @@ namespace YukiFrameWork.UI
                 Debug.LogError("当前层级没有初始化该堆栈，请尝试重试");
             }
             else
-            {
+            {                
                 if (panelStack.Count > 0)
                 {
                     var tempPanel = panelStack.Pop();
                     tempPanel.OnExit();
-                    if (isDestroy) GameObject.Destroy(tempPanel.gameObject);
+                    tempPanel.transform.SetParent(null);
+                    if (isDestroy) 
+                    {                       
+                        UIManager.RemovePanel(tempPanel.GetType());
+                        GameObject.Destroy(tempPanel.gameObject);
+                    }
                 }
 
                 if (panelStack.Count > 0)
                 {
                     panelStack.Peek().OnResume();
-                }
+                }               
             }
         }
 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YukiFrameWork.States
+namespace YukiFrameWork
 {
     public enum InitType
     {
@@ -11,15 +11,27 @@ namespace YukiFrameWork.States
         Start
     }
 
+    public enum DeBugLog
+    {
+        关闭,
+        开启      
+    }
+
+}
+namespace YukiFrameWork.States
+{
     public class StateManager : MonoBehaviour
     {
+        [HideInInspector]
         [SerializeField]
-        [Header("状态机初始化方式")]
-        private InitType initType;
+        public InitType initType;
 
-        [Header("状态机调试打印")]
-        public bool IsDebugLog;
-      
+        [HideInInspector]
+        [SerializeField]
+        public DeBugLog IsDebugLog;
+
+        [HideInInspector]
+        [SerializeField]
         public StateMechine stateMechine;
                
         [HideInInspector]
@@ -60,11 +72,16 @@ namespace YukiFrameWork.States
         /// <param name="stateManager"></param>
         public void InitState()
         {
-            foreach (var state in stateMechine.states)
+            if (stateMechine == null)
             {
+                Debug.LogError("StateMechine is not added！");
+                return;
+            }
+            foreach (var state in stateMechine.states)
+            {              
                 state.Init(this);
             }
-            if (IsDebugLog)
+            if (IsDebugLog == DeBugLog.开启)
             {
                 Debug.Log($"状态机初始化完成，状态机归属：{gameObject.name},初始化生命周期：{initType}");
             }

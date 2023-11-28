@@ -16,9 +16,7 @@ using UnityEngine;
 namespace YukiFrameWork.Pools
 {  
     public class SimpleObjectPools<T> : AbstarctPools<T>
-    {     
-        private Action<T> recycleMethod;
-
+    {            
         public SimpleObjectPools(Func<T> resetMethod, Action<T> recycleMethod,int initSize,int maxSize = 200)
         {
             InitPools(resetMethod, recycleMethod, initSize,maxSize);
@@ -33,7 +31,7 @@ namespace YukiFrameWork.Pools
         {
             this.recycleMethod = recycleMethod;
             this.maxSize = maxSize;
-            fectoryPool = new CustomSimpleObjectPools<T>(resetMethod);
+            SetFectoryPool(resetMethod);
 
             for (int i = 0; i < initSize; i++)
             {
@@ -46,10 +44,12 @@ namespace YukiFrameWork.Pools
         {
             recycleMethod?.Invoke(obj);
 
-            if(tQueue.Count < maxSize)
+            if (tQueue.Count < maxSize)
+            {
                 tQueue.Enqueue(obj);
-
-            return true;
+                return true;
+            }
+            return false;
         }       
     }
 

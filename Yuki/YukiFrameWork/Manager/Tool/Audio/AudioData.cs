@@ -25,14 +25,24 @@ namespace YukiFrameWork
             {
                 Debug.LogWarning($"当前音频已存在，音频名称为{name}");
                 return;
-            }           
-            audioClips.Add(name, source);
+            }
+            var audio = Audios.Find(x => x.clip.name == name);
+            if (audio == null)
+            {
+                Audios.Add(new Audio(source.clip, source.outputAudioMixerGroup, source.volume, source.playOnAwake, source.loop));                
+            }
+            if(!audioClips.ContainsKey(name))
+                audioClips.Add(name, source);
+
         }
 
         public AudioSource GetAudioSource(string name)
         {
             return audioClips[name];
         }
+
+        public Audio GetAudioData(string name)
+            => Audios.Find(x => x.clip.name == name);
 
         public void RemoveSource(string name)
         {
