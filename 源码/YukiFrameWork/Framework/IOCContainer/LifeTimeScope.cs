@@ -30,7 +30,7 @@ namespace YukiFrameWork
         [field:Header("调试打印")]
         [field:SerializeField]
         public bool IsDebugLog { get; set; } = true;
-        private IContainerBuilder containerBuilder = new ContainerBuilder(new ObjectContainer());
+        private IContainerBuilder containerBuilder = new ContainerBuilder();
 
         public IObjectContainer Container => containerBuilder.Container;
 

@@ -1,18 +1,17 @@
 ﻿using System;
 using UnityEngine;
-using static UnityEngine.Networking.UnityWebRequest;
 
 namespace YukiFrameWork
 {
     public class ContainerBuilder : IContainerBuilder
     {
         public ObjectContainer Container { get; set; }
-
+   
         public bool IsDebugLog { get; set; }
 
-        public ContainerBuilder(IObjectContainer container)
+        public ContainerBuilder()
         {
-            Container = container as ObjectContainer;                  
+            Container = new ObjectContainer(new IOCContainer());             
         }
         #region 注册实例
         public void Register<TInterface, Instance>(LifeTime lifeTime = LifeTime.Transient, params object[] args) where Instance : class

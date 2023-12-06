@@ -40,9 +40,9 @@ namespace YukiFrameWork
         void RegisterInstance(Type interfaceType, Type instanceType, params object[] args);
 
         void RegisterGameObject(GameObject gameObject);
-        [Obsolete]
+        [Obsolete("该方法不建议使用,请使用RegisterGameObject方法来进行Unity GameObject对象的注册")]
         void RegisterMono<T>(bool isStatic = false) where T : MonoBehaviour;
-        [Obsolete]
+        [Obsolete("该方法不建议使用,请使用RegisterGameObject方法来进行Unity GameObject对象的注册")]
         void RegisterMono<T>(GameObject obj, bool isStatic = false) where T : MonoBehaviour;
     }
 
@@ -59,20 +59,19 @@ namespace YukiFrameWork
     public class IOCContainer : IDisposable
     {        
         //限制分支唯一实例储存
-        protected readonly Dictionary<Type, object> instanceDict = DictionaryPools<Type, object>.Get();
+        public readonly Dictionary<Type, object> instanceDict = DictionaryPools<Type, object>.Get();
 
-        protected readonly static Dictionary<Type, object> singletonDict = DictionaryPools<Type, object>.Get();
+        public readonly static Dictionary<Type, object> singletonDict = new Dictionary<Type, object>();
 
         //瞬时实例储存类型
-        protected readonly HashSet<Type> transientDict = new HashSet<Type>();
+        public readonly HashSet<Type> transientDict = new HashSet<Type>();
 
-        protected readonly Dictionary<Type, Type> restrainTransientDict = DictionaryPools<Type, Type>.Get();
+        public readonly Dictionary<Type, Type> restrainTransientDict = DictionaryPools<Type, Type>.Get();
 
-        protected readonly Dictionary<string, Transform[]> componentDict = DictionaryPools<string, Transform[]>.Get();   
+        public readonly Dictionary<string, Transform[]> componentDict = DictionaryPools<string, Transform[]>.Get();   
         
         //储存类型注册时构造函数所带有的参数
-        public Dictionary<Type,object[]> transientObject = new Dictionary<Type, object[]>();
-        protected IOCContainer() { }
+        public Dictionary<Type,object[]> transientObject = new Dictionary<Type, object[]>();    
 
         public void AddScopeInstance<T>(Type type,T instance) where T : class
         {
@@ -193,7 +192,7 @@ namespace YukiFrameWork
             transientDict.Clear();
             transientObject.Release();
             instanceDict.Release();
-            singletonDict.Release();
+            singletonDict.Clear();
             componentDict.Release();
         }
 

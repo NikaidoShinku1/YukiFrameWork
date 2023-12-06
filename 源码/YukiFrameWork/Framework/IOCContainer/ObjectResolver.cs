@@ -4,8 +4,15 @@ using UnityEngine;
 
 namespace YukiFrameWork
 {
-    public class ObjectContainer : IOCContainer, IObjectContainer
+    public class ObjectContainer : IObjectContainer
     {
+        private IOCContainer container;
+
+        public ObjectContainer(IOCContainer container)
+        {
+            this.container = container;
+        }
+
         public T Resolve<T>() where T : class
         {
             Type type = typeof(T);          
@@ -16,23 +23,23 @@ namespace YukiFrameWork
         {
             object obj;
 
-            if (singletonDict.ContainsKey(type))
+            if (IOCContainer.singletonDict.ContainsKey(type))
             {
-                return GetSingleton(type);
+                return container.GetSingleton(type);
             }
 
-            if (instanceDict.ContainsKey(type))
+            if (container.instanceDict.ContainsKey(type))
             {
-                return GetScopeInstance(type);
+                return container.GetScopeInstance(type);
             }
 
-            if (transientDict.Contains(type))
+            if (container.transientDict.Contains(type))
             {
-                if (transientObject == null || transientObject[type] == null)
+                if (container.transientObject == null || container.transientObject[type] == null)
                 {                   
                     obj = Activator.CreateInstance(type);
                 }
-                else obj = Activator.CreateInstance(type,GetConStructObjects(type));
+                else obj = Activator.CreateInstance(type, container.GetConStructObjects(type));
                 return obj;
             }
             Debug.LogError($"无法获取对象,对象类型为{type}");
@@ -41,7 +48,7 @@ namespace YukiFrameWork
 
         public T ResolveComponent<T>(string name = "") where T : Component
         {
-            T component = GetComponent<T>(name);
+            T component = container.GetComponent<T>(name);
             return component;
         }            
 
@@ -50,11 +57,11 @@ namespace YukiFrameWork
             switch (life)
             {
                 case LifeTime.Transient:
-                    return transientDict.Contains(type);
+                    return container.transientDict.Contains(type);
                 case LifeTime.Singleton:
-                    return instanceDict.ContainsKey(type);
+                    return container.instanceDict.ContainsKey(type);
                 case LifeTime.Scope:
-                    return singletonDict.ContainsKey(type);                   
+                    return IOCContainer.singletonDict.ContainsKey(type);                   
             }
             return false;
         }
@@ -69,7 +76,7 @@ namespace YukiFrameWork
         {
             Type type = typeof(T);
 
-            if (instanceDict.TryGetValue(type, out var obj))
+            if (container.instanceDict.TryGetValue(type, out var obj))
             {
                 foreach (var info in value.GetType().GetFields())
                 {
@@ -94,7 +101,7 @@ namespace YukiFrameWork
         public List<object> GetAllScopeInstance()
         {
             List<object> newObj = new List<object>();
-            foreach (var info in instanceDict.Values)
+            foreach (var info in container.instanceDict.Values)
             {
                 newObj.Add(info);
             }
@@ -104,11 +111,52 @@ namespace YukiFrameWork
         public List<object> GetAllSingleton()
         {
             List<object> newObj = new List<object>();
-            foreach (var info in singletonDict.Values)
+            foreach (var info in IOCContainer.singletonDict.Values)
             {
                 newObj.Add(info);
             }
             return newObj;
+        }
+
+        internal void AddRestrainTransient(Type interfaceType, Type instanceType)
+        {
+            container?.AddRestrainTransient(interfaceType, instanceType);
+        }
+
+        internal void AddRestrainTransient(Type interfaceType, Type instanceType, object[] args)
+        {
+            container?.AddRestrainTransient(interfaceType, instanceType,args);
+        }
+
+        internal void AddScopeInstance(Type interfaceType, object instance)
+        {
+            container?.AddScopeInstance(interfaceType, instance);
+        }
+
+        internal void AddSingleton(Type interfaceType, object obj)
+        {
+            container?.AddSingleton(interfaceType, obj);
+        }
+
+        internal void AddTransient(Type type, object[] args)
+        {
+            container?.AddTransient(type, args);
+        }
+
+        internal void AddTransient(Type type)
+        {
+            container?.AddTransient(type);
+        }
+
+        internal void AddGameObject(GameObject gameObject)
+        {
+            container?.AddGameObject(gameObject);
+        }
+
+        internal void Dispose()
+        {
+            container?.Dispose();
+            container = null;
         }
     }
 }

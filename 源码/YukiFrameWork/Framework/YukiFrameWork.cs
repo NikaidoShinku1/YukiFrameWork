@@ -13,9 +13,8 @@ using System;
 using YukiFrameWork.Command;
 using YukiFrameWork.MVC;
 using YukiFrameWork.UI;
-using System.Collections;
 using YukiFrameWork.Res;
-using YukiFrameWork.Events;
+
 namespace YukiFrameWork
 {
     /// <summary>
@@ -195,7 +194,7 @@ namespace YukiFrameWork
         }
     }
 
-    public interface IEasyEventSystem : IUnRegister
+    public interface IEasyEventsystem : IUnRegister
     {
         
     }
@@ -205,9 +204,113 @@ namespace YukiFrameWork
         void UnRegisterAllEvent();
     }
 
+    public class EnumEventSystem
+    {
+        private readonly EnumEasyEvents events = new EnumEasyEvents();
+
+        public static EnumEventSystem Global { get; } = new EnumEventSystem();
+
+        public IUnRegister Register(Enum enumType,Action onEvent)
+        => events.GetOrAddEvent<EasyEvent>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T>(Enum enumType, Action<T> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K>(Enum enumType, Action<T, K> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q>(Enum enumType, Action<T, K, Q> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P>(Enum enumType, Action<T, K, Q, P> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>(enumType).RegisterEvent(onEvent);
+
+        public void Trigger(Enum enumType)
+            => events.GetEvent<EasyEvent>(enumType)?.EventTrigger();
+
+        public void Trigger<T>(Enum enumType,T t)
+            => events.GetEvent<EasyEvent<T>>(enumType)?.EventTrigger(t);
+
+        public void Trigger<T, K>(Enum enumType,T t, K k)
+            => events.GetEvent<EasyEvent<T, K>>(enumType)?.EventTrigger(t, k);
+
+        public void Trigger<T, K, Q>(Enum enumType,T t, K k, Q q)
+            => events.GetEvent<EasyEvent<T, K, Q>>(enumType)?.EventTrigger(t, k, q);
+
+        public void Trigger<T, K, Q, P>(Enum enumType,T t, K k, Q q, P p)
+            => events.GetEvent<EasyEvent<T, K, Q, P>>(enumType)?.EventTrigger(t, k, q, p);
+
+        public void UnRegister(Enum enumType, Action onEvent)
+            => events.GetEvent<EasyEvent>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T>(Enum enumType, Action<T> onEvent)
+            => events.GetEvent<EasyEvent<T>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K>(Enum enumType, Action<T, K> onEvent)
+            => events.GetEvent<EasyEvent<T, K>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q>(Enum enumType, Action<T, K, Q> onEvent)
+            => events.GetEvent<EasyEvent<T, K, Q>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P>(Enum enumType, Action<T, K, Q, P> onEvent)
+            => events.GetEvent<EasyEvent<T, K, Q, P>>(enumType)?.UnRegister(onEvent);
+    }
+
+    public class StringEventSystem
+    {
+        private readonly StringEasyEvents events = new StringEasyEvents();
+
+        public static StringEventSystem Global { get; } = new StringEventSystem();
+
+        public IUnRegister Register(string enumType, Action onEvent)
+      => events.GetOrAddEvent<EasyEvent>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T>(string enumType, Action<T> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K>(string enumType, Action<T, K> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q>(string enumType, Action<T, K, Q> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q>>(enumType).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P>(string enumType, Action<T, K, Q, P> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>(enumType).RegisterEvent(onEvent);
+
+        public void Trigger(string enumType)
+            => events.GetEvent<EasyEvent>(enumType)?.EventTrigger();
+
+        public void Trigger<T>(string enumType, T t)
+            => events.GetEvent<EasyEvent<T>>(enumType)?.EventTrigger(t);
+
+        public void Trigger<T, K>(string enumType, T t, K k)
+            => events.GetEvent<EasyEvent<T, K>>(enumType)?.EventTrigger(t, k);
+
+        public void Trigger<T, K, Q>(string enumType, T t, K k, Q q)
+            => events.GetEvent<EasyEvent<T, K, Q>>(enumType)?.EventTrigger(t, k, q);
+
+        public void Trigger<T, K, Q, P>(string enumType, T t, K k, Q q, P p)
+            => events.GetEvent<EasyEvent<T, K, Q, P>>(enumType)?.EventTrigger(t, k, q, p);
+
+        public void UnRegister(string enumType, Action onEvent)
+            => events.GetEvent<EasyEvent>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T>(string enumType, Action<T> onEvent)
+            => events.GetEvent<EasyEvent<T>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K>(string enumType, Action<T, K> onEvent)
+            => events.GetEvent<EasyEvent<T, K>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q>(string enumType, Action<T, K, Q> onEvent)
+            => events.GetEvent<EasyEvent<T, K, Q>>(enumType)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P>(string enumType, Action<T, K, Q, P> onEvent)
+            => events.GetEvent<EasyEvent<T, K, Q, P>>(enumType)?.UnRegister(onEvent);
+    }
+
     public class TypeEventSystem
     {
-        private readonly EasyEvents events = new EasyEvents();
+        private readonly TypeEasyEvents events = new TypeEasyEvents();
 
         public static TypeEventSystem Global { get; } = new TypeEventSystem();
 
@@ -257,11 +360,86 @@ namespace YukiFrameWork
             => events.GetEvent<EasyEvent<T, K, Q, P>>()?.UnRegister(onEvent);
     }
 
-    public class EasyEvents
+    public class StringEasyEvents
     {
-        private readonly Dictionary<Type, IEasyEventSystem> events = new Dictionary<Type, IEasyEventSystem>();
+        private readonly Dictionary<string, IEasyEventsystem> events = new Dictionary<string, IEasyEventsystem>();
 
-        public T GetOrAddEvent<T>() where T : IEasyEventSystem, new()
+        public T GetOrAddEvent<T>(string eventName) where T : IEasyEventsystem,new()
+        {
+            if (!events.TryGetValue(eventName, out var easeEvent))
+            {
+                easeEvent = new T();
+                events.Add(eventName, easeEvent);
+            }
+            else
+            {
+                Type type = typeof(T);
+                if (easeEvent.GetType() != type)
+                {
+                    throw new Exception($"当前key值{eventName}中已经存在的事件与需要添加的事件类型不符合，请重试！需要添加的类型为{type}");
+                }
+            }
+
+            return (T)easeEvent;
+        }
+
+        public T GetEvent<T>(string eventName) where T : IEasyEventsystem
+        {
+            events.TryGetValue(eventName, out var easeEvent);
+            Type type = typeof(T);
+            if (easeEvent.GetType() != type)
+            {
+                throw new Exception($"当前key值{eventName}中已经存在的事件与需要添加的事件类型不符合，请重试！需要添加的类型为{type}");
+            }
+            return (T)easeEvent;
+        }
+
+        public void AddEvent<T>(string eventName) where T : IEasyEventsystem, new() => events.Add(eventName, new T());
+    }
+
+
+    public class EnumEasyEvents
+    {
+        private readonly Dictionary<Enum, IEasyEventsystem> events = new Dictionary<Enum, IEasyEventsystem>();
+
+        public T GetOrAddEvent<T>(Enum enumType) where T : IEasyEventsystem, new()
+        {
+            if (!events.TryGetValue(enumType, out var easeEvent))
+            {
+                easeEvent = new T();
+                events.Add(enumType, easeEvent);
+            }
+            else
+            {
+                Type type = typeof(T);
+                if (easeEvent.GetType() != type)
+                {
+                    throw new Exception($"当前key值{enumType}中已经存在的事件与需要添加的事件类型不符合，请重试！需要添加的类型为{type}");
+                }
+            }
+
+            return (T)easeEvent;
+        }
+
+        public T GetEvent<T>(Enum enumType) where T : IEasyEventsystem
+        {
+            events.TryGetValue(enumType, out var easeEvent);
+            Type type = typeof(T);
+            if (easeEvent.GetType() != type)
+            {
+                throw new Exception($"当前key值{enumType}中已经存在的事件与需要添加的事件类型不符合，请重试！需要添加的类型为{type}");
+            }
+            return (T)easeEvent;
+        }
+
+        public void AddEvent<T>(Enum enumType) where T : IEasyEventsystem, new() => events.Add(enumType, new T());
+    }
+
+    public class TypeEasyEvents
+    {
+        private readonly Dictionary<Type, IEasyEventsystem> events = new Dictionary<Type, IEasyEventsystem>();
+
+        public T GetOrAddEvent<T>() where T : IEasyEventsystem, new()
         {        
             if (!events.TryGetValue(typeof(T), out var easyEvent))
             {
@@ -271,16 +449,16 @@ namespace YukiFrameWork
             return (T)easyEvent;
         }
 
-        public T GetEvent<T>() where T : IEasyEventSystem
+        public T GetEvent<T>() where T : IEasyEventsystem
         {
             events.TryGetValue(typeof(T), out var eventSystem);          
             return (T)eventSystem;
         }
 
-        public void AddEvent<T>() where T : IEasyEventSystem, new() => events.Add(typeof(T), new T()); 
+        public void AddEvent<T>() where T : IEasyEventsystem, new() => events.Add(typeof(T), new T()); 
     }
 
-    public class EasyEvent : IEasyEventSystem
+    public class EasyEvent : IEasyEventsystem
     {
         Action OnEasyEvent;
 
@@ -306,7 +484,7 @@ namespace YukiFrameWork
         }
     }
 
-    public class EasyEvent<T> : IEasyEventSystem
+    public class EasyEvent<T> : IEasyEventsystem
     {
         Action<T> OnEasyEvent;     
 
@@ -332,7 +510,7 @@ namespace YukiFrameWork
         }
     }
 
-    public class EasyEvent<T, K> : IEasyEventSystem
+    public class EasyEvent<T, K> : IEasyEventsystem
     {
         Action<T,K> OnEasyEvent;
 
@@ -356,7 +534,7 @@ namespace YukiFrameWork
         }
     }
 
-    public class EasyEvent<T, K, Q> : IEasyEventSystem
+    public class EasyEvent<T, K, Q> : IEasyEventsystem
     {
         Action<T, K,Q> OnEasyEvent;
 
@@ -380,7 +558,7 @@ namespace YukiFrameWork
         }
     }
 
-    public class EasyEvent<T, K, Q, P> : IEasyEventSystem
+    public class EasyEvent<T, K, Q, P> : IEasyEventsystem
     {
         Action<T, K, Q, P> OnEasyEvent;
 
