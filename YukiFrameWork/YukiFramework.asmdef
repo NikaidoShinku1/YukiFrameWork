@@ -1,0 +1,16 @@
+{
+    "name": "YukiFramework",
+    "rootNamespace": "",
+    "references": [
+        "GUID:35d17ca44c3f9e0489ba3bd4ba52f23c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

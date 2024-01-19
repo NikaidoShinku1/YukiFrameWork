@@ -1,0 +1,121 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+using YukiFrameWork.Extension;
+using System;
+using YukiFrameWork.Pools;
+
+namespace YukiFrameWork
+{ 
+    [Serializable]
+    public class LifeTimeScope : MonoBehaviour,IDisposable
+    {
+
+        [SerializeField]
+        [Header("是否自动注入列表内的GameObject")]
+        private bool IsAutoInjectObject = true;
+
+        [SerializeField]
+        [Space]
+        private List<GameObject> gameObjects = new List<GameObject>();
+
+        private readonly Stack<GameObject> initEnterObjs = new Stack<GameObject>();
+
+        private readonly IContainerBuilder containerBuilder;
+
+        [field: SerializeField] public int ParentTypeIndex { get; set; }
+        
+        [field: SerializeField] public string ParentTypeName { get; set; }
+
+        [InjectionContainer]
+        private readonly IResolveContainer container = null;
+
+        public IResolveContainer Container => container;
+
+        private ContainerBuilder builder => (ContainerBuilder)containerBuilder;
+
+        private readonly List<MonoBehaviour> monoBehaviours = ListPools<MonoBehaviour>.Get();     
+
+        protected virtual void Awake()
+        {         
+            InjectionFectory.CreateCustomContainer(this);
+
+            SetSingletonParent();            
+            InitBuilder(containerBuilder);
+
+            InitializeAllObjects();
+           
+            InjectAllConstructorMethodInMonoBehaviour();
+           
+            initEnterObjs.Clear();
+        }
+
+        private void SetSingletonParent()
+        {            
+            Type parentType = AssemblyHelper.GetType(ParentTypeName);           
+            builder.SetParentTypeName(parentType);
+        }
+
+        private void InjectAllConstructorMethodInMonoBehaviour()
+        {
+            for (int i = 0; i < monoBehaviours.Count; i++)
+            {
+                builder.InjectInMethodInMonoBehaviour(monoBehaviours[i].gameObject.name, monoBehaviours[i].GetType());
+            }
+
+            monoBehaviours.Clear();
+        }
+
+        private void InitializeAllObjects()
+        {
+            InJectAutoInGameObject(gameObject);
+
+            if (IsAutoInjectObject)
+            {               
+                for (int i = 0; i < gameObjects.Count; i++)
+                {
+                    InJectAutoInGameObject(gameObjects[i]);
+                }
+            }  
+        }
+
+        private void InJectAutoInGameObject(GameObject gameObject)
+        {
+            initEnterObjs.Push(gameObject);
+            InjectionFectory.InjectGameObjectInMonoBehaviour(container,gameObject, out var buffers);
+
+            if (buffers != null)
+            {
+                foreach (var monoBehaviour in buffers)
+                {
+                    builder.RegisterGameObject(monoBehaviour, false);
+                    monoBehaviours.Add(monoBehaviour);
+                }
+            }
+            Transform[] objs = gameObject.GetComponentsInChildren<Transform>();
+            for (int i = 0; i < objs.Length; i++)
+            {
+                if (initEnterObjs.Contains(objs[i].gameObject))
+                    continue;
+                InJectAutoInGameObject(objs[i].gameObject);
+            }       
+        }
+
+        protected virtual void InitBuilder(IContainerBuilder builder)
+        {
+            
+        }        
+        
+        public IResolveContainer GetContainer() => Container;
+
+        protected virtual void OnDestroy()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            builder?.Dispose();
+
+        }
+    }
+}

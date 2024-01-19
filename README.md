@@ -1,14 +1,84 @@
 # YukiFrameWork
 
 #### 介绍
-自制的Unity小型游戏开发框架，集成UniTask，UniRx，Litjson插件，行为树插件，独立模块 MVC，ECS，状态机，Command模块，UI模块，对象池模块，全局消息模块，ab包资源加载模块，单例模块。，框架基于IOC容器
-#### 软件架构
-软件架构说明
+"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展"
 
+#### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
+
+#### 框架支持工具
+
+
+- IOC:LifeTimeScope[IOC介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md)
+
+- 单例管理套件:SingletonKit[单例介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Singleton/9.%E5%8D%95%E4%BE%8B.md)
+
+- 事件系统:EventSystem[事件系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Events/7.%E6%B6%88%E6%81%AF%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%9D%97.md)
+
+- UI框架 UIKit[UIKit介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md)
+
+- 资源管理模块:ABManager(模块原作者：弦小风,[模块详细信息](https://gitee.com/xianfengkeji/xfabmanager.git))
+
+- 声音管理模块:AudioKit[声音模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md)
+
+- 动作时序模块:ActionKit[ActionKit介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md)
+
+- 状态机模块:State[状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md)
+ 
+- 协程拓展工具:IAsyncExeucteCore[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
+
+- 对象池模块:PoolsFectory[对象池模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md)
+
+- 命令模块:Command[命令模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/10.Command.md)
+
+- 强化数据绑定类:BindablePropery[强化数据模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md)
 
 #### 安装教程
+下载压缩包或者fork项目
+![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
+解压后在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
+![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading2.png)
 
-内置unitypackage安装即可
+框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
+![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
 
-#### 使用说明
-内有介绍文件夹，框架所有模块介绍在内
+注意：使用本框架Unity版本不能低于2020.3
+
+#### 框架更新版本速览
+
+V1.3.8 ViewController编辑器拓展,人性化设置,新增一键式创建Prefab功能,优化LogKit模块，Import Window添加中英文切换介绍。
+
+V1.3.7 新增Unity内置样式拓展工具,修复一定Bug,优化ViewController编辑器拓展(测试)
+
+V1.3.6 修复ABManager的协程迭代问题
+
+V1.3.5 修复ActionKit逻辑丢失的问题,层级优化,修复Bug
+
+V1.3.0 更新框架的导入方式，将模块分布化,现在不能通过git导入，手动下载后导入package.json,框架支持的模块均在ImportWindow，自由导入即可
+
+V1.2.5 框架层级更新，现在分层为IController,ISystem,IViewController,IModel，理想状态下自上而下可以直接驱动，下而上需要事件。
+
+V1.2.0 重构资源管理套件，集成XFABManager插件(版本暂时为测试版)
+
+V1.1.4 优化LogKit,新增异常事件拓展
+
+V1.1.3 新增LogKit轻量级控制台打印工具，修复细微Bug，优化对象池的初始化预加载
+
+V1.1.1 修复IOC特性注入异常的问题, 优化反射拓展
+
+V1.1.0 框架架构底层优化，优化IOC模块的作用域，优化UI模块，完善简介
+
+V1.0.9 命令模块优化
+
+V1.0.8 修复构造函数参数注入时超过一个参数会异常的问题
+
+V1.0.7 修复Mono单例序列化异常的问题
+
+V1.0.6 优化IOC内核，修复注册单例时DI注入的实例异常的问题
+
+V1.0.5 状态机联立UnityAPI拓展，现在可以支持碰撞器/触发器等部分UnityAPI在状态派生类下重写
+
+V1.0.2 更新通用背包管理模块(测试版)
+
+V1.0.0 框架正式版
+
+其余均为内测不稳定版功能的修正，不以浏览。

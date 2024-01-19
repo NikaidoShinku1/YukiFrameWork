@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "name": "血瓶",
+    "description": "用于加血的道具",
+    "capacity": 10,
+    "buyprice": 10,
+    "sellprice": 5,
+    "sprites": "Items/hp",
+    "itemType": "Comsumable",
+    "itemQuality": "Common"
+  },
+  {
+    "id": 2,
+    "name": "蓝瓶",
+    "description": "用于回蓝的道具",
+    "capacity": 10,
+    "buyprice": 10,
+    "sellprice": 5,
+    "sprites": "Items/mp",
+    "itemType": "Comsumable",
+    "itemQuality": "Common"
+  }  
+]
+

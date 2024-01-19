@@ -1,0 +1,200 @@
+///=====================================================
+/// - FileName:      UIKit.cs
+/// - NameSpace:     YukiFrameWork.Project
+/// - Created:       Yuki
+/// - Email:         Yuki@qq.com
+/// - Description:   UI管理套件
+/// -  (C) Copyright 2008 - 2023,Yuki
+/// -  All Rights Reserved.
+///======================================================
+
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using YukiFrameWork.Pools;
+using YukiFrameWork.ABManager;
+using Object = UnityEngine.Object;
+namespace YukiFrameWork.UI
+{
+    public class UIKit
+    {
+        private static IUIConfigLoader loader = null;
+        //层级堆栈
+        private static Dictionary<UILevel, Stack<BasePanel>> uiLevelPanelDicts = DictionaryPools<UILevel, Stack<BasePanel>>.Get();
+
+        //储存已经被创造出来的panel
+        private static Dictionary<UILevel,List<BasePanel>> creativityPanels = DictionaryPools<UILevel,List<BasePanel>>.Get();    
+
+        //检查是否完成初始化
+        private static bool isInit = false;       
+        /// <summary>
+        /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
+        /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
+        /// </summary>
+        /// <param name="projectName"></param>
+        public static bool Init(string projectName)
+        {
+            if (isInit)
+            {
+                "UI模块已经完成初始化，无需再次调用!".LogInfo();
+                return false;
+            }                    
+           
+            InitUILevel();
+            loader = new ABManagerUILoader(projectName);
+            isInit = true;
+            return isInit;
+        }
+
+        public static bool Init(IUIConfigLoader loader)
+        {
+            if (isInit)
+            {
+                "UI模块已经完成初始化，无需再次调用!".LogInfo();
+                return false;
+            }
+
+            InitUILevel();
+            UIKit.loader = loader;
+            isInit = true;
+            return isInit;
+        }
+
+        private static void InitUILevel()
+        {
+            for (int i = 0; i < (int)UILevel.Top; i++)
+            {
+                UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
+                uiLevelPanelDicts.Add(level, new Stack<BasePanel>());
+            }
+
+            for (int i = 0; i < (int)UILevel.Top; i++)
+            {
+                UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
+                creativityPanels.Add(level, new List<BasePanel>());
+            }
+
+            UIManager.I.InitLevel();
+        }      
+          
+        public static T OpenPanel<T>(string name) where T : BasePanel
+        {                     
+            UIManager uiMgr = UIManager.I;
+            var panelCore = uiMgr.GetPanelCore<T>();
+           
+            if (panelCore == null)
+            {             
+                panelCore = CreatePanelCore<T>(name);
+             
+                uiMgr.AddPanelCore(panelCore);               
+            }
+
+            return OpenPanelExecute(panelCore);
+        }
+
+        private static T CreatePanelCore<T>(string name) where T : BasePanel
+        {
+            if (loader == null)
+            {
+                string.Format("没有正确加载出面板的GameObject！如果是模块默认加载则请检查资源名称以及检查是否已经初始化UIKit! name:{0}", name).LogInfo(Log.E);
+                return null;
+            }
+            var panelObj = loader.Load<T>(name);
+          
+            var panelCore = panelObj.GetComponent<T>();
+
+            if (panelCore == null)
+            {
+                string.Format("没有正确加载出面板的Panel组件！请检查是否在该面板(GameObject)挂载了需要的脚本！name:{0}",name).LogInfo(Log.E);
+                return null;
+            }
+
+            return panelCore;
+        }     
+
+        public static void OpenPanelAsync<T>(string name,Action<T> onCompleted) where T : BasePanel
+        {
+            UIManager uiMgr = UIManager.I;
+            var panelCore = uiMgr.GetPanelCore<T>();
+
+            if (panelCore == null)
+            {
+                loader.LoadAsync<T>(name, panel => onCompleted?.Invoke(OpenPanelExecute(panel)));
+                return;
+            }
+            onCompleted?.Invoke(OpenPanelExecute(panelCore));
+
+        }
+
+        private static T OpenPanelExecute<T>(T panelCore) where T : BasePanel
+        {
+            UIManager uiMgr = UIManager.I;
+            var panel = GetPanel<T>(panelCore.Level);
+            if (panel == null)
+            {
+                panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(panelCore.Level), false);
+                uiMgr.SetPanelFieldAndProperty(panel);
+                panel.OnInit();
+                creativityPanels[panel.Level].Add(panel);
+            }
+            AddStackPanel(panel, panel.Level);
+            return panel;
+        }
+
+        public static void ClosePanel(UILevel level = UILevel.Common)
+        {
+            if (uiLevelPanelDicts.TryGetValue(level, out var stack))
+            {
+                if (stack.Count > 0)
+                    stack.Pop()?.OnExit();
+                if (stack.Count > 0)
+                    stack.Peek()?.OnResume();
+            }
+        }     
+        public static T GetPanel<T>(UILevel level) where T : BasePanel
+        {
+            creativityPanels.TryGetValue(level, out var list);
+            return list.Find(x => x.GetType().Equals(typeof(T))) as T;
+        }
+
+        /// <summary>
+        /// 强行获取面板(面板如果在场景中不存在则会创建一个,并且会处于关闭状态)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static T GetPanel<T>(string path) where T : BasePanel
+        {
+            T panel = null;
+            for (int i = 0; i < (int)UILevel.System; i++)
+            {
+                UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
+                panel = GetPanel<T>(level);
+
+                if (panel != null)
+                    return panel;
+            }           
+            panel = OpenPanel<T>(path);
+            ClosePanel(panel.Level);
+            return panel;          
+        }
+
+        private static void AddStackPanel<T>(T panel, UILevel level) where T : BasePanel
+        {
+            uiLevelPanelDicts.TryGetValue(level, out var list);
+
+            if (list.Count > 0)
+                list.Peek()?.OnPause();
+            panel.OnEnter();
+            list.Push(panel);         
+        }      
+
+        public static void Release()
+        {        
+            uiLevelPanelDicts.Clear();         
+            creativityPanels.Clear();
+            isInit = false;
+        }
+    }
+  
+}

@@ -1,0 +1,79 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+namespace YukiFrameWork.States
+{
+    [CustomEditor(typeof(StateManager))]
+    public class StateManagerInspector : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {           
+            StateManager manager = (StateManager)target;
+
+            if (manager == null) return;
+#if UNITY_2021_1_OR_NEWER
+            Texture2D icon = EditorGUIUtility.IconContent("d_TerrainInspector.TerrainToolSettings On").image as Texture2D;
+            EditorGUIUtility.SetIconForObject(manager, icon);
+#endif
+
+            EditorGUI.BeginDisabledGroup(DisabledGroup());
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("状态机初始化方式：");
+            manager.initType = (InitType)EditorGUILayout.EnumPopup(manager.initType);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("是否开启调试日志：");
+            manager.deBugLog = (DeBugLog)EditorGUILayout.EnumPopup(manager.deBugLog);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            CreateMechine(manager);
+
+            EditorGUI.EndDisabledGroup();
+        }
+
+        private void CreateMechine(StateManager manager)
+        {
+            bool IsMechineExist = manager.stateMechine != null;
+            if (!IsMechineExist)
+            {
+                if (GUILayout.Button("创建状态机", GUILayout.Height(40)))
+                {
+                    StateMechine stateMechine = manager.GetComponentInChildren<StateMechine>();
+
+                    if (stateMechine == null)
+                    {
+                        stateMechine = new GameObject(typeof(StateMechine).Name).AddComponent<StateMechine>();
+
+                        stateMechine.transform.SetParent(manager.transform);                     
+                       
+                        StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));                       
+                    }
+                    manager.stateMechine = stateMechine;
+                }
+            }
+            else
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("状态机本体：");
+
+                manager.stateMechine =(StateMechine)EditorGUILayout.ObjectField(manager.stateMechine, typeof(StateMechine), true);
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Space();
+                if (GUILayout.Button("打开状态机编辑器",GUILayout.Height(40)))
+                {
+                    StateMechineEditor.OpenWindow();
+                }
+            }
+        }
+
+        private bool DisabledGroup()
+        {
+            return Application.isPlaying;
+        }
+    }
+}
+#endif

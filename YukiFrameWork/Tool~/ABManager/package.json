@@ -1,0 +1,23 @@
+{
+  "name": "com.xfkj.xfabmanager",
+  "version": "1.9.5",
+  "unity": "2019.4", 
+  "displayName": "XFABManager",
+  "description": "XFABManager 是一款为 AssetBundle 提供可视化管理功能 (包括 构建，优化，压缩，版本管理，更新，下载，加载，卸载，内置，释放 等等!) 的插件",
+  "keywords": [
+    "AssetBundle",
+    "可视化"
+  ],
+
+  "category": "AssetBundle",  
+  "documentationUrl": "https://gitee.com/xianfengkeji/xfabmanager/blob/master/Documentation~/XFABManager%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8.md",
+  "changelogUrl": "https://gitee.com/xianfengkeji/xfabmanager/blob/master/CHANGELOG.md",
+  "licensesUrl": "https://gitee.com/xianfengkeji/xfabmanager/blob/master/LICENSE.md",
+  "author":{
+    "name":"弦小风(作者)",
+    "url":"https://space.bilibili.com/258939476"
+  },
+  "dependencies": { 
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}
