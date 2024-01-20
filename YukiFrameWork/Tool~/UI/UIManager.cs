@@ -15,6 +15,8 @@ namespace YukiFrameWork.UI
         private UIManager() { }
         public BindableProperty<Canvas> Canvas { get; private set; }
 
+        public EventSystem DefaultEventSystem { get; private set; }
+
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
         private List<BasePanel> panelCore = new List<BasePanel>();
@@ -34,6 +36,8 @@ namespace YukiFrameWork.UI
                 eventSystem = new GameObject(typeof(EventSystem).Name).AddComponent<EventSystem>();
                 eventSystem.gameObject.AddComponent<StandaloneInputModule>();
             }
+
+            DefaultEventSystem = eventSystem;
                       
             "UIKit Initialization Succeeded!".LogInfo(_ => 
             {
@@ -153,11 +157,7 @@ namespace YukiFrameWork.UI
 
         public void Release()
         {
-            levelDicts.Clear();
-            foreach (var core in panelCore)
-            {
-                AssetBundleManager.UnloadAsset(core.gameObject);
-            }
+            levelDicts.Clear();                       
             panelCore.Clear();
             UIKit.Release();
         }

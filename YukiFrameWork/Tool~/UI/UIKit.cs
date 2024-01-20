@@ -14,19 +14,22 @@ using UnityEngine;
 using YukiFrameWork.Pools;
 using YukiFrameWork.ABManager;
 using Object = UnityEngine.Object;
+using UnityEngine.EventSystems;
 namespace YukiFrameWork.UI
 {
     public class UIKit
     {
         private static IUIConfigLoader loader = null;
         //层级堆栈
-        private static Dictionary<UILevel, Stack<BasePanel>> uiLevelPanelDicts = DictionaryPools<UILevel, Stack<BasePanel>>.Get();
+        private readonly static Dictionary<UILevel, Stack<BasePanel>> uiLevelPanelDicts = DictionaryPools<UILevel, Stack<BasePanel>>.Get();
 
         //储存已经被创造出来的panel
-        private static Dictionary<UILevel,List<BasePanel>> creativityPanels = DictionaryPools<UILevel,List<BasePanel>>.Get();    
+        private readonly static Dictionary<UILevel,List<BasePanel>> creativityPanels = DictionaryPools<UILevel,List<BasePanel>>.Get();    
 
         //检查是否完成初始化
-        private static bool isInit = false;       
+        private static bool isInit = false;
+
+        public static bool Default { get; private set; } = false;
         /// <summary>
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
         /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
@@ -36,12 +39,14 @@ namespace YukiFrameWork.UI
         {
             if (isInit)
             {
+                CheckCanvasAndEventSystem();
                 "UI模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
             }                    
            
             InitUILevel();
             loader = new ABManagerUILoader(projectName);
+            Default = true;
             isInit = true;
             return isInit;
         }
@@ -50,6 +55,7 @@ namespace YukiFrameWork.UI
         {
             if (isInit)
             {
+                CheckCanvasAndEventSystem();
                 "UI模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
             }
@@ -57,7 +63,30 @@ namespace YukiFrameWork.UI
             InitUILevel();
             UIKit.loader = loader;
             isInit = true;
+            Default = false;
             return isInit;
+        }
+
+        /// <summary>
+        /// 检查场景的画布以及EventSystem是否唯一
+        /// </summary>
+        private static void CheckCanvasAndEventSystem()
+        {
+            foreach (var canvas in Object.FindObjectsOfType<Canvas>())
+            {
+                if (!canvas.Equals(UIManager.I.Canvas.Value))
+                {
+                    Object.Destroy(canvas.gameObject);
+                }
+            }
+
+            foreach (var eventSystem in Object.FindObjectsOfType<EventSystem>())
+            {
+                if (!eventSystem.Equals(UIManager.I.DefaultEventSystem))
+                {
+                    Object.Destroy(eventSystem.gameObject);
+                }
+            }
         }
 
         private static void InitUILevel()
@@ -191,9 +220,22 @@ namespace YukiFrameWork.UI
 
         public static void Release()
         {        
-            uiLevelPanelDicts.Clear();         
+            uiLevelPanelDicts.Clear();
+            foreach (var core in creativityPanels.Values)
+            {
+                foreach (var c in core)
+                {
+                    if (Default)
+                        AssetBundleManager.UnloadAsset(c.gameObject);
+                    else
+                        Object.Destroy(c.gameObject);
+                }
+
+                core.Clear();
+            }
             creativityPanels.Clear();
             isInit = false;
+            Default = false;
         }
     }
   

@@ -29,7 +29,7 @@ namespace YukiFrameWork.Extension
             public string path;
             public int develop = 0;
             public bool isEN;
-        }
+        } 
 
         [MenuItem("YukiFrameWork/Import Window",false,-1000)]
         static void ShowWindow()
@@ -270,7 +270,9 @@ namespace YukiFrameWork.Extension
               
                 GUI.color = Color.white;
                 if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reload Import{name} Module" : $"重新导入{name}模块",GUILayout.Height(20)))
-                {
+                {   
+                    File.Delete(path + ".meta");
+                    Directory.Delete(path,true);
                     Import(copyPath,name);
                 }
 
