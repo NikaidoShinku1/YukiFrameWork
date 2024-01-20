@@ -64,8 +64,6 @@ V1.3.5 修复ActionKit逻辑丢失的问题,层级优化,修复Bug
 
 V1.3.0 更新框架的导入方式，将模块分布化,现在不能通过git导入，手动下载后导入package.json,框架支持的模块均在ImportWindow，自由导入即可
 
-V1.2.5 框架层级更新，现在分层为IController,ISystem,IViewController,IModel，理想状态下自上而下可以直接驱动，下而上需要事件。
-
 V1.2.0 重构资源管理套件，集成XFABManager插件(版本暂时为测试版)
 
 V1.1.4 优化LogKit,新增异常事件拓展
