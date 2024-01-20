@@ -44,6 +44,8 @@ namespace YukiFrameWork.Extension
 
         public static string EventAwakeInfo => !IsEN ? "事件在Awake生命周期注册" : "Events are registered in the Awake lifecycle";
 
+        public static string AutoInfo => !IsEN ? "创建时架构自动化:" : "Architecture Automation at Creation time:";
+
 
     }
 }

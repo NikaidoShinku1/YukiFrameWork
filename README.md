@@ -46,6 +46,10 @@
 ![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
 ![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
 
+[ViewController对架构的自动化具体使用示例](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController使用说明.md)
+
+[ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
+
 直接创建ViewController或者创建空物体添加组件即可,生成脚本后会禁止用户在这个物体对ViewController的脚本创建数据更改,脚本自动关联物体,提供快速打开以及创建Prefab的功能,同时可以额外添加可视化事件注册器
 
 注意：使用本框架Unity版本不能低于2020.3

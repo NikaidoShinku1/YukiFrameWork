@@ -16,6 +16,7 @@ using System.Linq;
 using System;
 using System.IO;
 using YukiFrameWork.Events;
+using System.Reflection;
 namespace YukiFrameWork.Extension
 {
     [CustomEditor(typeof(ViewController), true)]
@@ -41,27 +42,26 @@ namespace YukiFrameWork.Extension
 
         private void Awake()
         {         
-            ViewController controller = target as ViewController;
-            controller.Data.ScriptName = target.name == "ViewController" ? (target.name + "Example") : target.name;
-            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";           
-          
+            ViewController controller = target as ViewController;           
+            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
+
             if (controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
-                Update_ScriptViewControllerDataInfo(scriptFilePath, controller);         
+            {
+                controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);
+                Update_ScriptViewControllerDataInfo(scriptFilePath, controller);
+            }
         }
 
         private void OnEnable()
         {            
             ViewController controller = target as ViewController;
-            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";           
+            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
+          
             if (controller.Data.OnLoading)
-            {               
-                Update_ScriptViewControllerDataInfo(scriptFilePath, controller);
+            {
                 controller.Data.OnLoading = false;
-            }
-            
-            if (controller == null || !string.IsNullOrEmpty(controller.Data?.ScriptName)) return;          
-           
-            controller.Data.ScriptName = target.name;
+                Update_ScriptViewControllerDataInfo(scriptFilePath, controller);            
+            }                   
         }      
         public override void OnInspectorGUI()
         {
@@ -132,10 +132,19 @@ namespace YukiFrameWork.Extension
             SelectFolder(controller);
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.Space(20);           
+            EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
+
+            GUILayout.Label(ViewControllerDataInfo.AutoInfo, GUILayout.Width(ViewControllerDataInfo.IsEN ? 300 : 200));         
+            controller.Data.IsAutoMation = EditorGUILayout.Toggle(controller.Data.IsAutoMation, GUILayout.Width(50));          
+            EditorGUILayout.EndHorizontal();
+            if (controller.Data.IsAutoMation)
+                SelectArchitecture(controller);
+            EditorGUILayout.Space(20);
+
             EditorGUI.EndDisabledGroup();
+            EditorGUILayout.BeginHorizontal();
             CreateScripts(controller);
             EditorGUILayout.EndHorizontal();
 
@@ -160,6 +169,29 @@ namespace YukiFrameWork.Extension
                 AddEventCenter(controller);
             }
             GUILayout.EndVertical();           
+        }
+
+        private void SelectArchitecture(ViewController controller)
+        {
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(300));
+            EditorGUILayout.LabelField(ViewControllerDataInfo.IsEN ? "Select Architecture:" : "架构选择:",GUILayout.Width(120));
+
+            var list = controller.Data.AutoInfos;
+            list.Clear();
+            list.Add("None");
+
+            var types = AssemblyHelper.GetTypes(Assembly.Load("Assembly-CSharp"));
+
+            foreach (var type in types)            
+                if (type.BaseType != null)              
+                    foreach (var baseInterface in type.BaseType.GetInterfaces())                                          
+                        if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()))                                                   
+                            list.Add(type.Name);                                                         
+            
+            controller.Data.AutoArchitectureIndex = EditorGUILayout.Popup(controller.Data.AutoArchitectureIndex, list.ToArray());
+
+
+            EditorGUILayout.EndHorizontal();          
         }
 
         private void AddEventCenter(ViewController controller)
@@ -215,13 +247,19 @@ namespace YukiFrameWork.Extension
         private void CreateScripts(ViewController controller)
         {
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
-            if (!File.Exists(scriptFilePath))
+            if (!File.Exists(scriptFilePath) || string.IsNullOrEmpty(controller.Data.ScriptName))
             {
                 if (GUILayout.Button(ViewControllerDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
                 {
                     if (string.IsNullOrEmpty(controller.Data.ScriptPath))
                     {
-                        "路径为空无法创建脚本!".LogInfo(Log.E);
+                        (ViewControllerDataInfo.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!").LogInfo(Log.E);
+                        return;
+                    }
+
+                    if (controller.Data.IsAutoMation && controller.Data.AutoArchitectureIndex == 0)
+                    {
+                        (ViewControllerDataInfo.IsEN ? "After automation is turned on, you must create an Architecture that inherits from Architecture<> and select it. Current schema selection is None, cannot create script!" : "开启自动化后必须要创建一个架构继承自Architecture<>并进行选择。当前架构选择为None,无法创建脚本!").LogInfo(Log.E);
                         return;
                     }
 
@@ -235,20 +273,23 @@ namespace YukiFrameWork.Extension
                     {
                         StreamWriter streamWriter = new StreamWriter(fileStream);
 
-                        TextAsset textAsset = Resources.Load<TextAsset>("C#MonoScripts");
+                        TextAsset textAsset = Resources.Load<TextAsset>(controller.Data.IsAutoMation ? "ViewController(Auto)" : "ViewController");
 
                         string ViewControllerDataInfo = textAsset.text;
                         ViewControllerDataInfo = ViewControllerDataInfo.Replace("YukiFrameWork.Project", controller.Data.ScriptNamespace);
                         ViewControllerDataInfo = ViewControllerDataInfo.Replace("Yuki@qq.com", controller.Data.CreateEmail);
                         ViewControllerDataInfo = ViewControllerDataInfo.Replace("xxxx年x月xx日 xx:xx:xx", controller.Data.SystemNowTime);
                         ViewControllerDataInfo = ViewControllerDataInfo.Replace("#SCRIPTNAME#", controller.Data.ScriptName);
+                        if(controller.Data.IsAutoMation)
+                            ViewControllerDataInfo = ViewControllerDataInfo.Replace("IArchitecture", controller.Data.AutoInfos[controller.Data.AutoArchitectureIndex]);
                         streamWriter.Write(ViewControllerDataInfo);
 
                         streamWriter.Close();
 
                         fileStream.Close();
                         //正在改变脚本
-                        controller.Data.OnLoading = true;                       
+                        controller.Data.OnLoading = true;
+                      
                     }
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
@@ -275,9 +316,11 @@ namespace YukiFrameWork.Extension
         private void Update_ScriptViewControllerDataInfo(string path,ViewController controller)
         {
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
-            if(monoScript == null)return;
-            controller.gameObject.AddComponent(monoScript.GetClass());
+            if(monoScript == null) return;
+            var component = controller.gameObject.AddComponent(monoScript.GetClass());
+            ViewController currentController = component as ViewController;
 
+            currentController.Data = controller.Data;          
             DestroyImmediate(controller);           
         }
 

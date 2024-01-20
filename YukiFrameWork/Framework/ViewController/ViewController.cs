@@ -30,7 +30,7 @@ namespace YukiFrameWork
 
         [System.Serializable]
         public class CustomData
-        {
+        {           
             [SerializeField]
             private string scriptName;
             [SerializeField]
@@ -47,9 +47,15 @@ namespace YukiFrameWork
             private string systemNowTime;
             [SerializeField]
             private string description = "这是一个框架工具创建的脚本";
-
             [SerializeField]
             private bool onLoading = false;
+            [SerializeField]
+            private bool isAutoMation = true;
+            [SerializeField]
+            private int autoArchitectureIndex;
+
+            [SerializeField]
+            private List<string> autoInfos = new List<string>();
 
             [SerializeField]
             private string assetPath = "Assets";
@@ -113,6 +119,20 @@ namespace YukiFrameWork
                 get => onLoading;
                 set => onLoading = value;
             }
+
+            public bool IsAutoMation
+            {
+                get => isAutoMation;
+                set => isAutoMation = value;
+            }
+
+            public int AutoArchitectureIndex
+            {
+                get => autoArchitectureIndex;
+                set => autoArchitectureIndex = value;
+            }
+
+            public List<string> AutoInfos => autoInfos;
 
         }       
     }

@@ -1,0 +1,27 @@
+///=====================================================
+/// - FileName:      #SCRIPTNAME#.cs
+/// - NameSpace:     YukiFrameWork.Project
+/// - Created:       Yuki
+/// - Email:         Yuki@qq.com
+/// - Description:   这是一个框架工具创建的脚本
+/// - Creation Time: xxxx年x月xx日 xx:xx:xx
+/// -  (C) Copyright 2008 - 2023,Yuki
+/// -  All Rights Reserved.
+///======================================================
+
+using UnityEngine;
+using System;
+
+namespace YukiFrameWork.Project
+{
+    /// <summary>
+    /// ViewController运行时自动初始化架构特性,需要传入参数的类型
+    /// type:架构的类型
+    /// IsOnly:初始化获得的架构是否是全局架构
+    /// </summary>
+    [RuntimeInitializeOnArchitecture(typeof(IArchitecture),false)]
+    public class #SCRIPTNAME# : ViewController
+    {
+       
+    }
+}
