@@ -1,0 +1,36 @@
+using System;
+using YukiFrameWork;
+using YukiFrameWork.Extension;
+namespace YukiFrameWork.Events
+{
+    public class RuntimeEventInitializationFactory
+    {        
+        public static void Initialization<T>(T viewController) where T : ViewController
+        {
+            var eventCenter = viewController.GetComponent<RuntimeEventCenter>();
+
+            foreach (var index in eventCenter.GetEventCenterIndex())
+            {
+                var center = eventCenter.GetEventCenter(index);
+
+                if (center != null) 
+                {                   
+                    switch (eventCenter.registerType)
+                    {
+                        case RegisterType.String:
+                            if(!string.IsNullOrEmpty(eventCenter.name))
+                                viewController.RegisterEvent<EventArgs>(center.name, args => center.mEvent?.Invoke(args));
+                            break;
+                        case RegisterType.Enum:
+                            var enumType = AssemblyHelper.GetType(center.name);
+                            center.mEnum = (Enum)Enum.Parse(enumType, center.mEnumInfos[center.enumIndex]);
+                            if (center.mEnum != null)
+                                viewController.RegisterEvent<EventArgs>(center.mEnum, args => center.mEvent?.Invoke(args));
+                            break;                    
+                    }
+                }
+            }
+        }     
+        
+    }
+}

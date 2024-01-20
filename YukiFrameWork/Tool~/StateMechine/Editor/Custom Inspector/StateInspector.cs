@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 using AssemblyHelper = YukiFrameWork.Extension.AssemblyHelper;
 using Object = UnityEngine.Object;
 using System.Collections;
+using YukiFrameWork.Extension;
+using System.Linq;
 #if UNITY_EDITOR
 namespace YukiFrameWork.States
 {
@@ -71,21 +73,49 @@ namespace YukiFrameWork.States
             EditorGUILayout.Space(10);          
             for (int i = 0; i < state.dataBases.Count; i++)
             {
-                EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.BeginHorizontal();
                 state.dataBases[i].isActive = EditorGUILayout.ToggleLeft(state.dataBases[i].typeName, state.dataBases[i].isActive);
-
+                SelectScriptMenu(rect, state.dataBases[i].typeName);
                 if (GUILayout.Button("Delete","ToggleMixed"))
                 {
                     state.dataBases.RemoveAt(i);
                     i--;
                     continue;
-                }
+                }                
+
                 EditorGUILayout.EndHorizontal();
                                
                 SerializationStateField(state.dataBases[i]);
             }
             EditorGUILayout.Space();
             RecomposeScript(state);
+        }
+
+        private void SelectScriptMenu(Rect rect,string typeName)
+        {
+            Event e = Event.current;
+            if (rect.Contains(e.mousePosition))
+            {              
+                if (e.type == EventType.MouseDown && e.button == 1)
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("编辑脚本"), false, () => 
+                    {
+                        Type type = AssemblyHelper.GetType(typeName);
+                        if (type == null) return;
+
+                        IEnumerable<string> paths = AssetDatabase.GetAllAssetPaths().Where(path => path.EndsWith(".cs"));           
+                        var script = paths.Where(path => path.EndsWith(".cs"))
+                        .Select(AssetDatabase.LoadAssetAtPath<MonoScript>)
+                        .FirstOrDefault(target => target != null && target.GetClass() != null && target.GetClass().ToString().Equals(type.ToString())) 
+                        ?? throw LogKit.Exception("打开脚本失败!请检查脚本是否单独新建了一个cs文件进行编写!The Script is None! --- Type:" + type);
+                        AssetDatabase.OpenAsset(script);                                                           
+                    });
+                    e.Use();
+
+                    menu.ShowAsContext();
+                }
+            }
         }
 
         private void SerializationStateField(StateDataBase dataBase)
@@ -97,6 +127,7 @@ namespace YukiFrameWork.States
             SerializationStateField(type, dataBase);
 
             EditorGUILayout.Space();
+            EditorGUILayout.BeginVertical("OL box NoExpand");
             for (int i = 0; i < dataBase.metaDatas.Count; i++)
             {             
                 EditorGUILayout.BeginHorizontal();
@@ -135,7 +166,9 @@ namespace YukiFrameWork.States
 
                 EditorGUILayout.EndHorizontal();
                 
-            }          
+            }
+
+            EditorGUILayout.EndVertical();
         }      
         public void OnEnable()
         {

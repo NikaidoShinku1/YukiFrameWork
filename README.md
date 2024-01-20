@@ -41,9 +41,18 @@
 框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
 ![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
 
+框架控制器添加方式:
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller1.png)
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
+
+直接创建ViewController或者创建空物体添加组件即可,生成脚本后会禁止用户在这个物体对ViewController的脚本创建数据更改,脚本自动关联物体,提供快速打开以及创建Prefab的功能,同时可以额外添加可视化事件注册器
+
 注意：使用本框架Unity版本不能低于2020.3
 
 #### 框架更新版本速览
+
+V1.4.0 添加可视化事件拓展,可以直接在编辑器注册事件,通过ViewController添加
 
 V1.3.8 ViewController编辑器拓展,人性化设置,新增一键式创建Prefab功能,优化LogKit模块，Import Window添加中英文切换介绍。
 

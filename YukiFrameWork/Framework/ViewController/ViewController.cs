@@ -11,12 +11,23 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using YukiFrameWork.Events;
 namespace YukiFrameWork
 {
+    public enum RuntimeInitialized
+    {
+        Automation,
+        Awake,        
+    }
+
     public partial class ViewController
     {
         [HideInInspector]
         public CustomData Data = new CustomData();
+
+        [HideInInspector]
+        public RuntimeInitialized initialized = RuntimeInitialized.Automation;
+
         [System.Serializable]
         public class CustomData
         {
@@ -111,8 +122,14 @@ namespace YukiFrameWork
         private object _object = new object();
         private IArchitecture mArchitecture;
 
+        protected virtual void Awake()
+        {
+            if (initialized == RuntimeInitialized.Awake)            
+                RuntimeEventInitializationFactory.Initialization(this);           
+        }
+      
         /// <summary>
-        /// 可重写的架构属性,将自动初始化设置为False时需要重写该属性
+        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
         /// </summary>
         protected virtual IArchitecture RuntimeArchitecture
         {
@@ -123,6 +140,7 @@ namespace YukiFrameWork
                     if (mArchitecture == null)
                     {
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);
+                        RuntimeEventInitializationFactory.Initialization(this);
                     }
                     return mArchitecture;
                 }

@@ -64,8 +64,8 @@ namespace YukiFrameWork
             {
                 architecture = Architecture.CreateInstance(runtime.ArchitectureType);
                 architecture.OnInit();
-            }
-          
+            }           
+
             return runtime.IsOnly ? global : architecture;             
         }
 

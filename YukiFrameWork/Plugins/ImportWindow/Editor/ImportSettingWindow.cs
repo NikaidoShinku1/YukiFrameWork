@@ -20,8 +20,7 @@ namespace YukiFrameWork.Extension
     public class ImportSettingWindow : EditorWindow
     {
         private Vector2 scrollPosition;
-        private Data data;
-        private ImportWindowInfo info = new ImportWindowInfo();     
+        private Data data;         
 
         public const string importPath = "Packages/com.yuki.yukiframework/Plugins/ImportWindow/Data/ImportPath.json";
         private const string packagePath = "Packages/com.yuki.yukiframework";
@@ -69,7 +68,7 @@ namespace YukiFrameWork.Extension
         {
             TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);
             data = JsonUtility.FromJson<Data>(text.text);
-            info.IsEN = data.isEN;
+            ImportWindowInfo.IsEN = data.isEN;
         }
 
         void SaveData()
@@ -92,16 +91,16 @@ namespace YukiFrameWork.Extension
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginVertical("FrameBox");
             EditorGUILayout.BeginHorizontal();
-            data.develop = EditorGUILayout.Popup(info.DeveloperModeInfo, data.develop, info.displayedOptions);
+            data.develop = EditorGUILayout.Popup(ImportWindowInfo.DeveloperModeInfo, data.develop, ImportWindowInfo.displayedOptions);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
             GUILayout.Label("EN");
-            info.IsEN = EditorGUILayout.Toggle(info.IsEN);
-            data.isEN = info.IsEN;
+            ImportWindowInfo.IsEN = EditorGUILayout.Toggle(ImportWindowInfo.IsEN);
+            data.isEN = ImportWindowInfo.IsEN;
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(info.ImportPath, data.path);
-            if (GUILayout.Button(info.SelectPath, GUILayout.Width(80)))
+            EditorGUILayout.LabelField(ImportWindowInfo.ImportPath, data.path);
+            if (GUILayout.Button(ImportWindowInfo.SelectPath, GUILayout.Width(80)))
             {
                 var importPath = EditorUtility.OpenFolderPanel("选择导入路径", "", "");
                 ///相对于Assets路径
@@ -137,43 +136,43 @@ namespace YukiFrameWork.Extension
             
 
 
-            DrawBoxGUI(Color.white, info.ActionKitInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.ActionKitInfo
                 , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", packagePath + "/Tool~/ActionKit");
 
-            DrawBoxGUI(Color.white, info.BezierInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.BezierInfo
             , MessageType.Info, string.Format("{0}/Bezier", data.path), "Bezier", packagePath + "/Tool~/Bezier");
 
-            DrawBoxGUI(Color.white, info.StateMechineInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.StateMechineInfo
            , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
 
-            DrawBoxGUI(Color.white, info.IOCInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.IOCInfo
             , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", packagePath + "/Tool~/IOCContainer");
 
-            DrawBoxGUI(Color.white, info.ABManagerInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.ABManagerInfo
           , MessageType.Info, string.Format("{0}/ABManager", data.path), "ABManager", packagePath + "/Tool~/ABManager");
 
-            DrawBoxGUI(Color.white, info.UIInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.UIInfo
            , MessageType.Info, string.Format("{0}/UI",data.path), "UI", packagePath + "/Tool~/UI");
 
-            DrawBoxGUI(Color.white, info.AudioInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.AudioInfo
            , MessageType.Info, string.Format("{0}/Audio", data.path), "Audio", packagePath + "/Tool~/Audio");
 
-            DrawBoxGUI(Color.white, info.KnapsackInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
             , MessageType.Info, string.Format("{0}/Knapsack", data.path), "Knapsack", packagePath + "/Tool~/Knapsack");
 
-            DrawBoxGUI(Color.white, info.DoTweenInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
                 , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
 
-            DrawBoxGUI(Color.white, info.UniRxInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.UniRxInfo
                 , MessageType.Info, string.Format("{0}/UniRx",  data.path), "UniRx", packagePath + "/Tool~/UniRx");
 
-            DrawBoxGUI(Color.white, info.UniTaskInfo
+            DrawBoxGUI(Color.white, ImportWindowInfo.UniTaskInfo
                 , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");
 
-            EditorGUILayout.HelpBox(info.ImportAllModuleInfo, MessageType.Warning);
+            EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();
             GUI.color = Color.white;
-            if (GUILayout.Button(info.ImportAllModuleInfo, GUILayout.Height(20)))
+            if (GUILayout.Button(ImportWindowInfo.ImportAllModuleInfo, GUILayout.Height(20)))
             {
                 Import(packagePath + "/Tool~/ActionKit", "ActionKit");
                 Import(packagePath + "/Tool~/Bezier", "Bezier");
@@ -189,10 +188,10 @@ namespace YukiFrameWork.Extension
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.HelpBox(info.ReImportAllModuleInfo, MessageType.Warning);
+            EditorGUILayout.HelpBox(ImportWindowInfo.ReImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();
             GUI.color = Color.white;
-            if (GUILayout.Button(info.ImportClickInfo, GUILayout.Height(20)))
+            if (GUILayout.Button(ImportWindowInfo.ImportClickInfo, GUILayout.Height(20)))
             {
                 foreach (var key in moduleInfo.Keys)
                 {
@@ -208,7 +207,7 @@ namespace YukiFrameWork.Extension
 
             if (data.develop == 1)
             {
-                DrawReverBoxGUI(Color.white, info.IsEN ? "The anti-missile module has been imported":"反导已经导入的模块"
+                DrawReverBoxGUI(Color.white, ImportWindowInfo.IsEN ? "The anti-missile module has been imported":"反导已经导入的模块"
                     , MessageType.Warning, "The anti-missile module has been imported");
             }
 
@@ -222,7 +221,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.BeginHorizontal();
             OpenUrl("Gitee", "https://gitee.com/NikaidoShinku/YukiFrameWork.git");
             OpenUrl("作者QQ:1274672030", string.Empty);
-            OpenUrl("框架版本:V1.3.8",string.Empty);
+            OpenUrl("框架版本:V1.4.0",string.Empty);
             EditorGUILayout.EndHorizontal();
         }
 
@@ -236,12 +235,12 @@ namespace YukiFrameWork.Extension
             }
         }
 
-        private void DrawReverBoxGUI(Color color,string message,MessageType info, string name)
+        private void DrawReverBoxGUI(Color color,string message,MessageType Info, string name)
         {
-            EditorGUILayout.HelpBox(message, info);
+            EditorGUILayout.HelpBox(message, Info);
             EditorGUILayout.BeginHorizontal();           
             GUI.color = color;
-            if (GUILayout.Button($"{name}{(this.info.IsEN ? "": "模块")}", GUILayout.Height(20)))
+            if (GUILayout.Button($"{name}{(ImportWindowInfo.IsEN ? "": "模块")}", GUILayout.Height(20)))
             {
                 foreach (var key in moduleInfo.Keys)
                 {
@@ -256,10 +255,10 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawBoxGUI(Color color,string message,MessageType info,string path,string name,string copyPath = "")
+        private void DrawBoxGUI(Color color,string message,MessageType ImportWindowInfo,string path,string name,string copyPath = "")
         {         
             GUI.color = color;
-            EditorGUILayout.HelpBox(message, info);
+            EditorGUILayout.HelpBox(message, ImportWindowInfo);
             DrawButtonGUI(path, name,copyPath);
         }
 
@@ -270,21 +269,21 @@ namespace YukiFrameWork.Extension
             {
               
                 GUI.color = Color.white;
-                if (GUILayout.Button(info.IsEN ? $"Reload Import{name} Module" : $"重新导入{name}模块",GUILayout.Height(20)))
+                if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reload Import{name} Module" : $"重新导入{name}模块",GUILayout.Height(20)))
                 {
                     Import(copyPath,name);
                 }
 
                 if (data.develop == 1)
                 {
-                    if (GUILayout.Button(info.IsEN ? $"Reverse Import{name} Module" : $"反导{name}模块", GUILayout.Height(20)))
+                    if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reverse Import{name} Module" : $"反导{name}模块", GUILayout.Height(20)))
                     {
                         ReverImport(copyPath, name);
                     }
                 }
 
                 GUI.color = Color.red;
-                if (GUILayout.Button(info.IsEN ? "Delete Module" : "删除模块", GUILayout.Height(20),data.develop != 1 ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width / 3)))
+                if (GUILayout.Button(ImportWindowInfo.IsEN ? "Delete Module" : "删除模块", GUILayout.Height(20),data.develop != 1 ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width / 3)))
                 {
                     File.Delete(path + ".meta");
                     Directory.Delete(path,true);
@@ -294,7 +293,7 @@ namespace YukiFrameWork.Extension
             }
             else
             {
-                if (GUILayout.Button(info.IsEN ? $"Import {name} Module":$"导入{name}模块", GUILayout.Height(20)))
+                if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Import {name} Module":$"导入{name}模块", GUILayout.Height(20)))
                 {
                     Import(copyPath,name);
 
@@ -308,7 +307,7 @@ namespace YukiFrameWork.Extension
         {
             if (!Directory.Exists(copyPath))
             {
-                Debug.LogError(info.IsEN ? "Path lost! Check the Package root directory and be sure to manually add the framework package.json!" : "路径丢失！请检查包根目录以及确保在PackageManager手动添加框架Package.json!");
+                Debug.LogError(ImportWindowInfo.IsEN ? "Path lost! Check the Package root directory and be sure to manually add the framework package.json!" : "路径丢失！请检查包根目录以及确保在PackageManager手动添加框架Package.json!");
                 GUIUtility.ExitGUI();
                 return;
             }
@@ -341,7 +340,7 @@ namespace YukiFrameWork.Extension
             string checkPath = data.path + @"/" + name;
             if (!Directory.Exists(checkPath))
             {
-                Debug.LogError(info.IsEN ? $"Cannot anti-missile {name} module, please check whether the {name} module has been imported into the project! -- File:{checkPath}" :$"无法反导{name}模块,请检查项目中是否已经导入了{name}模块! -- File:{checkPath}");
+                Debug.LogError(ImportWindowInfo.IsEN ? $"Cannot anti-missile {name} module, please check whether the {name} module has been imported into the project! -- File:{checkPath}" :$"无法反导{name}模块,请检查项目中是否已经导入了{name}模块! -- File:{checkPath}");
                 GUIUtility.ExitGUI();
                 return;
             }
