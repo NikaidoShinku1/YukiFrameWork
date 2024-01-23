@@ -37,18 +37,23 @@ namespace YukiFrameWork.Extension
                 return;
             }
 
-            gameObject.AddComponent<ViewController>();
+            gameObject.AddComponent<ViewController>(); 
         }
 
         private void Awake()
         {         
-            ViewController controller = target as ViewController;           
-            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
+            ViewController controller = target as ViewController;
+            controller.Data ??= new ViewController.CustomData();
 
-            if (controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
-            {
+            if (string.IsNullOrEmpty(controller.Data.ScriptName))
                 controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);
-                Update_ScriptViewControllerDataInfo(scriptFilePath, controller);
+
+            string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
+           
+            if (controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
+            {             
+                if(!Update_ScriptViewControllerDataInfo(scriptFilePath, controller))
+                    controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);
             }
         }
 
@@ -313,15 +318,17 @@ namespace YukiFrameWork.Extension
             }
         }
 
-        private void Update_ScriptViewControllerDataInfo(string path,ViewController controller)
-        {
+        private bool Update_ScriptViewControllerDataInfo(string path,ViewController controller)
+        {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
-            if(monoScript == null) return;
+            if(monoScript == null) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;
 
-            currentController.Data = controller.Data;          
-            DestroyImmediate(controller);           
+            currentController.Data = controller.Data;                      
+
+            DestroyImmediate(controller);
+            return true;
         }
 
         private void SelectFolder(ViewController controller)

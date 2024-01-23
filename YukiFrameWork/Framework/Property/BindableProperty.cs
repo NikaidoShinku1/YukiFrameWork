@@ -22,9 +22,10 @@ namespace YukiFrameWork
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [Serializable]
-    public class BindableProperty<T> : IBindableProperty<T>,IUnRegister
+    public class BindableProperty<T> : IBindableProperty<T>
     {
-        private Action<T> OnValueChange;
+        [NonSerialized]
+        private EasyEvent<T> onValueChange = new EasyEvent<T>();
      
         [field: SerializeField] private T value;
         public T Value
@@ -35,14 +36,19 @@ namespace YukiFrameWork
                 if (!this.value.Equals(value))
                 {
                     this.value = value;
-                    OnValueChange?.Invoke(value);
+                    onValueChange?.SendEvent(value);
                 }
             }
         }     
 
-        public BindableProperty(T value = default)
+        public BindableProperty(T value)
         {
             this.value = value;
+        }
+
+        public BindableProperty()
+        {
+            
         }
 
         /// <summary>
@@ -52,8 +58,8 @@ namespace YukiFrameWork
         /// <returns>返回自身</returns>
         public IUnRegister Register(Action<T> action)
         {
-            OnValueChange += action;
-            return this;
+            onValueChange.RegisterEvent(action);
+            return onValueChange;
         }
 
         /// <summary>
@@ -63,9 +69,9 @@ namespace YukiFrameWork
         /// <returns>返回自身</returns>
         public IUnRegister RegisterWithInitValue(Action<T> action)
         {
-            OnValueChange += action;
-            OnValueChange?.Invoke(value);
-            return this;
+            onValueChange.RegisterEvent(action);
+            onValueChange.SendEvent(value);
+            return onValueChange;
         }
 
         /// <summary>
@@ -73,7 +79,7 @@ namespace YukiFrameWork
         /// </summary>
         public void UnRegister(Action<T> onEvent)
         {
-            OnValueChange -= onEvent;
+            onValueChange.UnRegister(onEvent);
         }
 
         /// <summary>
@@ -81,7 +87,7 @@ namespace YukiFrameWork
         /// </summary>
         public void UnRegisterAllEvent()
         {
-            OnValueChange = null;
+            onValueChange.UnRegisterAllEvent();
         }
     }
 }

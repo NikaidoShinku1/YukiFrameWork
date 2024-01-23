@@ -61,7 +61,8 @@ namespace YukiFrameWork.Extension
             ["Knapsack"] = packagePath + "/Tool~/Knapsack",
             ["DoTween"] = packagePath + "/Tool~/DoTween",
             ["UniRx"] = packagePath + "/Tool~/UniRx",
-            ["UniTask"] = packagePath + "/Tool~/UniTask"
+            ["UniTask"] = packagePath + "/Tool~/UniTask",
+            ["Serialization"] = packagePath + "/Tool~/SerializationTool"
         };
 
         void LoadData()
@@ -133,8 +134,9 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.EndVertical();
             EditorGUILayout.BeginVertical("GroupBox");
             scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);
-            
 
+            DrawBoxGUI(Color.white, ImportWindowInfo.SerializationInfo
+                , MessageType.Info, string.Format("{0}/Serialization", data.path), "Serialization", packagePath + "/Tool~/Serialization");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.ActionKitInfo
                 , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", packagePath + "/Tool~/ActionKit");
@@ -174,6 +176,7 @@ namespace YukiFrameWork.Extension
             GUI.color = Color.white;
             if (GUILayout.Button(ImportWindowInfo.ImportAllModuleInfo, GUILayout.Height(20)))
             {
+                Import(packagePath + "/Tool~/SerializationTool", "Serialization");
                 Import(packagePath + "/Tool~/ActionKit", "ActionKit");
                 Import(packagePath + "/Tool~/Bezier", "Bezier");
                 Import(packagePath + "/Tool~/StateMechine", "StateMechine");
@@ -191,7 +194,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.HelpBox(ImportWindowInfo.ReImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();
             GUI.color = Color.white;
-            if (GUILayout.Button(ImportWindowInfo.ImportClickInfo, GUILayout.Height(20)))
+            if (GUILayout.Button(ImportWindowInfo.ReImportAllModuleInfo, GUILayout.Height(20)))
             {
                 foreach (var key in moduleInfo.Keys)
                 {
@@ -207,8 +210,8 @@ namespace YukiFrameWork.Extension
 
             if (data.develop == 1)
             {
-                DrawReverBoxGUI(Color.white, ImportWindowInfo.IsEN ? "The anti-missile module has been imported":"反导已经导入的模块"
-                    , MessageType.Warning, "The anti-missile module has been imported");
+                DrawReverBoxGUI(Color.white, ImportWindowInfo.IsEN ? "Export the imported module" : "把已经导入的模块导回仓库"
+                    , MessageType.Warning, ImportWindowInfo.IsEN ? "Export the imported module" : "反导已经导入的模块");
             }
 
             GUILayout.EndScrollView();
@@ -221,7 +224,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.BeginHorizontal();
             OpenUrl("Gitee", "https://gitee.com/NikaidoShinku/YukiFrameWork.git");
             OpenUrl("作者QQ:1274672030", string.Empty);
-            OpenUrl("框架版本:V1.4.0",string.Empty);
+            OpenUrl("框架版本:V1.5.0",string.Empty);
             EditorGUILayout.EndHorizontal();
         }
 
@@ -269,7 +272,7 @@ namespace YukiFrameWork.Extension
             {
               
                 GUI.color = Color.white;
-                if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reload Import{name} Module" : $"重新导入{name}模块",GUILayout.Height(20)))
+                if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reload Import {name} Module" : $"重新导入{name}模块",GUILayout.Height(20)))
                 {   
                     File.Delete(path + ".meta");
                     Directory.Delete(path,true);
@@ -278,7 +281,7 @@ namespace YukiFrameWork.Extension
 
                 if (data.develop == 1)
                 {
-                    if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reverse Import{name} Module" : $"反导{name}模块", GUILayout.Height(20)))
+                    if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reverse Import {name} Module" : $"反导{name}模块", GUILayout.Height(20)))
                     {
                         ReverImport(copyPath, name);
                     }

@@ -177,16 +177,18 @@ namespace YukiFrameWork
         {
             architectureDicts.Clear();
         }
-    }
+    }    
 
     [ClassAPI("框架核心本体")]
     [GUIDancePath("YukiFrameWork/Description")]
     public abstract class Architecture<TCore> : IArchitecture,IDisposable where TCore : class,IArchitecture ,new()
-    {     
-        private Dictionary<Type, object> architectureContainer = new Dictionary<Type, object>();
+    {
+        #region Data
+        private EasyContainer architectureContainer = new EasyContainer();
         private TypeEventSystem eventSystem = new TypeEventSystem();
         private EnumEventSystem enumEventSystem = new EnumEventSystem();
-        private StringEventSystem stringEventSystem = new StringEventSystem();      
+        private StringEventSystem stringEventSystem = new StringEventSystem();
+        #endregion
 
         public abstract void OnInit();       
 
@@ -243,37 +245,20 @@ namespace YukiFrameWork
           
         private bool Register<T>(T t) where T : class
         {
-            if (architectureContainer.ContainsKey(t.GetType()))
-            {              
-                return false;
-            }
-            architectureContainer.Add(t.GetType(), t);
-            return true;
+            return architectureContainer.Register<T>(t);
         }
 
         private bool Contains<T>(T t = default) where T : class      
-            => architectureContainer.ContainsKey(t.GetType());
+            => architectureContainer.Contains(t.GetType());
         
-        T IArchitecture.GetModel<T>() where T : class
-            => Get<T>();                 
+        public T GetModel<T>() where T : class,IModel
+            => architectureContainer.Get<T>();
 
-        T IArchitecture.GetSystem<T>() where T : class
-           => Get<T>();
+        public T GetSystem<T>() where T : class,ISystem
+           => architectureContainer.Get<T>();
 
-        T IArchitecture.GetUtility<T>()
-            => Get<T>();
-
-        private T Get<T>() where T : class
-        {
-            foreach (var m in architectureContainer.Values)
-            {
-                if (m is T t)
-                {
-                    return t;
-                }
-            }
-            return null;
-        }
+        public T GetUtility<T>() where T : class,IUtility
+            => architectureContainer.Get<T>();      
 
         public void UnRegisterModel<T>(T model = default) where T : class,IModel
         {
@@ -336,6 +321,40 @@ namespace YukiFrameWork
             command.SetArchitecture(this);
             return command.Execute();         
         }        
+    }
+
+    public sealed class EasyContainer
+    {
+        private Dictionary<Type, object> architectureContainer = new Dictionary<Type, object>();
+
+        public bool Register<T>(T obj)
+        {
+            if (Contains(typeof(T))) return false;
+
+            architectureContainer.Add(typeof(T), obj);
+            return true;
+        }
+
+        public T Get<T>() where T : class 
+        {
+            foreach (var m in architectureContainer.Values)
+            {
+                if (m is T t)
+                {
+                    return t;
+                }
+            }
+            return null;
+        }
+
+        public void Remove(Type type)
+        {
+            architectureContainer.Remove(type);
+        }
+
+        public void Clear() => architectureContainer.Clear();
+
+        public bool Contains(Type type) => architectureContainer.ContainsKey(type);
     }
 
     public class EnumEventSystem
@@ -724,17 +743,18 @@ namespace YukiFrameWork
     {
 
         /// <summary>
-        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件(注意：使用事件的全局模块时需要谨慎选择绑定的对象,当对象销毁时全局模块的事件会被全部注销)
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
         /// </summary>
         /// <param name="gameObject">GameObject</param>
-        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action callBack = null) where Component : UnityEngine.Component
+        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component,Action onFinish = null) where Component : UnityEngine.Component
         {
             if (!component.TryGetComponent(out OnGameObjectTrigger objectSend))
             {
                 objectSend = component.gameObject.AddComponent<OnGameObjectTrigger>();
             }
-            callBack += () => property.UnRegisterAllEvent();
-            objectSend.PushFinishEvent(callBack);
+            objectSend.AddUnRegister(property);
+
+            objectSend.PushFinishEvent(onFinish);
 
         }
     }
@@ -764,13 +784,13 @@ namespace YukiFrameWork
     /// </summary>
     public static class EventSystemExtension
     {
-        public static void RegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent)
+        public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent)
             => registerEvent.GetArchitecture().RegisterEvent(onEvent);
 
-        public static void RegisterEvent<T>(this IGetRegisterEvent registerEvent, string eventName, Action<T> onEvent)
+        public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, string eventName, Action<T> onEvent)
             => registerEvent.GetArchitecture().RegisterEvent(eventName, onEvent);
 
-        public static void RegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
+        public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
            => registerEvent.GetArchitecture().RegisterEvent(eventEnum, onEvent);
 
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent = null)

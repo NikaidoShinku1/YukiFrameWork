@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using YukiFrameWork;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork.Events
@@ -7,7 +8,8 @@ namespace YukiFrameWork.Events
     {        
         public static void Initialization<T>(T viewController) where T : ViewController
         {
-            var eventCenter = viewController.GetComponent<RuntimeEventCenter>();
+            var eventCenter = viewController.GetComponent<RuntimeEventCenter>();        
+            if (eventCenter == null) return;
 
             foreach (var index in eventCenter.GetEventCenterIndex())
             {

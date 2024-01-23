@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +7,7 @@ using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.Events
 {
-    [ClassAPI("ÔËĞĞÊ±ÊÂ¼ş×¢²á")]
+    [ClassAPI("è¿è¡Œæ—¶äº‹ä»¶æ³¨å†Œ")]
     [GUIDancePath("YukiFrameWork/Framework/Events")]
     public class RuntimeEventCenter : MonoBehaviour
     {

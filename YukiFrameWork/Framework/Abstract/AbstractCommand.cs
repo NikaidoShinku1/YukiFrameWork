@@ -18,6 +18,7 @@ namespace YukiFrameWork
     public abstract class AbstractCommand : ICommand
     {
         #region 架构本体
+        [NonSerialized]
         private IArchitecture mArchitecture;
 
         IArchitecture IGetArchitecture.GetArchitecture()
@@ -37,6 +38,7 @@ namespace YukiFrameWork
     public abstract class AbstractCommand<TResult> : ICommand<TResult>
     {
         #region 架构本体
+        [NonSerialized]
         private IArchitecture mArchitecture;
 
         IArchitecture IGetArchitecture.GetArchitecture()

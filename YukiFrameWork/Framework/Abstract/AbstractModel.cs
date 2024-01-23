@@ -13,11 +13,13 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork
 {
+    [Serializable]
     public abstract class AbstractModel : IModel
     {
         public abstract void Init();
 
         #region 架构本体
+        [NonSerialized]
         private IArchitecture architecture;        
 
         IArchitecture IGetArchitecture.GetArchitecture()

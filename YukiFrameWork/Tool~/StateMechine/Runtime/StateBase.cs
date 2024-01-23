@@ -105,12 +105,14 @@ namespace YukiFrameWork.States
                 case StateAnimType.Animator:
                     if (animData.animator == null)
                         throw new NullReferenceException("当前没有为该状态正确添加animator组件！");
-                    animData.animator.Play(animData.clipName,animData.layer,0);
+                    if (animData.isActiveDefaultAnim)
+                        animData.animator.Play(animData.clipName,animData.layer,0);
                     break;
                 case StateAnimType.Animation:
                     if (animData.animation == null)
                         throw new NullReferenceException("当前没有为该状态正确添加animation组件！");
-                    animData.animation.Play(animData.clipName);                
+                    if(animData.isActiveDefaultAnim)
+                        animData.animation.Play(animData.clipName);                
                     break;
             }
         }

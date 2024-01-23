@@ -17,6 +17,7 @@ namespace YukiFrameWork
     {
         public abstract void Init();
         #region 架构本体
+        [NonSerialized]
         private IArchitecture architecture;
 
         IArchitecture IGetArchitecture.GetArchitecture()

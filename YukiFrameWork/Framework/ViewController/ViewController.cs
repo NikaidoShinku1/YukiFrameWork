@@ -23,7 +23,7 @@ namespace YukiFrameWork
     public partial class ViewController
     {
         [HideInInspector]
-        public CustomData Data = new CustomData();
+        public CustomData Data;
 
         [HideInInspector]
         public RuntimeInitialized initialized = RuntimeInitialized.Automation;

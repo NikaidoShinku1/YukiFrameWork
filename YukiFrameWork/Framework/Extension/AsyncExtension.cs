@@ -45,9 +45,9 @@ namespace YukiFrameWork
             =>((AsyncExtensionCore)core).ExecuteAsync(callBack);
         
 
-        public static IAsyncExtensionCore CancelWaitGameObjectDestory<TComponent>(this IAsyncExtensionCore core, TComponent component) where TComponent : Component
+        public static IAsyncExtensionCore CancelWaitGameObjectDestroy<TComponent>(this IAsyncExtensionCore core, TComponent component) where TComponent : Component
         {
-            ((AsyncExtensionCore)core).CancelWaitGameObjectDestory(component);
+            ((AsyncExtensionCore)core).CancelWaitGameObjectDestroy(component);
             return core;
         }  
     }
@@ -142,7 +142,7 @@ namespace YukiFrameWork
             simpleObjectPools.Release(this);            
         }
 
-        public void CancelWaitGameObjectDestory<TComponent>(TComponent component) where TComponent : Component
+        public void CancelWaitGameObjectDestroy<TComponent>(TComponent component) where TComponent : Component
         {
             if(!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
             {

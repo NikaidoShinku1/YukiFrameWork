@@ -444,6 +444,7 @@ namespace YukiFrameWork.States
         /// <param name="type">状态的动画类型</param>
         private void ModifyAnimData(StateBase state, StateAnimType type)
         {
+            EditorGUILayout.BeginVertical(GUI.skin.box);
             animClipsName.Clear();
             switch (type)
             {
@@ -455,7 +456,7 @@ namespace YukiFrameWork.States
                     }
                     break;
                 case StateAnimType.Animator:
-                    {
+                    {                      
                         if (state.animData.animator != null && state.animData.animator.runtimeAnimatorController != null)
                         {
                             var animState = state.animData.animator.runtimeAnimatorController;
@@ -477,7 +478,7 @@ namespace YukiFrameWork.States
                     }
                     break;
                 case StateAnimType.Animation:
-                    {
+                    {                     
                         if (state.animData.animation != null)
                         {
                             foreach (AnimationState clip in state.animData.animation)
@@ -489,7 +490,7 @@ namespace YukiFrameWork.States
                         if(animClipsName.Count == 0)
                         {
                             if(state.animData.animation == null)
-                                 GUILayout.Label("当前状态没有设置该组件");
+                                 GUILayout.Label("当前状态没有设置该组件!");
                             else GUILayout.Label("当前状态没有设置正确的动画剪辑");
                         }
                     }
@@ -503,6 +504,7 @@ namespace YukiFrameWork.States
                 state.animData.animSpeed = EditorGUILayout.FloatField("动画默认速度", state.animData.animSpeed);
                 state.animData.animLength = EditorGUILayout.FloatField("动画默认长度", state.animData.animLength);
             }
+            EditorGUILayout.EndVertical();
         }
 
         private void SetAnim(StateBase state)
@@ -522,12 +524,14 @@ namespace YukiFrameWork.States
                 case StateAnimType.None:
                     {
                         GUILayout.Label("当前模式不会使用Unity动画系统");
+                        state.animData.animator = null;
+                        state.animData.animation = null;
                     }
                    
                     break;
                 case StateAnimType.Animator:
                     {
-                        GUILayout.Label("新版动画:");
+                        GUILayout.Label("新版动画:");                       
                         state.animData.animator = (Animator)EditorGUILayout.ObjectField(state.animData.animator, typeof(Animator), true);                     
                     }
                     break;

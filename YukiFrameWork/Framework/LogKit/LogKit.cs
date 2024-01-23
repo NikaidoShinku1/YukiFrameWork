@@ -1,9 +1,9 @@
-///=====================================================
+ï»¿///=====================================================
 /// - FileName:      LogKit.cs
 /// - NameSpace:     YukiFrameWork
 /// - Created:       Yuki
 /// - Email:         1274672030@qq.com
-/// - Description:   ¿ØÖÆÌ¨DebugÍØÕ¹Àà
+/// - Description:   æ§åˆ¶å°Debugæ‹“å±•ç±»
 /// - Creation Time: 2023/12/31 17:29:15
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
@@ -21,7 +21,7 @@ namespace YukiFrameWork
         E,
         D
     }
-    [ClassAPI("¿ØÖÆÌ¨ÍØÕ¹")]
+    [ClassAPI("æ§åˆ¶å°æ‹“å±•")]
     [GUIDancePath("YukiFrameWork/Framework/LogKit")]
     public class LogKit
     {
@@ -63,7 +63,7 @@ namespace YukiFrameWork
         }      
     }
 
-    [ClassAPI("ÈÕÖ¾¹¤¾ßÍØÕ¹")]
+    [ClassAPI("æ—¥å¿—å·¥å…·æ‹“å±•")]
     public static class LogKitExtension
     {
         public static ILoggerExtension LogInfo<T>(this T core, Log log = Log.I)

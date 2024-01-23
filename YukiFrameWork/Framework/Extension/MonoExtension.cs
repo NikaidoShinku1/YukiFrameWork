@@ -22,6 +22,8 @@ namespace YukiFrameWork
 
         private readonly Stack<Action> onFinishEvents = new Stack<Action>();
 
+        private readonly Stack<IUnRegister> unRegisters = new Stack<IUnRegister>();
+
         public void AddAction(IActionNode node,IActionNodeController controller)
         {          
             if (executeNodeDict.ContainsKey(node))
@@ -29,6 +31,12 @@ namespace YukiFrameWork
             else
                 executeNodeDict.Add(node, controller);
         }
+
+        public void AddUnRegister(IUnRegister register)
+            => unRegisters.Push(register);
+
+        public IUnRegister PopRegister()
+            => unRegisters.Pop();
        
         public void PushFinishEvent(Action onFinish)
         {
@@ -71,10 +79,17 @@ namespace YukiFrameWork
                 action.OnFinish();
             }
 
+            foreach (var register in unRegisters)
+            {
+                register.UnRegisterAllEvent();
+            }
+
             while (onFinishEvents.Count > 0)
             {
                 PopFinishEvent()?.Invoke();
             }
+
+            unRegisters.Clear();
 
             executeNodeDict.Clear();
 

@@ -29,7 +29,9 @@ namespace YukiFrameWork.UI
             {
                 throw new Exception("请在场景中添加画布！初始化失败:Not Canvas In Scene!");
             }
-            Canvas.UnRegisterWaitGameObjectDestroy(Canvas.Value.transform, Release);
+
+            Canvas.Register(canvas => { }).UnRegisterWaitGameObjectDestroy(Canvas.Value,Release);
+            
             var eventSystem = Object.FindObjectOfType<EventSystem>();
             if (eventSystem == null)
             {
