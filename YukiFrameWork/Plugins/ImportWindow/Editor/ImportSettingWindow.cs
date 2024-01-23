@@ -176,7 +176,7 @@ namespace YukiFrameWork.Extension
             GUI.color = Color.white;
             if (GUILayout.Button(ImportWindowInfo.ImportAllModuleInfo, GUILayout.Height(20)))
             {
-                Import(packagePath + "/Tool~/SerializationTool", "Serialization");
+                Import(packagePath + "/Tool~/Serialization", "Serialization");
                 Import(packagePath + "/Tool~/ActionKit", "ActionKit");
                 Import(packagePath + "/Tool~/Bezier", "Bezier");
                 Import(packagePath + "/Tool~/StateMechine", "StateMechine");
