@@ -58,6 +58,10 @@
 
 #### 框架更新版本速览
 
+V1.5.2 修复新建项目时ViewController编辑器对架构选择的程序集选定异常问题，现在可以自定义程序集
+
+V1.5.1 优化导入窗口的底层,同步更新ABManager
+
 V1.5.0 框架新增序列化工具,现在可以直接在工具内将数据类转换成Json、xml、bytes,同时集成ExcelToJson工具，方便Excel配置。该工具Github仓库为:https://github.com/neil3d/excel2json
 
 V1.4.0 添加可视化事件拓展,可以直接在编辑器注册事件,通过ViewController添加
