@@ -20,7 +20,19 @@ namespace YukiFrameWork.Extension
     public class ImportSettingWindow : EditorWindow
     {
         private Vector2 scrollPosition;
-        private Data data;         
+        private Data data;
+        private VersionData versionData;
+        public class Info
+        {
+            public string email;
+            public string url;
+        }
+
+        public class VersionData
+        {
+            public string version;
+            public Info author;
+        }
 
         public const string importPath = "Packages/com.yuki.yukiframework/Plugins/ImportWindow/Data/ImportPath.json";
         private const string packagePath = "Packages/com.yuki.yukiframework";
@@ -70,6 +82,12 @@ namespace YukiFrameWork.Extension
             TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);
             data = JsonUtility.FromJson<Data>(text.text);
             ImportWindowInfo.IsEN = data.isEN;
+
+            TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(packagePath + "/package.json");
+
+            versionData = AssemblyHelper.DeserializeObject<VersionData>(versionText.text);
+           
+            
         }
 
         void SaveData()
@@ -222,9 +240,9 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-            OpenUrl("Gitee", "https://gitee.com/NikaidoShinku/YukiFrameWork.git");
-            OpenUrl("作者QQ:1274672030", string.Empty);
-            OpenUrl("框架版本:V1.5.0",string.Empty);
+            OpenUrl("Gitee", versionData.author.url);
+            OpenUrl("作者邮箱:"+versionData.author.email, string.Empty);
+            OpenUrl("框架版本:" + versionData.version,string.Empty);
             EditorGUILayout.EndHorizontal();
         }
 

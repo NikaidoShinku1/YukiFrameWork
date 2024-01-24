@@ -77,7 +77,7 @@ namespace YukiFrameWork.ABManager
             GUILayout.Space(20);
             DrawLink("使用教程:", "https://www.bilibili.com/video/BV1Di4y1Y7tb");
             DrawLink("更多教程:", "https://space.bilibili.com/258939476");
-            DrawLink("插件源码:", "https://gitee.com/xianfengkeji/YukiFrameWork.Res");
+            DrawLink("插件源码:", "https://gitee.com/xianfengkeji/xfabmanager");
             GUILayout.EndVertical();
            
         }

@@ -1,3 +1,7 @@
+## version 1.9.6 更新内容
+
+1. 修复GameObjectLoader在编辑器模式下报错
+
 ## version 1.9.5 更新内容
 
 1. 优化 CoroutineStarter 协程启动

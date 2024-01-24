@@ -57,6 +57,9 @@ namespace YukiFrameWork.ABManager {
 
         public static GameObject Load(string projectName, string assetName, Transform parent = null)
         {
+
+            if (!EditorApplicationTool.isPlaying) return null;
+
             // 加载预制体
             GameObject prefab = AssetBundleManager.LoadAssetWithoutTips<GameObject>(projectName, assetName);
             if (prefab == null) return null;
@@ -69,8 +72,9 @@ namespace YukiFrameWork.ABManager {
         /// <param name="projectName"></param>
         /// <param name="assetName"></param>
         /// <returns></returns>
-        public static GameObject Load(GameObject prefab, Transform parent = null) {
-
+        public static GameObject Load(GameObject prefab, Transform parent = null)
+        {
+            if (!EditorApplicationTool.isPlaying) return null;
             if (prefab == null) return null;
 
             GameObjectPool pool = GetOrCreatePool(prefab);
@@ -89,7 +93,8 @@ namespace YukiFrameWork.ABManager {
         /// </summary> 
         /// <returns></returns>
         public static GameObjectLoadRequest LoadAsync(string projectName,string assetName, Transform parent = null)
-        { 
+        {
+            if (!EditorApplicationTool.isPlaying) return null;
             GameObjectLoadRequest request = new GameObjectLoadRequest();
             CoroutineStarter.Start(request.LoadAsync(projectName, assetName, parent));
             return request;
@@ -103,6 +108,7 @@ namespace YukiFrameWork.ABManager {
         /// <exception cref="System.Exception"></exception>
         public static void UnLoad(GameObject obj)
         {
+            if (!EditorApplicationTool.isPlaying) return;
             if (obj == null) return;
             int key = obj.GetHashCode();
             if (allObjPoolMapping.ContainsKey(key)) { 
