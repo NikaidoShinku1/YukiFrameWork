@@ -153,15 +153,18 @@ namespace YukiFrameWork.Extension
 
             EditorGUI.EndDisabledGroup();
            
-            controller.Data.IsCustomAssembly = EditorGUILayout.ToggleLeft(ViewControllerDataInfo.AssemblyInfo, controller.Data.IsCustomAssembly);
-            if(controller.Data.IsCustomAssembly)
-            {       
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(ViewControllerDataInfo.IsEN ? "Input Assembly Name:" : "输入程序集名称:");
-                controller.Data.CustomAssemblyName = EditorGUILayout.TextField(controller.Data.CustomAssemblyName);
-                EditorGUILayout.EndHorizontal();
-            }           
-            else controller.Data.CustomAssemblyName = "Assembly-CSharp";
+            if(controller.Data.IsAutoMation)
+            {
+                controller.Data.IsCustomAssembly = EditorGUILayout.ToggleLeft(ViewControllerDataInfo.AssemblyInfo, controller.Data.IsCustomAssembly);
+                if(controller.Data.IsCustomAssembly)
+                {       
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label(ViewControllerDataInfo.IsEN ? "Input Assembly Name:" : "输入程序集名称:");
+                    controller.Data.CustomAssemblyName = EditorGUILayout.TextField(controller.Data.CustomAssemblyName);
+                    EditorGUILayout.EndHorizontal();
+                }           
+                else controller.Data.CustomAssemblyName = "Assembly-CSharp";
+            }
             EditorGUILayout.Space(20);
 
             EditorGUILayout.BeginHorizontal();
