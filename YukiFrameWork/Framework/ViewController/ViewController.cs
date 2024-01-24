@@ -53,12 +53,14 @@ namespace YukiFrameWork
             private bool isAutoMation = true;
             [SerializeField]
             private int autoArchitectureIndex;
-
             [SerializeField]
             private List<string> autoInfos = new List<string>();
-
             [SerializeField]
             private string assetPath = "Assets";
+            [SerializeField]
+            private string customAssemblyName = "Assembly-Csharp";
+            [SerializeField]
+            private bool isCustomAssembly = false;
 
             public string AssetPath
             {
@@ -130,6 +132,18 @@ namespace YukiFrameWork
             {
                 get => autoArchitectureIndex;
                 set => autoArchitectureIndex = value;
+            }
+
+            public string CustomAssemblyName
+            {
+                get => customAssemblyName;
+                set => customAssemblyName = value;
+            }
+
+            public bool IsCustomAssembly
+            {
+                get => isCustomAssembly;
+                set => isCustomAssembly = value;
             }
 
             public List<string> AutoInfos => autoInfos;

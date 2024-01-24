@@ -55,8 +55,8 @@ namespace YukiFrameWork.Extension
         }       
 
         public static Type[] GetTypes(Assembly assembly)
-        {
-            return assembly.GetTypes();
+        {           
+            return assembly?.GetTypes();
         }
 
         public static T DeserializeObject<T>(string value)

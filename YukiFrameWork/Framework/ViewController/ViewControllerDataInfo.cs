@@ -46,6 +46,8 @@ namespace YukiFrameWork.Extension
 
         public static string AutoInfo => !IsEN ? "创建时架构自动化:" : "Architecture Automation at Creation time:";
 
+        public static string AssemblyInfo => !IsEN ? "架构是否存在于自定义程序集:" : "Does the schema exist in the custom assembly:";
+
 
     }
 }

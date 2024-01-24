@@ -145,10 +145,25 @@ namespace YukiFrameWork.Extension
             controller.Data.IsAutoMation = EditorGUILayout.Toggle(controller.Data.IsAutoMation, GUILayout.Width(50));          
             EditorGUILayout.EndHorizontal();
             if (controller.Data.IsAutoMation)
+            {              
+                EditorGUILayout.Space(10);
                 SelectArchitecture(controller);
-            EditorGUILayout.Space(20);
+            }
+            EditorGUILayout.Space(10);
 
             EditorGUI.EndDisabledGroup();
+           
+            controller.Data.IsCustomAssembly = EditorGUILayout.ToggleLeft(ViewControllerDataInfo.AssemblyInfo, controller.Data.IsCustomAssembly);
+            if(controller.Data.IsCustomAssembly)
+            {       
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(ViewControllerDataInfo.IsEN ? "Input Assembly Name:" : "输入程序集名称:");
+                controller.Data.CustomAssemblyName = EditorGUILayout.TextField(controller.Data.CustomAssemblyName);
+                EditorGUILayout.EndHorizontal();
+            }           
+            else controller.Data.CustomAssemblyName = "Assembly-CSharp";
+            EditorGUILayout.Space(20);
+
             EditorGUILayout.BeginHorizontal();
             CreateScripts(controller);
             EditorGUILayout.EndHorizontal();
@@ -184,18 +199,20 @@ namespace YukiFrameWork.Extension
             var list = controller.Data.AutoInfos;
             list.Clear();
             list.Add("None");
-
-            var types = AssemblyHelper.GetTypes(Assembly.Load("Assembly-CSharp"));
-
-            foreach (var type in types)            
-                if (type.BaseType != null)              
-                    foreach (var baseInterface in type.BaseType.GetInterfaces())                                          
-                        if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()))                                                   
-                            list.Add(type.Name);                                                         
-            
-            controller.Data.AutoArchitectureIndex = EditorGUILayout.Popup(controller.Data.AutoArchitectureIndex, list.ToArray());
-
-
+            try
+            {
+                var types = AssemblyHelper.GetTypes( Assembly.Load(controller.Data.CustomAssemblyName));
+                if(types != null)
+                {
+                    foreach (var type in types)            
+                        if (type.BaseType != null)              
+                            foreach (var baseInterface in type.BaseType.GetInterfaces())                                          
+                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()))                                                   
+                                    list.Add(type.Name);                                                                                     
+                }
+            }
+            catch{ }
+            controller.Data.AutoArchitectureIndex = EditorGUILayout.Popup(controller.Data.AutoArchitectureIndex, list.ToArray());          
             EditorGUILayout.EndHorizontal();          
         }
 
