@@ -356,12 +356,28 @@ namespace YukiFrameWork
             }.Start(component, onFinish);
         }
 
+        public static IActionNodeController StartGlobal(this IActionNode action, Action onFinish = null)
+        {
+            return new ActionController()
+            {
+                Action = action
+            }.Start(AsyncCore.I,onFinish);
+        }
+
         public static IActionNodeController Start<TComponent>(this IActionUpdateNode action, TComponent component, Action onFinish = null) where TComponent : Component
         {
             return new ActionUpdateNodeController()
             {
                 UpdateNode = action
             }.Start(component, onFinish);
+        }
+
+        public static IActionNodeController StartGlobal(this IActionUpdateNode action, Action onFinish = null)
+        {
+            return new ActionUpdateNodeController()
+            {
+                UpdateNode = action
+            }.Start(AsyncCore.I,onFinish);
         }
     }
 

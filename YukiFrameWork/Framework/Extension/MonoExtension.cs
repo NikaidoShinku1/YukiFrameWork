@@ -18,6 +18,8 @@ namespace YukiFrameWork
     {
         private readonly List<IActionNode> actionNodes = new List<IActionNode>();
 
+        private List<KeyValuePair<IActionNode, IActionNodeController>> queueActionNodes = new List<KeyValuePair<IActionNode, IActionNodeController>>();
+
         private readonly Dictionary<IActionNode, IActionNodeController> executeNodeDict = new Dictionary<IActionNode, IActionNodeController>();
 
         private readonly Stack<Action> onFinishEvents = new Stack<Action>();
@@ -25,11 +27,8 @@ namespace YukiFrameWork
         private readonly Stack<IUnRegister> unRegisters = new Stack<IUnRegister>();
 
         public void AddAction(IActionNode node,IActionNodeController controller)
-        {          
-            if (executeNodeDict.ContainsKey(node))
-                executeNodeDict[node] = controller;
-            else
-                executeNodeDict.Add(node, controller);
+        {                     
+            queueActionNodes.Add(new KeyValuePair<IActionNode, IActionNodeController>(node, controller));
         }
 
         public void AddUnRegister(IUnRegister register)
@@ -50,12 +49,25 @@ namespace YukiFrameWork
 
         private void Update()
         {
-            foreach (var node in executeNodeDict.Keys)
+            if (queueActionNodes.Count > 0)
             {
+                foreach (var queueNode in queueActionNodes)
+                {
+                    if (executeNodeDict.ContainsKey(queueNode.Key))
+                        executeNodeDict[queueNode.Key] = queueNode.Value;
+                    else
+                        executeNodeDict.Add(queueNode.Key, queueNode.Value);
+                }
+
+                queueActionNodes.Clear();
+            }
+
+            foreach (var node in executeNodeDict.Keys)
+            {                
                 if (!node.IsInit) node.OnInit();
 
                 if (node.OnExecute(Time.deltaTime))
-                {
+                {                   
                     actionNodes.Add(node);
                 }
             }
@@ -74,6 +86,7 @@ namespace YukiFrameWork
 
         private void OnDestroy()
         {
+            queueActionNodes.Clear();
             foreach (var action in executeNodeDict.Keys)
             {
                 action.OnFinish();
@@ -100,16 +113,13 @@ namespace YukiFrameWork
     public class MonoUpdateExecute : MonoBehaviour
     {
         private readonly List<IActionUpdateNode> actionUpdateNodes = new List<IActionUpdateNode>();
-
+        private List<KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>> queueActionNodes = new List<KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>>();
         private readonly Dictionary<IActionUpdateNode, IActionUpdateNodeController> updateExecuteDict = new Dictionary<IActionUpdateNode, IActionUpdateNodeController>();
 
         private readonly Stack<Action> onFinishEvents = new Stack<Action>();
         public void AddUpdate(IActionUpdateNode node,IActionUpdateNodeController controller)
-        {          
-            if (updateExecuteDict.ContainsKey(node))            
-                updateExecuteDict[node] = controller;            
-            else
-                updateExecuteDict.Add(node, controller);
+        {
+            queueActionNodes.Add(new KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>(node, controller));
         }     
 
         public void PushFinishEvent(Action onFinish)
@@ -124,6 +134,19 @@ namespace YukiFrameWork
 
         private void Update()
         {
+            if (queueActionNodes.Count > 0)
+            {
+                foreach (var queueNode in queueActionNodes)
+                {
+                    if (updateExecuteDict.ContainsKey(queueNode.Key))
+                        updateExecuteDict[queueNode.Key] = queueNode.Value;
+                    else
+                        updateExecuteDict.Add(queueNode.Key, queueNode.Value);
+                }
+
+                queueActionNodes.Clear();
+            }
+
             CheckOrUpdate(UpdateStatus.OnUpdate);
         }
 
@@ -139,7 +162,6 @@ namespace YukiFrameWork
 
         private void CheckOrUpdate(UpdateStatus updateStatus)
         {
-
             foreach (var update in updateExecuteDict.Keys)
             {
                 float deltaTime = 0;
@@ -179,7 +201,8 @@ namespace YukiFrameWork
         }
 
         private void OnDestroy()
-        {            
+        {
+            queueActionNodes.Clear();
             foreach (var node in updateExecuteDict.Keys)
             {
                 node.OnFinish();

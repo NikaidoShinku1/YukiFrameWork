@@ -12,6 +12,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Events;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {
     public enum RuntimeInitialized
@@ -20,135 +21,94 @@ namespace YukiFrameWork
         Awake,        
     }
 
-    public partial class ViewController
+    [System.Serializable]
+    public class CustomData : GenericDataBase
+    {
+        [SerializeField]
+        private string completedFile;       
+        [SerializeField]
+        private bool isAutoMation = true;
+        [SerializeField]
+        private int autoArchitectureIndex;
+        [SerializeField]
+        private List<string> autoInfos = new List<string>();
+        [SerializeField]
+        private string assetPath = "Assets";
+        [SerializeField]
+        private string customAssemblyName = "Assembly-Csharp";
+        [SerializeField]
+        private bool isCustomAssembly = false;
+
+        public string AssetPath
+        {
+            get { return assetPath; }
+            set { assetPath = value; }
+        }
+
+        public string CompletedFile
+        {
+            get => completedFile;
+            set => completedFile = value;
+        }      
+        public bool IsAutoMation
+        {
+            get => isAutoMation;
+            set => isAutoMation = value;
+        }
+
+        public int AutoArchitectureIndex
+        {
+            get => autoArchitectureIndex;
+            set => autoArchitectureIndex = value;
+        }
+
+        public string CustomAssemblyName
+        {
+            get => customAssemblyName;
+            set => customAssemblyName = value;
+        }
+
+        public bool IsCustomAssembly
+        {
+            get => isCustomAssembly;
+            set => isCustomAssembly = value;
+        }
+
+        public List<string> AutoInfos => autoInfos;
+
+        private bool isPartialLoading = false;
+
+        public bool IsPartialLoading
+        {
+            get => isPartialLoading;
+            set => isPartialLoading = value;
+        }
+
+    }
+
+    public partial class ViewController : ISerializedFieldInfo
     {
         [HideInInspector]
-        public CustomData Data;
+        public CustomData Data = new CustomData();
 
         [HideInInspector]
         public RuntimeInitialized initialized = RuntimeInitialized.Automation;
 
-        [System.Serializable]
-        public class CustomData
-        {           
-            [SerializeField]
-            private string scriptName;
-            [SerializeField]
-            private string scriptPath = @"Assets/Scripts";
-            [SerializeField]
-            private string scriptNamespace = "YukiFrameWork.Project";
-            [SerializeField]
-            private string createName = "Yuki";
-            [SerializeField]
-            private string createEmail = "1274672030@qq.com";
-            [SerializeField]
-            private string completedFile;
-            [SerializeField]
-            private string systemNowTime;
-            [SerializeField]
-            private string description = "这是一个框架工具创建的脚本";
-            [SerializeField]
-            private bool onLoading = false;
-            [SerializeField]
-            private bool isAutoMation = true;
-            [SerializeField]
-            private int autoArchitectureIndex;
-            [SerializeField]
-            private List<string> autoInfos = new List<string>();
-            [SerializeField]
-            private string assetPath = "Assets";
-            [SerializeField]
-            private string customAssemblyName = "Assembly-Csharp";
-            [SerializeField]
-            private bool isCustomAssembly = false;
+        #region ISerializedFieldInfo
+        [HideInInspector]
+        [SerializeField]
+        private List<SerializeFieldData> _fields = new List<SerializeFieldData>();
+        public void AddFieldData(SerializeFieldData data)
+            => _fields.Add(data);
 
-            public string AssetPath
-            {
-                get { return assetPath; }
-                set { assetPath = value; }
-            }
+        public void RemoveFieldData(SerializeFieldData data)
+            => _fields.Remove(data);
 
-            public string ScriptName
-            {
-                get => scriptName;
-                set => scriptName = value;
-            }
+        public void ClearFieldData()
+            => _fields.Clear();
 
-            public string ScriptPath
-            {
-                get => scriptPath;
-                set => scriptPath = value;
-            }
-
-            public string ScriptNamespace
-            {
-                get => scriptNamespace;
-                set => scriptNamespace = value;
-            }
-
-            public string CompletedFile
-            {
-                get => completedFile;
-                set => completedFile = value;
-            }
-
-            public string SystemNowTime
-            {
-                get => systemNowTime;
-                set => systemNowTime = value;
-            }
-
-            public string Description
-            {
-                get => description;
-                set => description = value;
-            }
-
-            public string CreateName
-            {
-                get => createName;
-                set => createName = value;
-            }
-
-            public string CreateEmail
-            {
-                get => createEmail;
-                set => createEmail = value;
-            }
-
-            public bool OnLoading
-            {
-                get => onLoading;
-                set => onLoading = value;
-            }
-
-            public bool IsAutoMation
-            {
-                get => isAutoMation;
-                set => isAutoMation = value;
-            }
-
-            public int AutoArchitectureIndex
-            {
-                get => autoArchitectureIndex;
-                set => autoArchitectureIndex = value;
-            }
-
-            public string CustomAssemblyName
-            {
-                get => customAssemblyName;
-                set => customAssemblyName = value;
-            }
-
-            public bool IsCustomAssembly
-            {
-                get => isCustomAssembly;
-                set => isCustomAssembly = value;
-            }
-
-            public List<string> AutoInfos => autoInfos;
-
-        }       
+        public IEnumerable<SerializeFieldData> GetSerializeFields() => _fields;
+        #endregion
     }
 
     public partial class ViewController : MonoBehaviour, IController

@@ -52,11 +52,13 @@
 
 [ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
 
-直接创建ViewController或者创建空物体添加组件即可,生成脚本后会禁止用户在这个物体对ViewController的脚本创建数据更改,脚本自动关联物体,提供快速打开以及创建Prefab的功能,同时可以额外添加可视化事件注册器
+[ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
 
 注意：使用本框架Unity版本不能低于2020.3
 
 #### 框架更新版本速览
+
+V1.6.0 移除ViewController添加Prefab模块,新增对UI模块以及ViewController都支持的字段绑定系统,可以做到0代码绑定字段。优化ActionKit的逻辑内核，优化状态机模块的编辑器底层
 
 V1.5.2 修复新建项目时ViewController编辑器对架构选择的程序集选定异常问题，现在可以自定义程序集
 

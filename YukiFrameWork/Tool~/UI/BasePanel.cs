@@ -1,15 +1,19 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
-    public abstract class BasePanel : MonoBehaviour
+    public class BasePanel : MonoBehaviour,ISerializedFieldInfo
     {      
-        protected CanvasGroup canvasGroup;     
+        protected CanvasGroup canvasGroup;      
+        [HideInInspector]
+        public UICustomData Data;
 
-        [SerializeField]
+        [SerializeField]        
         protected UILevel mLevel = UILevel.Common;
 
         public UILevel Level
@@ -65,6 +69,23 @@ namespace YukiFrameWork.UI
             canvasGroup.alpha = 0;
             canvasGroup.blocksRaycasts = false;        
         }
-        #endregion         
+        #endregion
+
+
+        #region ISerializedFieldInfo
+        [HideInInspector]
+        [SerializeField]
+        private List<SerializeFieldData> _fields = new List<SerializeFieldData>();
+        public void AddFieldData(SerializeFieldData data)
+            => _fields.Add(data);
+
+        public void RemoveFieldData(SerializeFieldData data)
+            => _fields.Remove(data);
+
+        public void ClearFieldData()
+            => _fields.Clear();
+
+        public IEnumerable<SerializeFieldData> GetSerializeFields() => _fields;
+        #endregion
     }
 }

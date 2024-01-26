@@ -114,9 +114,7 @@ namespace YukiFrameWork.Extension
                 formatter.Serialize(stream, value);
 
                 return stream.ToArray();
-            }
-
-            return null;
+            }           
         }       
 
         public static object ByteDeserializeObject(byte[] value)

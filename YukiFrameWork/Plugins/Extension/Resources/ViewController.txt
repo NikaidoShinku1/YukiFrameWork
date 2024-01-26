@@ -14,7 +14,7 @@ using System;
 
 namespace YukiFrameWork.Project
 {   
-    public class #SCRIPTNAME# : ViewController
+    public partial class #SCRIPTNAME# : ViewController
     {
        
     }

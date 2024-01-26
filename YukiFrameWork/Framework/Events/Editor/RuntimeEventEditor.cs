@@ -74,6 +74,7 @@ namespace YukiFrameWork.Events
             };
 
             tipBox.alignment = TextAnchor.MiddleLeft;
+            tipBox.normal.textColor = Color.white;
             switch (eventCenter.registerType)
             {              
                 case RegisterType.String:

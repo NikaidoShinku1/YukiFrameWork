@@ -19,11 +19,11 @@ namespace YukiFrameWork.UI
 
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
-        private List<BasePanel> panelCore = new List<BasePanel>();
+        private List<BasePanel> panelCore = new List<BasePanel>();     
 
         public override void OnInit()
         {
-            Canvas = new BindableProperty<Canvas>(Object.FindObjectOfType<Canvas>());          
+            Canvas = new BindableProperty<Canvas>(GameObject.Find(UIKit.CanvasName).GetComponent<Canvas>());          
           
             if (Canvas.Value == null)
             {
@@ -54,16 +54,10 @@ namespace YukiFrameWork.UI
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
 
-                RectTransform transform = new GameObject(level.ToString()).AddComponent<RectTransform>();         
-                transform.SetParent(Canvas.Value.transform);
-                transform.localPosition = Vector3.zero;
+                RectTransform transform = new GameObject(level.ToString()).AddComponent<RectTransform>();
+                transform.SetRectTransformInfo(Canvas.Value);
                 var image = transform.gameObject.AddComponent<Image>();
-                image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
-                transform.anchorMax = new Vector2(1, 1);
-                transform.anchorMin = Vector2.zero;
-                transform.localScale = Vector3.one;
-                transform.offsetMax = Vector2.zero;
-                transform.offsetMin = Vector2.zero;
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 0);                
                 image.raycastTarget = false;
                 levelDicts.Add(level, transform);
             }

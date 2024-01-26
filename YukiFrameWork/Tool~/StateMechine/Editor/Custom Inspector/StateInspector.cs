@@ -432,6 +432,7 @@ namespace YukiFrameWork.States
 
                 sw.Close();
                 fileStream.Close();
+                Selection.activeObject = StateInspectorHelper.Instance.StateMechine.GetComponentInParent<StateManager>();
                 AssetDatabase.Refresh();
                 
             }

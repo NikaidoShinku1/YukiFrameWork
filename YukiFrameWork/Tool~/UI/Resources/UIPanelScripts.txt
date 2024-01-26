@@ -1,0 +1,45 @@
+///====================================================
+/// - FileName:      #SCRIPTNAME#
+/// - NameSpace:     YukiFrameWork.Project
+/// - Created:       Yuki
+/// - Email:         Yuki@qq.com
+/// - Description:   这是一个框架工具创建的脚本
+/// - Creation Time: xxxx年x月xx日 xx:xx:xx
+/// -  (C) Copyright 2008 - 2023,Yuki
+/// -  All Rights Reserved.
+///=====================================================
+
+using UnityEngine;
+using YukiFrameWork.UI;
+using System;
+
+namespace YukiFrameWork.Project
+{
+    public partial class #SCRIPTNAME# : BasePanel
+    {     
+        public override void OnInit()
+        {
+            base.OnInit();
+        }
+
+        public override void OnEnter()
+        {
+            base.OnEnter();
+        }
+
+        public override void OnPause()
+        {
+            base.OnPause();
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+        }
+
+        public override void OnExit()
+        {
+            base.OnExit();
+        }
+    }
+}

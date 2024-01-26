@@ -30,28 +30,15 @@ namespace YukiFrameWork.UI
         private static bool isInit = false;
 
         public static bool Default { get; private set; } = false;
+
+        public static string CanvasName { get; private set; }
         /// <summary>
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
         /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
         /// </summary>
         /// <param name="projectName"></param>
-        public static bool Init(string projectName)
-        {
-            if (isInit)
-            {
-                CheckCanvasAndEventSystem();
-                "UI模块已经完成初始化，无需再次调用!".LogInfo();
-                return false;
-            }                    
-           
-            InitUILevel();
-            loader = new ABManagerUILoader(projectName);
-            Default = true;
-            isInit = true;
-            return isInit;
-        }
-
-        public static bool Init(IUIConfigLoader loader)
+        /// <param name="canvasNameOrPath">画布所在场景的默认Canvas的名称</param>
+        public static bool Init(string projectName,string canvasName= "Canvas")
         {
             if (isInit)
             {
@@ -59,7 +46,28 @@ namespace YukiFrameWork.UI
                 "UI模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
             }
+            CanvasName = canvasName;
+            InitUILevel();
+            loader = new ABManagerUILoader(projectName);
+            Default = true;
+            isInit = true;
+            return isInit;
+        }
 
+        /// <summary>
+        /// UI模块初始化方法,传入自定义的UI加载模块,设定画布如果有自设名称则需要修改CanvasPath
+        /// </summary>
+        /// <param name="loader">自定义加载器</param>
+        /// <param name="canvasPath">画布所在场景的默认Canvas的名称</param>        
+        public static bool Init(IUIConfigLoader loader,string canvasName = "Canvas")
+        {
+            if (isInit)
+            {
+                CheckCanvasAndEventSystem();
+                "UI模块已经完成初始化，无需再次调用!".LogInfo();
+                return false;
+            }
+            CanvasName = canvasName;
             InitUILevel();
             UIKit.loader = loader;
             isInit = true;
@@ -68,13 +76,13 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 检查场景的画布以及EventSystem是否唯一
+        /// 检查场景是否多出了一样的画布以及EventSystem是否唯一
         /// </summary>
         private static void CheckCanvasAndEventSystem()
-        {
+        {         
             foreach (var canvas in Object.FindObjectsOfType<Canvas>())
-            {
-                if (!canvas.Equals(UIManager.I.Canvas.Value))
+            {                             
+                if (!canvas.Equals(UIManager.I.Canvas.Value) && canvas.gameObject.name.Equals(CanvasName))
                 {
                     Object.Destroy(canvas.gameObject);
                 }
@@ -238,5 +246,18 @@ namespace YukiFrameWork.UI
             Default = false;
         }
     }
-  
+
+    public static class UIGenericExtension
+    {
+        public static void SetRectTransformInfo(this RectTransform transform, Canvas canvas)
+        {
+            transform.SetParent(canvas.transform);
+            transform.localPosition = Vector3.zero;
+            transform.anchorMax = new Vector2(1, 1);
+            transform.anchorMin = Vector2.zero;
+            transform.localScale = Vector3.one;
+            transform.offsetMax = Vector2.zero;
+            transform.offsetMin = Vector2.zero;
+        }
+    }
 }
