@@ -12,9 +12,7 @@ namespace YukiFrameWork.UI
     {
         [MenuItem("GameObject/YukiFrameWork/Create BasePanel")]
         public static void GenericBasePanel()
-        {
-            "创建框架生成BasePanel面板".LogInfo();
-
+        {         
             GameObject g = Selection.activeGameObject;
             Canvas canvas = g?.GetComponent<Canvas>();
             if(canvas == null)
