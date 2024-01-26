@@ -58,6 +58,8 @@
 
 #### 框架更新版本速览
 
+V1.6.1 全局事件中心新增统一的拓展API
+
 V1.6.0 移除ViewController添加Prefab模块,新增对UI模块以及ViewController都支持的字段绑定系统,可以做到0代码绑定字段。优化ActionKit的逻辑内核，优化状态机模块的编辑器底层
 
 V1.5.2 修复新建项目时ViewController编辑器对架构选择的程序集选定异常问题，现在可以自定义程序集
