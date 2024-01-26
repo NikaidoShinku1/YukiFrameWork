@@ -64,9 +64,10 @@ namespace YukiFrameWork.UI
 
             IEnumerable<FieldInfo> fieldInfos = panel.GetType().GetRuntimeFields();
 
+            ISerializedFieldInfo serialized = panel as ISerializedFieldInfo;
             foreach (FieldInfo fieldInfo in fieldInfos)
             {
-                SerializeFieldData data = panel.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
+                SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
 
                 if (data == null) continue;
 
@@ -125,7 +126,8 @@ namespace YukiFrameWork.UI
 
             builder.AppendLine($"\tpublic partial class {panel.Data.ScriptName}");
             builder.AppendLine("\t{");
-            foreach (var info in panel.GetSerializeFields())
+            ISerializedFieldInfo serialized = panel as ISerializedFieldInfo;
+            foreach (var info in serialized.GetSerializeFields())
             {
                 builder.AppendLine($"\t\t{(info.fieldLevelIndex != info.fieldLevel.Length - 1 ? "[SerializeField]" : "")}{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
             }

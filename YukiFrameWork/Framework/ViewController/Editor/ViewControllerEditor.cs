@@ -88,9 +88,10 @@ namespace YukiFrameWork.Extension
 
             IEnumerable<FieldInfo> fieldInfos = controller.GetType().GetRuntimeFields();
 
+            ISerializedFieldInfo serialized = controller;
             foreach (FieldInfo fieldInfo in fieldInfos)
             {
-                SerializeFieldData data = controller.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
+                SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
 
                 if (data == null) continue;
 
@@ -200,7 +201,8 @@ namespace YukiFrameWork.Extension
 
             builder.AppendLine($"\tpublic partial class {controller.Data.ScriptName}");
             builder.AppendLine("\t{");
-            foreach (var info in controller.GetSerializeFields())
+            ISerializedFieldInfo serialized = controller as ISerializedFieldInfo;
+            foreach (var info in serialized.GetSerializeFields())
             {
                 builder.AppendLine($"\t\t[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
             }

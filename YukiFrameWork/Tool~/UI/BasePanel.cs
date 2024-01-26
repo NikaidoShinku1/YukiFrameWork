@@ -76,16 +76,16 @@ namespace YukiFrameWork.UI
         [HideInInspector]
         [SerializeField]
         private List<SerializeFieldData> _fields = new List<SerializeFieldData>();
-        public void AddFieldData(SerializeFieldData data)
+        void ISerializedFieldInfo.AddFieldData(SerializeFieldData data)
             => _fields.Add(data);
 
-        public void RemoveFieldData(SerializeFieldData data)
+        void ISerializedFieldInfo.RemoveFieldData(SerializeFieldData data)
             => _fields.Remove(data);
 
-        public void ClearFieldData()
+        void ISerializedFieldInfo.ClearFieldData()
             => _fields.Clear();
 
-        public IEnumerable<SerializeFieldData> GetSerializeFields() => _fields;
+        IEnumerable<SerializeFieldData> ISerializedFieldInfo.GetSerializeFields() => _fields;
         #endregion
     }
 }
