@@ -1,3 +1,7 @@
+## version 1.9.7 更新内容
+
+1. 修复在打包时编辑器内(AssetBundle为Multiple模式)的资源会丢失的问题.
+
 ## version 1.9.6 更新内容
 
 1. 修复GameObjectLoader在编辑器模式下报错

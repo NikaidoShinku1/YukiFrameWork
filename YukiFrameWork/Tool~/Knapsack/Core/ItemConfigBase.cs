@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      ItemConfig.cs
-/// - NameSpace:     YukiFrameWork.Knaspack
+/// - NameSpace:     YukiFrameWork.Knapsack
 /// - Created:       Yuki
 /// - Email:         1274672030@qq.com
 /// - Description:   背包配置类
@@ -10,58 +10,61 @@
 ///======================================================
 
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using YukiFrameWork.ABManager;
 using LitJson;
-using Newtonsoft.Json;
-using YukiFrameWork.Pools;
 
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
-    public abstract class ItemConfigBase
+    public class ItemConfigBase
     {
-        private readonly List<ItemData> itemDatas = new List<ItemData>();        
+        private readonly List<ItemData> itemDatas = new List<ItemData>();
 
-        public string HandItemPrefabName;
+        public ItemConfigData configData { get; private set; }
 
-        public bool IsInited = false;
+        private IItemInfomationParse infomationParse;
+      
+        public bool IsInited = false;      
      
         public void AddItem(ItemData itemData)
-            => itemDatas.Add(itemData);
+            => itemDatas.Add(itemData);   
 
-        public string ProjectName { get;protected set; }
-
-        private string handItemName;
+        public ItemConfigBase(ItemConfigData configData,IItemInfomationParse infomationParse)
+        {
+            this.configData = configData;
+            this.infomationParse = infomationParse;          
+        }
 
         /// <summary>
         /// Config初始化
         /// </summary>
-        public void Init(string projectName,string handItemName)
+        public void Init()
         {
-            if (IsInited) return;
-            ProjectName = projectName;
-            this.handItemName = handItemName;
-            TextAsset textAsset = null;            
-            textAsset = AssetBundleManager.LoadAsset<TextAsset>(projectName,"ItemJson");
-            if (textAsset == null)
+            if (IsInited) return;                    
+            if (configData == null)
             {
-                Debug.LogError("加载Json配置文件失败!请检查是否使用框架资源管理套件ABManager进行数据的配置！");
+                Debug.LogError("加载配置文件失败,请检查是否使用ItemKit初始化!");
                 return;
             }
-            JsonData[] datas = JsonMapper.ToObject<JsonData[]>(textAsset.text);                   
+            TextAsset textAsset = null;
+
+            switch (configData.LoadType)
+            {
+                case LoadType.ABManager:
+                    textAsset = AssetBundleManager.LoadAsset<TextAsset>(configData.ProjectName, configData.ProjectPath);
+                    break;
+                case LoadType.Resources:
+                    textAsset = Resources.Load<TextAsset>(configData.ProjectPath);
+                    break;               
+            }
+            JsonData[] datas = JsonMapper.ToObject<JsonData[]>(textAsset.text);  
             for (int i = 0; i < datas.Length; i++)
             {
-                ParseItemToJson(datas[i]);
+                AddItem(infomationParse.ParseJsonToItem(datas[i]));
             }          
             IsInited = true;
         }
-      
-        /// <summary>
-        /// 解析Json配置表获取物品参数
-        /// </summary>
-        /// <param name="jsonData">物品的Json数据</param>
-        public abstract void ParseItemToJson(JsonData jsonData);
+           
 
         public ItemData GetItemByID(int id)
         {
@@ -82,16 +85,43 @@ namespace YukiFrameWork.Knaspack
 
         public ItemUI GetItemUI(Transform transform)
         {
-            var obj = GameObjectLoader.Load(ProjectName,handItemName);
-            var itemUI = obj.GetComponent<ItemUI>();
+            ItemUI itemUI = null;
+            switch (configData.LoadType)
+            {
+                case LoadType.ABManager:
+                    itemUI = GameObjectLoader.Load(configData.HandItemPrefab.gameObject).GetComponent<ItemUI>();
+                    break;
+                case LoadType.Resources:
+                    itemUI = GameObject.Instantiate(configData.HandItemPrefab);
+                    break;             
+            }
+           
             itemUI.transform.SetParent(transform);
             return itemUI;
         }
 
         public void ReleaseItemUI(ItemUI itemUI)
         {
-            GameObjectLoader.UnLoad(itemUI.gameObject);
+            switch (configData.LoadType)
+            {
+                case LoadType.Resources:
+                    Object.Destroy(itemUI.gameObject);
+                    break;
+                case LoadType.ABManager:
+                    GameObjectLoader.UnLoad(itemUI.gameObject);
+                    break;
+            }
+            
         }
 
+        public Sprite LoadSprite(string spritePathOrName)
+        {
+            return configData.LoadType switch
+            {
+                LoadType.ABManager => AssetBundleManager.LoadAsset<Sprite>(configData.ProjectName, spritePathOrName),
+                LoadType.Resources => Resources.Load<Sprite>(spritePathOrName),
+                _ => null
+            } ;
+        }        
     }
 }

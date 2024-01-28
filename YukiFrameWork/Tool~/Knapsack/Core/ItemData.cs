@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      ItemData.cs
-/// - NameSpace:     YukiFrameWork.Knaspack
+/// - NameSpace:     YukiFrameWork.Knapsack
 /// - Created:       Yuki
 /// - Email:         1274672030@qq.com
 /// - Description:   背包配置类
@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System;
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     /// <summary>
     /// 物品类型
@@ -43,37 +43,30 @@ namespace YukiFrameWork.Knaspack
         Lengendary,
 
     }
+    [Serializable]
     public class ItemData
     {
         //物品id
-        public int ID { get; set; }
+        [field:SerializeField]public int ID { get; set; }
         //物品名字
-        public string Name { get; set; }
+        [field: SerializeField] public string Name { get; set; }
         //物品描述
-        public string Description { get; set; }
-        //物品的容量
-        public int Capacity { get; set; }
-        //购买价格
-        public int Buyprice { get; set; }
-        //售出价格
-        public int Sellprice { get; set; }
-
-        public string Sprites { get; set; }
-
+        [field: SerializeField] public string Description { get; set; }
+        //物品的最大容量
+        [field: SerializeField] public int Capacity { get; set; }     
+        //物品的精灵路径/名称(以加载方式为准)
+        [field: SerializeField] public string Sprites { get; set; }
         //物品的类型
-        public ItemType ItemType { get; set; }
+        [field: SerializeField] public ItemType ItemType { get; set; }
         //物品的品质
-        public ItemQuality ItemQuality { get; set; }
+        [field: SerializeField] public ItemQuality ItemQuality { get; set; }
 
-
-        public ItemData(int id, string name, string description, int capacity, int buyprice, int sellprice, string sprites, ItemType itemType, ItemQuality itemQuality)
+        public ItemData(int id, string name, string description, int capacity,  string sprites, ItemType itemType, ItemQuality itemQuality)
         {
             this.ID = id;
             this.Name = name;
             this.Description = description;
-            this.Capacity = capacity;
-            this.Buyprice = buyprice;
-            this.Sellprice = sellprice;
+            this.Capacity = capacity;        
             this.Sprites = sprites;
             this.ItemType = itemType;
             this.ItemQuality = itemQuality;

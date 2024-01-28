@@ -191,7 +191,7 @@ namespace YukiFrameWork.ABManager
             this.projectName = projectName;
         }
 
-        public void AddFile(string assetPath) {
+        public void AddFile(string assetPath,bool ignoreRemoveOther = false) {
             //string asset_path = AssetDatabase.GUIDToAssetPath(guid);
             if ( string.IsNullOrEmpty(assetPath) )
             {
@@ -199,20 +199,24 @@ namespace YukiFrameWork.ABManager
                 return;
             }
 
-            // 判断这个文件是不是存在别的AssetBundle中 ( 一个文件 只能存在一个AssetBundle中 )
-            RemoveOtherBundleFile(assetPath);
+            if (!ignoreRemoveOther) 
+            {  
+                // 判断这个文件是不是存在别的AssetBundle中 ( 一个文件 只能存在一个AssetBundle中 )
+                RemoveOtherBundleFile(assetPath);
 
-            // 如果是文件夹 判断这个文件夹下所有的文件
-            if (AssetDatabase.IsValidFolder(assetPath))
-            {
-
-                string[] guids = AssetDatabase.FindAssets("", new string[] { assetPath });
-
-                for (int j = 0; j < guids.Length; j++)
+                // 如果是文件夹 判断这个文件夹下所有的文件
+                if (AssetDatabase.IsValidFolder(assetPath))
                 {
-                    RemoveOtherBundleFile(AssetDatabase.GUIDToAssetPath(guids[j]));
+
+                    string[] guids = AssetDatabase.FindAssets("", new string[] { assetPath });
+
+                    for (int j = 0; j < guids.Length; j++)
+                    {
+                        RemoveOtherBundleFile(AssetDatabase.GUIDToAssetPath(guids[j]));
+                    }
                 }
             }
+
 
 
             FileInfo fileInfo = new FileInfo(AssetDatabase.AssetPathToGUID(assetPath));

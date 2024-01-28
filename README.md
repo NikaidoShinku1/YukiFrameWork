@@ -34,6 +34,7 @@
 
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Serialization/序列化工具.md)
 
+- 贝塞尔曲线拓展模块:BezierUtility[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md)
 #### 安装教程
 下载压缩包或者fork项目
 ![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
@@ -57,6 +58,10 @@
 注意：使用本框架Unity版本不能低于2020.3
 
 #### 框架更新版本速览
+
+V1.7.0:新增贝塞尔曲线的部分功能拓展支持,曲线移动、可视化路径点以及自定义路径等功能
+
+V1.6.2 优化背包模块,支持配置窗口拓展使用.
 
 V1.6.1 全局事件中心新增统一的拓展API
 

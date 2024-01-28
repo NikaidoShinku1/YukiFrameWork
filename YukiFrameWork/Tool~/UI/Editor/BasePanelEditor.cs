@@ -53,7 +53,17 @@ namespace YukiFrameWork.UI
                 Update_ScriptGenericScriptDataInfo(path, panel);
                 AssetDatabase.Refresh();
             }
+
+            panel.Data.ScriptPath = layer.Config.genericPath;
+            panel.Data.ScriptNamespace = layer.Config.NameSpace;
             Bind_AllFieldInfo(panel);           
+        }
+
+        private void OnDisable()
+        {
+            BasePanel panel = target as BasePanel;
+            layer.Config.genericPath = panel.Data.ScriptPath;
+            panel.Data.ScriptNamespace = layer.Config.NameSpace;
         }
 
         private void Bind_AllFieldInfo(BasePanel panel)

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     public class InventoryManager : SingletonMono<InventoryManager>
     {            

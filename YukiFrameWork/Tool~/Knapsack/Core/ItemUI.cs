@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using YukiFrameWork.ABManager;
 
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     public class ItemUI : MonoBehaviour
     {
@@ -74,7 +74,7 @@ namespace YukiFrameWork.Knaspack
             this.transform.localScale = animationScale;
             this.Item = item;
             this.Amount = amount;
-            ItemImage.sprite = AssetBundleManager.LoadAsset<Sprite>(ItemKit.Config.ProjectName,item.Sprites);         
+            ItemImage.sprite = ItemKit.Config.LoadSprite(item.Sprites);      
             if (Item.Capacity == 1) AmountText.text = "";
             else RenderAmountText();
         }

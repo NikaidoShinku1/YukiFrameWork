@@ -656,7 +656,9 @@ namespace YukiFrameWork.ABManager
                         {
                             ABAssetBundle bundle = new ABAssetBundle(item.projectName);
                             bundle.bundle_name = ABTools.md5(System.IO.Path.GetFileName(file)); // 把文件名转成 md5 
-                            bundle.AddFile(file);
+                            // 这里的AssetBundle是为了打包临时构建的,直接把文件加入就可以了
+                            // 不需要判断文件是否已经存在别的ABAssetBundle中
+                            bundle.AddFile(file,true);
                             bundles.Add(bundle);
                         }
                         break;

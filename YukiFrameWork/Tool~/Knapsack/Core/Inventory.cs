@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     public class Inventory : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
     {

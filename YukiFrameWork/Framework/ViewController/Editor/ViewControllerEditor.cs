@@ -28,7 +28,7 @@ namespace YukiFrameWork.Extension
     {       
         private ViewControllerLayer layer;
         private BindLayer bind;
-        [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1)]
+        [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1000)]
         private static void CreateViewController()
         {           
             GameObject gameObject = Selection.activeGameObject;
@@ -77,7 +77,16 @@ namespace YukiFrameWork.Extension
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }
+            controller.Data.ScriptNamespace = layer.Config.NameSpace;
+            controller.Data.ScriptPath = layer.Config.genericPath;          
             BindAllField(controller);          
+        }
+
+        private void OnDisable()
+        {
+            ViewController controller = target as ViewController;
+            layer.Config.NameSpace = controller.Data.ScriptNamespace;
+            layer.Config.genericPath = controller.Data.ScriptPath;
         }
 
         private void BindAllField(ViewController controller)
@@ -113,10 +122,6 @@ namespace YukiFrameWork.Extension
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
             }
-#if UNITY_2021_1_OR_NEWER
-            Texture2D icon = EditorGUIUtility.IconContent("d_Favorite").image as Texture2D;
-            EditorGUIUtility.SetIconForObject(target, icon);
-#endif
             EditorGUILayout.Space(20);
             DrawControllerGUI();
         }

@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      ItemKit.cs
-/// - NameSpace:     YukiFrameWork.Knaspack
+/// - NameSpace:     YukiFrameWork.Knapsack
 /// - Created:       Yuki
 /// - Email:         1274672030@qq.com
 /// - Description:   背包系统套件
@@ -11,41 +11,28 @@
 
 using YukiFrameWork.ABManager;
 
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     public class ItemKit
     {
         public static ItemConfigBase Config { get; private set; }
         public static bool IsInited = false;
 
-        /// <summary>
-        /// 背包模块初始化
-        /// </summary>
-        /// <param name="projectName">资源模块名</param>
-        /// <param name="handItemName">手部物品预制体名称</param>
-        public static void Init(string projectName,string handItemName,ItemConfigBase config = default)
+        public static void Init(ItemConfigData configData,IItemInfomationParse itemInfomationParse)
         {
             if (IsInited) return;
 
-            if (config == default)
-                Config = new ItemDefaultConfig();
-            else Config = config;
-
-            Config.Init(projectName,handItemName);
             IsInited = true;
-        }    
 
-        public static void SetHandItem(string itemName)
-        {
-            InventoryManager manager = InventoryManager.Instance;
-            if (string.IsNullOrEmpty(Config.ProjectName))
-            {
-                "当前未初始化ItemKit，请调用一次ItemKit.Init()方法,并传入资源模块名！".LogInfo(Log.E);
-                return;
-            }
-            manager.PickedItem = GameObjectLoader.Load(Config.ProjectName, itemName).GetComponent<ItemUI>();
-            manager.RemoveItem();
+            Config = new ItemConfigBase(configData,itemInfomationParse);
+
+            Config.Init();
         }
+
+        public static void Init(ItemConfigData configData)
+        {
+            Init(configData, new ItemDefaultParse());
+        }        
         /// <summary>
         /// 取出物品到手上
         /// </summary>
@@ -108,6 +95,6 @@ namespace YukiFrameWork.Knaspack
         {
             InventoryManager manager = InventoryManager.Instance;
             manager.RemoveItem(count);
-        }
+        }       
     }
 }

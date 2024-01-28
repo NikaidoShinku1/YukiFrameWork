@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using YukiFrameWork.Pools;
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
     public class Slot : MonoBehaviour, IPointerDownHandler
     {              

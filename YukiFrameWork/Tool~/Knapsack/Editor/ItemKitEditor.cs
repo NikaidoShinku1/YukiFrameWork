@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      ItemKitEditor.cs
-/// - NameSpace:     YukiFrameWork.Knaspack
+/// - NameSpace:     YukiFrameWork.Knapsack
 /// - Created:       Yuki
 /// - Email:         1274672030@qq.com
 /// - Description:   这是一个框架工具创建的脚本
@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 using System.IO;
-namespace YukiFrameWork.Knaspack
+namespace YukiFrameWork.Knapsack
 {
 #if UNITY_EDITOR
     public class ItemKitEditor
@@ -21,7 +21,7 @@ namespace YukiFrameWork.Knaspack
         [MenuItem("Assets/YukiFrameWork-ItemKit/创建背包一键式面板预制体",false,-1000)]
         public static void CreateInventoryAssets()
         {
-            RectTransform panelRect = new GameObject("KnaspackPanel").AddComponent<RectTransform>();
+            RectTransform panelRect = new GameObject("KnapsackPanel").AddComponent<RectTransform>();
             panelRect.anchorMin = Vector2.zero;
             panelRect.anchorMax = Vector2.one;
             panelRect.gameObject.AddComponent<CanvasGroup>();
@@ -60,43 +60,6 @@ namespace YukiFrameWork.Knaspack
             GameObject.DestroyImmediate(panelRect.gameObject);
             AssetDatabase.Refresh();
         }       
-
-        [MenuItem("Assets/YukiFrameWork-ItemKit/创建Json配置文件(自带模板)",false,-1000)]
-        public static void CreateConfigAssets()
-        {
-            string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-            string name = "ItemJson.Json";           
-
-            if (string.IsNullOrEmpty(path))
-                path = "Assets";
-            string targetPath = path + "/" + name;
-
-            if (File.Exists(targetPath))
-            {
-                Debug.LogWarning("配置文件已存在该文件夹：" + targetPath);
-                return;
-            }           
-
-            string text = Resources.Load<TextAsset>("TemplateJson").text;
-
-            if (string.IsNullOrEmpty(text))
-            {
-                Debug.LogError("读取配置模板失败请检查模板是否存在Resource文件夹下：TemplateJson");
-                return;
-            }
-
-            using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                StreamWriter stream = new StreamWriter(fileStream);
-                stream.Write(text);
-                stream.Close();
-                fileStream.Close();
-                AssetDatabase.Refresh();
-            }
-            
-
-
-        }
 
         private static ItemUI CreateItemUI(Vector2 sizeDelta,bool Test = false)
         {
