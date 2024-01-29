@@ -57,13 +57,7 @@ API: //transform拓展方法,下列API默认初始位置就是transform的位置
 	- IBezier BezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 	- IBezier BezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
 	- IBezier BezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-	- IBezier LocalBezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- IBezier LocalBezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+		
 	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
@@ -99,12 +93,8 @@ public class TestScripts : MonoBehaviour
 
 设置后拓展API如下:
 
-	- IBezier BezierTowards(this Transform transform,BezierVisualTool tool,float currentSpeed);
-	- IBezier LocalBezierTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
-	- IBezier BezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
-	- IBezier LocalBezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
-	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
-
+	- IBezier BezierTowards(this Transform transform,BezierVisualTool tool,float currentSpeed);	
+	- IBezier BezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);	
 
 ```
 using YukiFrameWork;

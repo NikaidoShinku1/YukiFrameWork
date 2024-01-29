@@ -21,9 +21,7 @@ namespace YukiFrameWork
 
         private SerializedProperty pathsProperty;
 
-        private SerializedProperty countProperty;
-
-        private SerializedProperty localProperty;
+        private SerializedProperty countProperty;    
 
         private string startName
         {
@@ -75,8 +73,7 @@ namespace YukiFrameWork
         {
             sceneGUIProperty = serializedObject.FindProperty("isScene");           
             pathsProperty = serializedObject.FindProperty("paths");
-            countProperty = serializedObject.FindProperty("count");
-            localProperty = serializedObject.FindProperty("IsLocal");
+            countProperty = serializedObject.FindProperty("count");            
         }
         public override void OnInspectorGUI()
         {
@@ -114,9 +111,7 @@ namespace YukiFrameWork
                     control2Property = serializedObject.FindProperty(control2Name);
                     EditorGUILayout.PropertyField(control2Property);
                     break;
-            }
-            if (tool.pointType == PointType.Transform)
-                EditorGUILayout.PropertyField(localProperty);
+            }          
             EditorGUILayout.PropertyField(countProperty);
             EditorGUILayout.Space(10);
             if (GUILayout.Button("更新路径"))

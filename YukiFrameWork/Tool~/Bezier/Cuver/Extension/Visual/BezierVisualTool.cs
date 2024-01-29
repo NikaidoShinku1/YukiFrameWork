@@ -33,16 +33,16 @@ namespace YukiFrameWork
         public List<Vector3> paths = new List<Vector3>();
 
         public Vector3 StartValue
-            => pointType == PointType.Vector ? start : (IsLocal ? startPos.localPosition : startPos.position);
+            => pointType == PointType.Vector ? start : startPos.position;
 
         public Vector3 EndValue
-            => pointType == PointType.Vector ? end : (IsLocal ? endPos.localPosition : endPos.position);
+            => pointType == PointType.Vector ? end : endPos.position;
 
         public Vector3 SecondOrderControl
-            => pointType == PointType.Vector ? control1 : (IsLocal ? control1Pos.localPosition :control1Pos.position);
+            => pointType == PointType.Vector ? control1 : control1Pos.position;
 
         public Vector3 ThirdOrderControl
-            => pointType == PointType.Vector ? control2 : (IsLocal ? control2Pos.localPosition:control2Pos.position);
+            => pointType == PointType.Vector ? control2 :control2Pos.position;
 
         public BezierRuntimeMode Mode { get; set; } = BezierRuntimeMode.OnFixedUpdate;
 

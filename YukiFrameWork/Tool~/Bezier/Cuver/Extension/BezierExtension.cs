@@ -13,38 +13,13 @@ namespace YukiFrameWork
         {
             transform.position = tool.StartValue;
             return BezierExecute(transform, tool.EndValue, currentSpeed, tool.Mode, tool.paths);
-        }
-        public static IBezier LocalBezierTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
-        {
-            tool.IsLocal = true;
-            transform.localPosition = tool.StartValue;
-            return BezierExecute(transform, tool.EndValue, currentSpeed, tool.Mode, tool.paths,false,true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>      
+        }      
         public static IBezier BezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
         {
             transform.position = tool.StartValue;
             return BezierExecute(transform, tool.EndValue, currentSpeed, tool.Mode, tool.paths,true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>      
-        public static IBezier LocalBezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
-        {
-            tool.IsLocal = true;
-            transform.localPosition = tool.StartValue;
-            return BezierExecute(transform, tool.EndValue, currentSpeed, tool.Mode, tool.paths,true,true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndLocalRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
-        {
-            transform.localPosition = tool.StartValue;
-            return BezierExecute(transform, tool.EndValue, currentSpeed, tool.Mode, tool.paths,true,true,true);
-        }
+        }     
+      
         /// <summary>
         /// Rotated仅对3D有效
         /// </summary>       
@@ -65,49 +40,7 @@ namespace YukiFrameWork
         public static IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
         {
             return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, thirdOrderControl, end, pointCount), true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, end, pointCount), true, true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, end, pointCount), true, true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, thirdOrderControl, end, pointCount), true, true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, end, pointCount), true, true, true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, end, pointCount), true, true, true);
-        }
-        /// <summary>
-        /// Rotated仅对3D有效
-        /// </summary>       
-        public static IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, thirdOrderControl, end, pointCount), true, true,true);
-        }
+        }     
         public static IBezier BezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
         {         
             return BezierExecute(transform,  end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, end, pointCount));
@@ -119,21 +52,9 @@ namespace YukiFrameWork
         public static IBezier BezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
         {
             return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, thirdOrderControl, end, pointCount));
-        }
-        public static IBezier LocalBezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, end, pointCount), false, true);
-        }
-        public static IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, end, pointCount), false, true);
-        }
-        public static IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-        {
-            return BezierExecute(transform, end, currentSpeed, mode, BezierUtility.GetBezierList(transform.position, secondOrderControl, thirdOrderControl, end, pointCount),false,true);
-        }
+        }    
 
-        private static IBezier BezierExecute(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode, List<Vector3> list,bool rotated = false,bool localPosition = false,bool localRotation = false)
+        private static IBezier BezierExecute(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode, List<Vector3> list,bool rotated = false)
         {
             BezierExecution execution = transform.GetComponent<BezierExecution>();
             if (execution == null)
@@ -142,15 +63,15 @@ namespace YukiFrameWork
             var core = Bezier.Get(mode,  list);
             core.Condition += () =>
             {
-                Vector3 dir = OnUpdate(transform, core, currentSpeed, end,rotated,localPosition,localRotation);              
+                Vector3 dir = OnUpdate(transform, core, currentSpeed, end,rotated);              
                 return dir == end;
             };
 
             execution.AddCore(core);
-            return core as IBezier;
+            return core;
         }
 
-        private static Vector3 OnUpdate(Transform transform, Bezier core, float currentSpeed, Vector3 end, bool rotated = false, bool localPosition = false,bool localRotation = false)
+        private static Vector3 OnUpdate(Transform transform, Bezier core, float currentSpeed, Vector3 end, bool rotated = false)
         {
             float distanceToMove = currentSpeed * Time.fixedDeltaTime;
             bool indexCondition = core.index >= core.paths.Count - 1;
@@ -164,18 +85,12 @@ namespace YukiFrameWork
 
             if (core.index < core.paths.Count - 1)
             {
-                currentPoint = BezierUtility.BezierIntepolate(core.paths[core.index], core.paths[core.index + 1], core.t);             
-                if (localPosition)                                
-                    transform.localPosition = currentPoint;               
-                else
-                    transform.position = currentPoint;
+                currentPoint = BezierUtility.BezierIntepolate(core.paths[core.index], core.paths[core.index + 1], core.t);                 
+                transform.position = currentPoint;
 
                 if (rotated)
-                {                  
-                    if (localRotation)
-                        transform.localRotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(core.paths[core.index + 1] - core.paths[core.index]), Time.fixedDeltaTime * 5); 
-                    else
-                        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(core.paths[core.index + 1] - core.paths[core.index]), Time.fixedDeltaTime * 5); ;                 
+                {                                 
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(core.paths[core.index + 1] - core.paths[core.index]), Time.fixedDeltaTime * 5); ;                 
                 }
             }      
 
