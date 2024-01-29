@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 namespace YukiFrameWork.Knapsack
 {

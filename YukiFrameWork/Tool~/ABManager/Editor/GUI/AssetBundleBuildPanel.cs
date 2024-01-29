@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,10 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager{
+namespace YukiFrameWork.XFABManager{
+
+
+
 
     public class AssetBundleBuildPanel
     {
@@ -24,7 +26,7 @@ namespace YukiFrameWork.ABManager{
 
         //private List<AssetBundleBuild> bundles = new List<AssetBundleBuild>();
 
-        private ABProject project;
+        private XFABProject project;
 
         // 是否清空文件夹
         private bool isClearFolders;
@@ -68,7 +70,7 @@ namespace YukiFrameWork.ABManager{
         private bool[] buildAssetBundleOption;
 
 
-        public AssetBundleBuildPanel(ABProject project, EditorWindow window) {
+        public AssetBundleBuildPanel(XFABProject project, EditorWindow window) {
 
             this.window = window;
 
@@ -305,4 +307,3 @@ namespace YukiFrameWork.ABManager{
     
 
 }
-#endif

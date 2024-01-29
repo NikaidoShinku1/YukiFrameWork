@@ -9,7 +9,7 @@
 /// -  All Rights Reserved.
 ///======================================================
 
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 namespace YukiFrameWork.Knapsack
 {

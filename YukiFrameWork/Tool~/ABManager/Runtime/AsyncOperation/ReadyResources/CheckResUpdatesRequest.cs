@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace YukiFrameWork.ABManager
                 yield break;
             }
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("检测及其依赖资源 CheckResUpdates:{0}",projectName);
 #endif
 
@@ -61,7 +61,7 @@ namespace YukiFrameWork.ABManager
                                                        // 检测的结果 
             results = new CheckUpdateResult[need_check_projects.Count]; // 除了依赖项目还要检测自己
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("检测及其依赖资源 CheckResUpdates need_check_projects{0}", JsonConvert.SerializeObject(need_check_projects));
 #endif
 

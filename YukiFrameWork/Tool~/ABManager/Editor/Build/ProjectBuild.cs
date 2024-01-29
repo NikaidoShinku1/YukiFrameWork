@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -9,7 +8,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine; 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     /// <summary>
     /// 资源模块打包工具类
@@ -25,7 +24,7 @@ namespace YukiFrameWork.ABManager
         /// <param name="project">资源模块</param>
         /// <param name="buildTarget">目标平台</param>
         /// <param name="revealInFinder">打包完成后是否打开AssetBundle所在的文件夹</param>
-        public static void Build(ABProject project, BuildTarget buildTarget,bool revealInFinder = true) {
+        public static void Build(XFABProject project, BuildTarget buildTarget,bool revealInFinder = true) {
 
             System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
             timer.Start();
@@ -40,7 +39,7 @@ namespace YukiFrameWork.ABManager
             // 对 project 内容做一个保存
             project.Save();
 
-            List<ABAssetBundle> allAssetBundle = project.GetAllAssetBundles();
+            List<XFABAssetBundle> allAssetBundle = project.GetAllAssetBundles();
 
             Dictionary<string, List<string>> dependent_bundles = ComputingDependentResources(project,allAssetBundle);
   
@@ -57,7 +56,7 @@ namespace YukiFrameWork.ABManager
             // 添加bundle
             for (int i = 0; i < allAssetBundle.Count; i++)
             {
-                if (allAssetBundle[i].bundleType == BundleType.Group) continue;
+                if (allAssetBundle[i].bundleType == XFBundleType.Group) continue;
                  
                 string[] asset_paths = allAssetBundle[i].GetAllAssetPaths();
                 if (asset_paths.Length > 0)
@@ -92,7 +91,7 @@ namespace YukiFrameWork.ABManager
             }
             
             // 清空数据目录
-            DeleteFolders(ABTools.DataPath(project.name));
+            DeleteFolders(XFABTools.DataPath(project.name));
 
             // 构建映射
             BuildAssetBundleMapping(project, buildTarget);
@@ -135,7 +134,7 @@ namespace YukiFrameWork.ABManager
             buildInfo.version = project.version;
             buildInfo.update_date = DateTime.Now.ToString("yyyy/MM/dd");
 
-            string project_build_info = string.Format("{0}/{1}", out_path, ABConst.project_build_info);
+            string project_build_info = string.Format("{0}/{1}", out_path, XFABConst.project_build_info);
             if (!File.Exists(project_build_info)) File.Create(project_build_info).Close();
              
             File.WriteAllText(project_build_info, JsonConvert.SerializeObject(buildInfo));
@@ -165,7 +164,7 @@ namespace YukiFrameWork.ABManager
 
                     string bundleName = System.IO.Path.GetFileName(file);
                     long length = new System.IO.FileInfo(file).Length;
-                    string md5 = ABTools.md5file(file);
+                    string md5 = XFABTools.md5file(file);
                     build_info_des.UpdateBundleFile(bundleName, length, md5);
 
                 }
@@ -251,7 +250,7 @@ namespace YukiFrameWork.ABManager
             
         }
 
-        private static void BuildAssetBundleMapping(ABProject project, BuildTarget buildTarget) {
+        private static void BuildAssetBundleMapping(XFABProject project, BuildTarget buildTarget) {
 
             project.AssetBundleNameMapping.Clear();  // 先清空资源 
             project.AssetBundleNameMappingWithType.Clear();
@@ -268,19 +267,19 @@ namespace YukiFrameWork.ABManager
             {
                 Directory.CreateDirectory(out_path);
             }
-            string path = string.Format("{0}/{1}", out_path, ABConst.asset_bundle_mapping);
+            string path = string.Format("{0}/{1}", out_path, XFABConst.asset_bundle_mapping);
             File.WriteAllText(path, builder.ToString());
 
             //Debug.Log("映射构建成功!"+path);
         }
 
-        private static void SaveSuffix(ABProject project, BuildTarget buildTarget) {
+        private static void SaveSuffix(XFABProject project, BuildTarget buildTarget) {
             string out_path = project.temp_out_path(buildTarget);
             if (!Directory.Exists(out_path))
             {
                 Directory.CreateDirectory(out_path);
             }
-            string path = string.Format("{0}/{1}", out_path, ABConst.bundles_suffix_info);
+            string path = string.Format("{0}/{1}", out_path, XFABConst.bundles_suffix_info);
             File.WriteAllText(path, project.suffix);
         }
 
@@ -303,14 +302,14 @@ namespace YukiFrameWork.ABManager
         }
 
         // 构建Bundle文件列表
-        private static BundleInfo[] BuildBundlesInfo(ABProject project,BuildTarget buildTarget)
+        private static BundleInfo[] BuildBundlesInfo(XFABProject project,BuildTarget buildTarget)
         {
-            //string file_list = string.Format("{0}/{1}", output_path, ABConst.files);
+            //string file_list = string.Format("{0}/{1}", output_path, XFABConst.files);
             //if (File.Exists(file_list)) File.Delete(file_list);
 
             bundles.Add(new AssetBundleBuild() { assetBundleName = buildTarget.ToString() });
             bundles.Add(new AssetBundleBuild() { assetBundleName = "AssetBundleNameMapping.txt" }); // 文件名称与bundle的映射
-            bundles.Add(new AssetBundleBuild() { assetBundleName = ABConst.bundles_suffix_info }); // 文件名称与bundle的映射
+            bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.bundles_suffix_info }); // 文件名称与bundle的映射
             //List<BundleInfo> bundleInfos = new List<BundleInfo>( bundles.Count );
 
             BundleInfo[] bundleInfos = new BundleInfo[bundles.Count];
@@ -328,7 +327,7 @@ namespace YukiFrameWork.ABManager
         private static BundleInfo BuildBundleFileInfo(string filePath, string fileName)
         {
 
-            string md5 = ABTools.md5file(filePath);
+            string md5 = XFABTools.md5file(filePath);
             long length = 0;
             System.IO.FileInfo fileInfo = new System.IO.FileInfo(filePath);
             if (fileInfo.Exists)
@@ -346,7 +345,7 @@ namespace YukiFrameWork.ABManager
         /// <param name="project"></param>
         /// <param name="buildTarget"></param>
         /// <returns></returns>
-        public static bool CopyToStreamingAssets( ABProject project,BuildTarget buildTarget )
+        public static bool CopyToStreamingAssets( XFABProject project,BuildTarget buildTarget )
         {
 
             string targetPath = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, project.name, buildTarget.ToString());
@@ -379,7 +378,7 @@ namespace YukiFrameWork.ABManager
         /// <param name="project"></param>
         /// <param name="buildTarget"></param>
         /// <returns></returns>
-        public static bool CompressedIntoZip(ABProject project,BuildTarget buildTarget)
+        public static bool CompressedIntoZip(XFABProject project,BuildTarget buildTarget)
         {
             string zipPath = string.Format("{0}/{1}.zip", project.assetbundle_out_path(buildTarget), project.name);
             string zip_md5_path = string.Format("{0}/{1}_md5.txt", project.assetbundle_out_path(buildTarget), project.name);
@@ -388,7 +387,7 @@ namespace YukiFrameWork.ABManager
             if (zip)
             {
                 // 压缩成功计算压缩文件md5
-                string md5 = ABTools.md5file(zipPath);
+                string md5 = XFABTools.md5file(zipPath);
                 File.WriteAllText(zip_md5_path, md5);
             }
             else { 
@@ -416,7 +415,7 @@ namespace YukiFrameWork.ABManager
             AssetDatabase.Refresh(); 
         }
 
-        private static void OnBuildBefore(ABProject project, BuildTarget buildTarget) {
+        private static void OnBuildBefore(XFABProject project, BuildTarget buildTarget) {
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var item in assemblies)
             { 
@@ -435,7 +434,7 @@ namespace YukiFrameWork.ABManager
         }
         
         // 
-        private static void OnBuildComplete(ABProject project,BuildTarget buildTarget) {
+        private static void OnBuildComplete(XFABProject project,BuildTarget buildTarget) {
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var item in assemblies)
@@ -458,7 +457,7 @@ namespace YukiFrameWork.ABManager
 
 
         // 计算依赖的资源
-        private static Dictionary<string, List<string>> ComputingDependentResources(ABProject project, List<ABAssetBundle> allAssetBundle) {
+        private static Dictionary<string, List<string>> ComputingDependentResources(XFABProject project, List<XFABAssetBundle> allAssetBundle) {
 
             // 收集之前先清空缓存
             project.AssetBundleNameMapping.Clear();
@@ -467,7 +466,7 @@ namespace YukiFrameWork.ABManager
             // 收集依赖资源
             for (int i = 0; i < allAssetBundle.Count; i++)
             {
-                ABAssetBundle assetBundle = allAssetBundle[i];
+                XFABAssetBundle assetBundle = allAssetBundle[i];
 
                  
                 for (int j = 0; j < assetBundle.files.Count; j++)
@@ -595,7 +594,7 @@ namespace YukiFrameWork.ABManager
             foreach (var asset in needOptimizeFiles.Keys)
             {
                 //needOptimizeFiles[asset] 
-                string bundleName = ABTools.md5(string.Join("", needOptimizeFiles[asset]));
+                string bundleName = XFABTools.md5(string.Join("", needOptimizeFiles[asset]));
                 //Debug.LogFormat("needOptimizeFiles bundleName:{0} asset:{1}", bundleName,asset);
                 AddToDictionary(bundle_assets, bundleName, asset);
             } 
@@ -652,7 +651,7 @@ namespace YukiFrameWork.ABManager
                 guids.Add(AssetDatabase.AssetPathToGUID(assetPath));
             }
             string guid = string.Join("", guids); 
-            string name = ABTools.md5(guid); 
+            string name = XFABTools.md5(guid); 
             return name;
         }
  
@@ -662,7 +661,7 @@ namespace YukiFrameWork.ABManager
         /// <param name="project"></param>
         /// <param name="allAssetBundles"></param>
         /// <param name="caculate_bundles"></param>
-        internal static void PackAtlas(ABProject project,List<ABAssetBundle> allAssetBundles,Dictionary<string,List<string>> caculate_bundles = null) {
+        internal static void PackAtlas(XFABProject project,List<XFABAssetBundle> allAssetBundles,Dictionary<string,List<string>> caculate_bundles = null) {
             AssetDatabase.Refresh();
 
             string forlderName = "Atlas(AutoGenerate)";
@@ -684,7 +683,7 @@ namespace YukiFrameWork.ABManager
             // 添加bundle
             for (int i = 0; i < allAssetBundles.Count; i++)
             {
-                if (allAssetBundles[i].bundleType == BundleType.Group) continue;
+                if (allAssetBundles[i].bundleType == XFBundleType.Group) continue;
                 string[] asset_paths = allAssetBundles[i].GetAllAssetPaths();
                 if (asset_paths.Length > 0)
                 { 
@@ -752,11 +751,11 @@ namespace YukiFrameWork.ABManager
         /// <param name="project"></param>
         /// <param name="allAssetBundles"></param>
         /// <param name="caculate_bundles"></param>
-        public static void PackAtlas(ABProject project) {
+        public static void PackAtlas(XFABProject project) {
             PackAtlas(project, project.GetAllAssetBundles());
         }
 
     }
 
 }
-#endif
+

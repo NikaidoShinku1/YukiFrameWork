@@ -1,11 +1,10 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     /// <summary>
     /// 某一个资源模块打包前的事件监听(仅在Editor模式下可用)
@@ -17,4 +16,3 @@ namespace YukiFrameWork.ABManager
 
 }
 
-#endif

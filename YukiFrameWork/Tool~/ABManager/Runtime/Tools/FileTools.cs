@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class FileTools
     {

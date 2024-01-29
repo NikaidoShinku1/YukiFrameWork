@@ -1,10 +1,9 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class SelectProjectWindow : EditorWindow
 {
@@ -63,4 +62,3 @@ public class SelectProjectWindow : EditorWindow
 
 
 }
-#endif

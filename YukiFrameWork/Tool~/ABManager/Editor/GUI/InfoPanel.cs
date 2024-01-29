@@ -1,10 +1,9 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
 
@@ -12,12 +11,12 @@ namespace YukiFrameWork.ABManager
     {
 
         private Vector2 scrollView;
-        AssetBundleProjectPanel bundlePanel;
+        XFAssetBundleProjectPanel bundlePanel;
 
         private EditorWindow window;
-        private ABProject project;
+        private XFABProject project;
 
-        public InfoPanel(EditorWindow window,ABProject project) {
+        public InfoPanel(EditorWindow window,XFABProject project) {
             this.window = window;
             this.project = project;
 
@@ -40,7 +39,7 @@ namespace YukiFrameWork.ABManager
 
             if (bundlePanel == null)
             {
-                bundlePanel = AssetBundleProjectPanel.CreatePanel(window, project);
+                bundlePanel = XFAssetBundleProjectPanel.CreatePanel(window, project);
             }
 
             bundlePanel.OnGUI();
@@ -81,7 +80,7 @@ namespace YukiFrameWork.ABManager
             {
                 if (EditorUtility.DisplayDialog("删除项目", string.Format("确定要删除项目:{0} 吗？",project.name), "确定", "取消")) {
 
-                    if (ABProjectManager.Instance.IsHaveProjectDependence(project.name)) {
+                    if (XFABProjectManager.Instance.IsHaveProjectDependence(project.name)) {
                         EditorUtility.DisplayDialog("删除项目", "删除失败!有其他的项目依赖此项目,请删除依赖后重试!", "ok");
                         return;
                     }
@@ -101,4 +100,3 @@ namespace YukiFrameWork.ABManager
 
 
 }
-#endif

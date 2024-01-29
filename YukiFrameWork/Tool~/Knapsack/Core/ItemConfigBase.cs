@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 using LitJson;
 
 namespace YukiFrameWork.Knapsack

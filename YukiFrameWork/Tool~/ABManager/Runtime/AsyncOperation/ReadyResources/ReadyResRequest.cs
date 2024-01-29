@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic; 
 using UnityEngine;
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     /// <summary>
     /// 当前正在处理的操作的类型
@@ -59,7 +59,7 @@ namespace YukiFrameWork.ABManager
         internal IEnumerator ReadyRes(string projectName)
         {
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("ReadyRes:{0}",projectName);
 #endif
 
@@ -91,7 +91,7 @@ namespace YukiFrameWork.ABManager
             // 具体操作
             for (int i = 0; i < results.Length; i++)
             {
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
                 Debug.LogFormat("start ready res:{0}", results[i]);
 #endif
 

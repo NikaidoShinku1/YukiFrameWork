@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,7 +6,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class OptimizeResTree : TreeView
     {
@@ -204,4 +203,3 @@ namespace YukiFrameWork.ABManager
 
 }
 
-#endif

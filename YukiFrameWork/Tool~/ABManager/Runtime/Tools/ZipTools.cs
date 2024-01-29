@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager {
+namespace YukiFrameWork.XFABManager {
     public class ZipTools
     {
 

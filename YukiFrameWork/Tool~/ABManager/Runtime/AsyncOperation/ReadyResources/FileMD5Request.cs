@@ -6,7 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
+
 public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
 {
 
@@ -34,7 +35,7 @@ public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
         {
             if (inputStream.Length < md5_max_file_size)
             {
-                md5 = ABTools.md5file(inputStream);
+                md5 = XFABTools.md5file(inputStream);
             }
             else
             {

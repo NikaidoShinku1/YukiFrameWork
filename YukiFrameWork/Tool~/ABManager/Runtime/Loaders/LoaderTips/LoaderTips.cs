@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     internal abstract class LoaderTips
     {
@@ -28,10 +28,10 @@ namespace YukiFrameWork.ABManager
                     foreach (Assembly assembly in assemblies)
                     {
                         //Debug.LogFormat("assembly name:{0}",assembly.FullName);
-                        if (!assembly.FullName.StartsWith("ABManager")) continue;
+                        if (!assembly.FullName.StartsWith("XFABManager")) continue;
                         foreach (Type type in assembly.GetTypes())
                         {
-                            if (!ABTools.IsBaseByClass(type, typeof(LoaderTips)) || type == typeof(LoaderTips)) continue;
+                            if (!XFABTools.IsBaseByClass(type, typeof(LoaderTips)) || type == typeof(LoaderTips)) continue;
 
                             //Debug.LogFormat("type:{0}",type.FullName);
 

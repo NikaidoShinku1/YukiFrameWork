@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class UpdateOrDownloadResRequest : CustomAsyncOperation<UpdateOrDownloadResRequest>
     {
@@ -58,9 +58,9 @@ namespace YukiFrameWork.ABManager
             // 判断是不是下载 压缩包
             if (result.updateType == UpdateType.DownloadZip)
             { 
-                string zipUrl = ABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, string.Format("{0}.zip", result.projectName));
-                string zip_md5_url = ABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, string.Format("{0}_md5.txt", result.projectName));
-                string localfile = ABTools.LocalResPath(result.projectName, string.Format("{0}{1}", result.projectName, ".zip"));
+                string zipUrl = XFABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, string.Format("{0}.zip", result.projectName));
+                string zip_md5_url = XFABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, string.Format("{0}_md5.txt", result.projectName));
+                string localfile = XFABTools.LocalResPath(result.projectName, string.Format("{0}{1}", result.projectName, ".zip"));
 
                 // 如果本地没有对应的zip文件，则下载，如果有，就不下载了，直接进入到对比md5的流程
                 if (!File.Exists(localfile))
@@ -126,7 +126,7 @@ namespace YukiFrameWork.ABManager
 
 
                 // 解压之前先校验文件是否正确
-                FileMD5Request request_local_zip_md5 = ABTools.CaculateFileMD5(localfile);
+                FileMD5Request request_local_zip_md5 = XFABTools.CaculateFileMD5(localfile);
                 while (!request_local_zip_md5.isDone)
                 {
                     yield return null;
@@ -146,7 +146,7 @@ namespace YukiFrameWork.ABManager
                     yield break;
                 }
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
                 UnityEngine.Debug.LogFormat("压缩包md5信息校验成功:{0}",File.Exists(localfile));
 #endif
 
@@ -154,7 +154,7 @@ namespace YukiFrameWork.ABManager
 
 
 
-                Task<bool> unzip = ZipTools.UnZipFileAsync(localfile, ABTools.DataPath(result.projectName),(p)=>progress = p);
+                Task<bool> unzip = ZipTools.UnZipFileAsync(localfile, XFABTools.DataPath(result.projectName),(p)=>progress = p);
                 while (!unzip.IsCompleted)
                 {
                     yield return null;
@@ -169,7 +169,7 @@ namespace YukiFrameWork.ABManager
                 }
 
                 // 同步md5 
-                string project_build_info_path = ABTools.LocalResPath(result.projectName, ABConst.project_build_info);
+                string project_build_info_path = XFABTools.LocalResPath(result.projectName, XFABConst.project_build_info);
                 if (File.Exists(project_build_info_path))
                 {
 
@@ -202,8 +202,8 @@ namespace YukiFrameWork.ABManager
 
                 for (int i = 0; i < result.need_update_bundles.Length; i++)
                 {
-                    fileUrl = ABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, result.need_update_bundles[i].bundleName);// 这个文件名是包含后缀的
-                    localFile = ABTools.LocalResPath(result.projectName, result.need_update_bundles[i].bundleName);
+                    fileUrl = XFABTools.ServerPath(AssetBundleManager.GetProfile(result.projectName).url, result.projectName, result.version, result.need_update_bundles[i].bundleName);// 这个文件名是包含后缀的
+                    localFile = XFABTools.LocalResPath(result.projectName, result.need_update_bundles[i].bundleName);
 
                     files.Add(new DownloadObjectInfo(fileUrl, localFile));
                 }
@@ -231,7 +231,7 @@ namespace YukiFrameWork.ABManager
                     if (!bundleInfo.Equals(BundleInfo.Empty))
                     {
                         // 计算本地的md5
-                        FileMD5Request request = ABTools.CaculateFileMD5(info.localfile);
+                        FileMD5Request request = XFABTools.CaculateFileMD5(info.localfile);
                         request.AddCompleteEvent((response) =>
                         {
 
@@ -331,7 +331,7 @@ namespace YukiFrameWork.ABManager
             }
 
             // 保存 Version
-            ABTools.SaveVersion(result.projectName, result.version);
+            XFABTools.SaveVersion(result.projectName, result.version);
 
             // 同步md5
             if (result.check_build_info != null)

@@ -1,9 +1,8 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class GridShowProjects : BaseShowProjects
 {
@@ -28,7 +27,7 @@ public class GridShowProjects : BaseShowProjects
 
     private Texture refreshTexture;
 
-    private AssetBundleProjectMain mainWindow;
+    private XFAssetBundleProjectMain mainWindow;
 
     private GUIContent profileContent;
     private GUIContent toolsContent;
@@ -64,11 +63,11 @@ public class GridShowProjects : BaseShowProjects
     {
 
 
-        if (index < ABProjectManager.Instance.Projects.Count)
+        if (index < XFABProjectManager.Instance.Projects.Count)
         {
-            //buttonContent.tooltip = ABProjectManager.Instance.Projects[index].displayName;
+            //buttonContent.tooltip = XFABProjectManager.Instance.Projects[index].displayName;
             // 显示具体模块
-            buttonContent.text = string.Format("<size=18>{0}</size>\n\n{1}\n\n版本:{2}", ABProjectManager.Instance.Projects[index].displayName, ABProjectManager.Instance.Projects[index].name, ABProjectManager.Instance.Projects[index].version);
+            buttonContent.text = string.Format("<size=18>{0}</size>\n\n{1}\n\n版本:{2}", XFABProjectManager.Instance.Projects[index].displayName, XFABProjectManager.Instance.Projects[index].name, XFABProjectManager.Instance.Projects[index].version);
         }
         else
         {
@@ -78,10 +77,10 @@ public class GridShowProjects : BaseShowProjects
 
         if (GUILayout.Button(buttonContent, buttonStyle, GUILayout.Width(GRID_WIDTH), GUILayout.Height(GRID_HEIGHT)))
         {
-            if (index < ABProjectManager.Instance.Projects.Count)
+            if (index < XFABProjectManager.Instance.Projects.Count)
             {
                 //Debug.Log(" 打开项目: " + projects[index].name);
-                OpenProject(ABProjectManager.Instance.Projects[index]);
+                OpenProject(XFABProjectManager.Instance.Projects[index]);
             }
             else
             {
@@ -90,7 +89,7 @@ public class GridShowProjects : BaseShowProjects
             }
         }
 
-        if (index <= ABProjectManager.Instance.Projects.Count - 1)
+        if (index <= XFABProjectManager.Instance.Projects.Count - 1)
         {
             GUILayout.Space(SPACE_X);
         }
@@ -110,9 +109,9 @@ public class GridShowProjects : BaseShowProjects
             row_grid_count = 1;
         }
 
-        if (row_grid_count > ABProjectManager.Instance.Projects.Count + 1)    // 除了要画出格子之外还要画出一个 + 的按钮
+        if (row_grid_count > XFABProjectManager.Instance.Projects.Count + 1)    // 除了要画出格子之外还要画出一个 + 的按钮
         {
-            row_grid_count = ABProjectManager.Instance.Projects.Count + 1;
+            row_grid_count = XFABProjectManager.Instance.Projects.Count + 1;
         }
     }
 
@@ -122,7 +121,7 @@ public class GridShowProjects : BaseShowProjects
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.Space(MARGIN_TOP);
         //内置图标
-        for (int i = 0; i < ABProjectManager.Instance.Projects.Count + 1; i += row_grid_count)
+        for (int i = 0; i < XFABProjectManager.Instance.Projects.Count + 1; i += row_grid_count)
         {
 
             GUILayout.BeginHorizontal();
@@ -134,7 +133,7 @@ public class GridShowProjects : BaseShowProjects
                     GUILayout.Space(MARGIN_LEFT);
                 }
 
-                if (i + j < ABProjectManager.Instance.Projects.Count + 1)
+                if (i + j < XFABProjectManager.Instance.Projects.Count + 1)
                 {
                     DrawProjectGrid(i + j);
                 }
@@ -150,4 +149,3 @@ public class GridShowProjects : BaseShowProjects
     }
 
 }
-#endif

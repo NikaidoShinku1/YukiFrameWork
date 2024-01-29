@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     public class AssetBundleTools

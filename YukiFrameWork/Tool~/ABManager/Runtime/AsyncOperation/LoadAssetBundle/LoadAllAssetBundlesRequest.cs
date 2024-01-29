@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class LoadAllAssetBundlesRequest : CustomAsyncOperation<LoadAllAssetBundlesRequest>
     {
@@ -26,14 +26,14 @@ namespace YukiFrameWork.ABManager
 #endif
 
             // 读取这个模块所有的文件
-            string project_build_info = ABTools.LocalResPath(projectName, ABConst.project_build_info);
+            string project_build_info = XFABTools.LocalResPath(projectName, XFABConst.project_build_info);
             if (!File.Exists(project_build_info))
             {
                 Completed(string.Format("LoadAllAssetBundles 失败!{0}文件不存在", project_build_info));
                 yield break;
             }
 
-            string mapping_path = ABTools.LocalResPath(projectName, ABConst.asset_bundle_mapping);
+            string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
             if (File.Exists(mapping_path))
             {
                 List<string> list = new List<string>();
@@ -50,7 +50,7 @@ namespace YukiFrameWork.ABManager
                 for (int i = 0; i < list.Count; i++)
                 {
                     string bundleName = string.Format("{0}_{1}{2}",projectName.ToLower(), list[i],AssetBundleManager.GetAssetBundleSuffix(projectName));
-                    if (bundleName.Equals(ABTools.GetCurrentPlatformName())) continue;
+                    if (bundleName.Equals(XFABTools.GetCurrentPlatformName())) continue;
                     yield return AssetBundleManager.LoadAssetBundleAsync(projectName, bundleName);
                     progress = (float)i / list.Count;
                 }

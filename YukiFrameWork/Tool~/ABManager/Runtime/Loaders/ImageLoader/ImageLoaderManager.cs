@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 
 // Fix 编码
-namespace YukiFrameWork.ABManager {
+namespace YukiFrameWork.XFABManager {
 
     [Serializable]
     public class ImageData {

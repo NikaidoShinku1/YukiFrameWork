@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class ExtractResRequest : CustomAsyncOperation<ExtractResRequest>
     {
@@ -57,7 +57,7 @@ namespace YukiFrameWork.ABManager
             switch (result.updateType)
             {
                 case UpdateType.ExtractLocal:
-                    string project_build_info = ABTools.BuildInDataPath(result.projectName, ABConst.project_build_info);
+                    string project_build_info = XFABTools.BuildInDataPath(result.projectName, XFABConst.project_build_info);
                     string content = string.Empty;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -114,8 +114,8 @@ namespace YukiFrameWork.ABManager
                         {
                             BundleInfo bundleInfo = all_need_extract.Dequeue();
 
-                            buildInRes = ABTools.BuildInDataPath(result.projectName, bundleInfo.bundleName);
-                            localRes = ABTools.LocalResPath(result.projectName, bundleInfo.bundleName);
+                            buildInRes = XFABTools.BuildInDataPath(result.projectName, bundleInfo.bundleName);
+                            localRes = XFABTools.LocalResPath(result.projectName, bundleInfo.bundleName);
 
                             // 复制之前先把旧的文件删掉
                             if (File.Exists(localRes)) File.Delete(localRes);
@@ -123,7 +123,7 @@ namespace YukiFrameWork.ABManager
                             LocalAssetBundleInfoManager.Instance.DeleteAssetBundleMd5(result.projectName, bundleInfo.bundleName);
 
                             // 如果StreamingAssets目录能读，则不需要复制文件，直接更新配置即可
-                            if (ABTools.StreamingAssetsReadable()) 
+                            if (XFABTools.StreamingAssetsReadable()) 
                             {  
                                 LocalAssetBundleInfoManager.Instance.SetAssetBundleMd5(result.projectName, bundleInfo.bundleName, bundleInfo.md5);
                                 continue;

@@ -1,25 +1,24 @@
-#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class BundleInfoTree : TreeView
 {
 
     #region 字段
 
-    //private ABProject project;
-    private AssetBundleProjectMain mainWindow;
+    //private XFABProject project;
+    private XFAssetBundleProjectMain mainWindow;
     private string bundle_name;
     private string asset;
     #endregion
 
     #region 属性
 
-    private ABAssetBundle Bundle
+    private XFABAssetBundle Bundle
     {
 
         get
@@ -31,9 +30,8 @@ public class BundleInfoTree : TreeView
     #endregion
 
 
-    public BundleInfoTree(TreeViewState state, AssetBundleProjectMain mainWindow) : base(state)
+    public BundleInfoTree(TreeViewState state, XFAssetBundleProjectMain mainWindow) : base(state)
     {
-        
         showBorder = true;
         //this.project = project;
         this.mainWindow = mainWindow;
@@ -60,7 +58,7 @@ public class BundleInfoTree : TreeView
         //    TreeViewItem size = new TreeViewItem(1, 0, string.Format( "Size:{0}",Bundle.SizeString));
         //    bundleRoot.AddChild(size);
 
-        //    //List<ABAssetBundle> bundles =  mainWindow.Project.GetDependenciesBundles(Bundle);
+        //    //List<XFABAssetBundle> bundles =  mainWindow.Project.GetDependenciesBundles(Bundle);
 
         //    //TreeViewItem dependence = new TreeViewItem(2, 0, string.Format("Dependent On : {0}",bundles.Count == 0 ? "None":bundles.Count.ToString()));
 
@@ -98,7 +96,7 @@ public class BundleInfoTree : TreeView
         }
 
 
-        //List<ABAssetBundle> bundles =  mainWindow.Project.GetDependenciesBundles(Bundle);
+        //List<XFABAssetBundle> bundles =  mainWindow.Project.GetDependenciesBundles(Bundle);
 
         //TreeViewItem dependence = new TreeViewItem(2, 0, string.Format("Dependent On : {0}",bundles.Count == 0 ? "None":bundles.Count.ToString()));
 
@@ -139,4 +137,3 @@ public class BundleInfoTree : TreeView
     }
 
 }
-#endif

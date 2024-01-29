@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class BundleListTree : TreeView
 {
@@ -16,8 +15,8 @@ public class BundleListTree : TreeView
 
     
 
-    //private ABProject project;
-    private AssetBundleProjectMain mainWindow;
+    //private XFABProject project;
+    private XFAssetBundleProjectMain mainWindow;
     private bool isContextClickItem = false;
 
     private AssetBundlesPanel bundlesPanel;
@@ -70,7 +69,7 @@ public class BundleListTree : TreeView
 
         if (item == null) return;
 
-        ABAssetBundle bundle = mainWindow.Project.GetAssetBundle(item.displayName);
+        XFABAssetBundle bundle = mainWindow.Project.GetAssetBundle(item.displayName);
 
         if (bundle == null) return;
 
@@ -163,8 +162,8 @@ public class BundleListTree : TreeView
 
     protected override void RowGUI(RowGUIArgs args)
     {
-        ABAssetBundle bundle = mainWindow.Project.GetAssetBundle(args.item.displayName);
-        if (bundle != null && bundle.bundleType == BundleType.Group)
+        XFABAssetBundle bundle = mainWindow.Project.GetAssetBundle(args.item.displayName);
+        if (bundle != null && bundle.bundleType == XFBundleType.Group)
         {
             iconRect.Set(15, args.rowRect.y, 15, 15);
             GUI.DrawTexture(iconRect, folderIcon, ScaleMode.ScaleToFit);
@@ -184,13 +183,13 @@ public class BundleListTree : TreeView
         //EditorGUILayout.DropdownButton()  
 
 
-        if (bundle != null && bundle.bundleType == BundleType.Bundle) 
+        if (bundle != null && bundle.bundleType == XFBundleType.Bundle) 
         {
             // 绘制下拉按钮 让用户选择是单独打包 还是打到一个包中 
             Rect r = new Rect(args.rowRect.x + args.rowRect.width - width, args.rowRect.y, width - 30, args.rowRect.height);
 
             bundlePackageType.text = bundle.bundlePackgeType.ToString();
-            if (bundle.bundlePackgeType == BundlePackgeType.One)
+            if (bundle.bundlePackgeType == XFBundlePackgeType.One)
                 bundlePackageType.tooltip = "所有资源打到一个ab包中!";
             else
                 bundlePackageType.tooltip = "每个资源都单独打包!";
@@ -199,12 +198,12 @@ public class BundleListTree : TreeView
             {
                 var menu = new GenericMenu();
 
-                foreach (var item in Enum.GetValues(typeof(BundlePackgeType)))
+                foreach (var item in Enum.GetValues(typeof(XFBundlePackgeType)))
                 {
 
-                    menu.AddItem(new GUIContent(item.ToString()), (BundlePackgeType)item == bundle.bundlePackgeType, () =>
+                    menu.AddItem(new GUIContent(item.ToString()), (XFBundlePackgeType)item == bundle.bundlePackgeType, () =>
                     {
-                        bundle.bundlePackgeType = (BundlePackgeType)item;
+                        bundle.bundlePackgeType = (XFBundlePackgeType)item;
                         mainWindow.Project.Save();
                     });
                 }
@@ -223,7 +222,7 @@ public class BundleListTree : TreeView
 
     #region 方法
 
-    public BundleListTree(TreeViewState state, AssetBundleProjectMain mainWindow, AssetBundlesPanel bundlesPanel  ) : base(state )
+    public BundleListTree(TreeViewState state, XFAssetBundleProjectMain mainWindow, AssetBundlesPanel bundlesPanel  ) : base(state )
     { 
         showBorder = true;
         //this.project = mainWindow.Project;
@@ -240,14 +239,14 @@ public class BundleListTree : TreeView
 
             for (int i = 0; i < mainWindow.Project.assetBundles.Count; i++)
             {
-                ABAssetBundle bundle = mainWindow.Project.assetBundles[i];
+                XFABAssetBundle bundle = mainWindow.Project.assetBundles[i];
                 if (string.IsNullOrEmpty(bundle.group_name) == false) continue;
 
                 TreeViewItem child = new TreeViewItem(bundle.bundle_name.GetHashCode(), 0, bundle.bundle_name);
 
-                if (bundle.bundleType == BundleType.Group) {
+                if (bundle.bundleType == XFBundleType.Group) {
                     // 查询到这个 group 下面所有的包
-                    ABAssetBundle[] bundles = mainWindow.Project.GetAssetBundlesFromGroup(bundle.bundle_name);
+                    XFABAssetBundle[] bundles = mainWindow.Project.GetAssetBundlesFromGroup(bundle.bundle_name);
                     if (bundles != null) {
                         foreach (var item in bundles)
                         {
@@ -281,15 +280,15 @@ public class BundleListTree : TreeView
     void CreateNewBundle(object context)
     {
 
-        ABAssetBundle bundle = context as ABAssetBundle;
+        XFABAssetBundle bundle = context as XFABAssetBundle;
          
         string name = GetBundleName();
 
         Debug.Log(" CreateNewBundle : " + name);
 
-        ABAssetBundle assetBundle = new ABAssetBundle(name, mainWindow.Project.name);
+        XFABAssetBundle assetBundle = new XFABAssetBundle(name, mainWindow.Project.name);
 
-        if (bundle != null && bundle.bundleType == BundleType.Group) {
+        if (bundle != null && bundle.bundleType == XFBundleType.Group) {
             assetBundle.group_name = bundle.bundle_name;
         }
 
@@ -304,8 +303,8 @@ public class BundleListTree : TreeView
 
         Debug.Log(" CreateNewGroup : " + name);
 
-        ABAssetBundle assetBundle = new ABAssetBundle(name, mainWindow.Project.name);
-        assetBundle.bundleType = BundleType.Group;
+        XFABAssetBundle assetBundle = new XFABAssetBundle(name, mainWindow.Project.name);
+        assetBundle.bundleType = XFBundleType.Group;
         mainWindow.Project.AddAssetBundle(assetBundle);
         ReloadAndSelect(name.GetHashCode(), true);
     }
@@ -353,7 +352,7 @@ public class BundleListTree : TreeView
             if (args.performDrop)
             {
                 string bundleName = GetBundleName(Path.GetFileNameWithoutExtension(DragAndDrop.paths[0])).ToLower();
-                ABAssetBundle bundle = new ABAssetBundle(bundleName,mainWindow.Project.name);
+                XFABAssetBundle bundle = new XFABAssetBundle(bundleName,mainWindow.Project.name);
 
                 for (int i = 0; i < DragAndDrop.paths.Length; i++)
                 {
@@ -388,4 +387,3 @@ public class BundleListTree : TreeView
 
     #endregion
 }
-#endif

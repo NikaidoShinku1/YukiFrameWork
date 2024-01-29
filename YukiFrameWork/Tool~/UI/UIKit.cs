@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Pools;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
 namespace YukiFrameWork.UI

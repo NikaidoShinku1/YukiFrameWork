@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class GetProjectVersionDefault : MonoBehaviour ,IGetProjectVersion{
 

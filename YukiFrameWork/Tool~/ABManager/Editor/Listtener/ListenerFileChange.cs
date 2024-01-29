@@ -1,6 +1,9 @@
-﻿#if UNITY_EDITOR
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
-using YukiFrameWork.ABManager;
+using UnityEngine;
+using UnityEngine.UIElements;
+using YukiFrameWork.XFABManager;
 
 public class ListenerFileChange : UnityEditor.AssetModificationProcessor {
 
@@ -11,12 +14,14 @@ public class ListenerFileChange : UnityEditor.AssetModificationProcessor {
 		EditorApplication.delayCall += () => {
 			if (path.EndsWith(".asset") || path.EndsWith(".asset.meta"))
 			{
-				ABProjectManager.Instance.RefreshProjects();
+				XFABProjectManager.Instance.RefreshProjects();
 			}
 		};
 
          
 	}
+
+     
 
     public static AssetDeleteResult OnWillDeleteAsset(string assetPath, RemoveAssetOptions option)
 	{
@@ -25,14 +30,14 @@ public class ListenerFileChange : UnityEditor.AssetModificationProcessor {
 		{
 			if (assetPath.EndsWith(".asset"))
 			{
-				ABProjectManager.Instance.RefreshProjects();
+				XFABProjectManager.Instance.RefreshProjects();
 			}
 		};
 		  
-		if (assetPath.StartsWith("Assets/Resources/ABManagerSettings"))
+		if (assetPath.StartsWith("Assets/Resources/XFABManagerSettings"))
 		{
-			// Assets/Resources/ABManagerSettings.asset
-			EditorUtility.DisplayDialog("提示", "文件:Assets/Resources/ABManagerSettings.asset 是YukiFrameWork.Res的配置文件,不能删除!否则会影响YukiFrameWork.Res的正常使用!", "确定");
+			// Assets/Resources/XFABManagerSettings.asset
+			EditorUtility.DisplayDialog("提示", "文件:Assets/Resources/XFABManagerSettings.asset 是XFABManager的配置文件,不能删除!否则会影响XFABManager的正常使用!", "确定");
 			return AssetDeleteResult.FailedDelete;
 		}
 		else 
@@ -53,10 +58,9 @@ public class ListenerFileChange : UnityEditor.AssetModificationProcessor {
 	[UnityEditor.Callbacks.OnOpenAsset(0)]
 	private static bool OnOpenAsset(int insId, int line) 
 	{ 
-        ABProject obj = EditorUtility.InstanceIDToObject(insId) as ABProject;
+        XFABProject obj = EditorUtility.InstanceIDToObject(insId) as XFABProject;
 		if (obj != null) BaseShowProjects.OpenProject(obj); 
         return obj != null;
 	}
 	 
 }
-#endif

@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     /// <summary>
     /// 本地的AssetBundle文件信息的管理类(内部类)
@@ -58,8 +58,8 @@ namespace YukiFrameWork.ABManager
              
             // 没有读取 去读取文件
             string info_path = GetAssetBundleInfoPath(projectName, bundleName);
-            string assetbundle_file_path = ABTools.LocalResPath(projectName, bundleName); 
-            string buildInPath = ABTools.BuildInDataPath(projectName, bundleName);
+            string assetbundle_file_path = XFABTools.LocalResPath(projectName, bundleName); 
+            string buildInPath = XFABTools.BuildInDataPath(projectName, bundleName);
 
             bool fileExist = File.Exists(assetbundle_file_path) || File.Exists(buildInPath);
 
@@ -127,7 +127,7 @@ namespace YukiFrameWork.ABManager
             //temp_list.Clear();
             SetDataPath(projectName);
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             UnityEngine.Debug.LogFormat("Test Application.persistentDataPath : {0}", Application.persistentDataPath);
 #endif
 
@@ -168,10 +168,10 @@ namespace YukiFrameWork.ABManager
             if (suffixs.ContainsKey(projectName)) 
                 return suffixs[projectName];
 
-            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName),ABConst.bundles_suffix_info);
+            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName),XFABConst.bundles_suffix_info);
 
             if (!File.Exists(suffix_path))
-                suffix_path = ABTools.BuildInDataPath(projectName, ABConst.bundles_suffix_info);
+                suffix_path = XFABTools.BuildInDataPath(projectName, XFABConst.bundles_suffix_info);
 
 
             if (File.Exists(suffix_path)) 
@@ -179,7 +179,7 @@ namespace YukiFrameWork.ABManager
                 string suffix = File.ReadAllText(suffix_path);
                 suffixs.Add(projectName, suffix);
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
                 UnityEngine.Debug.LogFormat("GetSuffix projectName:{0} suffix:{1} from file:{2}",projectName,suffix,suffix_path);
 #endif
 
@@ -189,18 +189,18 @@ namespace YukiFrameWork.ABManager
             // 从project_build_info中读取
             try
             {
-                string project_build_info_path = ABTools.LocalResPath(projectName, ABConst.project_build_info);
+                string project_build_info_path = XFABTools.LocalResPath(projectName, XFABConst.project_build_info);
 
                 // ios平台，StreamingAsset没有写入权限，但是有读取权限，当内置资源时，数据目录是没有资源的，
                 // 所以此时获取后缀信息应该是去内置目录获取
                 if (!File.Exists(project_build_info_path))
-                    project_build_info_path = ABTools.BuildInDataPath(projectName, ABConst.project_build_info);
+                    project_build_info_path = XFABTools.BuildInDataPath(projectName, XFABConst.project_build_info);
 
                 string content = File.ReadAllText(project_build_info_path);
                 ProjectBuildInfo info = JsonConvert.DeserializeObject<ProjectBuildInfo>(content);
                 suffixs.Add(projectName, info.suffix);
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
                 UnityEngine.Debug.LogFormat("GetSuffix projectName:{0} suffix:{1} from ProjectBuildInfo:{2}", projectName, info.suffix, content);
 #endif
 
@@ -217,7 +217,7 @@ namespace YukiFrameWork.ABManager
                 string suffix = File.ReadAllText(save_suffix_path);
                 suffixs.Add(projectName, suffix);
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
                 UnityEngine.Debug.LogFormat("GetSuffix projectName:{0} suffix:{1} from save file:{2}", projectName, suffix, save_suffix_path);
 #endif
 
@@ -248,7 +248,7 @@ namespace YukiFrameWork.ABManager
         }
 
         /// <summary>
-        /// ABTools.DataPath() 该方法不能在子线程中调用，否则会在Android平台会抛异常
+        /// XFABTools.DataPath() 该方法不能在子线程中调用，否则会在Android平台会抛异常
         /// 所以加了这个方法来代替，在子线程开启之前调用SetDataPath，然后就可以正常使用了
         /// </summary>
         /// <param name="projectName"></param>
@@ -257,14 +257,14 @@ namespace YukiFrameWork.ABManager
         { 
             if(data_paths.ContainsKey(projectName))
                 return data_paths[projectName];
-            string dataPath = ABTools.DataPath(projectName);
+            string dataPath = XFABTools.DataPath(projectName);
             data_paths.Add(projectName, dataPath);
             return dataPath;
         }
 
         internal void SetDataPath(string projectName) {
             if (data_paths.ContainsKey(projectName)) return;
-            data_paths.Add(projectName,ABTools.DataPath(projectName));
+            data_paths.Add(projectName,XFABTools.DataPath(projectName));
         }
 
         #endregion

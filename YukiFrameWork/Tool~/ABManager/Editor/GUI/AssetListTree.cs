@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,9 +5,13 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using YukiFrameWork.XFABManager;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
+
+
+
     internal enum SortOption
     {
         Asset = 0,
@@ -20,7 +23,7 @@ namespace YukiFrameWork.ABManager
 
         #region 字段
 
-        private ABProject project;
+        private XFABProject project;
         private string bundle_name;
 
         private int item_offset_x;
@@ -34,7 +37,7 @@ namespace YukiFrameWork.ABManager
         #endregion
 
         #region 属性
-        private ABAssetBundle Bundle
+        private XFABAssetBundle Bundle
         {
 
             get
@@ -199,7 +202,7 @@ namespace YukiFrameWork.ABManager
         #region 方法
 
 
-        public AssetListTree(TreeViewState state, MultiColumnHeaderState mchs, ABProject project, AssetBundlesPanel bundlesPanel) : base(state, new MultiColumnHeader(mchs))
+        public AssetListTree(TreeViewState state, MultiColumnHeaderState mchs, XFABProject project, AssetBundlesPanel bundlesPanel) : base(state, new MultiColumnHeader(mchs))
         {
             showBorder = true;
             showAlternatingRowBackgrounds = true;
@@ -220,7 +223,7 @@ namespace YukiFrameWork.ABManager
                 case 0:
                     {
 
-                        if (item.depth == 1 || item.FileInfo.type == BundleFileType.Directory)
+                        if (item.depth == 1 || item.FileInfo.type == XFBundleFileType.Directory)
                         {
                             item_offset_x = 15;
                         }
@@ -251,7 +254,7 @@ namespace YukiFrameWork.ABManager
                     break;
                 case 3:
 
-                    if (item.FileInfo.type == BundleFileType.Directory)
+                    if (item.FileInfo.type == XFBundleFileType.Directory)
                     {
                         //DefaultGUI.Label(cellRect, "All", args.selected, args.focused);
 
@@ -297,12 +300,12 @@ namespace YukiFrameWork.ABManager
 
             if (Bundle != null)
             {
-                List<FileInfo> files = Bundle.GetFileInfos();
+                List<XFABManager.FileInfo> files = Bundle.GetFileInfos();
                 for (int i = 0; i < files.Count; i++)
                 {
                     AssetTreeItem child = new AssetTreeItem(files[i]);
 
-                    if (files[i].type == BundleFileType.Directory)
+                    if (files[i].type == XFBundleFileType.Directory)
                     {
                         // 如果是目录要判断目录下有没有内容 如果没有内容 则不需要添加
                         AddDirectory(child, files[i]);
@@ -320,7 +323,7 @@ namespace YukiFrameWork.ABManager
             string[] files = fileInfo.Files;
             for (int i = 0; i < files.Length; i++)
             {
-                AssetTreeItem child = new AssetTreeItem(new FileInfo(AssetDatabase.AssetPathToGUID(files[i])), root.depth + 1);
+                AssetTreeItem child = new AssetTreeItem(new XFABManager.FileInfo(AssetDatabase.AssetPathToGUID(files[i])), root.depth + 1);
                 root.AddChild(child);
             }
         }
@@ -433,7 +436,7 @@ namespace YukiFrameWork.ABManager
             // bundle_name 为空的时候 不能拖放
             if (string.IsNullOrEmpty(bundle_name))  return false; 
 
-            if (Bundle == null || Bundle.bundleType == BundleType.Group) return false;
+            if (Bundle == null || Bundle.bundleType == XFBundleType.Group) return false;
 
             for (int i = 0; i < DragAndDrop.paths.Length; i++)
             {
@@ -449,4 +452,3 @@ namespace YukiFrameWork.ABManager
         #endregion
     }
 }
-#endif

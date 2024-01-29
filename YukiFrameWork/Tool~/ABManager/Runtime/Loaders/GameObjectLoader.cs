@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager {
+namespace YukiFrameWork.XFABManager {
 
     /// <summary>
     /// 加载并且实例化GameObject的类，并且对GameObject的加载进行管理和引用计数,当引用为0时会自动卸载资源(推荐使用)

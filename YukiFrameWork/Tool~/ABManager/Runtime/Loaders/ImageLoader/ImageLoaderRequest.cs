@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
+using YukiFrameWork.XFABManager;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     // Fix 编码
@@ -95,7 +96,7 @@ namespace YukiFrameWork.ABManager
                 currentDownloadCount++;
 
                 string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(imageModel.path);  
-                string fileName = ABTools.md5(fileNameWithoutExtension); // 防止图片名称中包含特殊字符 导致异常
+                string fileName = XFABTools.md5(fileNameWithoutExtension); // 防止图片名称中包含特殊字符 导致异常
                  
                 string path = string.Empty;
 

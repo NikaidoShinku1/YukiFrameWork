@@ -1,11 +1,10 @@
-#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     public class AssetBundlesPanel
@@ -50,7 +49,7 @@ namespace YukiFrameWork.ABManager
         //private bool isResizingVerticalRight;   // 是不是正在调整 竖直右边的比例
         private bool isResizingVerticalLeft;    // 是不是正在调整 竖直左边的比例
 
-        private AssetBundleProjectMain window;
+        private XFAssetBundleProjectMain window;
 
         private SearchField searchField;
         private SearchField bundleSerchField;
@@ -61,7 +60,7 @@ namespace YukiFrameWork.ABManager
             bundleSerchField = new SearchField();
         }
 
-        public void OnGUI(Rect position, AssetBundleProjectMain window)
+        public void OnGUI(Rect position, XFAssetBundleProjectMain window)
         {
             this.window = window;
             this.position = position;
@@ -254,4 +253,3 @@ namespace YukiFrameWork.ABManager
     }
 
 }
-#endif

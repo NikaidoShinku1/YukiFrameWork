@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.U2D;
@@ -69,4 +68,3 @@ public class AtlasPacking
     }
 
 }
-#endif

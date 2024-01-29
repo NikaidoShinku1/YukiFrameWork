@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 namespace YukiFrameWork.UI
 {

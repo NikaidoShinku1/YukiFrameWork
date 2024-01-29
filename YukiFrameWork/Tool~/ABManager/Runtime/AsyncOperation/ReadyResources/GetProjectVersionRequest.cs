@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager{
+namespace YukiFrameWork.XFABManager{
 
     public class GetProjectVersionRequest : CustomAsyncOperation<GetProjectVersionRequest>
     {

@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager {
+namespace YukiFrameWork.XFABManager {
     public class GetProjectDependenciesRequest : CustomAsyncOperation<GetProjectDependenciesRequest>
     {
         //private AssetBundleManager bundleManager;
@@ -54,7 +55,7 @@ namespace YukiFrameWork.ABManager {
                 }
 
                 // 获取依赖项目
-                GetFileFromServerRequest requestDepend = AssetBundleManager.GetFileFromServer(projectName, requestVersion.version, ABConst.project_build_info);
+                GetFileFromServerRequest requestDepend = AssetBundleManager.GetFileFromServer(projectName, requestVersion.version, XFABConst.project_build_info);
                 yield return requestDepend;
                 if (string.IsNullOrEmpty(requestDepend.error))
                 {
@@ -69,7 +70,7 @@ namespace YukiFrameWork.ABManager {
             else
             {
                 // 如果是非更新模式，资源只能使用内置的，所以直接从内置目录读就可以了
-                string project_build_info = ABTools.BuildInDataPath(projectName, ABConst.project_build_info);
+                string project_build_info = XFABTools.BuildInDataPath(projectName, XFABConst.project_build_info);
 
 #if UNITY_ANDROID && !UNITY_EDITOR
                 UnityWebRequest requestBuildInfo = UnityWebRequest.Get(project_build_info);

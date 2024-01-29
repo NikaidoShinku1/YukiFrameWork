@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     public class IsHaveBuiltInResRequest : CustomAsyncOperation<IsHaveBuiltInResRequest>
@@ -16,7 +16,7 @@ namespace YukiFrameWork.ABManager
         internal IEnumerator IsHaveBuiltInRes(string projectName)
         {
             yield return null;
-            string project_build_info = string.Format("{0}{1}", ABTools.BuildInDataPath(projectName), ABConst.project_build_info);
+            string project_build_info = string.Format("{0}{1}", XFABTools.BuildInDataPath(projectName), XFABConst.project_build_info);
 #if UNITY_ANDROID && !UNITY_EDITOR
             UnityWebRequest requestFiles = UnityWebRequest.Get(project_build_info);
             yield return requestFiles.SendWebRequest();

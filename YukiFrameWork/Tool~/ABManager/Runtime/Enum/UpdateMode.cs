@@ -1,5 +1,5 @@
 ﻿
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     /// <summary>
     /// 更新模式 

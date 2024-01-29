@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     public struct DownloadObjectInfo

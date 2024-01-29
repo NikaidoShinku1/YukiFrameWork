@@ -16,7 +16,7 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 //using UnityEngine.SceneManagement;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     public class AssetBundleManager
@@ -77,7 +77,7 @@ namespace YukiFrameWork.ABManager
         /// </summary>
         private static Dictionary<string, AssetBundleCreateRequest> loading_assetbundle = new Dictionary<string, AssetBundleCreateRequest>();
          
-        internal static Profile[] profiles => ABManagerSettings.Instances.CurrentProfiles; 
+        internal static Profile[] profiles => XFABManagerSettings.Instances.CurrentProfiles; 
         /// <summary>
         /// 加载出来的资源的hash_code 对应的project_name
         /// </summary>
@@ -328,7 +328,7 @@ namespace YukiFrameWork.ABManager
         public static string GetAssetBundleSuffix(string projectName)
         {
 #if UNITY_EDITOR  
-            ABProject project = ABProjectManager.Instance.GetProject(projectName);
+            XFABProject project = XFABProjectManager.Instance.GetProject(projectName);
             if (project != null)
                 return project.suffix;
             return string.Empty;
@@ -429,7 +429,7 @@ namespace YukiFrameWork.ABManager
             // 加载bundle
             string bundle_path = GetAssetBundlePath(projectName, bundleName, GetAssetBundleSuffix(projectName));
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("LoadAssetBundle projectName:{0} bundleName:{1} path:{2}", projectName, bundleName, bundle_path);
 #endif
 
@@ -813,7 +813,7 @@ namespace YukiFrameWork.ABManager
 
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("LoadAsset projectName:{0} bundleName:{1} assetName:{2} type:{3}",projectName,bundle_name,assetName,typeof(T));
 #endif
 
@@ -1045,7 +1045,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 //string path = bundle.GetAssetPathByFileName(assetName);
                 //Debug.LogFormat("path:{0} type:{1}",path,type.Name); 
                 return LoadAssetFromEditor(bundle != null ? bundle.GetAssetPathByFileName(assetName,type) : string.Empty, type);
@@ -1098,7 +1098,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 return bundle != null ? ArrayCast(LoadAllAssetFromEditor(bundle.GetAssetPathByFileName(assetName,type)), type) : null;
             }
 #endif
@@ -1148,7 +1148,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 return LoadAssetsFromAssets(bundle.GetAllAssetPaths());
             }
 #endif
@@ -1202,7 +1202,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 return ArrayCast(LoadAssetsFromAssets(bundle.GetAllAssetPaths()), type);
             }
 #endif
@@ -1249,7 +1249,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 //bundle.GetAssetPathByFileName(assetName);
                 EditorSceneManager.LoadSceneInPlayMode(bundle.GetAssetPathByFileName(sceneName,typeof(UnityEngine.SceneManagement.Scene)), new LoadSceneParameters() { loadSceneMode = mode });
                 return;
@@ -1280,7 +1280,7 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABAssetBundle bundle = GetABAssetBundle(projectName, bundleName);
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 //bundle.GetAssetPathByFileName(assetName);
                 return EditorSceneManager.LoadSceneAsyncInPlayMode(bundle.GetAssetPathByFileName(sceneName, typeof(UnityEngine.SceneManagement.Scene)), new LoadSceneParameters() { loadSceneMode = mode });
             }
@@ -1483,14 +1483,14 @@ namespace YukiFrameWork.ABManager
         /// <returns></returns>
         public static bool IsHaveResOnLocal(string projectName)
         {
-            // 之前是判断有没有 ABConst.project_build_info 这个文件
-            // 后来修改之后ABConst.project_build_info这个文件在客户端不一定存在，可有可无，所以修改为判断有没有ABConst.asset_bundle_mapping
-            string path = ABTools.LocalResPath(projectName, ABConst.asset_bundle_mapping);
+            // 之前是判断有没有 XFABConst.project_build_info 这个文件
+            // 后来修改之后XFABConst.project_build_info这个文件在客户端不一定存在，可有可无，所以修改为判断有没有XFABConst.asset_bundle_mapping
+            string path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
 
             bool isHaveBuildIn = false;
 
-            if (ABTools.StreamingAssetsReadable()) { 
-                string buildin = string.Format("{0}/{1}", ABTools.BuildInDataPath(projectName), ABConst.project_build_info);
+            if (XFABTools.StreamingAssetsReadable()) { 
+                string buildin = string.Format("{0}/{1}", XFABTools.BuildInDataPath(projectName), XFABConst.project_build_info);
                 isHaveBuildIn = File.Exists(buildin);
             }
 
@@ -1511,7 +1511,7 @@ namespace YukiFrameWork.ABManager
 
         public static void SetGetProjectVersion(Type type) {
 
-            if( ABTools.IsImpInterface(type,typeof(IGetProjectVersion)) == false)
+            if( XFABTools.IsImpInterface(type,typeof(IGetProjectVersion)) == false)
                 throw new Exception("类型必须实现 IGetProjectVersion 接口!");
             
             getProjectVersion = type; 
@@ -1552,16 +1552,16 @@ namespace YukiFrameWork.ABManager
         internal static string GetAssetBundlePath(string projectName, string bundleName, string suffix = "")
         {
             // 优先从数据拿数据
-            string bundle_path = ABTools.LocalResPath(projectName, string.Format("{0}{1}", bundleName, suffix));
+            string bundle_path = XFABTools.LocalResPath(projectName, string.Format("{0}{1}", bundleName, suffix));
 
             // 判断是否有文件
             if (!File.Exists(bundle_path)) {
-                string build_in_path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, projectName, ABTools.GetCurrentPlatformName());
+                string build_in_path = string.Format("{0}/{1}/{2}", Application.streamingAssetsPath, projectName, XFABTools.GetCurrentPlatformName());
                 // 如果没有这个文件
                 bundle_path = string.Format("{0}/{1}", build_in_path, string.Format("{0}{1}", bundleName, suffix)); 
             }
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("GetAssetBundlePath: projectName:{0} bundleName:{1} suffix:{2} path:{3}",projectName,bundleName,suffix,bundle_path);
 #endif
 
@@ -1575,7 +1575,7 @@ namespace YukiFrameWork.ABManager
         /// <returns></returns>
         public static string[] GetAssetBundleDependences(string projectName, string bundleName)
         {
-            string dependenceName = ABTools.GetCurrentPlatformName();
+            string dependenceName = XFABTools.GetCurrentPlatformName();
 
             if (!dependenceProjectName.Equals(projectName) && dependenceBundle != null)
             {
@@ -1651,7 +1651,7 @@ namespace YukiFrameWork.ABManager
         /// <param name="projectName"></param>
         /// <returns></returns>
         public static long GetAssetBundleFilesSize(string projectName) {
-            return FileTools.GetDirectorySize(ABTools.DataPath(projectName));
+            return FileTools.GetDirectorySize(XFABTools.DataPath(projectName));
         }
 
         /// <summary>
@@ -1662,12 +1662,12 @@ namespace YukiFrameWork.ABManager
 
             // 如果当前平台的StreamingAssets目录可以写入说明数据目录和内置的目录是同一个
             // 并且当前的更新模式为读取本地资源，则此时资源是内置的，并且不能更新，所以不能清空资源，如果清掉资源就缺失了
-            if (ABTools.StreamingAssetsWritable() && GetProfile(projectName).updateModel == UpdateMode.LOCAL) 
+            if (XFABTools.StreamingAssetsWritable() && GetProfile(projectName).updateModel == UpdateMode.LOCAL) 
                 return;
 
             try
             {
-                string dir = ABTools.DataPath(projectName);
+                string dir = XFABTools.DataPath(projectName);
                 if(Directory.Exists(dir))
                     Directory.Delete(dir, true);
             }
@@ -1700,29 +1700,29 @@ namespace YukiFrameWork.ABManager
 #if UNITY_EDITOR
  
         /// <summary>
-        /// 获取 ABAssetBundle( 编辑器数据 )
+        /// 获取 XFABAssetBundle( 编辑器数据 )
         /// </summary>
         /// <param name="projectName"></param>
         /// <param name="bundleName"></param>
         /// <returns></returns>
-        private static ABAssetBundle GetABAssetBundle(string projectName, string bundleName)
+        private static XFABAssetBundle GetXFABAssetBundle(string projectName, string bundleName)
         {
             if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(bundleName) ) {
                 return null;
             }
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                ABProject project = ABProjectManager.Instance.GetProject(projectName);
+                XFABProject project = XFABProjectManager.Instance.GetProject(projectName);
                 if (project != null)
                 {
-                    ABAssetBundle bundle = project.GetAssetBundle(bundleName);
+                    XFABAssetBundle bundle = project.GetAssetBundle(bundleName);
                     if (bundle != null)
                     {
                         return bundle;
                     }
                     else
                     {
-                        Debug.LogErrorFormat("LoadAsset error ! ABAssetBundle:{0} is null!", bundleName);
+                        Debug.LogErrorFormat("LoadAsset error ! XFABAssetBundle:{0} is null!", bundleName);
                     }
                 }
                 else
@@ -1859,7 +1859,7 @@ namespace YukiFrameWork.ABManager
         {
             if (getProjectVersion == null) return null;
 
-            if (ABTools.IsBaseByClass(getProjectVersion, typeof(MonoBehaviour)))
+            if (XFABTools.IsBaseByClass(getProjectVersion, typeof(MonoBehaviour)))
             {
                 GameObject obj = new GameObject(getProjectVersion.FullName);
                 GameObject.DontDestroyOnLoad(obj);
@@ -1871,7 +1871,7 @@ namespace YukiFrameWork.ABManager
 
         internal static void ReleaseProjectVersionInstance(IGetProjectVersion version)
         {
-            if (version != null && ABTools.IsBaseByClass(version.GetType(), typeof(MonoBehaviour)))
+            if (version != null && XFABTools.IsBaseByClass(version.GetType(), typeof(MonoBehaviour)))
             {
                 MonoBehaviour mono = version as MonoBehaviour;
                 GameObject.Destroy(mono.gameObject);
@@ -1884,7 +1884,7 @@ namespace YukiFrameWork.ABManager
             {
                 //Debug.Log(projectName+" getfromeditor " + assetName);
                 // 从 Asset 查询 BundleName
-                ABProject project = ABProjectManager.Instance.GetProject(projectName);
+                XFABProject project = XFABProjectManager.Instance.GetProject(projectName);
                 string asset_name_key = AssetBundleTools.GetAssetNameWithType(assetName, type);
 
                 if (project != null && project.AssetBundleNameMappingWithTypeEditorLoad.ContainsKey(asset_name_key))
@@ -1895,10 +1895,10 @@ namespace YukiFrameWork.ABManager
 #endif
             if ( !AssetBundleNameMapping.ContainsKey(projectName) ) {
                 Dictionary<string, string> map = new Dictionary<string, string>();
-                string mapping_path = ABTools.LocalResPath(projectName, ABConst.asset_bundle_mapping);
+                string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
                 // 如果数据目录没有这个文件 尝试从内置目录获取
                 if(!File.Exists(mapping_path))
-                    mapping_path = ABTools.BuildInDataPath(projectName, ABConst.asset_bundle_mapping);
+                    mapping_path = XFABTools.BuildInDataPath(projectName, XFABConst.asset_bundle_mapping);
 
                 if (File.Exists(mapping_path) )
                 {

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.UI; 
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
 
     [Serializable]
@@ -158,12 +158,12 @@ namespace YukiFrameWork.ABManager
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
                     {
-                        if (!assembly.FullName.StartsWith("ABManager"))
+                        if (!assembly.FullName.StartsWith("XFABManager"))
                             continue;
 
                         foreach (var item in assembly.GetTypes())
                         {
-                            if (ABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
+                            if (XFABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
                             {
                                 TargetComponentAdapter adapter = System.Activator.CreateInstance(item) as TargetComponentAdapter;
                                 if (adapter == null) continue;
@@ -415,7 +415,7 @@ namespace YukiFrameWork.ABManager
 
         private void OnRefreshFinsh(ImageLoaderRequest request_image)
         {
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("图片加载完成:sprite:{0} texture2d:{1}", request_image.NetworkImage != null ? request_image.NetworkImage.sprite:null,
                request_image.NetworkImage != null ? request_image.NetworkImage.texture : null);
 #endif

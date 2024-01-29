@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class GetFileFromServerRequest : CustomAsyncOperation<GetFileFromServerRequest>
     {
@@ -32,7 +32,7 @@ namespace YukiFrameWork.ABManager
 
         internal IEnumerator GetFileFromServer(string projectName, string version, string fileName)
         {
-            request_url = ABTools.ServerPath(url, projectName, version, fileName);
+            request_url = XFABTools.ServerPath(url, projectName, version, fileName);
             // 获取内容
             UnityWebRequest request = UnityWebRequest.Get(request_url);
             request.timeout = 5; // 5s超时

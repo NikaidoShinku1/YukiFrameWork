@@ -1,12 +1,11 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class ProjectListTree : TreeView
     {
@@ -74,7 +73,7 @@ namespace YukiFrameWork.ABManager
             this.window = window;
 
             projects.Clear();
-            foreach (var item in ABProjectManager.Instance.Projects)
+            foreach (var item in XFABProjectManager.Instance.Projects)
             {
                 projects.Add(item.name, true);
             } 
@@ -117,7 +116,7 @@ namespace YukiFrameWork.ABManager
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
 
-            ABProject project = ABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
+            XFABProject project = XFABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
             if (project == null) { return; }
 
             switch (column)
@@ -187,17 +186,17 @@ namespace YukiFrameWork.ABManager
                     if (item.depth == 0)
                     {
                         // Group
-                        if (ABManagerSettings.Instances.Groups.Contains(args.newName))
+                        if (XFABManagerSettings.Instances.Groups.Contains(args.newName))
                         {
                             Debug.LogWarningFormat("重命名失败!名称{0}已经存在!", args.newName);
                             return;
                         }
 
-                        int index = ABManagerSettings.Instances.Groups.IndexOf(args.originalName);
-                        ABManagerSettings.Instances.Groups[index] = args.newName;
+                        int index = XFABManagerSettings.Instances.Groups.IndexOf(args.originalName);
+                        XFABManagerSettings.Instances.Groups[index] = args.newName;
 
                         // 修改Profile 
-                        var profiles = ABManagerSettings.Instances.Profiles.Where(x => x.GroupName.Equals(args.originalName));
+                        var profiles = XFABManagerSettings.Instances.Profiles.Where(x => x.GroupName.Equals(args.originalName));
 
                         foreach (var profile in profiles)
                         {
@@ -205,25 +204,25 @@ namespace YukiFrameWork.ABManager
                         }
 
                         ReloadAndSelect(args.newName.GetHashCode(), false);
-                        //ABManagerSettings.Settings.Save();
+                        //XFABManagerSettings.Settings.Save();
                     }
                     else if (item.depth == 1)
                     {
                         // Profile
                         // 新名称已经存在
-                        if (ABManagerSettings.Instances.IsContainsProfileName(args.newName, item.parent.displayName))
+                        if (XFABManagerSettings.Instances.IsContainsProfileName(args.newName, item.parent.displayName))
                         {
                             Debug.LogWarningFormat("重命名失败!名称{0}已经存在!", args.newName);
                             return;
                         }
 
-                        Profile profile = ABManagerSettings.Instances.Profiles.Where(a => a.name.Equals(args.originalName)).Single();
+                        Profile profile = XFABManagerSettings.Instances.Profiles.Where(a => a.name.Equals(args.originalName)).Single();
                         // 重命名
                         profile.name = args.newName;
 
                         ReloadAndSelect(string.Format("{0}{1}", profile.GroupName, args.newName).GetHashCode(), false);
                     }
-                    ABManagerSettings.Instances.Save();
+                    XFABManagerSettings.Instances.Save();
 
                 }
             }
@@ -238,7 +237,7 @@ namespace YukiFrameWork.ABManager
             base.DoubleClickedItem(id);
             var item = FindItem(id, rootItem);
             //Debug.Log(item.displayName);
-            var project = ABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
+            var project = XFABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
 
             if ( project == null ) {
                 return;
@@ -272,7 +271,7 @@ namespace YukiFrameWork.ABManager
         //    {
         //        index++;
         //        name = string.Format("new profile{0}", index);
-        //    } while (ABManagerSettings.Settings.IsContainsProfileName(name, group));
+        //    } while (XFABManagerSettings.Settings.IsContainsProfileName(name, group));
 
         //    return name;
         //}
@@ -285,7 +284,7 @@ namespace YukiFrameWork.ABManager
         //    {
         //        index++;
         //        name = string.Format("new group{0}", index);
-        //    } while (ABManagerSettings.Settings.Groups.Contains(name));
+        //    } while (XFABManagerSettings.Settings.Groups.Contains(name));
 
         //    return name;
         //}
@@ -319,4 +318,3 @@ namespace YukiFrameWork.ABManager
 
 }
 
-#endif

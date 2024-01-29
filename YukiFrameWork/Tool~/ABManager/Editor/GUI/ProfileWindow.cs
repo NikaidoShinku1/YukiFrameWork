@@ -1,11 +1,10 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace YukiFrameWork.ABManager {
+namespace YukiFrameWork.XFABManager {
 	
 	public class ProfileWindow : EditorWindow
 	{
@@ -41,5 +40,5 @@ namespace YukiFrameWork.ABManager {
 
 }
 
-#endif
 
+	 

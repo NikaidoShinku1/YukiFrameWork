@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 public class BaseShowProjects 
 {
@@ -17,7 +16,7 @@ public class BaseShowProjects
         this.window = window;
     }
     // 打开项目 
-    internal static void OpenProject(ABProject project)
+    internal static void OpenProject(XFABProject project)
     {  
         if (projectWindows.ContainsKey(project.Title))
         {
@@ -25,7 +24,7 @@ public class BaseShowProjects
         }
         else
         {
-            AssetBundleProjectMain mainWindow = EditorWindow.CreateInstance<AssetBundleProjectMain>();
+            XFAssetBundleProjectMain mainWindow = EditorWindow.CreateInstance<XFAssetBundleProjectMain>();
             mainWindow.InitProject(project);
             mainWindow.Show();
 
@@ -44,10 +43,9 @@ public class BaseShowProjects
     {
         // 显示创建项目的窗口
         Rect rect = new Rect(0, 0, 600, 700);
-        AssetBundleManagerCreate window = EditorWindow.GetWindowWithRect<AssetBundleManagerCreate>(rect, true, "创建项目");
+        XFAssetBundleManagerCreate window = EditorWindow.GetWindowWithRect<XFAssetBundleManagerCreate>(rect, true, "创建项目");
         window.Show();
 
     }
 
 }
-#endif 

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using UnityEngine.UI;
 using System.Reflection;
-using YukiFrameWork.ABManager;
+using YukiFrameWork.XFABManager;
 
 namespace YukiFrameWork.UI
 {

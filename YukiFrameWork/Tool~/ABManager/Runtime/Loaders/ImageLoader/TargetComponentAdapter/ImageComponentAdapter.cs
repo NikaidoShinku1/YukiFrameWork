@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class ImageComponentAdapter : TargetComponentAdapter
     {
@@ -46,7 +46,7 @@ namespace YukiFrameWork.ABManager
             Image image = component as Image;
             if (image == null) return;
 
-#if ABManager_LOG_OPEN_TESTING
+#if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("ImageComponentSetValue:{0} value:{1}",image, imageData != null ? imageData.sprite : null);
 #endif
 

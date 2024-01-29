@@ -1,12 +1,11 @@
-﻿#if UNITY_EDITOR
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     [CustomEditor(typeof(ImageLoader))]
     public class ImageLoaderInspector : Editor
@@ -112,4 +111,4 @@ namespace YukiFrameWork.ABManager
     }
 }
 
-#endif
+

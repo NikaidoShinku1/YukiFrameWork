@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 
-namespace YukiFrameWork.ABManager
+namespace YukiFrameWork.XFABManager
 {
     public class CopyFileRequest : CustomAsyncOperation<CopyFileRequest>
     {
