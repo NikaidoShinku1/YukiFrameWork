@@ -6,26 +6,24 @@ namespace YukiFrameWork
 {
     public class BezierExecution : MonoBehaviour
     {
-        private List<BezierCore> releaseList = new List<BezierCore>();
-        private List<BezierCore> runtimeCores = new List<BezierCore>();
-        public void AddCore(BezierCore core)
+        private List<Bezier> releaseList = new List<Bezier>();
+        private List<Bezier> runtimeCores = new List<Bezier>();
+        public void AddCore(Bezier core)
         {
             runtimeCores.Add(core);
         }
-
-        public void RemoveCore(BezierCore core)
-        {
-            runtimeCores.Remove(core);
-        }
-
+      
         private void Update()
         {
             OnUpdate_Execute(BezierRuntimeMode.OnUpdate);
 
             if (releaseList.Count > 0)
             {
-                for (int i = 0; i < releaseList.Count; i++)               
-                    runtimeCores.Remove(releaseList[i]);               
+                for (int i = 0; i < releaseList.Count; i++)
+                {
+                    Bezier.Release(releaseList[i]);
+                    runtimeCores.Remove(releaseList[i]);
+                }
                 releaseList.Clear();
             }
 
@@ -46,8 +44,13 @@ namespace YukiFrameWork
             foreach (var core in runtimeCores)
             {
                 if (core.Mode == mode)
-                    if (core.OnUpdate())
+                {
+                    if (core?.Condition() == true)
                         releaseList.Add(core);
+                    else
+                        core.UpdateInvoke();
+                }
+
             }
         }
     }

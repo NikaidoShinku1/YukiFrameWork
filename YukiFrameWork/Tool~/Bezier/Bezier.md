@@ -1,27 +1,27 @@
-±´Èû¶ûÇúÏßÍØÕ¹¹¦ÄÜ½éÉÜ:
+ï»¿è´å¡å°”æ›²çº¿æ‹“å±•åŠŸèƒ½ä»‹ç»:
 
-¿ò¼Ü¼¯³ÉÁË¶Ô±´Èû¶ûÇúÏßµÄÒ»Ğ©·â×°:
+æ¡†æ¶é›†æˆäº†å¯¹è´å¡å°”æ›²çº¿çš„ä¸€äº›å°è£…:
 
-BezierUtility:±´Èû¶ûÇúÏß¹«Ê½¼¯³É(Ä¿Ç°×î¸ßÖ§³ÖÈı½×)
+BezierUtility:è´å¡å°”æ›²çº¿å…¬å¼é›†æˆ(ç›®å‰æœ€é«˜æ”¯æŒä¸‰é˜¶)
 
 API:
 
-	//¶Ô±´Èû¶ûÇúÏß¹«Ê½·â×°µÄAPI
+	//å¯¹è´å¡å°”æ›²çº¿å…¬å¼å°è£…çš„API
 	- Vector3 BezierIntepolate(Vector3 p0, Vector3 p1, float t);// B(t) = (1-t)P0 +tP1 Mathf.Clamp(t,0,1)
 	- Vector3 BezierIntepolate(Vector3 p0, Vector3 p1,Vecor3 p2, float t)// B(t) = (1-t)(1-t)p0 + 2t(1-t)P1 + t*t*P2 Mathf.Clamp(t,0,1)
 	- Vector3 BezierIntepolate(Vector3 p0, Vector3 p1,Vecor3 p2,Vector3 p3, float t)// B(t) = (1-t)(1-t)(1-t)P0 + 3P1 * t *(1-t)*(1-t) + 3P2 * t * t * (1-t)+P3* t * t * t Mathf.Clamp(t,0,1)
 
-	//Ê¹ÓÃUnityÌá¹©µÄVector3.Lerp¶Ô¹«Ê½½øĞĞ·â×°
+	//ä½¿ç”¨Unityæä¾›çš„Vector3.Lerpå¯¹å…¬å¼è¿›è¡Œå°è£…
 	- Vector3 BezierLerp(Vector3 p0, Vector3 p1, float t);
 	- Vector3 BezierLerp(Vector3 p0, Vector3 p1,Vecor3 p2, float t)
 	- Vector3 BezierLerp(Vector3 p0, Vector3 p1,Vecor3 p2,Vector3 p3, float t)
 
-	//»ñµÃÉèÖÃÏÂ±´Èû¶ûÇúÏßÂ·¾¶ËùÓĞµÄÂ·¾¶µã,tÎªÂ·¾¶µÄÊıÁ¿
-	- List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, float t);//ÕâÀïµÄtÎª×ø±êÊıÁ¿
+	//è·å¾—è®¾ç½®ä¸‹è´å¡å°”æ›²çº¿è·¯å¾„æ‰€æœ‰çš„è·¯å¾„ç‚¹,tä¸ºè·¯å¾„çš„æ•°é‡
+	- List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, float t);//è¿™é‡Œçš„tä¸ºåæ ‡æ•°é‡
 	- List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, float t);
 	- List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t);
 
-Ê¹ÓÃÊ¾Àı£º
+ä½¿ç”¨ç¤ºä¾‹ï¼š
 ```
 
 using YukiFrameWork;
@@ -33,7 +33,7 @@ public class TestScripts : MonoBehaviour
 	public List<Vector3> paths = new List();
 	void Start()
 	{
-		//ÕâÀïÕ¹Ê¾¶ş½×µÄÊ¹ÓÃ·½Ê½:
+		//è¿™é‡Œå±•ç¤ºäºŒé˜¶çš„ä½¿ç”¨æ–¹å¼:
 
 		List<Vector3> list = BezierUtility.GetBezierList(p1.position,p2.position,p3.position,50);
 
@@ -42,7 +42,7 @@ public class TestScripts : MonoBehaviour
 		{
 			float t = i / (float)paths.Count;
 
-			//±éÀú³öÂ·¾¶ÉÏµÄµã
+			//éå†å‡ºè·¯å¾„ä¸Šçš„ç‚¹
 			Vector3 points = BezierIntepolate(p1.position,p2.position,p3.position,t);
 		}
 
@@ -51,12 +51,22 @@ public class TestScripts : MonoBehaviour
 }
 ```
 
-´úÂëÍØÕ¹: ÑØ×Å´´½¨µÄ±´Èû¶ûÇúÏßÒÆ¶¯:
-API: //transformÍØÕ¹·½·¨,ÕâÈı¸öAPIÄ¬ÈÏ³õÊ¼Î»ÖÃ¾ÍÊÇtransformµÄÎ»ÖÃ¡£BezierRuntimeMode¿ÉÒÔÑ¡ÔñÒÆ¶¯ËùÔÚµÄº¯Êı --- Update/FixedUpdate/LateUpdate,Ä¬ÈÏ50¸ö×ø±êÊıÁ¿¡£
+ä»£ç æ‹“å±•: æ²¿ç€åˆ›å»ºçš„è´å¡å°”æ›²çº¿ç§»åŠ¨:
+API: //transformæ‹“å±•æ–¹æ³•,ä¸‹åˆ—APIé»˜è®¤åˆå§‹ä½ç½®å°±æ˜¯transformçš„ä½ç½®ã€‚BezierRuntimeModeå¯ä»¥é€‰æ‹©ç§»åŠ¨æ‰€åœ¨çš„å‡½æ•° --- Update/FixedUpdate/LateUpdate,é»˜è®¤50ä¸ªåæ ‡æ•°é‡ã€‚è¿”å›IBezierå¯¹è±¡
 
-	- BezierCore BezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
-	- BezierCore BezierTowards(this Transform transform, Vector3 controlPoint1, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
-	- BezierCore BezierTowards(this Transform transform, Vector3 controlPoint1, Vector3 controlPoint2, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
+	- IBezier BezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier BezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
+	- IBezier BezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
+	- IBezier LocalBezierTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier LocalBezierTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50)
+	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier LocalBezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 thirdOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
+	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 
 ```
 
@@ -68,20 +78,33 @@ public class TestScripts : MonoBehaviour
 	
 	void Start()
 	{
-		//ÕâÀïÊ¹ÓÃ¶ş½×µÄÒÆ¶¯·½·¨(¸ÃÒÆ¶¯²»ĞèÒªÍâ²¿Ğ´ÔÚUpdateÖĞÈ¥±£³ÖÃ¿Ö¡¸üĞÂ)
-		transform.BezierTowards(control.position,target.position,10);
+		//è¿™é‡Œä½¿ç”¨äºŒé˜¶çš„ç§»åŠ¨æ–¹æ³•
+		var bezier = transform.BezierTowards(control.position,target.position,10);
+
+		//å¦‚æœæƒ³åœ¨ç§»åŠ¨è¿‡ç¨‹ä¸­åšæ¯å¸§æ›´æ–°çš„æ“ä½œå¯ä»¥æ·»åŠ æ›´æ–°äº‹ä»¶:è¿™é‡Œçš„OnUpdateäº‹ä»¶çš„æ›´æ–°å‘¨æœŸå–å†³äºè¯¥IBezierçš„BezierRuntimeMode;
+		bezier.OnUpdate += () => { };
+
+		//å¦‚æœæƒ³åœ¨å®Œæˆç§»åŠ¨åæ‰§è¡Œé€»è¾‘://å‚æ•°æ˜¯ç§»åŠ¨ç»è¿‡äº†å¤šå°‘ç§’
+		bezier.OnCompleted += time => { };
 			
 	}
 }
 ```
 
-±à¼­Æ÷ÍØÕ¹Ê¹ÓÃ:Îª¶ÔÏóÌí¼ÓBezierVisualTool½Å±¾ÈçÍ¼:
+ç¼–è¾‘å™¨æ‹“å±•ä½¿ç”¨:ä¸ºå¯¹è±¡æ·»åŠ BezierVisualToolè„šæœ¬å¦‚å›¾:
 
-![ÊäÈëÍ¼Æ¬ËµÃ÷](Texture/Tool.png)
+![è¾“å…¥å›¾ç‰‡è¯´æ˜](Texture/Tool.png)
 
-ÔÚÍ¼ÖĞ¿É×ÔĞĞÔÚÕâÀïÉèÖÃ×î¸ßÈı½×µÄ±´Èû¶ûÇúÏß,¿ÉÒÔÇĞ»»Ä£Ê½£¬Ñ¡ÔñÊ¹ÓÃVector»¹ÊÇÓÃTransform,Ö§³ÖÔÚSceneÊÓÍ¼ÖĞµÄ¿ÉÊÓ»¯(ÓÎÏ·´°¿Ú²»¿É¼û)
+åœ¨å›¾ä¸­å¯è‡ªè¡Œåœ¨è¿™é‡Œè®¾ç½®æœ€é«˜ä¸‰é˜¶çš„è´å¡å°”æ›²çº¿,å¯ä»¥åˆ‡æ¢æ¨¡å¼ï¼Œé€‰æ‹©ä½¿ç”¨Vectorè¿˜æ˜¯ç”¨Transform,æ”¯æŒåœ¨Sceneè§†å›¾ä¸­çš„å¯è§†åŒ–(æ¸¸æˆçª—å£ä¸å¯è§)
 
-ÉèÖÃºóÍØÕ¹APIÈçÏÂ:
+è®¾ç½®åæ‹“å±•APIå¦‚ä¸‹:
+
+	- IBezier BezierTowards(this Transform transform,BezierVisualTool tool,float currentSpeed);
+	- IBezier LocalBezierTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
+	- IBezier BezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
+	- IBezier LocalBezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed)
+	- IBezier LocalBezierAndLocalRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);
+
 
 ```
 using YukiFrameWork;
@@ -91,20 +114,20 @@ public class TestScripts : MonoBehaviour
 	
 	void Start()
 	{
-		//¸ù¾İ¿ÉÊÓ»¯½Å±¾ÅäÖÃ¶ø¶¨,Ö»ĞèÒª´«ÈëtoolÒÔ¼°ËÙ¶È¼´¿É
+		//æ ¹æ®å¯è§†åŒ–è„šæœ¬é…ç½®è€Œå®š,åªéœ€è¦ä¼ å…¥toolä»¥åŠé€Ÿåº¦å³å¯
 		transform.BezierTowards(tool,10);
 			
 	}
 }
 ```
 
-Ö§³Ö´úÂëÄÚ²¿×Ô¶¨ÒåµÄ±´Èû¶ûÇúÏßÉèÖÃ(ÅäºÏBezierVisualToolÀàÊ¹ÓÃ):
+æ”¯æŒä»£ç å†…éƒ¨è‡ªå®šä¹‰çš„è´å¡å°”æ›²çº¿è®¾ç½®(é…åˆBezierVisualToolç±»ä½¿ç”¨):
 
-	- Ò»½×½Ó¿Ú: IFirstOrderBezierCurve
-	- ¶ş½×½Ó¿Ú: ISecondOrderBezierCurve
-	- Èı½×½Ó¿Ú: IThirdOrderBezierCurve
+	- ä¸€é˜¶æ¥å£: IFirstOrderBezierCurve
+	- äºŒé˜¶æ¥å£: ISecondOrderBezierCurve
+	- ä¸‰é˜¶æ¥å£: IThirdOrderBezierCurve
 
-Ê¹ÓÃÊ¾Àı:
+ä½¿ç”¨ç¤ºä¾‹:
 
 ```
 using YukiFrameWork;
@@ -139,7 +162,7 @@ public class TestScripts : MonoBehaviour
 	
 	void Start()
 	{
-		//ÉèÖÃ×Ô¶¨ÒåµÄÅäÖÃ
+		//è®¾ç½®è‡ªå®šä¹‰çš„é…ç½®
 		tool.SetSecondOrderBezier(new CustomBezierConfig());
 		transform.BezierTowards(tool,10);
 			

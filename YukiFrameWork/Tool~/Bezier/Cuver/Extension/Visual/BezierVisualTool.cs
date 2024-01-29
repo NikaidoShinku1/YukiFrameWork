@@ -22,36 +22,27 @@ namespace YukiFrameWork
     [Serializable]
     public partial class BezierVisualTool : MonoBehaviour
     {       
-#if UNITY_EDITOR
-        [SerializeField]
-        [Header("在场景中检视")]
-        private bool isScene;
-        [SerializeField]
-        [Header("在游戏场景中检视")]
-        private bool isGameScene;
+#if UNITY_EDITOR      
+        [Header("在场景中检视"),SerializeField]
+        private bool isScene;      
 
-        public bool IsScene => isScene;
-        public bool IsGameScene => isGameScene;
-
-        [Range(0, 1)]
-        [Header("线段长度")]
-        public float length;
+        public bool IsScene => isScene;        
 #endif
 
         [HideInInspector]
         public List<Vector3> paths = new List<Vector3>();
 
         public Vector3 StartValue
-            => pointType == PointType.Vector ? start : startPos.position;
+            => pointType == PointType.Vector ? start : (IsLocal ? startPos.localPosition : startPos.position);
 
         public Vector3 EndValue
-            => pointType == PointType.Vector ? end : endPos.position;
+            => pointType == PointType.Vector ? end : (IsLocal ? endPos.localPosition : endPos.position);
 
         public Vector3 SecondOrderControl
-            => pointType == PointType.Vector ? control1 : control1Pos.position;
+            => pointType == PointType.Vector ? control1 : (IsLocal ? control1Pos.localPosition :control1Pos.position);
 
         public Vector3 ThirdOrderControl
-            => pointType == PointType.Vector ? control2 : control2Pos.position;
+            => pointType == PointType.Vector ? control2 : (IsLocal ? control2Pos.localPosition:control2Pos.position);
 
         public BezierRuntimeMode Mode { get; set; } = BezierRuntimeMode.OnFixedUpdate;
 
@@ -78,7 +69,7 @@ namespace YukiFrameWork
 
         private void Set(IFirstOrderBezierCurve curve)
         {
-            pointType = PointType.Vector;
+            pointType = PointType.Vector;          
             start = curve.GetStartPoint();
             end = curve.GetEndPoint();
             count = curve.GetPathLangth();

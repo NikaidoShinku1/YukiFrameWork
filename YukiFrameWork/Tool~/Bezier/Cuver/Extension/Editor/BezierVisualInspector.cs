@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿
+#if UNITY_EDITOR
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -19,7 +21,9 @@ namespace YukiFrameWork
 
         private SerializedProperty pathsProperty;
 
-        private SerializedProperty countProperty;      
+        private SerializedProperty countProperty;
+
+        private SerializedProperty localProperty;
 
         private string startName
         {
@@ -71,7 +75,8 @@ namespace YukiFrameWork
         {
             sceneGUIProperty = serializedObject.FindProperty("isScene");           
             pathsProperty = serializedObject.FindProperty("paths");
-            countProperty = serializedObject.FindProperty("count");          
+            countProperty = serializedObject.FindProperty("count");
+            localProperty = serializedObject.FindProperty("IsLocal");
         }
         public override void OnInspectorGUI()
         {
@@ -94,7 +99,7 @@ namespace YukiFrameWork
             startProperty = serializedObject.FindProperty(startName);
             EditorGUILayout.PropertyField(startProperty);
             endProperty = serializedObject.FindProperty(endName);
-            EditorGUILayout.PropertyField(endProperty);
+            EditorGUILayout.PropertyField(endProperty);         
             EditorGUILayout.Space();
 
             switch (tool.stage)
@@ -110,9 +115,11 @@ namespace YukiFrameWork
                     EditorGUILayout.PropertyField(control2Property);
                     break;
             }
+            if (tool.pointType == PointType.Transform)
+                EditorGUILayout.PropertyField(localProperty);
             EditorGUILayout.PropertyField(countProperty);
             EditorGUILayout.Space(10);
-            if (GUILayout.Button("创建路径"))
+            if (GUILayout.Button("更新路径"))
             {
                 if (tool.Count <= 0)
                 {
@@ -129,8 +136,8 @@ namespace YukiFrameWork
                         return;
                     }
                 }
-                Vector3 start = tool.pointType == PointType.Vector ? startProperty.vector3Value : (startProperty.objectReferenceValue as Transform).position;
-                Vector3 end = tool.pointType == PointType.Vector ? endProperty.vector3Value : (endProperty.objectReferenceValue as Transform).position;
+                Vector3 start = tool.StartValue;
+                Vector3 end = tool.EndValue;
                 switch (tool.stage)
                 {
                     case BezierStage.一阶:
@@ -145,7 +152,7 @@ namespace YukiFrameWork
                             return;
                         }
 
-                        tool.paths = BezierUtility.GetBezierList(start, tool.pointType == PointType.Vector ? control1Property.vector3Value : control1Pos.position,end,tool.Count);
+                        tool.paths = BezierUtility.GetBezierList(start, tool.SecondOrderControl,end,tool.Count);
 
                         break;
                     case BezierStage.三阶:
@@ -163,13 +170,15 @@ namespace YukiFrameWork
                             $"使用Transform但是没有传入控制点2无法创建! Control1:{control2Pos}".LogInfo(Log.E);
                             return;
                         }
-                        tool.paths = BezierUtility.GetBezierList(start, tool.pointType == PointType.Vector ? control1Property.vector3Value : control1Pos.position, tool.pointType == PointType.Vector ? control2Property.vector3Value : control2Pos.position, end, tool.Count);
+                        tool.paths = BezierUtility.GetBezierList(start, tool.SecondOrderControl,tool.ThirdOrderControl,  end, tool.Count);                      
                         break;                
                 }
+
+                tool.paths.Add(tool.EndValue);
             }
             EditorGUILayout.Space(20);            
             EditorGUILayout.LabelField("场景可视化:仅编辑器下生效");
-            tool.color = EditorGUILayout.ColorField("线段颜色",tool.color);
+            tool.color = EditorGUILayout.ColorField("线段颜色",tool.color);                    
             EditorGUILayout.PropertyField(sceneGUIProperty);                 
 
             EditorGUILayout.Space(10);
@@ -180,3 +189,4 @@ namespace YukiFrameWork
         }      
     }
 }
+#endif

@@ -14,40 +14,46 @@ namespace YukiFrameWork
         OnFixedUpdate,
         OnLateUpdate
     }
+    public interface IBezier
+    {
+        public event Action<float> OnCompleted;
+        public event Action OnUpdate;
+    }
     [Serializable]
-    public class BezierCore
+    public class Bezier : IBezier
     {
         public int index { get; set; }
         public float currentLength { get; set; }
         public float totalLength { get; set; }
-
-        public Transform user { get; private set; }     
+        public float InitalTime { get; private set; }        
         public float t { get; set; }
         public List<Vector3> paths { get;private set; }
 
-        private static SimpleObjectPools<BezierCore> objectPools = new SimpleObjectPools<BezierCore>(() => new BezierCore(),core =>
-        {
-            core.OnCompleted?.Invoke(core.user);
+        private static SimpleObjectPools<Bezier> objectPools = new SimpleObjectPools<Bezier>(() => new Bezier(),core =>
+        {           
             core.Reset();
         },50);
 
-        public static BezierCore Get(BezierRuntimeMode Mode,Transform User, List<Vector3> paths)
+        public static Bezier Get(BezierRuntimeMode Mode ,List<Vector3> paths)
         {
             var core = objectPools.Get();
-            core.OnInit(Mode,User,paths);
+            core.OnInit(Mode,paths);
             return core;
         }
 
-        public static void Release(BezierCore core)
-            => objectPools.Release(core);
+        public static void Release(Bezier core)
+        {            
+            core.OnCompleted?.Invoke(Time.time - core.InitalTime);
+            objectPools.Release(core);
+        }
 
         public BezierRuntimeMode Mode { get; private set; } = BezierRuntimeMode.OnUpdate;
 
-        private void OnInit(BezierRuntimeMode Mode, Transform User, List<Vector3> paths)
+        private void OnInit(BezierRuntimeMode Mode, List<Vector3> paths)
         {
-            this.user = User;
+            InitalTime = Time.time;
             this.Mode = Mode;
-            this.paths = paths;
+            this.paths = paths;         
         }
 
         public void Reset()
@@ -57,12 +63,17 @@ namespace YukiFrameWork
             paths?.Clear();
             currentLength = 0;
             OnCompleted = null;
+            Condition = null;
             OnUpdate = null;
         }
 
-        public event Action<Transform> OnCompleted = null;
+        public event Action<float> OnCompleted = null;
+        public event Action OnUpdate = null;
 
-        public Func<bool> OnUpdate = null;
+        public void UpdateInvoke()
+            => OnUpdate?.Invoke();
+
+        public Func<bool> Condition = null;     
               
     }
 }

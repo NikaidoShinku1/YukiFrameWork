@@ -51,6 +51,11 @@ namespace YukiFrameWork
             
         }
 
+        public override string ToString()
+        {
+            return value.ToString();
+        }
+
         /// <summary>
         /// 注册事件
         /// </summary>
