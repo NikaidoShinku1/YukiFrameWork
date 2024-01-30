@@ -18,8 +18,13 @@ namespace YukiFrameWork.Extension
             if (config == null)
             {
                 config = ScriptableObject.CreateInstance<FrameworkEasyConfig>();
-
-                AssetDatabase.CreateAsset(config, "Assets/Resources/frameworkConfig.asset");
+                string directionPath = "Assets/Resources";
+                if (!Directory.Exists(directionPath))
+                {
+                    Directory.CreateDirectory(directionPath);
+                    AssetDatabase.Refresh();
+                }
+                AssetDatabase.CreateAsset(config, directionPath + "/frameworkConfig.asset");
             }
 
             Config = config;
