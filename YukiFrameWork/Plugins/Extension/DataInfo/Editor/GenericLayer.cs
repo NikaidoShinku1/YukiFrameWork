@@ -25,6 +25,8 @@ namespace YukiFrameWork.Extension
                     AssetDatabase.Refresh();
                 }
                 AssetDatabase.CreateAsset(config, directionPath + "/frameworkConfig.asset");
+                config.genericPath = "Assets/Scripts";
+                config.NameSpace = "YukiFrameWork.Project";
             }
 
             Config = config;
