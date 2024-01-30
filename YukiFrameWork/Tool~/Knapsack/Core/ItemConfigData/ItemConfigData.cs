@@ -10,16 +10,13 @@ namespace YukiFrameWork.Knapsack
 
     [Serializable]
     public class ItemConfigData : ScriptableObject
-    {
-        [HideInInspector]
+    {      
         [SerializeField] private string projectName;
-
-        [HideInInspector]
+      
         [SerializeField] private string projectPath;
       
         [SerializeField] private LoadType loadType = LoadType.ABManager;
-
-        [HideInInspector]
+       
         [SerializeField] private ItemUI handItemPrefab;     
 
         public string ProjectName

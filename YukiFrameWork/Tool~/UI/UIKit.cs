@@ -174,6 +174,7 @@ namespace YukiFrameWork.UI
                 panel.OnInit();
                 creativityPanels[panel.Level].Add(panel);
             }
+            panel.transform.SetAsLastSibling();
             AddStackPanel(panel, panel.Level);
             return panel;
         }

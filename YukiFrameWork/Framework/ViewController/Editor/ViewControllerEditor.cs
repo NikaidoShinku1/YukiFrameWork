@@ -48,6 +48,7 @@ namespace YukiFrameWork.Extension
         private void Awake()
         {         
             ViewController controller = target as ViewController;
+            if (controller == null) return;
             controller.Data ??= new CustomData();
 
             if (string.IsNullOrEmpty(controller.Data.ScriptName))
@@ -64,6 +65,7 @@ namespace YukiFrameWork.Extension
         private void OnEnable()
         {            
             ViewController controller = target as ViewController;
+            if (controller == null) return;
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
           
             layer = new ViewControllerLayer(controller.Data,target.GetType());
@@ -78,15 +80,15 @@ namespace YukiFrameWork.Extension
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }
             controller.Data.ScriptNamespace = layer.Config.NameSpace;
-            controller.Data.ScriptPath = layer.Config.genericPath;          
+                
             BindAllField(controller);          
         }
 
         private void OnDisable()
         {
             ViewController controller = target as ViewController;
-            layer.Config.NameSpace = controller.Data.ScriptNamespace;
-            layer.Config.genericPath = controller.Data.ScriptPath;
+            if (controller == null) return; 
+            layer.Config.NameSpace = controller.Data.ScriptNamespace;          
         }
 
         private void BindAllField(ViewController controller)

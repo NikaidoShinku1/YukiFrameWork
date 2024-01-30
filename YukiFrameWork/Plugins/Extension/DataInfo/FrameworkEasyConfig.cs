@@ -7,8 +7,6 @@ namespace YukiFrameWork
 {
     public class FrameworkEasyConfig : ScriptableObject
     {
-        public string NameSpace;
-
-        public string genericPath;     
+        public string NameSpace;      
     }
 }
