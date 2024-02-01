@@ -59,6 +59,8 @@
 
 #### 框架更新版本速览
 
+V1.7.4 新增对Unity 部分API的封装拓展。
+
 V1.7.3:修改资源管理模块的命名空间为YukiFrameWork.XFABManager;
 
 V1.7.2:修复ActionKit在编辑器下偶尔会出现不触发回调的问题
