@@ -20,6 +20,8 @@ namespace YukiFrameWork.States
         private string filePath = @"Assets/Scripts/";
         private string fileName = "NewStateBehaviour";
 
+        private List<Type> behaviourTypes = new List<Type>();
+
         private bool isRecomposeScript = false;      
         public override void OnInspectorGUI()
         {
@@ -310,42 +312,52 @@ namespace YukiFrameWork.States
             {
                 if (GUILayout.Button("添加状态脚本"))
                 {
+                    behaviourTypes.Clear();
                     isRecomposeScript = true;
-                }
-            }
-            else
-            {               
-                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (var assembly in assemblies)
-                {
-                    if (assembly.FullName.StartsWith("UnityEditor") || assembly.FullName.StartsWith("UnityEngine")
-                        || assembly.FullName.StartsWith("System") || assembly.FullName.StartsWith("Microsoft"))
-                        continue;
-                    Type[] types = AssemblyHelper.GetTypes(assembly);
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-                    foreach (var infoType in types)
+                    foreach (var assembly in assemblies)                    
                     {
-                        if (infoType.BaseType == typeof(StateBehaviour))
+                        if (assembly.FullName.StartsWith("UnityEditor") || assembly.FullName.StartsWith("UnityEngine")
+                        || assembly.FullName.StartsWith("System") || assembly.FullName.StartsWith("Microsoft"))
+                            continue;
+
+                        foreach (var infoType in assembly.GetTypes())
                         {
-                            string typeName = infoType.FullName;
-                            if (GUILayout.Button(infoType.Name))
+                            if (infoType.BaseType == typeof(StateBehaviour))
                             {
-                                if (state.dataBases.Find(x => x.typeName.Equals(typeName)) == null)
-                                {
-                                    StateDataBase stateDataBase = new StateDataBase()
-                                    {
-                                        typeName = typeName,
-                                        index = state.index,
-                                        isActive = true
-                                    };
-                                    state.dataBases.Add(stateDataBase);
-                                }
-                                isRecomposeScript = false;
+                                behaviourTypes.Add(infoType);
                             }
                         }
                     }
+                   
                 }
-                
+            }
+            else
+            {                              
+                foreach (var infoType in behaviourTypes)
+                {
+                    if (infoType.BaseType == typeof(StateBehaviour))
+                    {
+                        string typeName = infoType.FullName;
+                        if (GUILayout.Button(infoType.Name))
+                        {
+                            if (state.dataBases.Find(x => x.typeName.Equals(typeName)) == null)
+                            {
+                                StateDataBase stateDataBase = new StateDataBase()
+                                {
+                                    typeName = typeName,
+                                    index = state.index,
+                                    isActive = true
+                                };
+                                state.dataBases.Add(stateDataBase);
+                            }
+                            isRecomposeScript = false;
+                        }
+                    }
+                }
+
+
                 EditorGUILayout.Space();
 
                 EditorGUILayout.BeginHorizontal();
