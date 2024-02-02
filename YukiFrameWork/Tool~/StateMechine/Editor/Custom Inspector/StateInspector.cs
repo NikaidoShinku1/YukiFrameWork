@@ -17,7 +17,7 @@ namespace YukiFrameWork.States
     {
         private string stateName;    
 
-        private string filePath = @"Assets/Scripts/";
+        private string filePath = @"Assets/Scripts";
         private string fileName = "NewStateBehaviour";
 
         private List<Type> behaviourTypes = new List<Type>();
@@ -394,7 +394,7 @@ namespace YukiFrameWork.States
                 Debug.LogError("文件名称含有不对的字符，无法作为文件名生成请重试！");
                 return;
             }
-            string targetPath = filePath + fileName + ".cs";
+            string targetPath = filePath + "/" + fileName + ".cs";
             if (!Directory.Exists(targetPath))
             {
                 Directory.CreateDirectory(filePath);
