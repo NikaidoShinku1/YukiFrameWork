@@ -47,9 +47,7 @@ namespace YukiFrameWork.States
             
             LoadScriptData(helper.node);         
 
-            EditorGUI.EndDisabledGroup();
-
-            Repaint();
+            EditorGUI.EndDisabledGroup();        
         }
 
         private void LoadScriptData(StateBase state)
@@ -57,6 +55,7 @@ namespace YukiFrameWork.States
             EditorGUILayout.Space(10);          
             for (int i = 0; i < state.dataBases.Count; i++)
             {
+                EditorGUILayout.Space();
                 var rect = EditorGUILayout.BeginHorizontal();
                 state.dataBases[i].isActive = EditorGUILayout.ToggleLeft(state.dataBases[i].typeName, state.dataBases[i].isActive);
                 SelectScriptMenu(rect, state.dataBases[i].typeName);
@@ -67,8 +66,7 @@ namespace YukiFrameWork.States
                     continue;
                 }                
 
-                EditorGUILayout.EndHorizontal();
-                               
+                EditorGUILayout.EndHorizontal();                               
                 SerializationStateField(state.dataBases[i]);
             }
             EditorGUILayout.Space();
@@ -316,21 +314,20 @@ namespace YukiFrameWork.States
                 }
             }
             else
-            {
-                //Type[] types = Assembly.GetAssembly(typeof(StateBehaviour)).GetTypes();
+            {               
                 Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 foreach (var assembly in assemblies)
                 {
                     if (assembly.FullName.StartsWith("UnityEditor") || assembly.FullName.StartsWith("UnityEngine")
                         || assembly.FullName.StartsWith("System") || assembly.FullName.StartsWith("Microsoft"))
                         continue;
-                    Type[] types = assembly.GetTypes();
+                    Type[] types = AssemblyHelper.GetTypes(assembly);
 
                     foreach (var infoType in types)
                     {
                         if (infoType.BaseType == typeof(StateBehaviour))
                         {
-                            string typeName = infoType.Namespace + "." + infoType.Name;
+                            string typeName = infoType.FullName;
                             if (GUILayout.Button(infoType.Name))
                             {
                                 if (state.dataBases.Find(x => x.typeName.Equals(typeName)) == null)
@@ -413,7 +410,7 @@ namespace YukiFrameWork.States
 
                 string content = textAsset.text;
                 content = content.Replace("#SCRIPTNAME#", fileName);
-                content = content.Replace("YukiFrameWork.Project", config != null ? config.NameSpace : "YukiFrameWork.Project");
+                content = content.Replace("YukiFrameWork.Project", config != null && !string.IsNullOrEmpty(config.NameSpace) ? config.NameSpace : "YukiFrameWork.Project");
                 StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
                 sw.Write(content);
 
