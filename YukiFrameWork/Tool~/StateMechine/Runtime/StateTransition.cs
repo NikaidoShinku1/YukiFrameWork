@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -62,16 +63,23 @@ namespace YukiFrameWork.States
             {
                 Debug.LogError("查询目标状态失败！");
                 return;
-            }         
+            }
 
-            if (!transitionData.fromStateName.Equals(stateManager.CurrentState?.name))
+            try
             {
+                if (!transitionData.fromStateName.Equals(stateManager.CurrentState?.name))
+                {
 
-                if (stateManager.CurrentState.name.Equals(transitionData.toStateName))
-                    return;
-            }                    
+                    if (stateManager.CurrentState.name.Equals(transitionData.toStateName))
+                        return;
+                }
 
-            stateManager.OnChangeState(toState);
+                stateManager.OnChangeState(toState);
+            }
+            catch(Exception ex)
+            {
+                throw LogKit.Exception("有限条件的判断不应该在初始化的时候进行! " + ex);
+            }
 
 
         }

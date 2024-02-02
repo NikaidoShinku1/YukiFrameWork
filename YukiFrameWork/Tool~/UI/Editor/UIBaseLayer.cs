@@ -1,7 +1,8 @@
-#if UNITY_EDITOR
+Ôªø#if UNITY_EDITOR
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 using YukiFrameWork.Extension;
@@ -73,8 +74,125 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
-            GenericScripts(Data, "UIPanelScripts","”…øÚº‹¥¥Ω®µƒUI√Ê∞Â…˙√¸÷‹∆⁄¿‡");
+            GenericScripts();
             GUILayout.EndVertical();
+        }
+
+        public override void GenericScripts()
+        {
+            string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
+
+            if (!File.Exists(scriptFilePath))
+            {
+                if (GUILayout.Button(GenericScriptDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    builder.AppendLine("///=====================================================");
+                    builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
+                    builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
+                    builder.AppendLine("/// - Description:   Ê°ÜÊû∂Ëá™ÂÆöBasePanel");
+                    builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+                    builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+                    builder.AppendLine("/// -  All Rights Reserved.");
+                    builder.AppendLine("///=====================================================");
+
+                    builder.AppendLine("using YukiFrameWork.UI;");
+                    builder.AppendLine("using UnityEngine;");
+                    builder.AppendLine("using UnityEngine.UI;");
+                    builder.AppendLine("using TMPro;");
+                    builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                    builder.AppendLine("{");                   
+                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : BasePanel");
+                    builder.AppendLine("\t{");
+                    builder.AppendLine("\t\tpublic override void OnInit()");
+                    builder.AppendLine("\t\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t\t}");
+                    builder.AppendLine("\t\tpublic override void OnEnter()");
+                    builder.AppendLine("\t\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t\t}");
+                    builder.AppendLine("\t\tpublic override void OnPause()");
+                    builder.AppendLine("\t\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t\t}");
+                    builder.AppendLine("\t\tpublic override void OnResume()");
+                    builder.AppendLine("\t\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t\t}");
+                    builder.AppendLine("\t\tpublic override void OnExit()");
+                    builder.AppendLine("\t\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t\t}");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t}");
+
+                    builder.AppendLine("}");
+                    if (string.IsNullOrEmpty(Data.ScriptPath))
+                    {
+                        Debug.LogError((GenericScriptDataInfo.IsEN ? "Cannot create script because path is empty!" : "Ë∑ØÂæÑ‰∏∫Á©∫Êó†Ê≥ïÂàõÂª∫ËÑöÊú¨!"));
+                        return;
+                    }
+
+                    if (!Directory.Exists(Data.ScriptPath))
+                    {
+                        Directory.CreateDirectory(Data.ScriptPath);
+                        AssetDatabase.Refresh();
+                    }
+
+                    if (File.Exists(scriptFilePath))
+                    {
+                        Debug.LogError((GenericScriptDataInfo.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"ËÑöÊú¨Â∑≤ÁªèÂ≠òÂú®ËØ•Êñá‰ª∂Â§π! Path:{scriptFilePath}"));
+                        return;
+                    }
+
+                    using (FileStream fileStream = new FileStream(scriptFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    {
+                        StreamWriter streamWriter = new StreamWriter(fileStream,Encoding.UTF8);
+
+                        streamWriter.Write(builder);
+
+                        streamWriter.Close();
+
+                        fileStream.Close();
+                        //Ê≠£Âú®ÊîπÂèòËÑöÊú¨
+                        Data.OnLoading = true;
+
+                    }
+
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+
+                }
+            }
+            else
+            {
+                GUILayout.BeginVertical();
+                MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptFilePath);
+                if (GUILayout.Button(GenericScriptDataInfo.SelectScriptBtn, GUILayout.Height(30)))
+                {
+                    Selection.activeObject = monoScript;
+                }
+                string partialPath = Data.ScriptPath + @"/" + Data.ScriptName + ".Example" + ".cs";
+                MonoScript partial = AssetDatabase.LoadAssetAtPath<MonoScript>(partialPath);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button(GenericScriptDataInfo.OpenScriptBtn, GUILayout.Height(30)))
+                {
+                    AssetDatabase.OpenAsset(monoScript);
+                }
+
+                if (partial != null)
+                {
+                    if (GUILayout.Button(GenericScriptDataInfo.OpenPartialScriptBtn, GUILayout.Height(30)))
+                    {
+                        AssetDatabase.OpenAsset(partial);
+                    }
+                }
+
+                EditorGUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+            }
         }
 
     }

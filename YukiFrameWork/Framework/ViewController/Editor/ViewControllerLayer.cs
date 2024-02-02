@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEditor;
 using YukiFrameWork.Extension;
 using System.Reflection;
+using System.IO;
+using System.Text;
 namespace YukiFrameWork
 {
     [Serializable]
@@ -101,6 +103,104 @@ namespace YukiFrameWork
             }
 
             EditorGUI.EndDisabledGroup();      
+        }
+
+        public override void GenericScripts()
+        {
+            string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
+
+            if (!File.Exists(scriptFilePath))
+            {
+                if (GUILayout.Button(GenericScriptDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    builder.AppendLine("///=====================================================");
+                    builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
+                    builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
+                    builder.AppendLine("/// - Description:   框架自定ViewController");
+                    builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+                    builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+                    builder.AppendLine("/// -  All Rights Reserved.");
+                    builder.AppendLine("///=====================================================");
+
+                    builder.AppendLine("using YukiFrameWork;");
+                    builder.AppendLine("using UnityEngine;");
+                    builder.AppendLine("using System;");
+                    builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                    builder.AppendLine("{");
+                    if(Data.IsAutoMation && Data.AutoArchitectureIndex != 0)
+                        builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({Data?.AutoInfos[Data.AutoArchitectureIndex]}),true)]");
+                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : ViewController");
+                    builder.AppendLine("\t{");
+                    builder.AppendLine("");
+                    builder.AppendLine("\t}");
+
+                    builder.AppendLine("}");
+                    if (string.IsNullOrEmpty(Data.ScriptPath))
+                    {
+                        Debug.LogError((GenericScriptDataInfo.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
+                        return;
+                    }
+
+                    if (!Directory.Exists(Data.ScriptPath))
+                    {
+                        Directory.CreateDirectory(Data.ScriptPath);
+                        AssetDatabase.Refresh();
+                    }
+
+                    if (File.Exists(scriptFilePath))
+                    {
+                        Debug.LogError((GenericScriptDataInfo.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
+                        return;
+                    }
+
+                    using (FileStream fileStream = new FileStream(scriptFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    {
+                        StreamWriter streamWriter = new StreamWriter(fileStream,Encoding.UTF8);
+
+                        streamWriter.Write(builder);
+
+                        streamWriter.Close();
+
+                        fileStream.Close();
+                        //正在改变脚本
+                        Data.OnLoading = true;
+
+                    }
+
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+
+                }
+            }
+            else
+            {
+                GUILayout.BeginVertical();
+                MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptFilePath);
+                if (GUILayout.Button(GenericScriptDataInfo.SelectScriptBtn, GUILayout.Height(30)))
+                {
+                    Selection.activeObject = monoScript;
+                }
+                string partialPath = Data.ScriptPath + @"/" + Data.ScriptName + ".Example" + ".cs";
+                MonoScript partial = AssetDatabase.LoadAssetAtPath<MonoScript>(partialPath);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button(GenericScriptDataInfo.OpenScriptBtn, GUILayout.Height(30)))
+                {
+                    AssetDatabase.OpenAsset(monoScript);
+                }
+
+                if (partial != null)
+                {
+                    if (GUILayout.Button(GenericScriptDataInfo.OpenPartialScriptBtn, GUILayout.Height(30)))
+                    {
+                        AssetDatabase.OpenAsset(partial);
+                    }
+                }
+
+                EditorGUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+            }
         }
 
         private void SelectArchitecture(CustomData Data)

@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+ï»¿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,10 +36,9 @@ namespace YukiFrameWork.UI
         {
             BasePanel panel = target as BasePanel;
             if (panel == null) return;
-
+            layer ??= new UIBaseLayer(panel.Data, target.GetType());
             if (panel?.Data.OnLoading == false)
-            {
-                layer ??= new UIBaseLayer(panel.Data, target.GetType());
+            {                
                 if (bind == null)
                 {
                     bind = new BindLayer(panel);
@@ -119,8 +118,8 @@ namespace YukiFrameWork.UI
             FileMode fileMode = File.Exists(examplePath) ? FileMode.Open : FileMode.Create;
 
             builder.AppendLine("///=====================================================");
-            builder.AppendLine("///ÕâÊÇÓÉ´úÂë¹¤¾ßÉú³ÉµÄ´úÂëÎÄ¼ş,ÇëÎğÊÖ¶¯¸Ä¶¯´ËÎÄ¼ş!");
-            builder.AppendLine("///Èç¹ûÔÚ´úÂëÀïÃüÃû¿Õ¼ä½øĞĞÁË±ä¶¯,ÇëÔÚ±à¼­Æ÷ÉèÖÃÒ²¶ÔÃüÃû¿Õ¼ä×÷³öÏàÍ¬ĞŞ¸Ä!");
+            builder.AppendLine("///è¿™æ˜¯ç”±ä»£ç å·¥å…·ç”Ÿæˆçš„ä»£ç æ–‡ä»¶,è¯·å‹¿æ‰‹åŠ¨æ”¹åŠ¨æ­¤æ–‡ä»¶!");
+            builder.AppendLine("///å¦‚æœåœ¨ä»£ç é‡Œå‘½åç©ºé—´è¿›è¡Œäº†å˜åŠ¨,è¯·åœ¨ç¼–è¾‘å™¨è®¾ç½®ä¹Ÿå¯¹å‘½åç©ºé—´ä½œå‡ºç›¸åŒä¿®æ”¹!");
             builder.AppendLine("///=====================================================");
 
             builder.AppendLine("using YukiFrameWork;");

@@ -137,7 +137,9 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space(20);
 
             EditorGUILayout.BeginHorizontal();
-            layer?.GenericScripts(controller.Data, controller.Data.IsAutoMation? "ViewController(Auto)" : "ViewController","框架自定ViewController");
+            {
+                layer?.GenericScripts();
+            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(15);          
@@ -149,7 +151,7 @@ namespace YukiFrameWork.Extension
                 AddEventCenter(controller);
             }
             GUILayout.EndVertical();           
-        }      
+        }    
 
         private void AddEventCenter(ViewController controller)
         {
