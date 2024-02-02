@@ -44,38 +44,12 @@ namespace YukiFrameWork.States
         public override void OnInspectorGUI()
         {
             TransitionInspectorHelper helper = target as TransitionInspectorHelper;
-            if (helper == null) return;
+            if (helper == null) return;           
+            reorderableList.list = helper.transition.conditions;
+            //绘制类似动画状态机的参数设置
+            reorderableList.DoLayoutList();
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("过渡条件方式：");
-            helper.transition.transitionMode = (TransitionMode)EditorGUILayout.EnumPopup(helper.transition.transitionMode);
-            EditorGUILayout.EndHorizontal();
 
-            switch (helper.transition.transitionMode)
-            {
-                case TransitionMode.动画剪辑模式:
-                    EditorGUILayout.Space();
-                    GUILayout.Label("该模式下需要当前过渡的初始状态的动画模式不为None。\n并且设置了默认动画，初始状态为：" + helper.transition.fromStateName);
-                    break;
-                case TransitionMode.定时模式:
-                    EditorGUILayout.Space();
-                    GUILayout.Label("该模式下状态定时，单位为秒,到达时间后退出该状态(必须要与其他状态拥有过渡，否则会出问题");
-                    EditorGUILayout.BeginHorizontal();
-
-                    GUILayout.Label("定时时间");
-                    helper.transition.stateLoadTime = EditorGUILayout.FloatField(helper.transition.stateLoadTime);
-                    EditorGUILayout.EndHorizontal();
-                    break;
-                case TransitionMode.有限条件模式:
-                    {
-                        reorderableList.list = helper.transition.conditions;
-
-                        //绘制类似动画状态机的参数设置
-                        reorderableList.DoLayoutList();
-                    }
-                    break;               
-            }
-           
         }
 
         protected override void OnHeaderGUI()

@@ -1,6 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Linq;
 using UnityEngine;
+using YukiFrameWork.Extension;
 
 
 namespace YukiFrameWork.States
@@ -13,7 +14,7 @@ namespace YukiFrameWork.States
         [HideField]
         public int index;
 
-        public StateManager StateManager { get; set; } 
+        public IState StateManager { get; set; } 
 
         protected Transform transform => StateManager.transform;
         
@@ -21,19 +22,20 @@ namespace YukiFrameWork.States
 
         protected StateBase state => StateManager.runTimeStatesDict[index];
 
+        [Obsolete("该字段已经弃用,请使用transform.GetComponent查找组件")]
+        protected Animator animator;
+        [Obsolete("该字段已经弃用,请使用transform.GetComponent查找组件")]
+        protected Animation animation;
+
         protected StateDataBase stateBehaviourData
         {
             get
             {
                 if (_dataBase == null)
-                    _dataBase = state.dataBases.Find(x => x.typeName == this.GetType().Namespace +"."+ this.GetType().Name);
+                    _dataBase = state.dataBases.Find(x => x.typeName == this.GetType().FullName);
                 return _dataBase;
             }
-        }
-
-        protected Animator animator => state.animData.animator;
-
-        protected Animation animation => state.animData.animation;
+        }     
 
         protected bool enabled
         {
@@ -55,100 +57,115 @@ namespace YukiFrameWork.States
         #endregion
 
         #region Unity API拓展
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerEnterEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerEnter(Collider other)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerStayEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerStay(Collider other)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerExitEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerExit(Collider other)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerEnter2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerEnter2D(Collider2D collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerExit2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerExit2D(Collider2D collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindTriggerStay2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnTriggerStay2D(Collider2D collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionEnterEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionEnter(Collision collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionStayEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionStay(Collision collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionExitEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionExit(Collision collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionEnter2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionEnter2D(Collision2D collision)
         {
 
         }
 
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionStay2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionStay2D(Collision2D collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindCollisionExit2DEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnCollisionExit2D(Collision2D collision)
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseDownEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseDown()
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseDragEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseDrag()
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseEnterEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseEnter()
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseExitEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseExit()
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseUpEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseUp()
         {
 
         }
-
+        [Obsolete("该方法不推荐使用,请使用transform.BindMouseOverEvent")]
+        [MethodAPI("弃用的拓展")]
         public virtual void OnMouseOver()
         {
 
-        }
-
-        public virtual void OnValidate()
-        {
-
-        }
+        }      
         #endregion
 
         protected void OnChangeState(int index)
@@ -173,7 +190,6 @@ namespace YukiFrameWork.States
             => StateManager.GetInt(name);
 
         protected float GetFloat(string name)
-            => StateManager.GetFloat(name);
-
+            => StateManager.GetFloat(name);     
     }
 }

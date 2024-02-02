@@ -4,7 +4,7 @@ ViewController编辑器使用说明
 ```
 
     ///首先创建一个架构类
-    using YukiFrameWork.Events;
+    using YukiFrameWork;
     public class PointGame : Architecture<PointGame>
     {
         ///需要重写的初始化方法

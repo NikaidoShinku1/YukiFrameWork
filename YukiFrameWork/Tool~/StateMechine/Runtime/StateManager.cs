@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Extension;
@@ -21,20 +22,25 @@ namespace YukiFrameWork
 }
 namespace YukiFrameWork.States
 {
-    public class StateManager : MonoBehaviour
+    public class StateManager : MonoBehaviour, IState
     {
         #region 字段      
         public InitType initType;
 
         public DeBugLog deBugLog;
+
+        public Animation _animation;
+        public Animator _animator;
         
         public StateMechine stateMechine;      
         
-        public StateBase CurrentState { get; set; } = null;
+        public StateBase CurrentState { get; set; } = null;        
 
-        internal Dictionary<string, StateParameterData> parametersDict = DictionaryPools<string,StateParameterData>.Get();
+        public Dictionary<string,StateParameterData> ParamterDicts => parametersDict;
 
-        internal readonly Dictionary<int, StateBase> runTimeStatesDict = DictionaryPools<int, StateBase>.Get();
+        private Dictionary<string, StateParameterData> parametersDict = DictionaryPools<string,StateParameterData>.Get();
+
+        public Dictionary<int, StateBase> runTimeStatesDict { get; } = DictionaryPools<int, StateBase>.Get();
 
         internal List<StateTransition> transitions = ListPools<StateTransition>.Get();
 
@@ -51,6 +57,16 @@ namespace YukiFrameWork.States
 
         private void Awake()
         {
+           /* _animation.Play();
+            _animation.GetClip();
+            _animation.GetClipCount();           
+            _animation.Stop();
+            _animator.PlayInFixedTime();
+            _animator.Play();
+            _animator.SetBool();           
+            _animator.SetTrigger();
+            _animator.SetFloat();
+            _animator.SetInteger();*/
             if (initType == InitType.Awake) Init();
         }
 
@@ -61,16 +77,7 @@ namespace YukiFrameWork.States
 
         private void Update()
         {
-            CurrentState?.OnUpdate();
-
-            if (CurrentState != null && transitions.Count > 0)
-            {
-                for (int i = 0; i < transitions.Count; i++)
-                {
-                    transitions[i].CheckConditionOrAnimIsMeet(CurrentState);
-                    transitions[i].CheckConditionOrTimeIsMeet();
-                }
-            }
+            CurrentState?.OnUpdate();         
         }
 
         private void FixedUpdate()
@@ -251,17 +258,14 @@ namespace YukiFrameWork.States
             {
                 foreach (var transition in transitions)
                 {
-                    if (transition.TransitionMode == TransitionMode.有限条件模式)
-                        foreach (var condition in transition.conditions)
-                            condition.CheckParameterValueChange();
-                    else
-                        transition.CheckConditionOrAnimIsMeet(CurrentState);
+                    foreach (var condition in transition.conditions)
+                        condition.CheckParameterValueChange();
                 }
                 isDefaultTransition = true;
             }
         }
 
-        internal void OnChangeState(StateBase state, System.Action callBack = null, bool isBack = true)
+        public void OnChangeState(StateBase state, System.Action callBack = null, bool isBack = true)
         {   
             if (state == null) return;
             CurrentState?.OnExit(isBack);
@@ -275,7 +279,7 @@ namespace YukiFrameWork.States
             isDefaultTransition = false;
         }
 
-        internal void OnChangeState(int index, System.Action callBack = null, bool isBack = true)
+        public void OnChangeState(int index, System.Action callBack = null, bool isBack = true)
         {
             /*#if UNITY_EDITOR
                         isDrawLine = false;
@@ -284,7 +288,7 @@ namespace YukiFrameWork.States
             OnChangeState(stateBase,callBack,isBack);
         }
 
-        internal void OnChangeState(string name, System.Action callBack = null, bool isBack = true)
+        public void OnChangeState(string name, System.Action callBack = null, bool isBack = true)
         {
             /*#if UNITY_EDITOR
                         isDrawLine = false;
@@ -304,100 +308,97 @@ namespace YukiFrameWork.States
 
         #endregion
 
+        [Obsolete]
         public void OnTriggerEnter(Collider other)
         {
             CurrentState?.OnTriggerEnter(other);
         }
-
+        [Obsolete]
         public void OnTriggerStay(Collider other)
         {
             CurrentState?.OnTriggerStay(other);
         }
-
+        [Obsolete]
         public void OnTriggerExit(Collider other)
         {
             CurrentState?.OnTriggerExit(other);
         }
-
+        [Obsolete]
         public void OnTriggerEnter2D(Collider2D collision)
         {
             CurrentState?.OnTriggerEnter2D(collision);
         }
-
+        [Obsolete]
         public void OnTriggerExit2D(Collider2D collision)
         {
             CurrentState?.OnTriggerExit2D(collision);
         }
-
+        [Obsolete]
         public void OnTriggerStay2D(Collider2D collision)
         {
             CurrentState?.OnTriggerStay2D(collision);
         }
-
+        [Obsolete]
         public void OnCollisionEnter(Collision collision)
         {
             CurrentState?.OnCollisionEnter(collision);
         }
-
+        [Obsolete]
         public void OnCollisionStay(Collision collision)
         {
             CurrentState?.OnCollisionStay(collision);
         }
-
+        [Obsolete]
         public void OnCollisionExit(Collision collision)
         {
             CurrentState?.OnCollisionExit(collision);
         }
-
+        [Obsolete]
         public void OnCollisionEnter2D(Collision2D collision)
         {
             CurrentState?.OnCollisionEnter2D(collision);
         }
-
+        [Obsolete]
         public void OnCollisionStay2D(Collision2D collision)
         {
             CurrentState?.OnCollisionStay2D(collision);
         }
-
+        [Obsolete]
         public void OnCollisionExit2D(Collision2D collision)
         {
             CurrentState?.OnCollisionExit2D(collision);
         }
-
+        [Obsolete]
         public void OnMouseDown()
         {
             CurrentState?.OnMouseDown();
         }
-
+        [Obsolete]
         public void OnMouseDrag()
         {
             CurrentState?.OnMouseDrag();
         }
-
+        [Obsolete]
         public void OnMouseEnter()
         {
             CurrentState?.OnMouseEnter();
         }
-
+        [Obsolete]
         public void OnMouseExit()
         {
             CurrentState?.OnMouseExit();
         }
-
+        [Obsolete]
         public void OnMouseUp()
         {
             CurrentState?.OnMouseUp();
         }
-
+        [Obsolete]
         public void OnMouseOver()
         {
             CurrentState?.OnMouseOver();
         }
-
-        public void OnValidate()
-        {
-            CurrentState?.OnValidate();
-        }
+      
     }
 
 }

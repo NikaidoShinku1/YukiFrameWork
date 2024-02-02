@@ -8,8 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using AssemblyHelper = YukiFrameWork.Extension.AssemblyHelper;
 using Object = UnityEngine.Object;
-using System.Collections;
-using YukiFrameWork.Extension;
 using System.Linq;
 #if UNITY_EDITOR
 namespace YukiFrameWork.States
@@ -17,8 +15,7 @@ namespace YukiFrameWork.States
     [CustomEditor(typeof(StateInspectorHelper))]
     public class StateInspector : Editor
     {
-        private string stateName;
-        private readonly List<string> animClipsName = new List<string>();       
+        private string stateName;    
 
         private string filePath = @"Assets/Scripts/";
         private string fileName = "NewStateBehaviour";
@@ -46,26 +43,13 @@ namespace YukiFrameWork.States
                 stateName = helper.node.name;
                 EditorUtility.SetDirty(helper.StateMechine);
             }
-            GUILayout.Space(10);
+            GUILayout.Space(10);             
+            
+            LoadScriptData(helper.node);         
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("动画模式:");
-            OnSwitchAnimState(helper.node, helper.node.animData.type);
-            helper.node.animData.type = (StateAnimType)EditorGUILayout.EnumPopup(helper.node.animData.type,GUILayout.Width(150));
-            EditorGUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
 
-            if (helper.node.animData.type != StateAnimType.None)
-            {
-                helper.node.animData.isActiveDefaultAnim = EditorGUILayout.ToggleLeft("是否需要当前状态拥有默认动画", helper.node.animData.isActiveDefaultAnim);
-
-                if (helper.node.animData.isActiveDefaultAnim)
-                {
-                    ModifyAnimData(helper.node, helper.node.animData.type);
-                }
-            }           
-            LoadScriptData(helper.node);
-
-            EditorGUI.EndDisabledGroup();          
+            Repaint();
         }
 
         private void LoadScriptData(StateBase state)
@@ -169,7 +153,7 @@ namespace YukiFrameWork.States
             }
 
             EditorGUILayout.EndVertical();
-        }      
+        }
         public void OnEnable()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;           
@@ -419,6 +403,8 @@ namespace YukiFrameWork.States
             {
                 TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");
 
+                FrameworkEasyConfig config = Resources.Load<FrameworkEasyConfig>("frameworkConfig");               
+
                 if (textAsset == null)
                 {
                     Debug.LogError("配置文件丢失请重新下载框架或自行配置！配置文件名称：" + "StateBehaviourScripts.txt");
@@ -426,7 +412,8 @@ namespace YukiFrameWork.States
                 }
 
                 string content = textAsset.text;
-                content = content.Replace("#SCRIPTNAME#", fileName);              
+                content = content.Replace("#SCRIPTNAME#", fileName);
+                content = content.Replace("YukiFrameWork.Project", config != null ? config.NameSpace : "YukiFrameWork.Project");
                 StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
                 sw.Write(content);
 
@@ -437,116 +424,7 @@ namespace YukiFrameWork.States
                 
             }
         }
-
-        /// <summary>
-        /// 修改状态所关联的动画数据
-        /// </summary>
-        /// <param name="state">状态</param>
-        /// <param name="type">状态的动画类型</param>
-        private void ModifyAnimData(StateBase state, StateAnimType type)
-        {
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            animClipsName.Clear();
-            switch (type)
-            {
-                case StateAnimType.None:
-                    {
-                        state.animData.layer = 0;
-                        state.animData.animSpeed = 1;
-                        state.animData.animLength = 100f;
-                    }
-                    break;
-                case StateAnimType.Animator:
-                    {                      
-                        if (state.animData.animator != null && state.animData.animator.runtimeAnimatorController != null)
-                        {
-                            var animState = state.animData.animator.runtimeAnimatorController;
-                            var animClips = animState.animationClips;
-
-                            for (int i = 0; i < animClips.Length; i++)
-                            {
-                                animClipsName.Add(animClips[i].name);
-                            }                 
-                        }
-                        if (animClipsName.Count == 0)
-                        {
-                            if (state.animData.animator == null)
-                                GUILayout.Label("当前动画没有设置该组件!");
-                            else if (state.animData.animator.runtimeAnimatorController == null)
-                                GUILayout.Label("当前动画没有设置runtimeAnimatorController!");
-                            else GUILayout.Label("当前动画没有设置正确的动画剪辑");
-                        }
-                    }
-                    break;
-                case StateAnimType.Animation:
-                    {                     
-                        if (state.animData.animation != null)
-                        {
-                            foreach (AnimationState clip in state.animData.animation)
-                            {
-                                Debug.Log(clip);
-                                animClipsName.Add(clip.clip.name);
-                            }
-                        }
-                        if(animClipsName.Count == 0)
-                        {
-                            if(state.animData.animation == null)
-                                 GUILayout.Label("当前状态没有设置该组件!");
-                            else GUILayout.Label("当前状态没有设置正确的动画剪辑");
-                        }
-                    }
-                    break;
-            }
-            EditorGUILayout.Space();
-            if (type != StateAnimType.None)
-            {
-                SetAnim(state);
-                state.animData.layer = EditorGUILayout.IntField("动画默认图层", state.animData.layer);
-                state.animData.animSpeed = EditorGUILayout.FloatField("动画默认速度", state.animData.animSpeed);
-                state.animData.animLength = EditorGUILayout.FloatField("动画默认长度", state.animData.animLength);
-            }
-            EditorGUILayout.EndVertical();
-        }
-
-        private void SetAnim(StateBase state)
-        {
-            if (animClipsName.Count > 0)
-            {
-                state.animData.clipIndex = EditorGUILayout.Popup("默认动画选择", state.animData.clipIndex, animClipsName.ToArray());
-                if (animClipsName.Count > 0 && state.animData.clipIndex != -1 && !string.IsNullOrEmpty(animClipsName[state.animData.clipIndex]))
-                    state.animData.clipName = animClipsName[state.animData.clipIndex];
-            }
-        }
-
-        private void OnSwitchAnimState(StateBase state,StateAnimType type)
-        {          
-            switch (type)
-            {
-                case StateAnimType.None:
-                    {
-                        GUILayout.Label("当前模式不会使用Unity动画系统");
-                        state.animData.animator = null;
-                        state.animData.animation = null;
-                    }
-                   
-                    break;
-                case StateAnimType.Animator:
-                    {
-                        GUILayout.Label("新版动画:");                       
-                        state.animData.animator = (Animator)EditorGUILayout.ObjectField(state.animData.animator, typeof(Animator), true);                     
-                    }
-                    break;
-                case StateAnimType.Animation:
-                    {
-                        GUILayout.Label("旧版动画:");
-                        state.animData.animation = (Animation)EditorGUILayout.ObjectField(state.animData.animation, typeof(Animation), true);                      
-                    }
-                    break;              
-            }
-            EditorGUILayout.Space();
-           
-        }
-
+              
         protected override void OnHeaderGUI()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;

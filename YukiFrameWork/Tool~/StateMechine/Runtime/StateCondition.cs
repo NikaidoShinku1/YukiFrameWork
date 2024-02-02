@@ -32,13 +32,13 @@ namespace YukiFrameWork.States
 
         #region 方法
 
-        public StateCondition(StateConditionData conditionData,StateManager manager)
+        public StateCondition(StateConditionData conditionData,IState manager)
         {
             this.conditionData = conditionData;
 
-            if (manager.parametersDict.ContainsKey(conditionData.parameterName))
+            if (manager.ParamterDicts.ContainsKey(conditionData.parameterName))
             {
-                parameterData = manager.parametersDict[this.conditionData.parameterName];
+                parameterData = manager.ParamterDicts[this.conditionData.parameterName];
             }
 
             if (parameterData != null)
