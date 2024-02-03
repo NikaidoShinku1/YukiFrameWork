@@ -23,3 +23,5 @@ ViewController编辑器使用说明
 ![输入图片说明](Texture/controller4.png)
 
 默认开启,如果选择关闭的话则创建默认的ViewController脚本。
+
+注意:在Hierarchy视图中中右键YukiFrameWork-Create ViewController创建出来的ViewController对象在2021以上才享受Unity的撤销功能!

@@ -10,26 +10,10 @@ namespace YukiFrameWork.Extension
 {
     public abstract class GenericLayer 
     {
-        public bool IsPlaying => Application.isPlaying;
-        public FrameworkEasyConfig Config { get; }
+        public bool IsPlaying => Application.isPlaying;       
         public GenericLayer(GenericDataBase data, Type targetType)
         {
-            FrameworkEasyConfig config = Resources.Load<FrameworkEasyConfig>("frameworkConfig");
-
-            if (config == null)
-            {
-                config = ScriptableObject.CreateInstance<FrameworkEasyConfig>();
-                string directionPath = "Assets/Resources";
-                if (!Directory.Exists(directionPath))
-                {
-                    Directory.CreateDirectory(directionPath);
-                    AssetDatabase.Refresh();
-                }
-                AssetDatabase.CreateAsset(config, directionPath + "/frameworkConfig.asset");              
-                config.NameSpace = "YukiFrameWork.Project";
-            }
-
-            Config = config;
+            
         }
 
         public GenericLayer()

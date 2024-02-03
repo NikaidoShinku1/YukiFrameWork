@@ -52,15 +52,16 @@ namespace YukiFrameWork.UI
                 Update_ScriptGenericScriptDataInfo(path, panel);
                 AssetDatabase.Refresh();
             }
-       
-            panel.Data.ScriptNamespace = layer.Config.NameSpace;
+            string nsp = PlayerPrefs.GetString("UIPanelNameSpace");
+            panel.Data.ScriptNamespace = string.IsNullOrEmpty(nsp) ? "YukiFrameWork.UI.Project" : nsp;
             Bind_AllFieldInfo(panel);           
         }
 
         private void OnDisable()
         {
-            BasePanel panel = target as BasePanel;           
-            panel.Data.ScriptNamespace = layer.Config.NameSpace;
+            BasePanel panel = target as BasePanel;
+            if (panel == null) return;
+            PlayerPrefs.SetString("UIPanelNameSpace", panel.Data.ScriptNamespace);
         }
 
         private void Bind_AllFieldInfo(BasePanel panel)

@@ -56,7 +56,17 @@ namespace YukiFrameWork.States
         #region 方法
 
         private void Awake()
-        {         
+        {
+           /* _animation.Play();
+            _animation.GetClip();
+            _animation.GetClipCount();           
+            _animation.Stop();
+            _animator.PlayInFixedTime();
+            _animator.Play();
+            _animator.SetBool();           
+            _animator.SetTrigger();
+            _animator.SetFloat();
+            _animator.SetInteger();*/
             if (initType == InitType.Awake) Init();
         }
 

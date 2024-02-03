@@ -410,9 +410,7 @@ namespace YukiFrameWork.States
 
             using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");
-
-                FrameworkEasyConfig config = Resources.Load<FrameworkEasyConfig>("frameworkConfig");               
+                TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");                       
 
                 if (textAsset == null)
                 {
@@ -422,7 +420,7 @@ namespace YukiFrameWork.States
 
                 string content = textAsset.text;
                 content = content.Replace("#SCRIPTNAME#", fileName);
-                content = content.Replace("YukiFrameWork.Project", config != null && !string.IsNullOrEmpty(config.NameSpace) ? config.NameSpace : "YukiFrameWork.Project");
+                content = content.Replace("YukiFrameWork.Project", !string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? PlayerPrefs.GetString("NameSpace") : "YukiFrameWork.Project");
                 StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
                 sw.Write(content);
 

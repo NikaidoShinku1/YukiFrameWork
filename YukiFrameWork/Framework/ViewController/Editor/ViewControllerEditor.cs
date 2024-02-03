@@ -34,7 +34,11 @@ namespace YukiFrameWork.Extension
             GameObject gameObject = Selection.activeGameObject;
 
             if (gameObject == null)
+            {
                 gameObject = new GameObject("ViewController");
+
+                Undo.RegisterCreatedObjectUndo(gameObject, "Create ViewController");
+            }
 
             if (gameObject.GetComponent<ViewController>() != null)
             {
@@ -42,7 +46,7 @@ namespace YukiFrameWork.Extension
                 return;
             }
 
-            gameObject.AddComponent<ViewController>(); 
+            Undo.AddComponent<ViewController>(gameObject);
         }
 
         private void Awake()
@@ -79,7 +83,7 @@ namespace YukiFrameWork.Extension
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }
-            controller.Data.ScriptNamespace = layer.Config.NameSpace;
+            controller.Data.ScriptNamespace = string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? "YukiFrameWork.Project" : PlayerPrefs.GetString("NameSpace");
                 
             BindAllField(controller);          
         }
@@ -87,8 +91,8 @@ namespace YukiFrameWork.Extension
         private void OnDisable()
         {
             ViewController controller = target as ViewController;
-            if (controller == null) return; 
-            layer.Config.NameSpace = controller.Data.ScriptNamespace;          
+            if (controller == null) return;
+            PlayerPrefs.SetString("NameSpace", controller.Data.ScriptNamespace);  
         }
 
         private void BindAllField(ViewController controller)

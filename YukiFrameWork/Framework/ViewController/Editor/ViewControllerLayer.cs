@@ -187,14 +187,14 @@ namespace YukiFrameWork
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button(GenericScriptDataInfo.OpenScriptBtn, GUILayout.Height(30)))
                 {
-                    AssetDatabase.OpenAsset(monoScript);
+                    EditorApplication.delayCall += () => AssetDatabase.OpenAsset(monoScript);
                 }
 
                 if (partial != null)
                 {
                     if (GUILayout.Button(GenericScriptDataInfo.OpenPartialScriptBtn, GUILayout.Height(30)))
                     {
-                        AssetDatabase.OpenAsset(partial);
+                        EditorApplication.delayCall += () => AssetDatabase.OpenAsset(partial);
                     }
                 }
 
