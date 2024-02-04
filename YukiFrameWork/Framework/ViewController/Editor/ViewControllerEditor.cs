@@ -83,9 +83,11 @@ namespace YukiFrameWork.Extension
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }
-            controller.Data.ScriptNamespace = string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? "YukiFrameWork.Project" : PlayerPrefs.GetString("NameSpace");
+            controller.Data.ScriptNamespace = string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? "YukiFrameWork.Project" : PlayerPrefs.GetString("NameSpace");   
+            
+            if(controller.Data.IsPartialLoading)           
+                EditorApplication.delayCall = () => BindAllField(controller);
                 
-            BindAllField(controller);          
         }
 
         private void OnDisable()
@@ -97,10 +99,9 @@ namespace YukiFrameWork.Extension
 
         private void BindAllField(ViewController controller)
         {
-            if (!controller.Data.IsPartialLoading || Application.isPlaying) return;
+            if (Application.isPlaying) return;
 
             controller.Data.IsPartialLoading = false;
-
             IEnumerable<FieldInfo> fieldInfos = controller.GetType().GetRuntimeFields();
 
             ISerializedFieldInfo serialized = controller;
@@ -109,15 +110,18 @@ namespace YukiFrameWork.Extension
                 SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
 
                 if (data == null) continue;
-
+                if (data.type == null) continue;             
                 if (!data.type.IsSubclassOf(typeof(Component)))
-                    fieldInfo.SetValue(controller, data.target);
+                    fieldInfo.SetValue(target, data.target);
                 else
                 {
-                    Component component = data.GetComponent();
-                    fieldInfo.SetValue(controller, component);
+                    Component component = data.GetComponent();                 
+                    fieldInfo.SetValue(target, component);
                 }
             }
+
+            EditorUtility.SetDirty(target);
+            AssetDatabase.SaveAssets();
         }      
 
         public override void OnInspectorGUI()
@@ -163,7 +167,7 @@ namespace YukiFrameWork.Extension
             EditorGUI.BeginDisabledGroup(center);           
             if (GUILayout.Button(GenericScriptDataInfo.AddEventInfo, GUILayout.Height(30)))
             {
-                controller.gameObject.AddComponent<RuntimeEventCenter>();
+                Undo.AddComponent<RuntimeEventCenter>(controller.gameObject);
             }
             EditorGUI.EndDisabledGroup();
 
@@ -233,7 +237,7 @@ namespace YukiFrameWork.Extension
 
                 streamWriter.Close();
                 stream.Close();
-                controller.Data.IsPartialLoading = true;
+                controller.Data.IsPartialLoading = true;              
                 AssetDatabase.Refresh();
             }
         }

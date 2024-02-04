@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.Events
@@ -35,7 +33,15 @@ namespace YukiFrameWork.Events
             {             
                 yield return i;
             }         
-        }       
+        }
+
+#if UNITY_EDITOR
+        public void SaveData()
+        {
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+        }
+#endif
 
     }   
 }

@@ -7,7 +7,7 @@ namespace YukiFrameWork.States
 {
     [CustomEditor(typeof(StateManager))]
     public class StateManagerInspector : UnityEditor.Editor
-    {
+    {            
         public override void OnInspectorGUI()
         {           
             StateManager manager = (StateManager)target;
@@ -20,13 +20,26 @@ namespace YukiFrameWork.States
 
             EditorGUI.BeginDisabledGroup(DisabledGroup());
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("状态机初始化方式：");
-            manager.initType = (InitType)EditorGUILayout.EnumPopup(manager.initType);
+            GUILayout.Label("状态机初始化方式：");           
+            var initType = (InitType)EditorGUILayout.EnumPopup(manager.initType);
+            if (manager.initType != initType)
+            {
+                manager.initType = initType;
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssets();
+            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("是否开启调试日志：");
-            manager.deBugLog = (DeBugLog)EditorGUILayout.EnumPopup(manager.deBugLog);
+            var deBug = (DeBugLog)EditorGUILayout.EnumPopup(manager.deBugLog);
+
+            if (manager.deBugLog != deBug)
+            {
+                manager.deBugLog = deBug;
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssets();
+            }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
@@ -48,9 +61,9 @@ namespace YukiFrameWork.States
                     {
                         stateMechine = new GameObject(typeof(StateMechine).Name).AddComponent<StateMechine>();
 
-                        stateMechine.transform.SetParent(manager.transform);                     
-                       
-                        StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));                       
+                        stateMechine.transform.SetParent(manager.transform);
+
+                        StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
                     }
                     manager.stateMechine = stateMechine;
                 }
@@ -60,7 +73,14 @@ namespace YukiFrameWork.States
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("状态机本体：");
 
-                manager.stateMechine =(StateMechine)EditorGUILayout.ObjectField(manager.stateMechine, typeof(StateMechine), true);
+                var mechine = (StateMechine)EditorGUILayout.ObjectField(manager.stateMechine, typeof(StateMechine), true);
+                if (manager.stateMechine != mechine)
+                {
+                    manager.stateMechine = mechine;
+                    EditorUtility.SetDirty(target);
+                    AssetDatabase.SaveAssets();
+
+                }
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.Space();
                 if (GUILayout.Button("打开状态机编辑器",GUILayout.Height(40)))

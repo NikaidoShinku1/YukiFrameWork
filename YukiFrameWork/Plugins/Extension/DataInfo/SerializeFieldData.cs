@@ -62,7 +62,7 @@ namespace YukiFrameWork
         public string Name => target.name;
         public string fieldName;
 
-        public Type type => AssemblyHelper.GetType(mComponents[fieldTypeIndex]);
+        public Type type => fieldLevelIndex > Components.Count - 1 || fieldLevelIndex < 0 ? null : AssemblyHelper.GetType(Components[fieldTypeIndex]);
 
         public SerializeFieldData(Object target)
         {
@@ -74,11 +74,15 @@ namespace YukiFrameWork
 
         public T GetComponent<T>() where T : Component
         {
-            return gameObject?.GetComponent<T>();
+            return GetComponent() as T;
         }
 
         public Component GetComponent()
-            => gameObject?.GetComponent(type);
+        {
+            if (type == null || gameObject == null) return null;
+
+            return gameObject.GetComponent(type);
+        }
 
 
     }

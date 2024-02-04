@@ -59,11 +59,15 @@ namespace YukiFrameWork.Events
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+",GUILayout.Width(30)))
             {
+                Undo.RecordObject(eventCenter,"Add Event");
                 eventCenter.AddEventCenter(new EventCenter());
+                eventCenter.SaveData();
             }
             if (GUILayout.Button("-",GUILayout.Width(30)))
             {
+                Undo.RecordObject(eventCenter, "Delete Event");
                 eventCenter.RemoveEventCenter(selectIndex == -1 ? default : selectIndex);
+                eventCenter.SaveData();
             }                     
 
             EditorGUILayout.EndHorizontal();

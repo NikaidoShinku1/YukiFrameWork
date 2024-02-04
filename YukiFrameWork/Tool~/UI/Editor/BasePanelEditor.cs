@@ -54,7 +54,9 @@ namespace YukiFrameWork.UI
             }
             string nsp = PlayerPrefs.GetString("UIPanelNameSpace");
             panel.Data.ScriptNamespace = string.IsNullOrEmpty(nsp) ? "YukiFrameWork.UI.Project" : nsp;
-            Bind_AllFieldInfo(panel);           
+
+            if(panel.Data.IsPartialLoading)
+                EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);
         }
 
         private void OnDisable()
@@ -66,7 +68,7 @@ namespace YukiFrameWork.UI
 
         private void Bind_AllFieldInfo(BasePanel panel)
         {
-            if (!panel.Data.IsPartialLoading || Application.isPlaying) return;
+            if (Application.isPlaying) return;
 
             panel.Data.IsPartialLoading = false;
 
@@ -78,15 +80,19 @@ namespace YukiFrameWork.UI
                 SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
 
                 if (data == null) continue;
+                if (data.type == null) continue;
 
                 if (!data.type.IsSubclassOf(typeof(Component)))
-                    fieldInfo.SetValue(panel, data.target);
+                    fieldInfo.SetValue(target, data.target);
                 else
                 {
                     Component component = data.GetComponent();
-                    fieldInfo.SetValue(panel, component);
+                    fieldInfo.SetValue(target, component);
                 }
             }
+
+            EditorUtility.SetDirty(target);
+            AssetDatabase.SaveAssets();
 
         }
 

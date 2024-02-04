@@ -10,7 +10,8 @@ namespace YukiFrameWork.Extension
     public class BindLayer : GenericLayer
     {
         private ISerializedFieldInfo info;
-        public event Action GenericCallBack;
+        public event Action GenericCallBack;     
+        private Component infoAsset => info as Component;
         public BindLayer(GenericDataBase data, Type targetType) : base(data, targetType)
         {
             
@@ -18,7 +19,7 @@ namespace YukiFrameWork.Extension
 
         public BindLayer(ISerializedFieldInfo info) 
         {
-            this.info = info;
+            this.info = info;         
         }
 
         public override void OnInspectorGUI()
@@ -31,22 +32,53 @@ namespace YukiFrameWork.Extension
 
 
             var rect = EditorGUILayout.BeginVertical("FrameBox", GUILayout.Height(100 + info.GetSerializeFields().Count() * 20));
-            GUILayout.Label(GenericScriptDataInfo.DragObjectInfo);
-
+            GUILayout.Label(GenericScriptDataInfo.DragObjectInfo);                 
             foreach (var data in info.GetSerializeFields())
-            {
+            {             
                 EditorGUILayout.BeginHorizontal();
-                data.fieldName = EditorGUILayout.TextField(data.fieldName);
+                string fieldName = EditorGUILayout.TextField(data.fieldName);
+
+                if (data.fieldName != fieldName)
+                {
+                    Undo.RecordObject(infoAsset, "Change Data");
+                    data.fieldName = fieldName;
+
+                    SaveData();                   
+                }
                
-                data.fieldLevelIndex = EditorGUILayout.Popup(data.fieldLevelIndex, data.fieldLevel);
+                int levelIndex = EditorGUILayout.Popup(data.fieldLevelIndex, data.fieldLevel);
 
-                data.fieldTypeIndex = EditorGUILayout.Popup(data.fieldTypeIndex, data.Components?.ToArray());
+                if (data.fieldLevelIndex != levelIndex)
+                {
+                    Undo.RecordObject(infoAsset, "Change Level");
+                    data.fieldLevelIndex = levelIndex;
+                    SaveData();
+                }
 
-                data.target = EditorGUILayout.ObjectField(data.target, typeof(Object), true);
+                int typeIndex = EditorGUILayout.Popup(data.fieldTypeIndex, data.Components?.ToArray());
+
+                if (typeIndex != data.fieldTypeIndex)
+                {
+                    Undo.RecordObject(infoAsset, "Change TypeIndex");
+                    data.fieldTypeIndex = typeIndex;
+                    SaveData();
+                }
+
+                var obj = EditorGUILayout.ObjectField(data.target, typeof(Object), true);
+
+                if (data.target != obj)
+                {
+                    Undo.RecordObject(infoAsset, "Change Object");
+                    data.target = obj;
+                    SaveData();
+                }
 
                 if (GUILayout.Button("", "ToggleMixed"))
                 {
+                    Undo.RecordObject(infoAsset, "Remove Data");
                     info.RemoveFieldData(data);
+
+                    SaveData();
                     break;
                 }
 
@@ -61,7 +93,7 @@ namespace YukiFrameWork.Extension
                 GenericCallBack?.Invoke();
             }
 
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndVertical();           
             EditorGUI.EndDisabledGroup();
         }
 
@@ -79,11 +111,23 @@ namespace YukiFrameWork.Extension
 
                     foreach (var asset in assets)
                     {
+                        Undo.RecordObject(infoAsset, "Add Data");
                         info.AddFieldData(new SerializeFieldData(asset));
+
+                        SaveData();
                     }
                     e.Use();
                 }
             }
+        }
+
+        private void SaveData()
+        {
+            if (PrefabUtility.IsPartOfPrefabInstance(infoAsset))
+                PrefabUtility.RecordPrefabInstancePropertyModifications(infoAsset);
+
+            EditorUtility.SetDirty(infoAsset);
+            AssetDatabase.SaveAssets();
         }
     }
 }
