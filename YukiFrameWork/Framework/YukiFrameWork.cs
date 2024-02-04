@@ -19,7 +19,8 @@ namespace YukiFrameWork
     /// 框架体系结构
     /// </summary>
     public interface IArchitecture
-    {      
+    {
+        IArchitecture Default { get; }
         void OnInit();
         void OnDestroy();
         void RegisterModel<T>(T model) where T : class, IModel;      
@@ -143,7 +144,7 @@ namespace YukiFrameWork
 
         public static IArchitecture CreateInstance(Type type)
         {
-            IArchitecture architecture = GetArchitecture(type) ?? Activator.CreateInstance(type) as IArchitecture;                     
+            IArchitecture architecture = GetArchitecture(type) ?? AssemblyHelper.DeserializeObject("{ }", type) as IArchitecture;                     
             return architecture;
         }
 
@@ -180,7 +181,7 @@ namespace YukiFrameWork
     }    
 
     [ClassAPI("框架核心本体")]
-    [GUIDancePath("YukiFrameWork/Description")]
+    [GUIDancePath("YukiFrameWork")]
     public abstract class Architecture<TCore> : IArchitecture,IDisposable where TCore : class,IArchitecture ,new()
     {
         #region Data
@@ -204,6 +205,8 @@ namespace YukiFrameWork
         private static TCore mGlobal = null;
         private readonly static object _object = new object();
 
+        //内部访问对象直接定位全局
+        IArchitecture IArchitecture.Default => Global;
         [SerializationArchitecture]
         public static TCore Global
         {

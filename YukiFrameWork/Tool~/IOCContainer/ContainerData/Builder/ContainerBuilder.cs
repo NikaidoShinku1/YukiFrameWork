@@ -2,12 +2,10 @@
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
-using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     public class ContainerBuilder : IContainerBuilder,IDisposable
-    {
-        [InjectionBuilder]
+    {     
         private IOCContainer container = new IOCContainer();
 
         public void SetParentTypeName(Type parentType)

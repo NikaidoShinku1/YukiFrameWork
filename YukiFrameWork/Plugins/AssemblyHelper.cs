@@ -63,8 +63,8 @@ namespace YukiFrameWork.Extension
             => JsonConvert.DeserializeObject<T>(value);
         
 
-        public static object DeserializeObject(string value)
-            => JsonConvert.DeserializeObject(value);
+        public static object DeserializeObject(string value,Type type)
+            => JsonConvert.DeserializeObject(value,type);
 
         public static string SerializedObject(object value)
             => JsonConvert.SerializeObject(value, Newtonsoft.Json.Formatting.Indented);

@@ -43,36 +43,26 @@ namespace YukiFrameWork
                 return null;
             }
 
-            IArchitecture architecture = null;
-
-            PropertyInfo globalInfo = null;
+            IArchitecture architecture = null;         
             IArchitecture global = null;
 
             if (runtime.IsOnly)
             {
                 if (!globalDicts.ContainsKey(runtime.ArchitectureType))
                 {
-                    architecture = Architecture.CreateInstance(runtime.ArchitectureType);
-                    globalInfo = GetArchitectureProperty(runtime.ArchitectureType.BaseType);
-
-                    globalDicts.Add(runtime.ArchitectureType, globalInfo.GetValue(architecture) as IArchitecture);
+                    architecture = Architecture.CreateInstance(runtime.ArchitectureType);                   
+                    globalDicts.Add(runtime.ArchitectureType, architecture.Default);                   
                 }
-
+                
                 global = globalDicts[runtime.ArchitectureType];
             }
             else
-            {
+            {              
                 architecture = Architecture.CreateInstance(runtime.ArchitectureType);
                 architecture.OnInit();
             }           
 
             return runtime.IsOnly ? global : architecture;             
-        }
-
-        private PropertyInfo GetArchitectureProperty(Type type)
-        {
-            return type.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Static)
-                        .FirstOrDefault(x => x.GetCustomAttribute<SerializationArchitectureAttribute>() != null);
-        }     
+        }       
     }
 }

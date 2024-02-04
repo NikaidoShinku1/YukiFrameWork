@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using YukiFrameWork.Pools;
+using static UnityEngine.UIElements.VisualElement;
 
 namespace YukiFrameWork
 {
@@ -22,8 +23,7 @@ namespace YukiFrameWork
         public void Add<T>(T component, bool includeInactive, IOCContainer container) where T : Component
         {
             containerDict[component.name] = component.transform;
-            InitComponentParameter<T>(component, includeInactive, container);
-            InitComponentParameterInPropertices<T>(component, includeInactive, container);
+            InitComponentParameter<T>(component, includeInactive, container);           
         }
 
         public void Remove<T>(T component) where T : Component
@@ -111,53 +111,35 @@ namespace YukiFrameWork
         private void InitComponentParameter<T>(T component, bool includeInactive, IOCContainer container) where T : Component
         {
             Type type = typeof(T);
-            foreach (var info in type.GetFields(
+            foreach (var info in type.GetMembers(
                         BindingFlags.NonPublic
                         | BindingFlags.Public
                         | BindingFlags.Static
                         | BindingFlags.Instance
                         ))
             {
-                foreach (var attribute in info.GetCustomAttributes())
-                {
-                    if (attribute is InjectAttribute inject)
-                    {
-                        if (info.GetValue(component) == null)
-                        {
-                            string path = inject.Path;
-                            InitExecute(path, info.FieldType, component, includeInactive, inject.InHierarchy, container, out var obj);
-                            info.SetValue(component, obj);
-                        }
-                    }
-                }
-            }
-        }
+                var attribute = info.GetCustomAttribute<InjectAttribute>();
 
-        private void InitComponentParameterInPropertices<T>(T component, bool includeInactive, IOCContainer container) where T : Component
-        {
-            Type type = typeof(T);
-            foreach (var info in type.GetProperties(
-                        BindingFlags.NonPublic
-                        | BindingFlags.Public
-                        | BindingFlags.Static
-                        | BindingFlags.Instance
-                        ))
-            {
-                foreach (var attribute in info.GetCustomAttributes())
+                if (attribute == null) continue;
+
+                if (info is FieldInfo field)
                 {
-                    if (attribute is InjectAttribute inject)
+                    if (field.GetValue(component) == null)
                     {
-                        if (info.GetValue(component) == null)
-                        {
-                            string path = inject.Path;
-                            bool InHierarchy = inject.InHierarchy;
-                            InitExecute(path, info.PropertyType, component, includeInactive, InHierarchy, container, out var obj);
-                            info.SetValue(component, obj);
-                        }
+                        InitExecute(attribute.Path, field.FieldType, component, includeInactive, attribute.InHierarchy, container, out var obj);
+                        field.SetValue(component, obj);
+                    }
+                }
+                else if (info is PropertyInfo property)
+                {
+                    if (property.GetValue(component) == null)
+                    {
+                        InitExecute(attribute.Path, property.PropertyType, component, includeInactive, attribute.InHierarchy, container, out var obj);
+                        property.SetValue(component, obj);
                     }
                 }
             }
-        }
+        }     
 
         private void InitExecute(string path, Type type, Component component, bool includeInactive, bool InHierarchy, IOCContainer container, out object obj)
         {
@@ -244,16 +226,14 @@ namespace YukiFrameWork
             if (containerDict[string.Empty] == null || !containerDict[string.Empty].Equals(instance))
                 containerDict[string.Empty] = instance;
             if (!isInit) return;
-            InjectAllField(container, instance);
-            InjectAllProperties(container, instance);
+            InjectAllFieldAndProperties(container, instance);         
             InjectMethodies(container, objectType, instance);
         }
 
         private object CreateInstance(IOCContainer container, params object[] args)
         {
             var obj = Activator.CreateInstance(objectType, args);
-            InjectAllField(container, obj);
-            InjectAllProperties(container, obj);
+            InjectAllFieldAndProperties(container, obj);           
             InjectMethodies(container, objectType, obj);
             return obj;
         }
@@ -283,56 +263,43 @@ namespace YukiFrameWork
             }
         }
 
-        private void InjectAllField(IOCContainer container, object instance)
+        private void InjectAllFieldAndProperties(IOCContainer container, object instance)
         {
             object obj = null;
-            foreach (var field in objectType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
+            foreach (var info in objectType.GetMembers(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty))
             {
-                foreach (var attribute in field.GetCustomAttributes())
+                var inject = info.GetCustomAttribute<InjectAttribute>();
+                if (inject == null) continue;
+                ObjectData data = null;
+                if (info is FieldInfo field)
+                {                    
+                    if (container.CheckSingletonType(field.FieldType))
+                        data = container.GetOrAddSingleton(field.FieldType);
+                    else
+                        data = container.GetContainer(field.FieldType);
+
+                    if (data == null) continue;
+
+                    string name = inject.Path;
+                    obj = data.GetInstance(container, name);
+
+                    field.SetValue(instance, obj);
+                }
+                else if (info is PropertyInfo property)
                 {
-                    if (attribute is InjectAttribute inject)
-                    {
-                        ObjectData data = null;
-                        if (container.CheckSingletonType(field.FieldType))
-                            data = container.GetOrAddSingleton(field.FieldType);
-                        else
-                            data = container.GetContainer(field.FieldType);
+                    if (container.CheckSingletonType(property.PropertyType))
+                        data = container.GetOrAddSingleton(property.PropertyType);
+                    else
+                        data = container.GetContainer(property.PropertyType);
+                    if (data == null) continue;
 
-                        if (data == null) continue;
+                    string name = inject.Path;
+                    obj = data.GetInstance(container, name);
 
-                        string name = inject.Path;
-                        obj = data.GetInstance(container, name);
-
-                        field.SetValue(instance, obj);
-                    }
+                    property.SetValue(instance, obj);
                 }
             }
-        }
-
-        private void InjectAllProperties(IOCContainer container, object instance)
-        {
-            object obj = null;
-            foreach (var field in objectType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance))
-            {
-                foreach (var attribute in field.GetCustomAttributes())
-                {
-                    if (attribute is InjectAttribute inject)
-                    {
-                        ObjectData data = null;
-                        if(container.CheckSingletonType(field.PropertyType))
-                            data = container.GetOrAddSingleton(field.PropertyType);
-                        else
-                            data = container.GetContainer(field.PropertyType);
-                        if (data == null) continue;
-
-                        string name = inject.Path;
-                        obj = data.GetInstance(container, name);
-
-                        field.SetValue(instance, obj);
-                    }
-                }
-            }
-        }
+        }       
     }
 
 

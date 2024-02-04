@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using UnityEngine.UI;
 using System.Reflection;
-using YukiFrameWork.XFABManager;
 
 namespace YukiFrameWork.UI
 {
@@ -78,63 +77,30 @@ namespace YukiFrameWork.UI
         {
             Type type = panel.GetType();
 
-            SetPanelFields(type, panel);
-            SetPanelProperties(type, panel);        
+            SetPanelFieldsAndProperties(type, panel);
         }
 
-        private void SetPanelFields(Type type,BasePanel panel)
+        private void SetPanelFieldsAndProperties(Type type,BasePanel panel)
         {
-            foreach (var field in type.GetFields(BindingFlags.Public
+            foreach (var members in type.GetMembers(BindingFlags.Public
                 | BindingFlags.NonPublic
                 | BindingFlags.Instance
-                | BindingFlags.Static))
-            {               
-                foreach (var attribute in field.GetCustomAttributes())
-                {
-                    if (attribute is UIAutoMationAttribute mationAttribute)
-                    {                       
-                        string name = mationAttribute.Name;
-                        if (string.IsNullOrEmpty(name))
-                        {
-                            field.SetValue(panel, panel.GetComponent(field.FieldType));
-                        }
-                        else
-                        {
-                            Transform transform = FindPanelTransform(panel, name);                           
-                            field.SetValue(panel, transform.GetComponent(field.FieldType));
-                        }
-                    }
-                }
-            }
-        }
-
-        private void SetPanelProperties(Type type, BasePanel panel)
-        {
-            foreach (var property in type.GetProperties(BindingFlags.Public
-                | BindingFlags.NonPublic
                 | BindingFlags.Static
-                | BindingFlags.Instance
-                | BindingFlags.SetProperty))              
+                | BindingFlags.SetProperty))
             {
-                foreach (var attribute in property.GetCustomAttributes())
-                {
-                    if (attribute is UIAutoMationAttribute mationAttribute)
-                    {
-                        string name = mationAttribute.Name;
-                        if (string.IsNullOrEmpty(name))
-                        {
-                            property.SetValue(panel, panel.GetComponent(property.PropertyType));
-                        }
-                        else
-                        {
-                            Transform transform = FindPanelTransform(panel, name);
-                            property.SetValue(panel, transform.GetComponent(property.PropertyType));
-                        }
-                    }
-                }
-            }
-        }        
+                UIAutoMationAttribute attribute = members.GetCustomAttribute<UIAutoMationAttribute>();
 
+                if (attribute == null) continue;
+
+                string name = attribute.Name;
+
+                if (members is FieldInfo field)               
+                    field.SetValue(panel, string.IsNullOrEmpty(name) ? panel.GetComponent(field.FieldType) : FindPanelTransform(panel, name).GetComponent(field.FieldType));                               
+                else if(members is PropertyInfo property)
+                    property.SetValue(panel, string.IsNullOrEmpty(name) ? panel.GetComponent(property.PropertyType) : FindPanelTransform(panel, name).GetComponent(property.PropertyType));
+            }
+        }
+       
         private Transform FindPanelTransform(BasePanel panel,string name)
         {
             Transform[] transform = panel.GetComponentsInChildren<Transform>();

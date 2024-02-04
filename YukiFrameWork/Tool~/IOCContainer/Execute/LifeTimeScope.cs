@@ -3,13 +3,12 @@ using UnityEngine;
 using YukiFrameWork.Extension;
 using System;
 using YukiFrameWork.Pools;
-
+using System.Reflection;
 namespace YukiFrameWork
 { 
     [Serializable]
     public class LifeTimeScope : MonoBehaviour,IDisposable
     {
-
         [SerializeField]
         [Header("是否自动注入列表内的GameObject")]
         private bool IsAutoInjectObject = true;
@@ -20,14 +19,13 @@ namespace YukiFrameWork
 
         private readonly Stack<GameObject> initEnterObjs = new Stack<GameObject>();
 
-        private readonly IContainerBuilder containerBuilder;
+        private readonly IContainerBuilder containerBuilder = new ContainerBuilder();
 
         [field: SerializeField] public int ParentTypeIndex { get; set; }
         
         [field: SerializeField] public string ParentTypeName { get; set; }
-
-        [InjectionContainer]
-        private readonly IResolveContainer container = null;
+       
+        private IResolveContainer container = null;
 
         public IResolveContainer Container => container;
 
@@ -36,9 +34,8 @@ namespace YukiFrameWork
         private readonly List<MonoBehaviour> monoBehaviours = ListPools<MonoBehaviour>.Get();     
 
         protected virtual void Awake()
-        {         
-            InjectionFectory.CreateCustomContainer(this);
-
+        {
+            Inited();
             SetSingletonParent();            
             InitBuilder(containerBuilder);
 
@@ -47,6 +44,11 @@ namespace YukiFrameWork
             InjectAllConstructorMethodInMonoBehaviour();
            
             initEnterObjs.Clear();
+        }
+
+        private void Inited()
+        {
+            container = new ObjectResolver(typeof(ContainerBuilder).GetField("container",BindingFlags.NonPublic | BindingFlags.Instance).GetValue(builder) as IOCContainer);
         }
 
         private void SetSingletonParent()
