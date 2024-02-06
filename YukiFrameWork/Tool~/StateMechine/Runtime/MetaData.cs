@@ -10,6 +10,7 @@
 ///======================================================
 
 using System;
+using UnityEditor;
 using Object = UnityEngine.Object;
 namespace YukiFrameWork.States
 {
@@ -62,7 +63,7 @@ namespace YukiFrameWork.States
             this.name = name;
             this.typeName = typeName;
             this.dataType = type;
-            this.Data = data;
+            this.Data = data;         
         }
              
         public MetaData() { }

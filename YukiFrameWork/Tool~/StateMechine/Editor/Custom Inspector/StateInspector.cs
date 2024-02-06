@@ -54,6 +54,8 @@ namespace YukiFrameWork.States
 
         private void LoadScriptData(StateBase state)
         {
+            StateInspectorHelper helper = (StateInspectorHelper)target;
+            if (helper == null) return;
             EditorGUILayout.Space(10);          
             for (int i = 0; i < state.dataBases.Count; i++)
             {
@@ -65,6 +67,7 @@ namespace YukiFrameWork.States
                 {
                     state.dataBases.RemoveAt(i);
                     i--;
+                    helper.StateMechine.SaveToMechine();
                     continue;
                 }                
 
@@ -107,6 +110,9 @@ namespace YukiFrameWork.States
             Type type = AssemblyHelper.GetType(dataBase.typeName);
             if (type == null)
                 return;
+
+            var helper = target as StateInspectorHelper;
+            if (helper == null) return;
             Update_StateFieldInfo(type, dataBase);
             SerializationStateField(type, dataBase);
 
@@ -120,31 +126,36 @@ namespace YukiFrameWork.States
                 switch (dataBase.metaDatas[i].dataType)
                 {
                     case DataType.Object:                                            
-                        dataBase.metaDatas[i].Value = EditorGUILayout.ObjectField(dataBase.metaDatas[i].Value, fieldType, true);
+                        var obj = EditorGUILayout.ObjectField(dataBase.metaDatas[i].Value, fieldType, true);
+                        if (dataBase.metaDatas[i].Value != obj)
+                        {
+                            dataBase.metaDatas[i].Value = obj;
+                            helper.StateMechine.SaveToMechine();
+                        }
                         break;
                     case DataType.Int16:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.IntField((short)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(short)));                    
+                         SetData(dataBase.metaDatas[i], EditorGUILayout.IntField((short)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(short))),helper.StateMechine);                    
                         break;
                     case DataType.Int32:                  
-                        dataBase.metaDatas[i].Data = EditorGUILayout.IntField((int)Convert.ChangeType(dataBase.metaDatas[i].Data,typeof(int)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.IntField((int)Convert.ChangeType(dataBase.metaDatas[i].Data,typeof(int))),helper.StateMechine);
                         break;
                     case DataType.Int64:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.LongField((long)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(long)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.LongField((long)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(long))),helper.StateMechine);
                         break;
                     case DataType.Single:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.FloatField((float)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(float)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.FloatField((float)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(float))),helper.StateMechine);
                         break;
                     case DataType.Double:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.DoubleField((double)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(double)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.DoubleField((double)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(double))),helper.StateMechine);
                         break;                 
                     case DataType.Boolan:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.Toggle((bool)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(bool)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.Toggle((bool)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(bool))),helper.StateMechine);
                         break;
                     case DataType.String:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.TextField((string)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(string)));
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.TextField((string)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(string))),helper.StateMechine);
                         break;
                     case DataType.Enum:
-                        dataBase.metaDatas[i].Data = EditorGUILayout.EnumPopup((Enum)dataBase.metaDatas[i].Data);
+                        SetData(dataBase.metaDatas[i],EditorGUILayout.EnumPopup((Enum)dataBase.metaDatas[i].Data),helper.StateMechine);
                         break;                 
                 }              
 
@@ -153,6 +164,15 @@ namespace YukiFrameWork.States
             }
 
             EditorGUILayout.EndVertical();
+        }
+
+        private void SetData(MetaData data,object target,StateMechine stateMechine)
+        {
+            if (data.Data.ToString() != target.ToString())
+            {               
+                data.Data = target;
+                stateMechine.SaveToMechine();
+            }
         }
         public void OnEnable()
         {
@@ -308,6 +328,8 @@ namespace YukiFrameWork.States
 
         private void RecomposeScript(StateBase state)
         {
+            StateInspectorHelper helper = (StateInspectorHelper)target;
+            if (helper == null) return;
             if (!isRecomposeScript)
             {
                 if (GUILayout.Button("添加状态脚本"))
@@ -351,6 +373,8 @@ namespace YukiFrameWork.States
                                     isActive = true
                                 };
                                 state.dataBases.Add(stateDataBase);
+
+                                helper.StateMechine.SaveToMechine();
                             }
                             isRecomposeScript = false;
                         }

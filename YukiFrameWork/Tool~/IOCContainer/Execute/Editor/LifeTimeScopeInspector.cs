@@ -19,10 +19,27 @@ namespace YukiFrameWork
 {
     [CustomEditor(typeof(LifeTimeScope),true)]
     [CanEditMultipleObjects]
-    public class LifeTimeScopeEditor : Editor
+    public class LifeTimeScopeInspector : Editor
     {       
         private readonly List<string> parentTypesName = new List<string>();
-      
+
+        private void OnEnable()
+        {
+            LifeTimeScope scope = target as LifeTimeScope;
+            if (scope == null) return;
+            parentTypesName.Clear();
+            Type parentType = scope.GetType();
+
+            do
+            {
+                if (parentType.Equals(scope.GetType()))
+                    parentTypesName.Add("None");
+                else
+                    parentTypesName.Add(parentType.ToString());
+                parentType = parentType.BaseType;
+            } while (parentType != null && !parentType.Equals(typeof(LifeTimeScope)));
+        }
+
         public override void OnInspectorGUI()
         {
             LifeTimeScope scope = target as LifeTimeScope;
@@ -35,25 +52,20 @@ namespace YukiFrameWork
         /// </summary>
         /// <param name="scopeType"></param>
         private void SelectScopeParent(LifeTimeScope scope)
-        {
-            parentTypesName.Clear();
-            Type parentType = scope.GetType();
-
-            do 
-            {
-                if(parentType.Equals(scope.GetType()))
-                    parentTypesName.Add("None");
-                else
-                    parentTypesName.Add(parentType.ToString());             
-                parentType = parentType.BaseType;
-            }while (parentType != null && !parentType.Equals(typeof(LifeTimeScope)));
-
+        {        
             EditorGUILayout.BeginVertical();
             EditorGUILayout.LabelField("Parent:");
             scope.ParentTypeIndex = EditorGUILayout.Popup(scope.ParentTypeIndex,parentTypesName.ToArray());
             EditorGUILayout.EndVertical();
 
-            scope.ParentTypeName = parentTypesName[scope.ParentTypeIndex] == "None" ? typeof(LifeTimeScope).ToString() : parentTypesName[scope.ParentTypeIndex];          
+            string name = parentTypesName[scope.ParentTypeIndex] == "None" ? typeof(LifeTimeScope).ToString() : parentTypesName[scope.ParentTypeIndex];
+
+            if (name != scope.ParentTypeName)
+            {
+                scope.ParentTypeName = name;
+                EditorUtility.SetDirty(scope);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         private void SerializedInjectedGameObjects()

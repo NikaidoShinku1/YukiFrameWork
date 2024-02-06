@@ -11,12 +11,36 @@
 using UnityEngine;
 using System;
 namespace YukiFrameWork
-{   
-    public interface IBindableProperty<TValue>
+{
+    public interface IBindableProperty
     {
-        IUnRegister Register(Action<TValue> action);
-        IUnRegister RegisterWithInitValue(Action<TValue> action);       
+        void UnRegisterAllEvent();
     }
+
+    public interface IBindableProperty<T1, T2, T3, T4> : IBindableProperty
+    {
+        IUnRegister Register(Action<T1, T2, T3, T4> action);
+        IUnRegister RegisterWithInitValue(Action<T1, T2, T3, T4> action);
+    }
+
+    public interface IBindableProperty<T1, T2, T3> : IBindableProperty
+    {
+        IUnRegister Register(Action<T1, T2, T3> action);
+        IUnRegister RegisterWithInitValue(Action<T1, T2, T3> action);
+    }
+
+    public interface IBindableProperty<T1, T2> : IBindableProperty
+    {
+        IUnRegister Register(Action<T1,T2> action);
+        IUnRegister RegisterWithInitValue(Action<T1,T2> action);
+    }
+
+    public interface IBindableProperty<T> : IBindableProperty
+    {
+        IUnRegister Register(Action<T> action);
+        IUnRegister RegisterWithInitValue(Action<T> action);       
+    }
+  
     // <summary>
     /// 属性绑定类，自增事件绑定
     /// </summary>
@@ -33,7 +57,7 @@ namespace YukiFrameWork
             get => value;
             set
             {
-                if (!this.value.Equals(value))
+                if (!Equals(this.value,value))
                 {
                     this.value = value;
                     onValueChange?.SendEvent(value);
@@ -48,7 +72,7 @@ namespace YukiFrameWork
 
         public BindableProperty()
         {
-            
+            this.value = default;
         }
 
         public override string ToString()
