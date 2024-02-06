@@ -56,9 +56,7 @@ namespace YukiFrameWork
 
         private static IBezier BezierExecute(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode, List<Vector3> list,bool rotated = false)
         {
-            BezierExecution execution = transform.GetComponent<BezierExecution>();
-            if (execution == null)
-                execution = transform.gameObject.AddComponent<BezierExecution>();
+            BezierExecution execution = transform.GetOrAddComponent<BezierExecution>();
             list.Add(end);
             var core = Bezier.Get(mode,  list);
             core.Condition += () =>
