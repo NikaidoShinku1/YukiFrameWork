@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Reflection;
 using YukiFrameWork.Pools;
 using static UnityEngine.UIElements.VisualElement;
+using YukiFrameWork.Fram2D;
 
 namespace YukiFrameWork
 {
@@ -19,6 +20,8 @@ namespace YukiFrameWork
 
             InitComponent(includeInactive);
         }
+
+        public Type DependType => dependObj.GetType();
 
         public void Add<T>(T component, bool includeInactive, IOCContainer container) where T : Component
         {
@@ -78,18 +81,21 @@ namespace YukiFrameWork
             return Tcomponent.GetComponent(type);
         }
 
-        public object GetOrAddComponent(Type type, IOCContainer container)
-        {
+        public Component GetOrAddComponent(Type type, IOCContainer container)
+        {          
             foreach (var component in containerDict.Values)
             {
-                object components = component.GetComponent(type);
-                if (components != null)
+                object components =  Convert.ChangeType(component.GetComponent(type), type);  
+                
+                if (components is not null && components.ToString() != "null")
                 {
-                    return components;
-                }
-            }
-            object c = dependObj.GetComponentInChildren(type);
-            Add((Component)c, false, container);
+                    return components as Component;
+                }          
+            }          
+            Component c = dependObj.GetComponentInChildren(type);             
+            if (c == null || c.ToString() == "null") return null;
+
+            Add(c, false, container);
             return c;
         }
 
@@ -97,14 +103,14 @@ namespace YukiFrameWork
         {
             foreach (var component in containerDict.Values)
             {
-                if (component.GetComponent<T>() is T TComponent)
+                if (component.GetComponent<T>() is T TComponent && TComponent.ToString() != "null")
                 {
                     return TComponent;
                 }
             }
             T c = dependObj.GetComponentInChildren<T>();
+            if (c == null || c.ToString() == "null") return null;
             Add(c, false, container);
-
             return c;
         }
 
@@ -124,7 +130,8 @@ namespace YukiFrameWork
 
                 if (info is FieldInfo field)
                 {
-                    if (field.GetValue(component) == null)
+                    object value = field.GetValue(component);
+                    if (value == null || value.ToString() == "null")
                     {
                         InitExecute(attribute.Path, field.FieldType, component, includeInactive, attribute.InHierarchy, container, out var obj);
                         field.SetValue(component, obj);
@@ -132,7 +139,8 @@ namespace YukiFrameWork
                 }
                 else if (info is PropertyInfo property)
                 {
-                    if (property.GetValue(component) == null)
+                    object value = property.GetValue(component);
+                    if (value == null || value.ToString() == "null")
                     {
                         InitExecute(attribute.Path, property.PropertyType, component, includeInactive, attribute.InHierarchy, container, out var obj);
                         property.SetValue(component, obj);

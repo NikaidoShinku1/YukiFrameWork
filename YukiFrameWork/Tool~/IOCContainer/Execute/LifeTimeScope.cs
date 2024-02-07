@@ -59,8 +59,8 @@ namespace YukiFrameWork
 
         private void InjectAllConstructorMethodInMonoBehaviour()
         {
-            for (int i = 0; i < monoBehaviours.Count; i++)
-            {
+            for (int i = monoBehaviours.Count - 1; i >= 0; i--)
+            {                
                 builder.InjectInMethodInMonoBehaviour(monoBehaviours[i].gameObject.name, monoBehaviours[i].GetType());
             }
 
@@ -77,7 +77,7 @@ namespace YukiFrameWork
                 {
                     InJectAutoInGameObject(gameObjects[i]);
                 }
-            }  
+            }           
         }
 
         private void InJectAutoInGameObject(GameObject gameObject)

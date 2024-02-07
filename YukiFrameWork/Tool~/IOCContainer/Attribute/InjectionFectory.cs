@@ -41,7 +41,9 @@ namespace YukiFrameWork.Extension
 
         private static void InjectParameterInPropertices(InjectAttribute inject,PropertyInfo info,MonoBehaviour monoBehaviour, IResolveContainer container)
         {
-            if (info.GetValue(monoBehaviour) == null)
+            object value = info.GetValue(monoBehaviour);
+
+            if (value == null || value.ToString() == "null")
             {
                 string pathOrName = inject.Path;
                 object obj = null;
@@ -62,8 +64,10 @@ namespace YukiFrameWork.Extension
 
         private static void InjectParameterInField(InjectAttribute inject,FieldInfo info,MonoBehaviour monoBehaviour,IResolveContainer container)
         {
-            if (info.GetValue(monoBehaviour) == null)
-            {
+            object value = info.GetValue(monoBehaviour);
+
+            if (value == null || value.ToString() == "null")
+            {              
                 object obj = null;
                 string pathOrName = string.Empty;
                 if (info.FieldType.IsSubclassOf(typeof(Component)))
@@ -79,6 +83,7 @@ namespace YukiFrameWork.Extension
                     pathOrName = inject.Path;
                     obj = container.Resolve(info.FieldType, pathOrName);
                 }
+               
                 info.SetValue(monoBehaviour, obj);
             }
         }

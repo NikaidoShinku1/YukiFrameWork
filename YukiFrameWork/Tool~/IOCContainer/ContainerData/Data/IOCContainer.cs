@@ -10,7 +10,7 @@ namespace YukiFrameWork
     {
         private readonly Dictionary<Type,ObjectData> dataDicts;
         private readonly Dictionary<string, MonoComponentData> monoDataDicts;
-
+    
         //保存所有注册的全局单例类型，用于标识容器可访问的类型，如果不存在则要求用户使用标准单例模式
         private readonly static Dictionary<Type, Dictionary<Type, ObjectData>> singletonDicts = new Dictionary<Type, Dictionary<Type, ObjectData>>();
 
@@ -183,7 +183,7 @@ namespace YukiFrameWork
 
         public void SettingInParameter(Type parentType,ParameterInfo parameter, out object obj)
         {
-            obj = null;
+            obj = null;         
             if (CheckSingletonType(parameter.ParameterType))
             {
                 var defaultdata = GetOrAddSingleton(parameter.ParameterType);              
@@ -194,10 +194,12 @@ namespace YukiFrameWork
                 if (parameter.ParameterType.IsSubclassOf(typeof(Component)))
                 {
                     foreach (var data in monoDataDicts.Values)
-                    {
-                        obj = data.GetOrAddComponent(parameter.ParameterType, this);
-                        if (obj != null)
+                    {                       
+                        obj = data.GetOrAddComponent(parameter.ParameterType, this);                   
+                        if (obj != null && !ReferenceEquals(obj, null) && !Equals(obj, null) && obj.ToString() != "null")
+                        {                          
                             break;
+                        }                      
                     }
                 }
                 else
