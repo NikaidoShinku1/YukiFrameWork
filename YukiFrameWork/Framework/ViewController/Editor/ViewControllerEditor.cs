@@ -246,6 +246,7 @@ namespace YukiFrameWork.Extension
         {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
             if(monoScript == null) return false;
+            if (!monoScript.GetClass().IsSubclassOf(typeof(ViewController))) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;            
             currentController.Data = controller.Data;                      
