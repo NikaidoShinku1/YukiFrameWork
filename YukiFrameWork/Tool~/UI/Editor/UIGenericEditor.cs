@@ -61,6 +61,9 @@ namespace YukiFrameWork.UI
 #else
             panel.AddComponent<BasePanel>();
             var image = panel.AddComponent<Image>();
+
+            EditorUtility.SetDirty(panel);
+            AssetDatabase.SaveAssets();
 #endif
             
             image.color = new Color(image.color.r, image.color.g, image.color.b, 0.4f);
