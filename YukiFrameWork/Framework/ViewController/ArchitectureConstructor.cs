@@ -39,8 +39,14 @@ namespace YukiFrameWork
 
             if (runtime == null)
             {
-                "无法进行初始化,请在取消RuntimeInitializeOnArchitecture标记后手动重写RuntimeArchitecture属性!".LogInfo(Log.E);
-                return null;
+                throw new Exception("无法进行初始化,请在取消RuntimeInitializeOnArchitecture标记后手动重写RuntimeArchitecture属性!");               
+            }
+
+            NoGenericArchitectureAttribute noGeneric = runtime.ArchitectureType.GetCustomAttribute<NoGenericArchitectureAttribute>();
+
+            if (noGeneric != null)
+            {
+                throw new Exception($"无法进行对{runtime.ArchitectureType}架构的初始化,这个架构是标记了NoGenericArchitecture特性的,仅作为全局手动使用");            
             }
 
             IArchitecture architecture = null;         

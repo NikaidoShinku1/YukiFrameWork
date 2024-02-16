@@ -35,7 +35,7 @@ namespace YukiFrameWork.Extension
         }
 
         public const string importPath = "Packages/com.yuki.yukiframework/Plugins/ImportWindow/Data/ImportPath.json";
-        private const string packagePath = "Packages/com.yuki.yukiframework";
+        public const string packagePath = "Packages/com.yuki.yukiframework";
         public class Data
         {
             public string path;
@@ -73,8 +73,7 @@ namespace YukiFrameWork.Extension
             ["Knapsack"] = packagePath + "/Tool~/Knapsack",
             ["DoTween"] = packagePath + "/Tool~/DoTween",
             ["UniRx"] = packagePath + "/Tool~/UniRx",
-            ["UniTask"] = packagePath + "/Tool~/UniTask",
-            ["Serialization"] = packagePath + "/Tool~/SerializationTool"
+            ["UniTask"] = packagePath + "/Tool~/UniTask",         
         };
 
         void LoadData()
@@ -151,10 +150,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
             EditorGUILayout.BeginVertical("GroupBox");
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);
-
-            DrawBoxGUI(Color.white, ImportWindowInfo.SerializationInfo
-                , MessageType.Info, string.Format("{0}/Serialization", data.path), "Serialization", packagePath + "/Tool~/Serialization");
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);         
 
             DrawBoxGUI(Color.white, ImportWindowInfo.ActionKitInfo
                 , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", packagePath + "/Tool~/ActionKit");
@@ -193,8 +189,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.BeginHorizontal();
             GUI.color = Color.white;
             if (GUILayout.Button(ImportWindowInfo.ImportAllModuleInfo, GUILayout.Height(20)))
-            {
-                Import(packagePath + "/Tool~/Serialization", "Serialization");
+            {              
                 Import(packagePath + "/Tool~/ActionKit", "ActionKit");
                 Import(packagePath + "/Tool~/Bezier", "Bezier");
                 Import(packagePath + "/Tool~/StateMechine", "StateMechine");

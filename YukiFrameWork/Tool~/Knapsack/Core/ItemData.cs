@@ -11,38 +11,10 @@
 
 using UnityEngine;
 using System;
+using YukiFrameWork.Extension;
+using Newtonsoft.Json;
 namespace YukiFrameWork.Knapsack
-{
-    /// <summary>
-    /// 物品类型
-    /// </summary>
-    public enum ItemType
-    {
-        //消耗品
-        Comsumable,
-        //装备
-        Equipment,
-        //武器
-        Weapon,
-        //材料
-        Material
-    }
-
-    /// <summary>
-    /// 物品的品质
-    /// </summary>
-    public enum ItemQuality
-    {
-        //普通
-        Common,
-        //稀有
-        UnCommon,
-        //史诗
-        Epic,
-        //传奇
-        Lengendary,
-
-    }
+{ 
     [Serializable]
     public class ItemData
     {
@@ -55,27 +27,40 @@ namespace YukiFrameWork.Knapsack
         //物品的最大容量
         [field: SerializeField] public int Capacity { get; set; }     
         //物品的精灵路径/名称(以加载方式为准)
-        [field: SerializeField] public string Sprites { get; set; }
-        //物品的类型
-        [field: SerializeField] public ItemType ItemType { get; set; }
+        [field: SerializeField] public string Sprites { get; set; }     
         //物品的品质
         [field: SerializeField] public ItemQuality ItemQuality { get; set; }
 
-        public ItemData(int id, string name, string description, int capacity,  string sprites, ItemType itemType, ItemQuality itemQuality)
+        [field:SerializeField] public string TypeName { get; set; }
+
+        [NonSerialized]
+        private Type type;
+
+        [JsonIgnore]
+        public Type Type
+        {
+            get
+            {
+                if (type == null)
+                    type = AssemblyHelper.GetType(TypeName);
+                return type;
+            }
+        }
+
+        public ItemData(int id, string name, string description, int capacity,  string sprites, ItemQuality itemQuality)
         {
             this.ID = id;
             this.Name = name;
             this.Description = description;
             this.Capacity = capacity;        
-            this.Sprites = sprites;
-            this.ItemType = itemType;
-            this.ItemQuality = itemQuality;
+            this.Sprites = sprites;           
+            this.ItemQuality = itemQuality;          
 
         }
 
         public ItemData()
         {
-            this.ID = -1;
+            this.ID = -1;           
         }
     }
 }

@@ -338,7 +338,7 @@ namespace YukiFrameWork.States
         public int index;
         public bool isActive;
 
-        public List<MetaData> metaDatas = new List<MetaData>();
+        public List<Metadata> metaDatas = new List<Metadata>();
 
         private StateBehaviour behaviour;
 
@@ -362,75 +362,17 @@ namespace YukiFrameWork.States
                         {
                             if (metaDatas[i].name.Equals(field.Name) && metaDatas[i].typeName.Equals(field.FieldType.ToString()))
                             {
-                                switch (metaDatas[i].dataType)
+                                TypeCode typeCode = metaDatas[i].type;
+
+                                if (typeCode == TypeCode.Object)
                                 {
-                                    case DataType.Object:
-                                        if (metaDatas[i].Value != null)
-                                            field.SetValue(behaviour, metaDatas[i].Value);
-                                        break;
-                                    case DataType.Int16:
-                                        {
-                                            var data = short.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.Int32:
-                                        {
-                                            var data = int.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.Int64:
-                                        {
-                                            var data = long.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.UInt16:
-                                        {
-                                            var data = ushort.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.UInt32:
-                                        {
-                                            var data = uint.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.UInt64:
-                                        {
-                                            var data = ulong.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.Single:
-                                        {
-                                            var data = float.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.Double:
-                                        {
-                                            var data = double.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.Boolan:
-                                        {
-                                            bool data = bool.Parse(metaDatas[i].value);
-                                            field.SetValue(behaviour, data);
-                                        }
-                                        break;
-                                    case DataType.String:                                                                                 
-                                            field.SetValue(behaviour, metaDatas[i].value);
-                                        break;
-                                    case DataType.Enum:                                        
-                                        var value = Enum.Parse(field.FieldType, metaDatas[i].value);
-                                        if(value != null)
-                                            field.SetValue(behaviour, value);
-                                        break;
+                                    if (metaDatas[i].Value != null)
+                                        field.SetValue(behaviour, metaDatas[i].Value);
                                 }
+                                else
+                                {
+                                    field.SetValue(Behaviour, metaDatas[i].value);
+                                }                              
                             }
                         }
                     }

@@ -7,7 +7,7 @@ using YukiFrameWork.Pools;
 
 namespace YukiFrameWork
 {
-    public enum InitType
+    public enum RuntimeInitType
     {
         Awake,      
         Start
@@ -22,27 +22,24 @@ namespace YukiFrameWork
 }
 namespace YukiFrameWork.States
 {
-    public class StateManager : MonoBehaviour, IState
+    public class StateManager : MonoBehaviour, IState,ISendEvent
     {
         #region 字段      
-        public InitType initType;
+        public RuntimeInitType initType;
 
         public DeBugLog deBugLog;
-
-        public Animation _animation;
-        public Animator _animator;
-        
+     
         public StateMechine stateMechine;      
         
         public StateBase CurrentState { get; set; } = null;        
 
-        public Dictionary<string,StateParameterData> ParamterDicts => parametersDict;
+        public Dictionary<string,StateParameterData> ParametersDicts => parametersDict;
 
         private Dictionary<string, StateParameterData> parametersDict = DictionaryPools<string,StateParameterData>.Get();
 
         public Dictionary<int, StateBase> runTimeStatesDict { get; } = DictionaryPools<int, StateBase>.Get();
 
-        internal List<StateTransition> transitions = ListPools<StateTransition>.Get();
+        public List<StateTransition> transitions = ListPools<StateTransition>.Get();
 
         private bool isDefaultTransition = false;
 
@@ -54,99 +51,25 @@ namespace YukiFrameWork.States
 #endregion
 
         #region 方法
-
         private void Awake()
         {
-           /* _animation.Play();
-            _animation.GetClip();
-            _animation.GetClipCount();           
-            _animation.Stop();
-            _animator.PlayInFixedTime();
-            _animator.Play();
-            _animator.SetBool();           
-            _animator.SetTrigger();
-            _animator.SetFloat();
-            _animator.SetInteger();*/
-            if (initType == InitType.Awake) Init();
+            if (initType == RuntimeInitType.Awake) this.SendEvent(StateMechineSystem.StateInited, this);
         }
 
         private void Start()
         {
-            if (initType == InitType.Start) Init();
+            if (initType == RuntimeInitType.Start) this.SendEvent(StateMechineSystem.StateInited, this);
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            CurrentState?.OnUpdate();         
+            this.GetSystem<StateMechineSystem>().AddStateManager(this);
         }
 
-        private void FixedUpdate()
+        private void OnDisable()
         {
-            CurrentState?.OnFixedUpdate();
-        }
-
-        private void LateUpdate()
-        {
-            CurrentState?.OnLateUpdate();
-        }
-     
-
-        private void Init()
-        {
-            if (stateMechine == null)
-            {
-                stateMechine = transform.GetComponentInChildren<StateMechine>();
-                if(stateMechine == null)
-                return;
-            }
-
-            for (int i = 0; i < stateMechine.parameters.Count; i++)
-            {
-                if (parametersDict.ContainsKey(stateMechine.parameters[i].name))
-                {
-                    Debug.LogError("参数名称重复！" + stateMechine.parameters[i].name);
-                    continue;
-                }              
-                parametersDict.Add(stateMechine.parameters[i].name, stateMechine.parameters[i]);          
-            }
-
-            for (int i = 0; i < stateMechine.states.Count; i++)
-            {
-                if (stateMechine.states[i].name.Equals(StateConst.entryState) || stateMechine.states[i].index == -1)
-                    continue;
-                runTimeStatesDict.Add(stateMechine.states[i].index, stateMechine.states[i]);
-            }
-
-            foreach (var item in stateMechine.transitions)
-            {
-                StateTransition stateTransition = new StateTransition(this, item);
-                transitions.Add(stateTransition);
-            }
-
-            foreach (var state in runTimeStatesDict.Values)
-            {
-                state.OnInit(this);
-            }
-
-            if (deBugLog == DeBugLog.开启)
-            {
-                Debug.Log($"状态机归属： {gameObject.name},初始化完成！");
-            }
-
-            foreach (var state in runTimeStatesDict.Values)
-            {
-                if (state.defaultState)
-                {
-                    OnChangeState(state);
-                    break;
-                }
-            }
-
-            foreach (var item in transitions)
-            {
-                item.CheckConditionIsMeet();
-            }         
-        }
+            this.GetSystem<StateMechineSystem>().RemoveStateManager(this);
+        }  
 
         public bool GetBool(string name)
         {
@@ -306,99 +229,13 @@ namespace YukiFrameWork.States
             OnChangeState(stateBase,callBack,isBack);
         }
 
+        public IArchitecture GetArchitecture()
+        {
+            return StateModule.Global;
+        }
+
         #endregion
 
-        [Obsolete]
-        public void OnTriggerEnter(Collider other)
-        {
-            CurrentState?.OnTriggerEnter(other);
-        }
-        [Obsolete]
-        public void OnTriggerStay(Collider other)
-        {
-            CurrentState?.OnTriggerStay(other);
-        }
-        [Obsolete]
-        public void OnTriggerExit(Collider other)
-        {
-            CurrentState?.OnTriggerExit(other);
-        }
-        [Obsolete]
-        public void OnTriggerEnter2D(Collider2D collision)
-        {
-            CurrentState?.OnTriggerEnter2D(collision);
-        }
-        [Obsolete]
-        public void OnTriggerExit2D(Collider2D collision)
-        {
-            CurrentState?.OnTriggerExit2D(collision);
-        }
-        [Obsolete]
-        public void OnTriggerStay2D(Collider2D collision)
-        {
-            CurrentState?.OnTriggerStay2D(collision);
-        }
-        [Obsolete]
-        public void OnCollisionEnter(Collision collision)
-        {
-            CurrentState?.OnCollisionEnter(collision);
-        }
-        [Obsolete]
-        public void OnCollisionStay(Collision collision)
-        {
-            CurrentState?.OnCollisionStay(collision);
-        }
-        [Obsolete]
-        public void OnCollisionExit(Collision collision)
-        {
-            CurrentState?.OnCollisionExit(collision);
-        }
-        [Obsolete]
-        public void OnCollisionEnter2D(Collision2D collision)
-        {
-            CurrentState?.OnCollisionEnter2D(collision);
-        }
-        [Obsolete]
-        public void OnCollisionStay2D(Collision2D collision)
-        {
-            CurrentState?.OnCollisionStay2D(collision);
-        }
-        [Obsolete]
-        public void OnCollisionExit2D(Collision2D collision)
-        {
-            CurrentState?.OnCollisionExit2D(collision);
-        }
-        [Obsolete]
-        public void OnMouseDown()
-        {
-            CurrentState?.OnMouseDown();
-        }
-        [Obsolete]
-        public void OnMouseDrag()
-        {
-            CurrentState?.OnMouseDrag();
-        }
-        [Obsolete]
-        public void OnMouseEnter()
-        {
-            CurrentState?.OnMouseEnter();
-        }
-        [Obsolete]
-        public void OnMouseExit()
-        {
-            CurrentState?.OnMouseExit();
-        }
-        [Obsolete]
-        public void OnMouseUp()
-        {
-            CurrentState?.OnMouseUp();
-        }
-        [Obsolete]
-        public void OnMouseOver()
-        {
-            CurrentState?.OnMouseOver();
-        }
-      
     }
 
 }

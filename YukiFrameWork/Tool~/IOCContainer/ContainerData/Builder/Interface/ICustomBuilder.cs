@@ -18,6 +18,7 @@ namespace YukiFrameWork
         
         void RegisterComponent<T>(T component,bool includeInactive = false) where T : Component;
         void RegisterComponentInScene<T>(bool includeInactive = false) where T : Component;
+        void RegisterComponentInScene<T>(string name,bool includeInactive = false) where T : Component;
         void RegisterComponentInNewPrefab<T>(GameObject gameObject, bool includeInactive = false) where T : Component;
         void RegisterComponentInNewGameObject<T>(string name, bool includeInactive = false) where T : Component;
         

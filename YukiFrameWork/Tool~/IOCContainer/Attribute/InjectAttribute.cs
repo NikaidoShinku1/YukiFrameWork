@@ -6,8 +6,10 @@ using System;
 namespace YukiFrameWork
 {
     /// <summary>
-    /// 标记给字段或者属性，在容器注册实例后会自动赋值，如果该字段所在类不派生自组件则赋值操作只对注册的非组件实例生效,当类继承自Mono时则可以检索包括Unity组件在内的字段(属性)
-    /// 进行赋值，并且如果自身物体及其子物体没有时可以通过将InHierarchy设置为True而检索一次场景
+    /// 标记给字段或者属性，在容器注册实例后会自动赋值
+    /// >>>>当注册进容器的实例类是派生自UnityEngine.Component时,Inject中的参数Path对于组件物体的标识为: InHerarchy ? 标签(tag) : 用于transform.Find查找的路径。由InHerarchy决定这个对象的注入是全局标签注入还是自身物体/子物体。对于非组件的对象Path仅用于标识注册的名称。
+    /// >>>>当注册进容器的实例类只是普通类时，Inject如果作用于UnityEngine.Component,默认传递是无效的,至少需要传递Path或者将InHerarchy设置为True,当InHerarchy设置为True时,Path的标识类型为GameObject的名称,如果Path保持空传递则该对象会调用FindObjectOfType注入。
+    ///
     /// </summary>
     [AttributeUsage(AttributeTargets.Property
         | AttributeTargets.Field     
@@ -33,7 +35,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 当字段(属性)为组件时附带参数的地址，如果没有则从全局找，非组件时Path仅为需要获取的实例名称！
         /// </summary>
-        /// <param name="path">路径(在非组件标记时是名称)</param>
+        /// <param name="path">路径(标签)(在非组件标记时是名称)</param>
         /// <param name="InHierarchy">是否通过场景获取(仅组件生效)</param>
         public InjectAttribute(string path, bool InHierarchy = false)
         {

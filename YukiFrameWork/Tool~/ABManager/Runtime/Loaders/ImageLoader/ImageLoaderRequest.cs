@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
-using YukiFrameWork.XFABManager;
 
 
 namespace YukiFrameWork.XFABManager
@@ -140,7 +139,7 @@ namespace YukiFrameWork.XFABManager
 
 
                 // 从本地读取
-                request_local_file = UnityWebRequestTexture.GetTexture(path, true);
+                request_local_file = UnityWebRequestTexture.GetTexture(string.Format("file://{0}", path), true);
                 request_local_file.disposeUploadHandlerOnDispose = true;
                 request_local_file.disposeDownloadHandlerOnDispose = true;
                 request_local_file.timeout = 5;

@@ -24,7 +24,28 @@ namespace YukiFrameWork.States
 
         public StateNodeLayer(StateMechineEditor editorWindow) : base(editorWindow)
         {
-            stateStyles = new CustomStyles();
+            stateStyles = new CustomStyles();           
+        }
+
+        public override void OnModeChange(PlayModeStateChange mode)
+        {
+            switch (mode)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                    if (Selection.activeGameObject != null)
+                    {
+                        Context.StateMechine = Selection.activeGameObject.GetComponent<StateManager>()?.stateMechine;                        
+                    }
+                    
+                    break;
+                case PlayModeStateChange.ExitingEditMode:
+                    break;
+                case PlayModeStateChange.EnteredPlayMode:
+                    break;
+                case PlayModeStateChange.ExitingPlayMode:
+
+                    break;
+            }
         }
 
         public override void OnGUI(Rect rect)

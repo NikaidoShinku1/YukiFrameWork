@@ -8,44 +8,94 @@
 /// -  All Rights Reserved.
 ///======================================================
 
-using UnityEngine;
 using System;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Text;
+using System.Linq;
+
 namespace YukiFrameWork.Extension
 {
     public class AssemblyHelper
     {
         private static Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
+    
         public static Type GetType(string typeName)
-        {
+        {          
             if (typeDict.TryGetValue(typeName, out var type))
             {
                 return type;
             }
-            else
-            {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                for (int j = 0; j < assemblies.Length; j++)
+
+            // 处理泛型类型          
+            if (typeName.Contains('`'))
+            {              
+                int backtickIndex = typeName.IndexOf('`');
+                int genericArgStartIndex = typeName.IndexOf("[", StringComparison.Ordinal);
+                if (genericArgStartIndex > backtickIndex)
                 {
-                    Type[] types = assemblies[j].GetTypes();
-                    for (int i = 0; i < types.Length; i++)
+                    string genericTypeName = typeName.Substring(0, genericArgStartIndex);
+                    string args = typeName.Substring(genericArgStartIndex).Trim('[', ']');
+                    var argumentTypes = args.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                             .Select(GetType)
+                                             .ToArray();
+                    if (argumentTypes.Any(t => t == null)) return null;                                      
+                    else
+                        type = Type.GetType(genericTypeName)?.MakeGenericType(argumentTypes);                                        
+                    if (type != null)
                     {
-                        if (((!string.IsNullOrEmpty(types[i].Namespace) ? (types[i].Namespace + ".") : (string.Empty)) + types[i].Name).Equals(typeName))
-                        {
-                            typeDict.Add(typeName, types[i]);
-                            return types[i];
-                        }
+                        typeDict.Add(typeName, type);
+                        return type;
                     }
                 }
             }
+
+            // 处理数组类型           
+            if (typeName.EndsWith("[]") || typeName.Contains("[,"))
+            {
+                var arrayTypeSpecifierIndex = typeName.IndexOf('[');
+                string elementTypeString = typeName.Substring(0, arrayTypeSpecifierIndex);
+                string arraySpecifier = typeName.Substring(arrayTypeSpecifierIndex);
+
+                Type elementType = GetType(elementTypeString);
+                if (elementType == null) return null;
+
+                if (arraySpecifier.Contains(","))
+                {
+                    int rank = arraySpecifier.Count(c => c == ',') + 1; 
+                    type = Array.CreateInstance(elementType, new int[rank]).GetType();
+                }
+                else 
+                {
+                    type = Array.CreateInstance(elementType, 0).GetType();
+                }
+
+                if (type != null)
+                {
+                    typeDict.Add(typeName, type);
+                    return type;
+                }
+            }
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            for (int j = 0; j < assemblies.Length; j++)
+            {
+                Type[] types = assemblies[j].GetTypes();
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (types[i].FullName == typeName)
+                    {
+                        typeDict.Add(typeName, types[i]);
+                        return types[i];
+                    }
+                }
+            }
+
             return null;
         }
 
@@ -61,23 +111,24 @@ namespace YukiFrameWork.Extension
 
         public static T DeserializeObject<T>(string value)
             => JsonConvert.DeserializeObject<T>(value);
-        
 
-        public static object DeserializeObject(string value,Type type)
+
+        public static object DeserializeObject(string value, Type type)
             => JsonConvert.DeserializeObject(value,type);
 
-        public static string SerializedObject(object value)
-            => JsonConvert.SerializeObject(value, Newtonsoft.Json.Formatting.Indented);
+        public static string SerializedObject(object value, Newtonsoft.Json.Formatting formatting = Newtonsoft.Json.Formatting.Indented)
+            => JsonConvert.SerializeObject(value, formatting);
 
-        public static string XmlSerializedObject(object value)
+        public static string XmlSerializedObject(object value,XmlWriterSettings settings = default)
         {            
             XmlSerializer xmlSerializer = new XmlSerializer(value.GetType());
-            XmlWriterSettings settings = new XmlWriterSettings()
-            {
-                Indent = true,
-                NewLineOnAttributes = true,
+            if(settings == default)
+                settings = new XmlWriterSettings()
+                {
+                    Indent = true,
+                    NewLineOnAttributes = true,
 
-            };
+                };
             using (StringWriter writer = new StringWriter())
             {
                 XmlWriter xmlWriter = XmlWriter.Create(writer, settings);

@@ -157,14 +157,24 @@ namespace YukiFrameWork.States
             switch (parameterData.parameterType)
             {
                 case ParameterType.Float:
-                    parameterData.Value = EditorGUI.FloatField(paramValueRect, parameterData.Value);
+                    SetValue(parameterData, EditorGUI.FloatField(paramValueRect, parameterData.Value));
                     break;
                 case ParameterType.Int:
-                    parameterData.Value = EditorGUI.IntField(paramValueRect, (int)parameterData.Value);
-                    break;
-                case ParameterType.Bool:
-                    parameterData.Value = EditorGUI.Toggle(paramValueRect, parameterData.Value == 1) ? 1 : 0;
+                    SetValue(parameterData, EditorGUI.IntField(paramValueRect, (int)parameterData.Value));
+                        break;
+                    case ParameterType.Bool:
+                    SetValue(parameterData, EditorGUI.Toggle(paramValueRect, parameterData.Value == 1) ? 1 : 0);
                     break;           
+            }
+        }
+
+        private void SetValue(StateParameterData parameterData, float value)
+        {
+            if (parameterData.Value != value)
+            {
+                parameterData.Value = value;
+                EditorUtility.SetDirty(Context.StateMechine);
+                AssetDatabase.SaveAssets();
             }
         }
 

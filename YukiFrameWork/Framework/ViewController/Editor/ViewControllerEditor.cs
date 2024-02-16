@@ -73,6 +73,11 @@ namespace YukiFrameWork.Extension
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
           
             layer = new ViewControllerLayer(controller.Data,target.GetType());
+            layer.Save += () =>
+            {
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssets();
+            };
             if (bind == null)
             {
                 bind = new BindLayer(controller);
@@ -83,7 +88,9 @@ namespace YukiFrameWork.Extension
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }
-            controller.Data.ScriptNamespace = string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? "YukiFrameWork.Project" : PlayerPrefs.GetString("NameSpace");   
+
+            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            controller.Data.ScriptNamespace = !info ? "YukiFrameWork.Project" : info.nameSpace;
             
             if(controller.Data.IsPartialLoading)           
                 EditorApplication.delayCall = () => BindAllField(controller);
@@ -92,9 +99,14 @@ namespace YukiFrameWork.Extension
 
         private void OnDisable()
         {
+            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            if (info == null) return;
+
+
             ViewController controller = target as ViewController;
             if (controller == null) return;
-            PlayerPrefs.SetString("NameSpace", controller.Data.ScriptNamespace);  
+
+            info.nameSpace = controller.Data.ScriptNamespace;
         }
 
         private void BindAllField(ViewController controller)
@@ -141,7 +153,7 @@ namespace YukiFrameWork.Extension
             GUILayout.BeginVertical("OL box NoExpand");
             ViewController controller = target as ViewController;
             if(controller == null)return;
-            layer?.OnInspectorGUI();                        
+            layer?.OnInspectorGUI();                           
             EditorGUILayout.Space(20);
 
             EditorGUILayout.BeginHorizontal();

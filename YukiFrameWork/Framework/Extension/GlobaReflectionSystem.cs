@@ -16,12 +16,7 @@ using UnityEngine;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork
-{
-    public enum ValueType
-    {
-        Property,
-        Field
-    }
+{  
     [ClassAPI("全局反射系统(慎用)")]  
     public static class GlobalReflectionSystem
     {
@@ -34,17 +29,25 @@ namespace YukiFrameWork
         /// <param name="args">参数</param>
         [MethodAPI("直接通过反射执行方法(性能开销极大，请谨慎使用)")]     
         public static void InvokeMethod<T>(this T target,string methodName,params object[] args) where T : class
-        {          
-            InvokeMethod(typeof(T),target,methodName,args);
-        }
-
-        [MethodAPI("直接通过反射执行方法(性能开销极大，请谨慎使用)在同一时刻内会调用同类型所有的方法")]
-        public static void InvokeMethod(Type type, object target, string methodName, params object[] args)
         {
-            if (Invoke(methodName,type, out var info))
+            Type[] types = new Type[args.Length];
+
+            for (int i = 0; i < types.Length; i++)
             {
-                info.Invoke(target,args);
+                types[i] = args[i].GetType();              
             }
+
+            var info = GetMethodInfos<T>(methodName,types);
+
+            if (info == null) 
+            {
+                Debug.LogWarning($"无法发送{methodName}方法,请检查在{typeof(T)}是否存在该方法!或者检查类型参数是否完全匹配!传递的的方法参数个数是{args.Length}");
+                return;
+            }
+
+            MethodInfo method = info as MethodInfo;
+
+            method.Invoke(target, args);
         }
 
         /// <summary>
@@ -56,109 +59,86 @@ namespace YukiFrameWork
         /// <param name="type">需要获取的Value的类型</param>
         /// <returns>直接返回这个类的字段(属性)</returns>
         [MethodAPI("直接通过反射获取目标字段,包括任何私有化,以及静态字段，如果是属性则必须Getter或者Setter其中之一是公开的")]
-        public static object GetValue<T>(this T target, string parameterName,ValueType type = ValueType.Field)
+        public static object GetValue<T>(this T target, string parameterName)
         {
-            switch (type)
-            {
-                case ValueType.Property:
-                    return GetOrSetPropertyValue(target, parameterName);
-                 
-                case ValueType.Field:
-                    return GetOrSetFieldValue(target, parameterName);
-                default:
-                    return null;                  
-            }           
+            return Get(target, parameterName);
         }
+
+        private static object Get<T>(T target, string parameterName)
+        {
+            var info = GetMemberInfo<T>(parameterName);
+
+            if (info == null) return null;
+
+            if (info is FieldInfo field)
+                return field.GetValue(target);
+            else if (info is PropertyInfo property)
+                return property.GetValue(target);
+
+            return null;
+        }
+
+        private static void Set<T>(T target,object value, string parameterName)
+        {
+            var info = GetMemberInfo<T>(parameterName);
+
+            if (info == null) return;
+
+            if (info is FieldInfo field)
+                field.SetValue(target,value);
+            else if (info is PropertyInfo property)
+                property.SetValue(target,value);           
+        }
+
+        private static MemberInfo GetMemberInfo<T>(string parameterName)
+        {
+            MemberInfo[] infos = typeof(T).GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic
+                | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public);
+            for (int i = 0; i < infos.Length; i++)
+            {
+                if (infos[i].Name.Equals(parameterName))
+                    return infos[i];
+            }
+            return null;
+        }
+
+        private static MethodInfo GetMethodInfos<T>(string parameterName,Type[] types)
+        {
+            IEnumerable<MethodInfo> infos = typeof(T).GetRuntimeMethods();
+
+            ParameterInfo[] parameterInfos = null;
+            foreach (var info in infos)
+            {
+                if (!info.Name.Equals(parameterName)) continue;
+                parameterInfos = info.GetParameters();
+
+                if (parameterInfos.Length != types.Length) continue;
+
+
+                bool IsContinue = false;
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (parameterInfos[i].ParameterType != types[i])
+                    {
+                        IsContinue = true;
+                        break;
+                    }
+                }
+                if (IsContinue) continue;
+
+
+                return info;
+            }
+            return null;
+        }
+
         /// <summary>
         /// 直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter
         /// </summary>        
         [MethodAPI("直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter")]
-        public static void SetValue<T>(this T target, string parameterName,object value, ValueType type = ValueType.Field) where T : class
+        public static void SetValue<T>(this T target, string parameterName,object value) where T : class
         {
-            switch (type)
-            {
-                case ValueType.Property:
-                    GetOrSetPropertyValue(target, parameterName, true, value);
-                    break;
-                case ValueType.Field:
-                    GetOrSetFieldValue(target, parameterName, true, value);
-                    break;               
-            }
-        }
-
-        private static object GetOrSetFieldValue<T>(T target,string parameterName,bool setting = false,object arg = null)
-        {
-            try
-            {
-                foreach (var field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static
-                    | BindingFlags.NonPublic))
-                {
-                    if (field.Name.Equals(parameterName))
-                    {
-                        if (setting)
-                            field.SetValue(target, arg);
-                        return field.GetValue(target);
-                    }
-                }           
-            }
-            catch(Exception ex)
-            {
-                Debug.LogError(ex + "查找字段失败,请检查参数名是否存在！");               
-            }
-            return null;
-        }
-
-        private static object GetOrSetPropertyValue<T>(T target, string parameterName, bool setting = false, object arg = null)
-        {
-            try
-            {
-                foreach (var property in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static
-                    | BindingFlags.NonPublic | BindingFlags.GetProperty | BindingFlags.SetProperty))
-                {
-                    if (property.Name.Equals(parameterName))
-                    {
-                        if (setting)                        
-                            property.SetValue(target, arg);                                                  
-                        return property.GetValue(target);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex + "查找属性失败,请检查参数名是否存在或者该方法有没有公开Getter/Setter！");
-            }
-            return null;
-        }
-
-        private static bool Invoke(string methodName,Type type,out MethodInfo methodInfo)
-        {
-            methodInfo = null;
-         
-            foreach (var method in type.GetMethods(BindingFlags.NonPublic |
-                BindingFlags.InvokeMethod|              
-                BindingFlags.Instance))
-            {
-                foreach (var attribute in method.GetCustomAttributes())
-                {                  
-                    if (attribute is DynamicMethodAttribute && method.Name.Equals(methodName))
-                    {
-                        methodInfo = method;
-                        return true;
-                    } 
-                }
-            }
-
-            foreach (var method in type.GetMethods(BindingFlags.Public |
-                BindingFlags.InvokeMethod |
-                BindingFlags.Instance))
-            {
-                if (method.Name.Equals(methodName))
-                {
-                    methodInfo = method;
-                    return true;
-                }
-            }
-            return false;
-        }
+            Set<T>(target, value,parameterName);
+        }          
     }
 }

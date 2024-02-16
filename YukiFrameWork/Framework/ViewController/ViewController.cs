@@ -108,7 +108,7 @@ namespace YukiFrameWork
             => _fields.Clear();
 
         IEnumerable<SerializeFieldData> ISerializedFieldInfo.GetSerializeFields() => _fields;
-        #endregion
+        #endregion 
     }
 
     public partial class ViewController : MonoBehaviour, IController
@@ -118,8 +118,15 @@ namespace YukiFrameWork
 
         protected virtual void Awake()
         {
-            if (initialized == RuntimeInitialized.Awake)            
-                RuntimeEventInitializationFactory.Initialization(this);           
+            try
+            {
+                if (initialized == RuntimeInitialized.Awake)
+                    RuntimeEventInitializationFactory.Initialization(this);
+            }
+            catch
+            {
+                throw new System.NullReferenceException($"无法在Awake下注册事件，请检查是否在{GetType()}中正确实现了架构!");
+            }
         }
       
         /// <summary>
@@ -134,7 +141,8 @@ namespace YukiFrameWork
                     if (mArchitecture == null)
                     {
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);
-                        RuntimeEventInitializationFactory.Initialization(this);
+                        if(mArchitecture != null)
+                            RuntimeEventInitializationFactory.Initialization(this);
                     }
                     return mArchitecture;
                 }

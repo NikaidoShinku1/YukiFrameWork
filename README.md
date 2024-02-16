@@ -5,7 +5,24 @@
 
 #### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
+框架控制器添加方式:
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller1.png)
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
+![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
+
+[ViewController对架构的自动化具体使用示例](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController使用说明.md)
+
+[ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
+
+[ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
+
+[Command介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/10.Command.md)
+
 #### 框架支持工具
+
+- 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
+
+- 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Serialization/序列化工具.md)
 
 - IOC:LifeTimeScope[IOC介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md)
 
@@ -23,15 +40,11 @@
 
 - 状态机模块:State[状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md)
  
-- 协程拓展工具:IAsyncExeucteCore[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
+- 框架拓展工具:Extension [拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
 
 - 对象池模块:PoolsFectory[对象池模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md)
 
-- 命令模块:Command[命令模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/10.Command.md)
-
 - 强化数据绑定类:BindablePropery[强化数据模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md)
-
-- 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Serialization/序列化工具.md)
 
 - 贝塞尔曲线拓展模块:BezierUtility[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md)
 #### 安装教程
@@ -43,20 +56,23 @@
 框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
 ![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
 
-框架控制器添加方式:
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller1.png)
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
-
-[ViewController对架构的自动化具体使用示例](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController使用说明.md)
-
-[ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
-
-[ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
-
 注意：使用本框架Unity版本不能低于2020.3
 
 #### 框架更新版本速览
+
+V1.7.93 优化背包模块的底层,补充了简介,新增自定义手部物品控制器以及物品UI的动画效果设置。
+
+V1.7.92 IOC模块大幅优化,功能更强了。修复本地代码生成跟背包系统的编辑器无法保存数据的问题,优化反射拓展
+
+V1.7.91 状态机模块底层优化，修复初始化事件时如果不存在架构会内存溢出的问题,优化细节
+
+V1.7.9 状态机模块底层优化，现在可以序列化所有的基本数据类型，包含数组列表。补充状态机模块的文档
+
+V1.7.82 UI模块API增加判断面板生命周期的方法,优化文档跟本地代码生成
+
+V1.7.81 框架序列化工具内置,修复ExcelToJson插件无法正常使用的问题,优化细节，文档介绍优化。
+
+V1.7.8 UI模块的生命周期现在不加base也可以正常使用,优化ViewController的编辑器,现在在场景有任何改动都可以进行保存。更新通用的脚本生成器,左上方YukiFrameWork/Local Scripts Generator打开
 
 V1.7.7 BindableProperty拓展,新增列表以及字典的属性绑定,字典可序列化添加，可以绑定事件，对IOC模块的描述进行补充。
 

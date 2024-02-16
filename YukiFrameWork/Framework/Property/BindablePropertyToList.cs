@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using YukiFrameWork.Pools;
-using System.Threading;
-
 namespace YukiFrameWork
 {
     /// <summary>
@@ -13,19 +10,17 @@ namespace YukiFrameWork
     /// </summary>
     /// <typeparam name="T">类型</typeparam>
     [Serializable]
-    public class BindablePropertyToList<T> : IBindableProperty<T>, IEnumerable<T>, IEnumerable, IList<T>, IReadOnlyList<T>, IReadOnlyCollection<T>       
+    public class BindablePropertyToList<T> : List<T> , IBindableProperty<T>, IEnumerable<T>, IEnumerable, IList<T>, IReadOnlyList<T>, IReadOnlyCollection<T>,IList 
     {
         [NonSerialized]
         private readonly EasyEvent<T> onListChange = new EasyEvent<T>();
 
         [field:SerializeField]
-        private List<T> list;
-
-        public int Count => list.Count;
-
+        private List<T> list;  
+        
         public bool IsReadOnly => ((ICollection<T>)list).IsReadOnly;
 
-        public T this[int index]
+        public new T this[int index]
         {
             get => list[index];
             set
@@ -38,9 +33,9 @@ namespace YukiFrameWork
             }
         }
 
-        public BindablePropertyToList(List<T> list)
+        public BindablePropertyToList(IEnumerable<T> list)
         {
-            this.list = list;          
+            this.list = list as List<T>;          
         }
 
         public BindablePropertyToList()
@@ -49,8 +44,9 @@ namespace YukiFrameWork
         }
 
         public IUnRegister Register(Action<T> onEvent)
-        {
-            return onListChange.RegisterEvent(onEvent);
+        {           
+            onListChange.RegisterEvent(onEvent);
+            return onListChange;
         }
         
         public void UnRegister(Action<T> onEvent)
@@ -58,9 +54,9 @@ namespace YukiFrameWork
             onListChange.UnRegister(onEvent);
         }
 
-        public void Add(T item)
-        {
-            onListChange.SendEvent(item);
+        public new void Add(T item)
+        {           
+            onListChange.SendEvent(item);          
             list.Add(item);
         }
 
@@ -71,10 +67,10 @@ namespace YukiFrameWork
             return list.Remove(item);
         }
 
-        public bool Contains(T item)
+        public new bool Contains(T item)
             => list.Contains(item);
 
-        public void Clear() 
+        public new void Clear() 
         {           
             list.Clear();           
         }
@@ -91,7 +87,7 @@ namespace YukiFrameWork
         {
             onListChange.UnRegisterAllEvent();  
         }
-        public IEnumerator<T> GetEnumerator()
+        public new IEnumerator<T> GetEnumerator()
         {
             return list.GetEnumerator();
         }
@@ -101,12 +97,12 @@ namespace YukiFrameWork
             return list.GetEnumerator();
         }
 
-        public int IndexOf(T item)
+        public new int IndexOf(T item)
         {
             return list.IndexOf(item);
         }
 
-        public void Insert(int index, T item)
+        public new void Insert(int index, T item)
         {
             list.Insert(index, item);
         }
@@ -124,9 +120,9 @@ namespace YukiFrameWork
         void IList<T>.RemoveAt(int index)
         {
             RemoveAt(index, false);
-        }        
+        }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public new void CopyTo(T[] array, int arrayIndex)
         {
             list.CopyTo(array, arrayIndex);
         }
@@ -137,55 +133,56 @@ namespace YukiFrameWork
         }
 
         #region Find Item
-        public T Find(Predicate<T> match)
+        public new T Find(Predicate<T> match)
         {
             return list.Find(match);
         }
-      
-        public List<T> FindAll(Predicate<T> match)
+
+        public new List<T> FindAll(Predicate<T> match)
         {
             return list.FindAll(match);
         }
-       
-        public int FindIndex(Predicate<T> match)
+
+        public new int FindIndex(Predicate<T> match)
         {
             return FindIndex(0,Count, match);
         }
-       
-        public int FindIndex(int startIndex, Predicate<T> match)
+
+        public new int FindIndex(int startIndex, Predicate<T> match)
         {
             return FindIndex(startIndex, Count - startIndex, match);
         }
-    
-        public int FindIndex(int startIndex, int count, Predicate<T> match)
+
+        public new int FindIndex(int startIndex, int count, Predicate<T> match)
         {
             return list.FindIndex(startIndex, count, match);
         }
-       
-        public T FindLast(Predicate<T> match)
+
+        public new T FindLast(Predicate<T> match)
         {
             return list.FindLast(match);
         }
-       
-        public int FindLastIndex(Predicate<T> match)
+
+        public new int FindLastIndex(Predicate<T> match)
         {
             return FindLastIndex(Count- 1, Count, match);
         }
-       
-        public int FindLastIndex(int startIndex, Predicate<T> match)
+
+        public new int FindLastIndex(int startIndex, Predicate<T> match)
         {
             return FindLastIndex(startIndex, startIndex + 1, match);
         }
        
-        public int FindLastIndex(int startIndex, int count, Predicate<T> match)
+        public new int FindLastIndex(int startIndex, int count, Predicate<T> match)
         {
             return list.FindLastIndex(startIndex, count, match);
         }
        
-        public void ForEach(Action<T> action)
+        public new void ForEach(Action<T> action)
         {
             list.ForEach(action);
         }
+        
         #endregion
     }
 }

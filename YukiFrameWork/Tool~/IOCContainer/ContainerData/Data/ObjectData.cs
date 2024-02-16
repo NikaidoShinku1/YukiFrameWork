@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 using YukiFrameWork.Pools;
-using static UnityEngine.UIElements.VisualElement;
-using YukiFrameWork.Fram2D;
 
 namespace YukiFrameWork
 {
-    public class MonoComponentData
+    public class IOCObject
+    {
+        public ulong id { get; protected set; }
+    }
+    public class MonoComponentData : IOCObject
     {
         private readonly Dictionary<string, Transform> containerDict = DictionaryPools<string, Transform>.Get();
         private readonly Component dependObj = null;
-        private readonly ulong id;
+       
         public MonoComponentData(ulong id, Component dependObj, bool includeInactive)
         {
             this.dependObj = dependObj;
             this.id = id;
 
-            InitComponent(includeInactive);
+            InitComponent(includeInactive);          
         }
 
         public Type DependType => dependObj.GetType();
@@ -64,8 +66,12 @@ namespace YukiFrameWork
             if (!containerDict.TryGetValue(name, out var Tcomponent))
             {
                 T c = dependObj.GetComponentInChildren<T>();
-                Add(c, false, container);
-                return c;
+                if (c != null && c.ToString() != "null")
+                {
+                    Add(c, false, container);
+                    return c;
+                }
+                return null;
             }
             return Tcomponent.GetComponent<T>();
         }
@@ -75,8 +81,12 @@ namespace YukiFrameWork
             if (!containerDict.TryGetValue(name, out var Tcomponent))
             {
                 Component c = dependObj.GetComponentInChildren(type);
-                Add(c, false, container);
-                return c;
+                if (c != null && c.ToString() != "null")
+                {
+                    Add(c, false, container);
+                    return c;
+                }
+                return null;
             }
             return Tcomponent.GetComponent(type);
         }
@@ -85,11 +95,11 @@ namespace YukiFrameWork
         {          
             foreach (var component in containerDict.Values)
             {
-                object components =  Convert.ChangeType(component.GetComponent(type), type);  
+                var components =  component.GetComponent(type);  
                 
-                if (components is not null && components.ToString() != "null")
+                if (components != null && components.ToString() != "null")
                 {
-                    return components as Component;
+                    return components;
                 }          
             }          
             Component c = dependObj.GetComponentInChildren(type);             
@@ -147,15 +157,23 @@ namespace YukiFrameWork
                     }
                 }
             }
+
+            IInjectContainer c = dependObj as IInjectContainer;
+            if (c == null) return;
+
+            c.Container = LifeTimeScope.scope.Container;
         }     
 
         private void InitExecute(string path, Type type, Component component, bool includeInactive, bool InHierarchy, IOCContainer container, out object obj)
         {
             if (type.IsSubclassOf(typeof(Component)))
             {
-                obj = path != string.Empty ? component.transform.Find(path).GetComponent(type) : component.GetComponentInChildren(type, includeInactive);
-                if (obj == null && InHierarchy)
-                    obj = UnityEngine.Object.FindObjectOfType(type, includeInactive);
+                obj = path !=
+               string.Empty ? (InHierarchy ? GameObject.FindGameObjectWithTag(path).GetComponent(type) : component.transform.Find(path).GetComponent(type))
+               : component.GetComponentInChildren(type, includeInactive);
+                
+                if(InHierarchy)
+                    obj ??= (Component)UnityEngine.Object.FindObjectOfType(type,includeInactive);
             }
             else
             {
@@ -167,9 +185,8 @@ namespace YukiFrameWork
         }
     }
 
-    public class ObjectData
-    {
-        private readonly ulong id = 0;
+    public class ObjectData : IOCObject
+    {       
         private readonly Dictionary<string, object> containerDict = DictionaryPools<string, object>.Get();
 
         private readonly Dictionary<string, object[]> paramterDict = DictionaryPools<string, object[]>.Get();
@@ -279,34 +296,85 @@ namespace YukiFrameWork
                 var inject = info.GetCustomAttribute<InjectAttribute>();
                 if (inject == null) continue;
                 ObjectData data = null;
+                MonoComponentData mono = null;
                 if (info is FieldInfo field)
-                {                    
-                    if (container.CheckSingletonType(field.FieldType))
-                        data = container.GetOrAddSingleton(field.FieldType);
-                    else
-                        data = container.GetContainer(field.FieldType);
-
-                    if (data == null) continue;
-
+                {
                     string name = inject.Path;
-                    obj = data.GetInstance(container, name);
+                    bool inHerarchy = inject.InHierarchy;
+                    if (field.FieldType.IsSubclassOf(typeof(Component)))
+                    {
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            if (!inHerarchy)
+                            {
+                                mono = container.GetComponentContainer(name);
 
+                                if (mono == null) continue;
+
+                                obj = mono.GetOrAddComponent(field.FieldType, container);
+                            }
+                            else
+                            {
+                                obj = GameObject.FindGameObjectWithTag(name).GetComponent(field.FieldType);
+                            }
+                        }
+                        else if(inHerarchy)                       
+                            obj = UnityEngine.Object.FindObjectOfType(field.FieldType);
+                                             
+                    }
+                    else
+                    {
+                        if (container.CheckSingletonType(field.FieldType))
+                            data = container.GetOrAddSingleton(field.FieldType);
+                        else
+                            data = container.GetContainer(field.FieldType);
+                        if (data == null) continue;
+                        obj = data.GetInstance(container, name);
+                    }
                     field.SetValue(instance, obj);
                 }
                 else if (info is PropertyInfo property)
                 {
-                    if (container.CheckSingletonType(property.PropertyType))
-                        data = container.GetOrAddSingleton(property.PropertyType);
-                    else
-                        data = container.GetContainer(property.PropertyType);
-                    if (data == null) continue;
-
                     string name = inject.Path;
-                    obj = data.GetInstance(container, name);
+                    bool inHerarchy = inject.InHierarchy;
+                    if (property.PropertyType.IsSubclassOf(typeof(Component)))
+                    {
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            if (!inHerarchy)
+                            {
+                                mono = container.GetComponentContainer(name);
+
+                                if (mono == null) continue;
+
+                                obj = mono.GetOrAddComponent(property.PropertyType, container);
+                            }
+                            else
+                            {
+                                obj = GameObject.FindGameObjectWithTag(name)?.GetComponent(property.PropertyType);
+                            }
+                        }
+                        else if (inHerarchy)
+                            obj = UnityEngine.Object.FindObjectOfType(property.PropertyType);
+                    }
+                    else
+                    {
+                        if (container.CheckSingletonType(property.PropertyType))
+                            data = container.GetOrAddSingleton(property.PropertyType);
+                        else
+                            data = container.GetContainer(property.PropertyType);
+                        if (data == null) continue;
+                        obj = data.GetInstance(container, name);
+                    }             
 
                     property.SetValue(instance, obj);
                 }
             }
+
+            IInjectContainer c = instance as IInjectContainer;
+            if (c == null) return;
+
+            c.Container = LifeTimeScope.scope.Container;
         }       
     }
 

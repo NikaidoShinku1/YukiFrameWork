@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using AssemblyHelper = YukiFrameWork.Extension.AssemblyHelper;
 using Object = UnityEngine.Object;
 using System.Linq;
+using System.Collections;
 #if UNITY_EDITOR
 namespace YukiFrameWork.States
 {
@@ -22,11 +23,19 @@ namespace YukiFrameWork.States
 
         private List<Type> behaviourTypes = new List<Type>();
 
-        private bool isRecomposeScript = false;      
+        private bool isRecomposeScript = false;
+
+      
         public override void OnInspectorGUI()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;            
             if (helper == null) return;
+
+            if (EditorApplication.isCompiling)
+            {
+                EditorGUILayout.HelpBox("编译中>>>(编译完成后重新点击状态打开)", MessageType.Warning);
+                return;
+            }
 
             bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState);
 
@@ -121,125 +130,39 @@ namespace YukiFrameWork.States
             for (int i = 0; i < dataBase.metaDatas.Count; i++)
             {             
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(dataBase.metaDatas[i].name, GUILayout.Width(100));
-                Type fieldType = AssemblyHelper.GetType(dataBase.metaDatas[i].typeName);
-                switch (dataBase.metaDatas[i].dataType)
-                {
-                    case DataType.Object:                                            
-                        var obj = EditorGUILayout.ObjectField(dataBase.metaDatas[i].Value, fieldType, true);
-                        if (dataBase.metaDatas[i].Value != obj)
-                        {
-                            dataBase.metaDatas[i].Value = obj;
-                            helper.StateMechine.SaveToMechine();
-                        }
-                        break;
-                    case DataType.Int16:
-                         SetData(dataBase.metaDatas[i], EditorGUILayout.IntField((short)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(short))),helper.StateMechine);                    
-                        break;
-                    case DataType.Int32:                  
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.IntField((int)Convert.ChangeType(dataBase.metaDatas[i].Data,typeof(int))),helper.StateMechine);
-                        break;
-                    case DataType.Int64:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.LongField((long)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(long))),helper.StateMechine);
-                        break;
-                    case DataType.Single:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.FloatField((float)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(float))),helper.StateMechine);
-                        break;
-                    case DataType.Double:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.DoubleField((double)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(double))),helper.StateMechine);
-                        break;                 
-                    case DataType.Boolan:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.Toggle((bool)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(bool))),helper.StateMechine);
-                        break;
-                    case DataType.String:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.TextField((string)Convert.ChangeType(dataBase.metaDatas[i].Data, typeof(string))),helper.StateMechine);
-                        break;
-                    case DataType.Enum:
-                        SetData(dataBase.metaDatas[i],EditorGUILayout.EnumPopup((Enum)dataBase.metaDatas[i].Data),helper.StateMechine);
-                        break;                 
-                }              
-
+                PropertyField(dataBase.metaDatas[i]);              
                 EditorGUILayout.EndHorizontal();
-                
+                EditorGUILayout.Space();
+
             }
 
             EditorGUILayout.EndVertical();
-        }
+        }  
 
-        private void SetData(MetaData data,object target,StateMechine stateMechine)
+        private static void SetData(Metadata data,object value)
         {
-            if (data.Data.ToString() != target.ToString())
-            {               
-                data.Data = target;
+            StateInspectorHelper helper = StateInspectorHelper.Instance;
+            if (helper == null) return;
+            StateMechine stateMechine = helper.StateMechine;
+            if (stateMechine == null) 
+            {
+                Selection.activeObject = null;
+                return;
+            }
+            if (data.type == TypeCode.Object) 
+            {
+                if (data.value != value)
+                {
+                    data.value = value as Object;
+                    stateMechine.SaveToMechine();
+                }
+            }
+            else if (data.value.ToString() != value.ToString())
+            {
+                data.value = value;
                 stateMechine.SaveToMechine();
             }
-        }
-        public void OnEnable()
-        {
-            StateInspectorHelper helper = (StateInspectorHelper)target;           
-            if (helper == null) return;
-
-            ///对数据进行初始化操作
-            foreach (var dataBase in helper.node.dataBases)
-            {
-                foreach (var data in dataBase.metaDatas)
-                {
-                    InitMetaDataValue(data);
-                }
-            }
-        }
-
-        private void InitMetaDataValue(MetaData data)
-        {
-            if (!string.IsNullOrEmpty(data.value))
-            {
-                switch (data.dataType)
-                {
-                    case DataType.Int16:
-                        data.data = short.Parse(data.value);
-                        break;
-                    case DataType.Int32:
-                        data.data = int.Parse(data.value);
-                        break;
-                    case DataType.Int64:
-                        data.data = long.Parse(data.value);
-                        break;
-                    case DataType.UInt16:
-                        data.data = ushort.Parse(data.value);
-                        break;
-                    case DataType.UInt32:
-                        data.data = uint.Parse(data.value);
-                        break;
-                    case DataType.UInt64:
-                        data.data = ulong.Parse(data.value);
-                        break;
-                    case DataType.Single:
-                        data.data = float.Parse(data.value);
-                        break;
-                    case DataType.Double:
-                        data.data = double.Parse(data.value);
-                        break;
-                    case DataType.Boolan:
-                        data.data = bool.Parse(data.value);
-                        break;
-                    case DataType.String:
-                        data.data = data.value;
-                        break;
-                    case DataType.Enum:
-                        {
-                            try
-                            {
-                                data.data = Enum.Parse(AssemblyHelper.GetType(data.typeName), data.value);
-                            }
-                            catch
-                            {
-                                Debug.LogError("枚举转换失败，请重试！value : " + data.value);
-                            }
-                        }
-                        break;                                       
-                }
-            }
-        }
+        }              
 
         private void Update_StateFieldInfo(Type type, StateDataBase dataBase)
         {
@@ -293,37 +216,201 @@ namespace YukiFrameWork.States
                         {
                             tempData.typeName = field.FieldType.ToString();
                         }
+                    
                         if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name)) != null) continue;
-
+                      
                         HideFieldAttribute hideField = field.GetCustomAttribute<HideFieldAttribute>();
-                        if (hideField != null) continue;                     
-                        if (field.FieldType.Equals(typeof(short)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Int16, 0));
-                        else if (field.FieldType.Equals(typeof(int)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Int32, 0));
-                        else if (field.FieldType.Equals(typeof(long)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Int64, 0));
-                        else if (field.FieldType.Equals(typeof(ushort)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.UInt16, 0));
-                        else if (field.FieldType.Equals(typeof(uint)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.UInt32, 0));
-                        else if (field.FieldType.Equals(typeof(ulong)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.UInt64, 0));
-                        else if (field.FieldType.Equals(typeof(float)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Single, 0f));
-                        else if (field.FieldType.Equals(typeof(double)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Double, 0d));
-                        else if (field.FieldType.Equals(typeof(bool)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Boolan, false));
-                        else if (field.FieldType.Equals(typeof(string)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.String, string.Empty));
-                        else if (field.FieldType.IsSubclassOf(typeof(Enum)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Enum, Enum.GetValues(field.FieldType).GetValue(0)));
-                        else if (field.FieldType.IsSubclassOf(typeof(Object)))
-                            dataBase.metaDatas.Add(new MetaData(field.Name, field.FieldType.ToString(), DataType.Object, null));                       
+                        if (hideField != null) continue;
+                       
+                        var target = Activator.CreateInstance(type);//AssemblyHelper.DeserializeObject("{ }", type);                     
+                        if (Type.GetTypeCode(field.FieldType) == System.TypeCode.Object)
+                        {                       
+                            if (field.FieldType.IsSubclassOf(typeof(Object)) || field.FieldType == typeof(Object))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Object, target, field));
+                            else if (field.FieldType.IsGenericType && !field.FieldType.FullName.Contains("BindablePropertyToList"))
+                            {
+                                var gta = field.FieldType.GenericTypeArguments;
+                                if (gta.Length > 1)
+                                    continue;
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.GenericType, target, field));
+                            }
+                            else if (field.FieldType.IsArray)
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Array, target, field));
+                            else if (field.FieldType == typeof(Vector2))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector2, target, field));
+                            else if (field.FieldType == typeof(Vector3))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector3, target, field));
+                            else if (field.FieldType == typeof(Vector4))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector4, target, field));
+                            else if (field.FieldType == typeof(Quaternion))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Quaternion, target, field));
+                            else if (field.FieldType == typeof(Rect))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Rect, target, field));
+                            else if (field.FieldType == typeof(Color))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color, target, field));
+                            else if (field.FieldType == typeof(Color32))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color32, target, field));
+                            else if (field.FieldType == typeof(AnimationCurve))
+                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.AnimationCurve, target, field));
+                        }
+                        else if (field.FieldType.IsEnum)
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Enum, target, field));
+                        else
+                        {                           
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), (TypeCode)Type.GetTypeCode(field.FieldType), target, field));
+                        }
+                       
                     }
                 }
             }
+        }
+
+        private static void PropertyField(Metadata metadata)
+        {
+            if (metadata.type == TypeCode.Byte)
+                SetData(metadata, (byte)EditorGUILayout.IntField(metadata.name, (byte)metadata.value));            
+            else if (metadata.type == TypeCode.SByte)
+                SetData(metadata, (sbyte)EditorGUILayout.IntField(metadata.name, (sbyte)metadata.value));
+            else if (metadata.type == TypeCode.Boolean)
+                SetData(metadata, EditorGUILayout.Toggle(metadata.name, (bool)metadata.value));
+            else if (metadata.type == TypeCode.Int16)
+                SetData(metadata, (short)EditorGUILayout.IntField(metadata.name, (short)metadata.value));
+            else if (metadata.type == TypeCode.UInt16)
+                SetData(metadata, (ushort)EditorGUILayout.IntField(metadata.name, (ushort)metadata.value));
+            else if (metadata.type == TypeCode.Char)
+                SetData(metadata, EditorGUILayout.TextField(metadata.name, metadata.data).ToCharArray().FirstOrDefault());
+            else if (metadata.type == TypeCode.Int32)
+                SetData(metadata, EditorGUILayout.IntField(metadata.name, (int)metadata.value));
+            else if (metadata.type == TypeCode.UInt32)
+                SetData(metadata, (uint)EditorGUILayout.IntField(metadata.name, (int)metadata.value));
+            else if (metadata.type == TypeCode.Single)
+                SetData(metadata, EditorGUILayout.FloatField(metadata.name, (float)metadata.value));
+            else if (metadata.type == TypeCode.Int64)
+                SetData(metadata, EditorGUILayout.LongField(metadata.name, (long)metadata.value));
+            else if (metadata.type == TypeCode.UInt64)
+                SetData(metadata, (ulong)EditorGUILayout.LongField(metadata.name, (long)metadata.value));
+            else if (metadata.type == TypeCode.Double)
+                SetData(metadata, EditorGUILayout.DoubleField(metadata.name, (double)metadata.value));
+            else if (metadata.type == TypeCode.String)
+                SetData(metadata, EditorGUILayout.TextField(metadata.name, metadata.data));
+            else if (metadata.type == TypeCode.Enum)
+                SetData(metadata, EditorGUILayout.EnumPopup(metadata.name, (Enum)metadata.value));
+            else if (metadata.type == TypeCode.Vector2)
+                SetData(metadata, EditorGUILayout.Vector2Field(metadata.name, (Vector2)metadata.value));
+            else if (metadata.type == TypeCode.Vector3)
+                SetData(metadata, EditorGUILayout.Vector3Field(metadata.name, (Vector3)metadata.value));
+            else if (metadata.type == TypeCode.Vector4)
+                SetData(metadata, EditorGUILayout.Vector4Field(metadata.name, (Vector4)metadata.value));
+            else if (metadata.type == TypeCode.Quaternion)
+            {
+                Quaternion q = (Quaternion)metadata.value;
+                var value = EditorGUILayout.Vector4Field(metadata.name, new Vector4(q.x, q.y, q.z, q.w));
+                Quaternion q1 = new Quaternion(value.x, value.y, value.z, value.w);
+                SetData(metadata, q1);
+            }
+            else if (metadata.type == TypeCode.Rect)
+                SetData(metadata, EditorGUILayout.RectField(metadata.name, (Rect)metadata.value));
+            else if (metadata.type == TypeCode.Color)
+                SetData(metadata, EditorGUILayout.ColorField(metadata.name, (Color)metadata.value));
+            else if (metadata.type == TypeCode.Color32)
+                SetData(metadata, (Color32)EditorGUILayout.ColorField(metadata.name, (Color32)metadata.value));
+            else if (metadata.type == TypeCode.AnimationCurve)
+                SetData(metadata, EditorGUILayout.CurveField(metadata.name, (AnimationCurve)metadata.value));
+            else if (metadata.type == TypeCode.Object)
+                SetData(metadata, EditorGUILayout.ObjectField(metadata.name, (Object)metadata.value, metadata.Type, true));
+            else if (metadata.type == TypeCode.GenericType | metadata.type == TypeCode.Array)
+            {
+                EditorGUILayout.BeginVertical();
+                var rect = EditorGUILayout.GetControlRect();
+                //rect.x += width;
+                metadata.foldout = EditorGUI.BeginFoldoutHeaderGroup(rect, metadata.foldout, metadata.name);
+                if (metadata.foldout)
+                {
+                    //EditorGUI.indentLevel = arrayBeginSpace;
+                    EditorGUI.BeginChangeCheck();
+                    var arraySize = EditorGUILayout.DelayedIntField("Size", metadata.arraySize);
+                    bool flag8 = EditorGUI.EndChangeCheck();
+                    IList list = (IList)metadata.value;
+                    if (flag8 | list.Count != metadata.arraySize)
+                    {
+                        metadata.arraySize = arraySize;
+                        IList list1 = Array.CreateInstance(metadata.itemType, arraySize);
+                        for (int i = 0; i < list1.Count; i++)
+                            if (i < list.Count)
+                                list1[i] = list[i];
+                        if (metadata.type == TypeCode.GenericType)
+                        {
+                            IList list2 = (IList)Activator.CreateInstance(metadata.Type);
+                            for (int i = 0; i < list1.Count; i++)
+                                list2.Add(list1[i]);
+                            list = list2;
+                        }
+                        else list = list1;
+                    }
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        list[i] = PropertyField("Element " + i, list[i], metadata.itemType);
+                        metadata.value = list;
+                    }
+                    //EditorGUI.indentLevel = arrayEndSpace;
+                }
+                EditorGUI.EndFoldoutHeaderGroup();
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        private static object PropertyField(string name, object obj, Type type)
+        {
+            var typeCode = (TypeCode)Type.GetTypeCode(type);
+            if (typeCode == TypeCode.Byte)
+                obj = (byte)EditorGUILayout.IntField(name, (byte)obj);
+            else if (typeCode == TypeCode.SByte)
+                obj = (sbyte)EditorGUILayout.IntField(name, (sbyte)obj);
+            else if (typeCode == TypeCode.Boolean)
+                obj = EditorGUILayout.Toggle(name, (bool)obj);
+            else if (typeCode == TypeCode.Int16)
+                obj = (short)EditorGUILayout.IntField(name, (short)obj);
+            else if (typeCode == TypeCode.UInt16)
+                obj = (ushort)EditorGUILayout.IntField(name, (ushort)obj);
+            else if (typeCode == TypeCode.Char)
+                obj = EditorGUILayout.TextField(name, (string)obj).ToCharArray().FirstOrDefault();
+            else if (typeCode == TypeCode.Int32)
+                obj = EditorGUILayout.IntField(name, (int)obj);
+            else if (typeCode == TypeCode.UInt32)
+                obj = (uint)EditorGUILayout.IntField(name, (int)obj);
+            else if (typeCode == TypeCode.Single)
+                obj = EditorGUILayout.FloatField(name, (float)obj);
+            else if (typeCode == TypeCode.Int64)
+                obj = EditorGUILayout.LongField(name, (long)obj);
+            else if (typeCode == TypeCode.UInt64)
+                obj = (ulong)EditorGUILayout.LongField(name, (long)obj);
+            else if (typeCode == TypeCode.Double)
+                obj = EditorGUILayout.DoubleField(name, (double)obj);
+            else if (typeCode == TypeCode.String)
+                obj = EditorGUILayout.TextField(name, (string)obj);
+            else if (type == typeof(Vector2))
+                obj = EditorGUILayout.Vector2Field(name, (Vector2)obj);
+            else if (type == typeof(Vector3))
+                obj = EditorGUILayout.Vector3Field(name, (Vector3)obj);
+            else if (type == typeof(Vector4))
+                obj = EditorGUILayout.Vector4Field(name, (Vector4)obj);
+            else if (type == typeof(Quaternion))
+            {
+                var value = EditorGUILayout.Vector4Field(name, (Vector4)obj);
+                Quaternion quaternion = new Quaternion(value.x, value.y, value.z, value.w);
+                obj = quaternion;
+            }
+            else if (type == typeof(Rect))
+                obj = EditorGUILayout.RectField(name, (Rect)obj);
+            else if (type == typeof(Color))
+                obj = EditorGUILayout.ColorField(name, (Color)obj);
+            else if (type == typeof(Color32))
+                obj = EditorGUILayout.ColorField(name, (Color32)obj);
+            else if (type == typeof(AnimationCurve))
+                obj = EditorGUILayout.CurveField(name, (AnimationCurve)obj);
+            else if (type.IsSubclassOf(typeof(Object)) | type == typeof(Object))
+                obj = EditorGUILayout.ObjectField(name, (Object)obj, type, true);
+            return obj;
         }
 
         private void RecomposeScript(StateBase state)

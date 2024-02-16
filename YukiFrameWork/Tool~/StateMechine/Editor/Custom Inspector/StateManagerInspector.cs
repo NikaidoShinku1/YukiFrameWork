@@ -5,9 +5,22 @@ using UnityEngine;
 using UnityEditor;
 namespace YukiFrameWork.States
 {
-    [CustomEditor(typeof(StateManager))]
+    [CustomEditor(typeof(StateManager))] 
     public class StateManagerInspector : UnityEditor.Editor
-    {            
+    {
+        [MenuItem("GameObject/YukiFrameWork/Create State-Object")]
+        private static void Created()
+        {           
+            GameObject gameObject = Selection.activeGameObject;
+            gameObject ??= new GameObject("State Object");
+            gameObject.AddComponent<StateManager>();
+            Undo.RegisterCreatedObjectUndo(gameObject,"Create");
+
+            EditorUtility.SetDirty(gameObject);
+            AssetDatabase.SaveAssets();
+
+        }
+
         public override void OnInspectorGUI()
         {           
             StateManager manager = (StateManager)target;
@@ -21,7 +34,7 @@ namespace YukiFrameWork.States
             EditorGUI.BeginDisabledGroup(DisabledGroup());
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("状态机初始化方式：");           
-            var initType = (InitType)EditorGUILayout.EnumPopup(manager.initType);
+            var initType = (RuntimeInitType)EditorGUILayout.EnumPopup(manager.initType);
             if (manager.initType != initType)
             {
                 manager.initType = initType;
@@ -42,10 +55,10 @@ namespace YukiFrameWork.States
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.Space();
-            CreateMechine(manager);
+            EditorGUILayout.Space();          
 
             EditorGUI.EndDisabledGroup();
+            CreateMechine(manager);
         }
 
         private void CreateMechine(StateManager manager)

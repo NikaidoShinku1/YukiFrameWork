@@ -31,10 +31,11 @@ namespace YukiFrameWork
 
         private ContainerBuilder builder => (ContainerBuilder)containerBuilder;
 
-        private readonly List<MonoBehaviour> monoBehaviours = ListPools<MonoBehaviour>.Get();     
-
+        private readonly List<MonoBehaviour> monoBehaviours = ListPools<MonoBehaviour>.Get();
+        public static LifeTimeScope scope = null;
         protected virtual void Awake()
         {
+            scope = this;
             Inited();
             SetSingletonParent();            
             InitBuilder(containerBuilder);
@@ -44,6 +45,7 @@ namespace YukiFrameWork
             InjectAllConstructorMethodInMonoBehaviour();
            
             initEnterObjs.Clear();
+            scope = null;
         }
 
         private void Inited()
@@ -81,7 +83,7 @@ namespace YukiFrameWork
         }
 
         private void InJectAutoInGameObject(GameObject gameObject)
-        {
+        {          
             initEnterObjs.Push(gameObject);
             InjectionFectory.InjectGameObjectInMonoBehaviour(container,gameObject, out var buffers);
 

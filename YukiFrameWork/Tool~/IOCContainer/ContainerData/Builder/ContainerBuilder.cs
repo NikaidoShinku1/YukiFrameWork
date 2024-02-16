@@ -2,6 +2,8 @@
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace YukiFrameWork
 {
     public class ContainerBuilder : IContainerBuilder,IDisposable
@@ -280,6 +282,14 @@ namespace YukiFrameWork
             RegisterComonentExecute(component, includeInactive);
         }
 
+        public void RegisterComponentInScene<T>(string name,bool includeInactive = false) where T : Component
+        {
+#if UNITY_2020_1_OR_NEWER
+            T component = UnityEngine.Object.FindObjectsOfType<T>(includeInactive).FirstOrDefault(x => x.name.Equals(name));
+#endif
+            RegisterComonentExecute(component, includeInactive);
+        }
+
         public void RegisterComponentInNewPrefab<T>(GameObject gameObject, bool includeInactive = false) where T : Component
         {
             T component = gameObject.GetComponent<T>();         
@@ -295,6 +305,11 @@ namespace YukiFrameWork
 
         private void RegisterComonentExecute<T>(T component,bool includeInactive) where T : Component
         {
+            if (component == null)
+            {
+                Debug.LogError("注册的组件不存在!" + typeof(T));
+                return;
+            }
             container.AddComponentContainer(component, includeInactive);
             var data = container.GetComponentContainer(component.gameObject.name);
             data?.Add(component, includeInactive,container);
@@ -322,7 +337,7 @@ namespace YukiFrameWork
         }
 
         private void ReflectMethod(Type type,object target)
-        {
+        {          
             List<object> datas = new List<object>();
             foreach (var method in type.GetMethods(BindingFlags.NonPublic
                 | BindingFlags.Public

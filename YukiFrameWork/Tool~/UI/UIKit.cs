@@ -184,9 +184,15 @@ namespace YukiFrameWork.UI
             if (uiLevelPanelDicts.TryGetValue(level, out var stack))
             {
                 if (stack.Count > 0)
-                    stack.Pop()?.OnExit();
+                {
+                    IPanel pop = stack.Pop();
+                    pop.Exit();
+                }
                 if (stack.Count > 0)
-                    stack.Peek()?.OnResume();
+                {
+                    IPanel peek = stack.Peek();
+                    peek.Resume();
+                }
             }
         }     
         public static T GetPanel<T>(UILevel level) where T : BasePanel
@@ -217,13 +223,44 @@ namespace YukiFrameWork.UI
             return panel;          
         }
 
+        /// <summary>
+        /// 判断面板是否处于激活状态
+        /// </summary>
+        /// <param name="level">这个面板所在的层级</param>
+        /// <returns>如果面板从没被加载过或者是退出的状态则返回False,否则返回True</returns>
+        public static bool IsPanelActive<T>(UILevel level) where T : BasePanel
+        {
+            IPanel panel = GetPanel<T>(level);
+
+            if (panel == null) return false;
+
+            return panel.IsActive;
+        }
+
+        /// <summary>
+        /// 判断面板是否是暂停的状态
+        /// </summary>     
+        /// <param name="level">这面板所在的层级</param>
+        /// <returns>如果面板不存在或者不是暂停的状态就返回False,否则返回True</returns>
+        public static bool IsPanelPaused<T>(UILevel level) where T : BasePanel
+        {
+            IPanel panel = GetPanel<T>(level);
+            
+            if(panel == null) return false;
+
+            return panel.IsPaused;
+        }
+
         private static void AddStackPanel<T>(T panel, UILevel level) where T : BasePanel
         {
             uiLevelPanelDicts.TryGetValue(level, out var list);
 
             if (list.Count > 0)
-                list.Peek()?.OnPause();
-            panel.OnEnter();
+            {
+                IPanel peek = list.Peek();
+                peek.Pause();
+            }
+            (panel as IPanel).Enter();
             list.Push(panel);         
         }      
 

@@ -1,4 +1,6 @@
-﻿///=====================================================
+﻿using System;
+
+///=====================================================
 /// - FileName:      ItemKit.cs
 /// - NameSpace:     YukiFrameWork.Knapsack
 /// - Created:       Yuki
@@ -8,44 +10,56 @@
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
-
-using YukiFrameWork.XFABManager;
-
 namespace YukiFrameWork.Knapsack
 {
     public class ItemKit
     {
         public static ItemConfigBase Config { get; private set; }
         public static bool IsInited = false;
+        private static IHandItemController handItemController = null;
+        public static void Init(ItemConfigData configData)
+        {
+            Init(configData, new HandItemDefaultController());
+        }
 
-        public static void Init(ItemConfigData configData,IItemInfomationParse itemInfomationParse)
+        public static void Init(ItemConfigData configData,IHandItemController handItemController)
         {
             if (IsInited) return;
 
             IsInited = true;
 
-            Config = new ItemConfigBase(configData,itemInfomationParse);
+            Config = new ItemConfigBase(configData);
 
             Config.Init();
-        }
+            ItemKit.handItemController = handItemController;
+            ItemKit.handItemController.Init();
 
-        public static void Init(ItemConfigData configData)
-        {
-            Init(configData, new ItemDefaultParse());
-        }        
+            MonoHelper.Update_AddListener(heloer => ItemKit.handItemController.Update());
+            MonoHelper.Destroy_AddListener(helper => Release());
+        }
         /// <summary>
         /// 取出物品到手上
         /// </summary>
         /// <param name="itemData">物品</param>
         /// <param name="amount">数量</param>
         public static void PickUpItem(ItemData itemData, int amount)
-        {
-            InventoryManager manager = InventoryManager.Instance;
+        {           
             if (PickedItem == null)
             {
-                manager.PickedItem = Config.GetItemUI(manager.Canvas.transform);
+                handItemController.PickedItem = Config.GetItemUI(handItemController.Canvas.transform);
             }
-            manager.PickUpItem(itemData,amount);
+            handItemController.PickUpItem(itemData,amount);
+        }
+
+        /// <summary>
+        /// 设置物品UI的动画或者效果
+        /// </summary>
+        /// <param name="onReset">物品的效果初始化</param>
+        /// <param name="onEvent">物品的动画效果</param>
+        public static void SetItemResetAndAction(Action<ItemUI> onReset,Action<ItemUI> onAction)
+        {
+            Config.ItemAction = onAction;
+            Config.ItemReset = onReset;
         }
 
         /// <summary>
@@ -62,11 +76,11 @@ namespace YukiFrameWork.Knapsack
         
         public static bool IsPickedItem
         {
-            get => InventoryManager.I.IsPickedItem;
+            get => handItemController.IsPickedItem;
         }      
         public static ItemUI PickedItem
         {
-            get => InventoryManager.I.PickedItem;
+            get =>  handItemController.PickedItem;
         }
         #endregion
 
@@ -75,26 +89,24 @@ namespace YukiFrameWork.Knapsack
         /// </summary>
         public static bool IsItemUIExit
         {
-            get => InventoryManager.I.IsItemUIExit;
-            set => InventoryManager.I.IsItemUIExit = value;
+            get => handItemController.IsItemUIExit;
+            set => handItemController.IsItemUIExit = value;
         }
         /// <summary>
         /// 把手里的物品清空
         /// </summary>
-        public static void ClearItem()
-        {
-            InventoryManager manager = InventoryManager.Instance;
-            manager.RemoveItem();
+        public static void ClearHandItem()
+        {            
+            handItemController.ClearItem();
         }
 
         /// <summary>
         /// 清理手里指定数量的物品
         /// </summary>
         /// <param name="count"></param>
-        public static void RemoveItem(int count)
-        {
-            InventoryManager manager = InventoryManager.Instance;
-            manager.RemoveItem(count);
+        public static void RemoveHandItem(int count)
+        {           
+            handItemController.RemoveItem(count);
         }       
     }
 }

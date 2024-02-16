@@ -15,7 +15,7 @@ namespace YukiFrameWork.Extension
 
             foreach (var monobehaviour in buffers)
             {
-                SetAllFieldsAndPropertices(monobehaviour,container);              
+                SetAllFieldsAndPropertices(monobehaviour,container);                                   
             }                    
         }     
 
@@ -30,13 +30,17 @@ namespace YukiFrameWork.Extension
             {
                 InjectAttribute inject = info.GetCustomAttribute<InjectAttribute>();
 
-                if (inject == null) continue;
-
+                if (inject == null) continue;             
                 if (info is FieldInfo fieldInfo)
                     InjectParameterInField(inject, fieldInfo, monoBehaviour, container);
                 else if (info is PropertyInfo propertyInfo)
                     InjectParameterInPropertices(inject, propertyInfo, monoBehaviour, container);
-            }        
+            }
+
+            IInjectContainer c = monoBehaviour as IInjectContainer;
+            if (c == null) return;
+
+            c.Container = LifeTimeScope.scope.Container;
         }
 
         private static void InjectParameterInPropertices(InjectAttribute inject,PropertyInfo info,MonoBehaviour monoBehaviour, IResolveContainer container)
@@ -50,9 +54,11 @@ namespace YukiFrameWork.Extension
                 if (info.PropertyType.IsSubclassOf(typeof(Component)))
                 {
                     obj = pathOrName !=
-                        string.Empty ? monoBehaviour.transform.Find(pathOrName).GetComponent(info.PropertyType)
-                        : monoBehaviour.GetComponentInChildren(info.PropertyType, false);
-                    if (obj == null && inject.InHierarchy) obj = (Component)UnityEngine.Object.FindObjectOfType(info.PropertyType);                   
+                            string.Empty ? (inject.InHierarchy ? GameObject.FindGameObjectWithTag(pathOrName).GetComponent(info.PropertyType) : monoBehaviour.transform.Find(pathOrName).GetComponent(info.PropertyType))
+                            : monoBehaviour.GetComponentInChildren(info.PropertyType, false);
+
+                    if(inject.InHierarchy)
+                        obj ??= (Component)UnityEngine.Object.FindObjectOfType(info.PropertyType);
                 }
                 else
                 {
@@ -73,17 +79,18 @@ namespace YukiFrameWork.Extension
                 if (info.FieldType.IsSubclassOf(typeof(Component)))
                 {
                     pathOrName = inject.Path;
-                    obj = pathOrName !=
-                        string.Empty ? monoBehaviour.transform.Find(pathOrName).GetComponent(info.FieldType)
-                        : monoBehaviour.GetComponentInChildren(info.FieldType, false);
-                    if (obj == null && inject.InHierarchy) obj = (Component)UnityEngine.Object.FindObjectOfType(info.FieldType);
+                                   
+                        obj = pathOrName !=
+                            string.Empty ? (inject.InHierarchy ? GameObject.FindGameObjectWithTag(pathOrName).GetComponent(info.FieldType) : monoBehaviour.transform.Find(pathOrName).GetComponent(info.FieldType))
+                            : monoBehaviour.GetComponentInChildren(info.FieldType, false);
+                    if (inject.InHierarchy)
+                        obj ??= (Component)UnityEngine.Object.FindObjectOfType(info.FieldType);
                 }
                 else
                 {
                     pathOrName = inject.Path;
                     obj = container.Resolve(info.FieldType, pathOrName);
-                }
-               
+                }      
                 info.SetValue(monoBehaviour, obj);
             }
         }

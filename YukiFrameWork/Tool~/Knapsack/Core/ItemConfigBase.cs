@@ -13,6 +13,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using YukiFrameWork.XFABManager;
 using LitJson;
+using System;
+using YukiFrameWork.Extension;
+using Object = UnityEngine.Object;
 
 namespace YukiFrameWork.Knapsack
 {
@@ -21,20 +24,21 @@ namespace YukiFrameWork.Knapsack
         private readonly List<ItemData> itemDatas = new List<ItemData>();
 
         public ItemConfigData configData { get; private set; }
-
-        private IItemInfomationParse infomationParse;
       
-        public bool IsInited = false;      
-     
+        public bool IsInited = false;
+
+        public Action<ItemUI> ItemAction { private get; set; } = null;
+
+        public Action<ItemUI> ItemReset { private get; set; } = null;
+
         public void AddItem(ItemData itemData)
             => itemDatas.Add(itemData);   
 
-        public ItemConfigBase(ItemConfigData configData,IItemInfomationParse infomationParse)
+        public ItemConfigBase(ItemConfigData configData)
         {
-            this.configData = configData;
-            this.infomationParse = infomationParse;          
+            this.configData = configData;                 
         }
-
+        
         /// <summary>
         /// Config初始化
         /// </summary>
@@ -57,14 +61,27 @@ namespace YukiFrameWork.Knapsack
                     textAsset = Resources.Load<TextAsset>(configData.ProjectPath);
                     break;               
             }
-            JsonData[] datas = JsonMapper.ToObject<JsonData[]>(textAsset.text);  
+            Info[] datas = AssemblyHelper.DeserializeObject<Info[]>(textAsset.text);
+            object[] values = AssemblyHelper.DeserializeObject<object[]>(textAsset.text);
             for (int i = 0; i < datas.Length; i++)
             {
-                AddItem(infomationParse.ParseJsonToItem(datas[i]));
+                Type type = AssemblyHelper.GetType(datas[i].TypeName);
+                ItemData data = AssemblyHelper.DeserializeObject(values[i].ToString(), type) as ItemData;               
+                AddItem(data);
             }          
             IsInited = true;
         }
-           
+
+        private class Info
+        {
+            public string TypeName;               
+        }
+
+        public void InvokeAction(ItemUI itemUI)
+            => ItemAction?.Invoke(itemUI);
+
+        public void InvokeReset(ItemUI itemUI)
+            => ItemReset?.Invoke(itemUI);
 
         public ItemData GetItemByID(int id)
         {

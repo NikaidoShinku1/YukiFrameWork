@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
-#if UNITY_EDITOR
+
 namespace YukiFrameWork.States
 {
     public class GraphLayer
@@ -24,12 +26,21 @@ namespace YukiFrameWork.States
         #region 方法
 
         public GraphLayer(StateMechineEditor editorWindow)
-            => this.EditorWindow = editorWindow;
+        {
+            this.EditorWindow = editorWindow;
+
+            EditorApplication.playModeStateChanged += OnModeChange;
+        }
 
         public virtual void OnGUI(Rect rect)
         {
             position = rect;
-            UpdateTransformationMatrix();         
+            UpdateTransformationMatrix();                        
+        }
+
+        public virtual void OnModeChange(PlayModeStateChange mode)
+        {
+            
         }
 
         public virtual void ProcessEvents() { }

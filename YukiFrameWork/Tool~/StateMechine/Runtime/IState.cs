@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace YukiFrameWork.States
 {
-    public interface IState
+    public interface IState : IController
     {
         Transform transform { get; }
 
@@ -12,7 +12,7 @@ namespace YukiFrameWork.States
 
         StateBase CurrentState { get; set; }
 
-        public Dictionary<string,StateParameterData> ParamterDicts { get; }
+        Dictionary<string,StateParameterData> ParametersDicts { get; }
 
         bool GetBool(string name);
 

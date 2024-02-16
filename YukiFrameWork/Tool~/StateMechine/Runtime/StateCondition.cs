@@ -36,9 +36,9 @@ namespace YukiFrameWork.States
         {
             this.conditionData = conditionData;
 
-            if (manager.ParamterDicts.ContainsKey(conditionData.parameterName))
+            if (manager.ParametersDicts.ContainsKey(conditionData.parameterName))
             {
-                parameterData = manager.ParamterDicts[this.conditionData.parameterName];
+                parameterData = manager.ParametersDicts[this.conditionData.parameterName];
             }
 
             if (parameterData != null)

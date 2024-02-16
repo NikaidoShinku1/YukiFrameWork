@@ -16,10 +16,29 @@ namespace YukiFrameWork
     {            
         private CustomData Data;
         private Type targetType;
+        private List<string> list = new List<string>();
+        public event Action Save;
         public ViewControllerLayer(GenericDataBase data, Type targetType) : base(data, targetType)
         {
             this.Data = data as CustomData;
             this.targetType = targetType;
+
+            list = Data.AutoInfos;
+            list.Clear();
+            list.Add("None");
+            try
+            {
+                var types = AssemblyHelper.GetTypes(Assembly.Load(Data.CustomAssemblyName));
+                if (types != null)
+                {
+                    foreach (var type in types)
+                        if (type.BaseType != null)
+                            foreach (var baseInterface in type.BaseType.GetInterfaces())
+                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()) && type.GetCustomAttribute<NoGenericArchitectureAttribute>() == null)
+                                    list.Add(type.Name);
+                }
+            }
+            catch { }
         }
         public override void OnInspectorGUI()
         {                       
@@ -31,6 +50,7 @@ namespace YukiFrameWork
             style.normal.textColor = Color.white;
             style.fontStyle = FontStyle.Bold;
             GUILayout.BeginHorizontal();
+            EditorGUI.BeginChangeCheck();
             GUILayout.Label(GenericScriptDataInfo.TitleTip, style);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
             GUILayout.Label("EN");
@@ -102,7 +122,9 @@ namespace YukiFrameWork
                 else Data.CustomAssemblyName = "Assembly-CSharp";
             }
 
-            EditorGUI.EndDisabledGroup();      
+            EditorGUI.EndDisabledGroup();
+            if (EditorGUI.EndChangeCheck())
+                Save?.Invoke();
         }
 
         public override void GenericScripts()
@@ -206,24 +228,7 @@ namespace YukiFrameWork
         private void SelectArchitecture(CustomData Data)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Width(300));
-            EditorGUILayout.LabelField(GenericScriptDataInfo.IsEN ? "Select Architecture:" : "架构选择:",GUILayout.Width(120));
-
-            var list = Data.AutoInfos;
-            list.Clear();
-            list.Add("None");
-            try
-            {
-                var types = AssemblyHelper.GetTypes(Assembly.Load(Data.CustomAssemblyName));
-                if(types != null)
-                {
-                    foreach (var type in types)            
-                        if (type.BaseType != null)              
-                            foreach (var baseInterface in type.BaseType.GetInterfaces())                                          
-                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()))                                                   
-                                    list.Add(type.Name);                                                                                     
-                }
-            }
-            catch{ }
+            EditorGUILayout.LabelField(GenericScriptDataInfo.IsEN ? "Select Architecture:" : "架构选择:",GUILayout.Width(120));           
             Data.AutoArchitectureIndex = EditorGUILayout.Popup(Data.AutoArchitectureIndex, list.ToArray());          
             EditorGUILayout.EndHorizontal();          
         }     

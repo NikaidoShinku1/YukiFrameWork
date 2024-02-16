@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Windows;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
 
@@ -65,7 +64,7 @@ namespace YukiFrameWork
         }
         public BindablePropertyToDictionary() 
         {
-            this.dicts = DictionaryPools<TKey, TValue>.Get();         
+            this.dicts = DictionaryPools<TKey, TValue>.Get();                           
         }
 
         /// <summary>

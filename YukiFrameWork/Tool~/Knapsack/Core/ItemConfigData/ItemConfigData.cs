@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 namespace YukiFrameWork.Knapsack
 {  
@@ -11,13 +15,22 @@ namespace YukiFrameWork.Knapsack
     [Serializable]
     public class ItemConfigData : ScriptableObject
     {      
-        [SerializeField] private string projectName;
-      
-        [SerializeField] private string projectPath;
-      
-        [SerializeField] private LoadType loadType = LoadType.ABManager;
-       
-        [SerializeField] private ItemUI handItemPrefab;     
+        [SerializeField,HideInInspector] private string projectName;
+
+        [SerializeField, HideInInspector] private string projectPath;
+
+        [SerializeField, HideInInspector] private LoadType loadType = LoadType.ABManager;
+
+        [SerializeField, HideInInspector] private ItemUI handItemPrefab;
+
+        [HideInInspector]
+        public string genericPath = "Assets/Scripts/Knapsack";
+
+        [HideInInspector]
+        public string genericName = "CustomData";
+
+        [HideInInspector]
+        public List<string> itemDatas = new List<string>();
 
         public string ProjectName
         {
@@ -42,5 +55,13 @@ namespace YukiFrameWork.Knapsack
             get => handItemPrefab;
             set => handItemPrefab = value;
         }
+
+#if UNITY_EDITOR
+        public void Save()
+        {
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+        }
+#endif
     }
 }
