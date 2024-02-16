@@ -145,7 +145,8 @@ namespace YukiFrameWork.Events
         {
             var center = eventCenter.GetEventCenter(index);
 
-            center.EnumType = AssemblyHelper.GetType(center.name);
+            if(!string.IsNullOrEmpty(center.name))
+                center.EnumType = AssemblyHelper.GetType(center.name);
 
             return center.EnumType != null;
         }

@@ -16,15 +16,15 @@ namespace YukiFrameWork.Events
                 var center = eventCenter.GetEventCenter(index);
 
                 if (center != null) 
-                {                   
+                {
+                    if (string.IsNullOrEmpty(center.name)) continue;
                     switch (eventCenter.registerType)
                     {
                         case RegisterType.String:
-                            if (string.IsNullOrEmpty(eventCenter.name)) continue;
+                            
                             viewController.RegisterEvent<EventArgs>(center.name, args => center.mEvent?.Invoke(args));
                             break;
                         case RegisterType.Enum:
-                            if (string.IsNullOrEmpty(eventCenter.name)) continue;
                             var enumType = AssemblyHelper.GetType(center.name);
                             center.mEnum = (Enum)Enum.Parse(enumType, center.mEnumInfos[center.enumIndex]);
                             if (center.mEnum != null)
