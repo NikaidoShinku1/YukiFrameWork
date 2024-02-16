@@ -196,8 +196,7 @@ namespace YukiFrameWork.States
             {
                 Debug.Log($"状态切换: {(CurrentState != null ? CurrentState.name : "进入默认状态") } -> {state.name} 状态机归属： {gameObject.name}");
             }
-            CurrentState = state;
-
+            CurrentState = state;         
             state?.OnEnter(callBack);
             isDefaultTransition = false;
         }

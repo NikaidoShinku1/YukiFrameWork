@@ -24,7 +24,7 @@ namespace YukiFrameWork.Extension
     {
         private static Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
     
-        public static Type GetType(string typeName)
+        public static Type GetType(string typeName,Assembly assembly = default)
         {          
             if (typeDict.TryGetValue(typeName, out var type))
             {
@@ -39,18 +39,26 @@ namespace YukiFrameWork.Extension
                 if (genericArgStartIndex > backtickIndex)
                 {
                     string genericTypeName = typeName.Substring(0, genericArgStartIndex);
+                   
                     string args = typeName.Substring(genericArgStartIndex).Trim('[', ']');
+                    
                     var argumentTypes = args.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                                             .Select(GetType)
+                                             .Select(t => GetType(t,assembly))
                                              .ToArray();
-                    if (argumentTypes.Any(t => t == null)) return null;                                      
+                    if (argumentTypes.Any(t => t == null)) return null;
                     else
-                        type = Type.GetType(genericTypeName)?.MakeGenericType(argumentTypes);                                        
-                    if (type != null)
                     {
+                        if (assembly != default)
+                            type = assembly.GetType(genericTypeName)?.MakeGenericType(argumentTypes);
+                         type ??= Type.GetType(genericTypeName)?.MakeGenericType(argumentTypes);                       
+                    }
+                    if (type != null)
+                    {                         
+                       
                         typeDict.Add(typeName, type);
                         return type;
                     }
+
                 }
             }
 

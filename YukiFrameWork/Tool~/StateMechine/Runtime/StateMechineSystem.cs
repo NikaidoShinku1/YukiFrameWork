@@ -9,12 +9,14 @@
 using YukiFrameWork;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 namespace YukiFrameWork.States
 {
     public class StateMechineSystem : AbstractSystem
     {
         public const string StateInited = "StateInited";
-        private BindablePropertyToList<StateManager> stateManagers = new BindablePropertyToList<StateManager>();
+    
+        private FastList<StateManager> stateManagers = new FastList<StateManager>();
 
         public override void Init()
         {           
@@ -83,7 +85,7 @@ namespace YukiFrameWork.States
         }          
 
         private void Update()
-        {
+        {           
             for (int i = 0; i < stateManagers.Count; i++)
             {
                 stateManagers[i].CurrentState?.OnUpdate();
@@ -107,6 +109,6 @@ namespace YukiFrameWork.States
 
         public void AddStateManager(StateManager stateManager) => stateManagers.Add(stateManager);
  
-        public void RemoveStateManager(StateManager stateManager) => stateManagers.Remove(stateManager,false);
+        public void RemoveStateManager(StateManager stateManager) => stateManagers.Remove(stateManager);
     } 
 }

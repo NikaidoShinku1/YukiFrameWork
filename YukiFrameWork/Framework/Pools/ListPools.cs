@@ -39,4 +39,48 @@ namespace YukiFrameWork.Pools
             listPools.Release(results);
         }
     }
+
+    public static class FastListPools<TResult>
+    {
+        private readonly static SimpleObjectPools<FastList<TResult>> listPools
+            = new SimpleObjectPools<FastList<TResult>>
+            (() => new FastList<TResult>(), 10);
+
+        public static FastList<TResult> Get()
+            => listPools.Get();
+
+        public static void ReleaseList(FastList<TResult> results)
+        {
+            if (listPools.Contains(results))
+            {
+                Debug.LogError($"重复回收，已经存在的列表：{results.GetType()}");
+                return;
+            }
+
+            results.Clear();
+            listPools.Release(results);
+        }
+    }
+
+    public static class FastListSafePools<TResult>
+    {
+        private readonly static SimpleObjectPools<FastListSafe<TResult>> listPools
+            = new SimpleObjectPools<FastListSafe<TResult>>
+            (() => new FastListSafe<TResult>(), 10);
+
+        public static FastList<TResult> Get()
+            => listPools.Get();
+
+        public static void ReleaseList(FastListSafe<TResult> results)
+        {
+            if (listPools.Contains(results))
+            {
+                Debug.LogError($"重复回收，已经存在的列表：{results.GetType()}");
+                return;
+            }
+
+            results.Clear();
+            listPools.Release(results);
+        }
+    }
 }

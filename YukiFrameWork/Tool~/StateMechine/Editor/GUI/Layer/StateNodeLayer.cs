@@ -51,16 +51,29 @@ namespace YukiFrameWork.States
         public override void OnGUI(Rect rect)
         {
             base.OnGUI(rect);
-          
+                 
+
+            if (this.Context.StateMechine != null)
+            {
+                stateStyles.ApplyZoomFactor(this.Context.ZoomFactor);
+
+                for (int i = 0; i < this.Context.StateMechine.states.Count; i++)
+                {
+                    DrawNode(this.Context.StateMechine.states[i]);
+                }
+            }           
+
+            DrawSelectBox();
+
             GUILayout.BeginArea(rect);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("复位", GUILayout.Width(80)))
             {
                 this.Context.Reset();
             }
-            
-            if (GUILayout.Button("刷新脚本",GUILayout.Width(120)))
-            {               
+
+            if (GUILayout.Button("刷新脚本", GUILayout.Width(120)))
+            {
                 StateManager manager = Selection.activeObject as StateManager;
                 if (manager == null)
                     manager = (Selection.activeObject as GameObject)?.GetComponent<StateManager>();
@@ -75,21 +88,9 @@ namespace YukiFrameWork.States
                 EditorUtility.SetDirty(this.Context.StateMechine);
                 AssetDatabase.Refresh();
             }
-            EditorGUILayout.ObjectField(this.Context.StateMechine, typeof(StateMechine), true,GUILayout.Width(rect.width > 250 + 120 + 80 ? 250 : rect.width - 120 -80));
+            EditorGUILayout.ObjectField(this.Context.StateMechine, typeof(StateMechine), true, GUILayout.Width(rect.width > 250 + 120 + 80 ? 250 : rect.width - 120 - 80));
             EditorGUILayout.EndHorizontal();
-            GUILayout.EndArea();        
-
-            if (this.Context.StateMechine != null)
-            {
-                stateStyles.ApplyZoomFactor(this.Context.ZoomFactor);
-
-                for (int i = 0; i < this.Context.StateMechine.states.Count; i++)
-                {
-                    DrawNode(this.Context.StateMechine.states[i]);
-                }
-            }           
-
-            DrawSelectBox();
+            GUILayout.EndArea();
         }
 
         public override void ProcessEvents()
@@ -328,14 +329,14 @@ namespace YukiFrameWork.States
                 && StateBase == this.Context.StateManager.CurrentState
                 && this.Context.StateManager.stateMechine == this.Context.StateMechine)            
                 //当前正在执行的状态
-                return this.stateStyles.GetStyle(isSelected ? Style.OrangeOn : Style.OrangeOn);
+                return this.stateStyles.GetStyle(isSelected ? Style.BlueOn : Style.BlueOn);
             
             else if (!Application.isPlaying && StateBase.defaultState)
-                return this.stateStyles.GetStyle(isSelected ? Style.OrangeOn : Style.Orange);
+                return this.stateStyles.GetStyle(isSelected ? Style.BlueOn : Style.MintOn);
             else if (StateBase.name == StateConst.entryState)
-                return this.stateStyles.GetStyle(isSelected ? Style.GreenOn : Style.Green);        
+                return this.stateStyles.GetStyle(isSelected ? Style.RedOn : Style.Red);        
             else
-                return this.stateStyles.GetStyle(isSelected ? Style.NormalOn : Style.Normal);           
+                return this.stateStyles.GetStyle(isSelected ? Style.BlueOn : Style.Normal);           
 
         }
     }

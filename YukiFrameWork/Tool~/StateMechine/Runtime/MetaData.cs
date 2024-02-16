@@ -95,7 +95,7 @@ namespace YukiFrameWork.States
             get
             {
                 if (_type == null)
-                    _type = AssemblyHelper.GetType(typeName);
+                    _type = AssemblyHelper.GetType(typeName,Assembly.Load("YukiFrameWork"));
                 return _type;
             }
         }

@@ -11,7 +11,7 @@ namespace YukiFrameWork.States
 
         public static Color BackGroundColor { get; } = new Color(0, 0, 0, 0.25f);
 
-        public static Color SelectColor { get; } = new Color(100, 200, 255, 255) / 255;
+        public static Color SelectColor { get; } = new Color(0, 255, 40, 255) / 255;
 
         public static Color TransitionColor { get; } = new Color(0, 0.78f, 1, 1);
 
