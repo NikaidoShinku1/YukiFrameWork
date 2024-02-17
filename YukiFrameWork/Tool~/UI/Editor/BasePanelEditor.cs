@@ -138,7 +138,13 @@ namespace YukiFrameWork.UI
             
             string examplePath = panel.Data.ScriptPath + "/" + panel.Data.ScriptName + ".Example.cs";
 
-            FileMode fileMode = File.Exists(examplePath) ? FileMode.Open : FileMode.Create;
+            bool intited = File.Exists(examplePath);
+            FileMode fileMode = intited ? FileMode.Open : FileMode.Create;
+            if (intited)
+            {
+                File.WriteAllText(examplePath, string.Empty);
+                AssetDatabase.Refresh();
+            }
 
             builder.AppendLine("///=====================================================");
             builder.AppendLine("///这是由代码工具生成的代码文件,请勿手动改动此文件!");
