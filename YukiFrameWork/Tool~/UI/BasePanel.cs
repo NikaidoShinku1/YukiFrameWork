@@ -17,6 +17,8 @@ namespace YukiFrameWork.UI
           
         bool IsPaused { get; }
         bool IsActive { get; }
+        bool IsPanelCache { get; }
+        GameObject gameObject { get; }
     }
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
@@ -26,7 +28,7 @@ namespace YukiFrameWork.UI
         [HideInInspector]
         public UICustomData Data;
 
-        [SerializeField]        
+        [Header("面板的层级"),SerializeField,HideInInspector]        
         protected UILevel mLevel = UILevel.Common;
 
         public UILevel Level
@@ -39,7 +41,12 @@ namespace YukiFrameWork.UI
             {
                 mLevel = value; 
             }
-        }     
+        }
+      
+        [Header("面板是否缓存"),SerializeField,HideInInspector]
+        protected bool isPanelCache = true;
+
+        public bool IsPanelCache => isPanelCache;
 
         public bool IsPaused { get; private set; }
 

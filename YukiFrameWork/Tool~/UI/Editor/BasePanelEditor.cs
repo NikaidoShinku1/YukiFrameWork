@@ -17,7 +17,11 @@ namespace YukiFrameWork.UI
     public class BasePanelEditor : Editor
     {       
         private UIBaseLayer layer;
-        private BindLayer bind;      
+        private BindLayer bind;
+
+        private SerializedProperty mLevelProperty;
+        private SerializedProperty cacheProperty;
+
         private void Awake()
         {
             BasePanel panel = target as BasePanel;
@@ -58,6 +62,9 @@ namespace YukiFrameWork.UI
 
             if(panel.Data.IsPartialLoading)
                 EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);
+          
+            mLevelProperty = serializedObject.FindProperty("mLevel");
+            cacheProperty = serializedObject.FindProperty("isPanelCache");
         }
 
         private void OnDisable()
@@ -101,6 +108,13 @@ namespace YukiFrameWork.UI
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
+            if (!target.GetType().Equals(typeof(BasePanel)))
+            {
+                EditorGUILayout.PropertyField(mLevelProperty);
+                EditorGUILayout.PropertyField(cacheProperty);
+            }
+            EditorGUI.EndDisabledGroup();
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);

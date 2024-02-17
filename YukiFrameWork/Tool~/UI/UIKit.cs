@@ -24,7 +24,10 @@ namespace YukiFrameWork.UI
         private readonly static Dictionary<UILevel, Stack<BasePanel>> uiLevelPanelDicts = DictionaryPools<UILevel, Stack<BasePanel>>.Get();
 
         //储存已经被创造出来的panel
-        private readonly static Dictionary<UILevel,List<BasePanel>> creativityPanels = DictionaryPools<UILevel,List<BasePanel>>.Get();    
+        private readonly static Dictionary<UILevel,FastList<BasePanel>> creativityPanels = DictionaryPools<UILevel,FastList<BasePanel>>.Get();
+
+        //缓存一次性面板
+        private readonly static FastList<BasePanel> disposables = new FastList<BasePanel>();
 
         //检查是否完成初始化
         private static bool isInit = false;
@@ -108,7 +111,7 @@ namespace YukiFrameWork.UI
             for (int i = 0; i < (int)UILevel.Top; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
-                creativityPanels.Add(level, new List<BasePanel>());
+                creativityPanels.Add(level, new FastList<BasePanel>());
             }
 
             UIManager.I.InitLevel();
@@ -166,16 +169,30 @@ namespace YukiFrameWork.UI
         private static T OpenPanelExecute<T>(T panelCore) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
-            var panel = GetPanel<T>(panelCore.Level);
+            var panel = disposables.Find(x => x.GetType().Equals(typeof(T))) as T;
+
+            if (panel != null) 
+                return panel;
+
+            panel = GetPanel<T>(panelCore.Level);
+
             if (panel == null)
             {
                 panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(panelCore.Level), false);
                 uiMgr.SetPanelFieldAndProperty(panel);
                 panel.OnInit();
-                creativityPanels[panel.Level].Add(panel);
+
+                if (panel.IsPanelCache)
+                    creativityPanels[panel.Level].Add(panel);
+                else disposables.Add(panel);
             }
-            panel.transform.SetAsLastSibling();
-            AddStackPanel(panel, panel.Level);
+
+
+            if (!IsPanelActive<T>(panel.Level))
+            {
+                panel.transform.SetAsLastSibling();
+                AddStackPanel(panel, panel.Level);
+            }
             return panel;
         }
 
@@ -187,6 +204,12 @@ namespace YukiFrameWork.UI
                 {
                     IPanel pop = stack.Pop();
                     pop.Exit();
+
+                    if (!pop.IsPanelCache)
+                    {
+                        disposables.Remove(pop as BasePanel);
+                        Object.Destroy(pop.gameObject);
+                    }
                 }
                 if (stack.Count > 0)
                 {
