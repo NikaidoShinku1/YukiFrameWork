@@ -90,7 +90,7 @@ namespace YukiFrameWork.Extension
             }
 
             LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
-            controller.Data.ScriptNamespace = !info ? "YukiFrameWork.Project" : info.nameSpace;
+            controller.Data.ScriptNamespace = !info ? controller.Data.ScriptNamespace : info.nameSpace;
             
             if(controller.Data.IsPartialLoading)           
                 EditorApplication.delayCall = () => BindAllField(controller);

@@ -12,7 +12,7 @@ namespace YukiFrameWork.UI
     public class UIBaseLayer : GenericLayer
     {
         private UICustomData Data;
-       
+        public event Action Save;
         public UIBaseLayer(GenericDataBase data, Type targetType) : base(data, targetType)
         {
             this.Data = data as UICustomData;
@@ -29,6 +29,7 @@ namespace YukiFrameWork.UI
             };
             style.normal.textColor = Color.white;
             style.fontStyle = FontStyle.Bold;
+            EditorGUI.BeginChangeCheck();
             GUILayout.BeginHorizontal();
             GUILayout.Label(GenericScriptDataInfo.TitleTip, style);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
@@ -76,6 +77,8 @@ namespace YukiFrameWork.UI
             EditorGUI.EndDisabledGroup();
             GenericScripts();
             GUILayout.EndVertical();
+            if (EditorGUI.EndChangeCheck())
+                Save?.Invoke();
         }
 
         public override void GenericScripts()

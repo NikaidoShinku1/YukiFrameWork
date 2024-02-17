@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using YukiFrameWork.Extension;
 
@@ -118,6 +121,13 @@ namespace YukiFrameWork.UI
 
         #endregion
 
+#if UNITY_EDITOR
+        public void SaveData()
+        {
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+        }
+#endif
 
         #region ISerializedFieldInfo
         [HideInInspector]

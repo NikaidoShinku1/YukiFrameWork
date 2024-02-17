@@ -37,6 +37,7 @@ namespace YukiFrameWork.UI
             BasePanel panel = target as BasePanel;
             if (panel == null) return;
             layer ??= new UIBaseLayer(panel.Data, target.GetType());
+            layer.Save += panel.SaveData;
             if (panel?.Data.OnLoading == false)
             {                
                 if (bind == null)
@@ -64,6 +65,7 @@ namespace YukiFrameWork.UI
             BasePanel panel = target as BasePanel;
             if (panel == null) return;
             PlayerPrefs.SetString("UIPanelNameSpace", panel.Data.ScriptNamespace);
+            layer.Save -= panel.SaveData;
         }
 
         private void Bind_AllFieldInfo(BasePanel panel)
