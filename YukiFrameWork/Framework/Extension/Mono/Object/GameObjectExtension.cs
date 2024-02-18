@@ -70,7 +70,19 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static T DonDestoryOnLoad<T>(this T core) where T : Object
+        public static T Rotate<T>(this T core, Vector3 target) where T : Component
+        {
+            Rotate(core.gameObject, target);
+            return core;
+        }
+
+        public static GameObject Rotate(this GameObject core, Vector3 target) 
+        {
+            core.transform.Rotate(target);
+            return core;
+        }
+
+        public static T DonDestroyOnLoad<T>(this T core) where T : Object
         {
             Object.DontDestroyOnLoad(core);
             return core;
@@ -147,6 +159,18 @@ namespace YukiFrameWork
             return core;
         }
 
+        public static GameObject SetLocalScale(this GameObject core, Vector3 localScale)
+        {
+            core.transform.localScale = localScale;
+            return core;
+        }
+
+        public static T SetLocalScale<T>(this T core, Vector3 localScale) where T : Component
+        {
+            SetLocalScale(core.gameObject, localScale);
+            return core;
+        }
+
         public static GameObject ResetPosition(this GameObject core)
         {
             core.transform.position = Vector3.zero;
@@ -172,7 +196,20 @@ namespace YukiFrameWork
             SetRotation(core.gameObject, quaternion);
             return core;
         }
-      
+
+
+        public static GameObject SetLocalRotation(this GameObject core, Quaternion quaternion)
+        {
+            core.transform.localRotation = quaternion;
+            return core;
+        }
+
+        public static T SetLocalRotation<T>(this T core, Quaternion quaternion) where T : Component
+        {
+            SetLocalRotation(core.gameObject, quaternion);
+            return core;
+        }
+
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
             T component = core.GetComponent<T>();
@@ -185,8 +222,7 @@ namespace YukiFrameWork
         }
 
         public static T GetOrAddComponent<T>(this Component core) where T : Component
-            => GetOrAddComponent<T>(core.gameObject);
-
-
+            => GetOrAddComponent<T>(core.gameObject); 
+            
     }
 }
