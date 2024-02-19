@@ -72,7 +72,7 @@ namespace YukiFrameWork
      
         private string saveDirPath;
         private string systemFilePath;
-        private string persistentDataPath => Application.streamingAssetsPath;
+        private string persistentDataPath => Application.persistentDataPath;
 
         private static bool isInited = false;
 
