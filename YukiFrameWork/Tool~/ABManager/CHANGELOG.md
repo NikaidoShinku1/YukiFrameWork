@@ -1,3 +1,7 @@
+## version 1.9.9 更新内容
+
+1. 修复重复拖拽资源到AssetBundle列表添加失败的问题!
+
 ## version 1.9.8 更新内容
 
 1. 修复ImageLoader的Network模式下移动端图片加载失败的问题!

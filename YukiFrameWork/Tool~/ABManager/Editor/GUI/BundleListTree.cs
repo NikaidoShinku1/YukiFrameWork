@@ -351,7 +351,20 @@ public class BundleListTree : TreeView
         {
             if (args.performDrop)
             {
-                string bundleName = GetBundleName(Path.GetFileNameWithoutExtension(DragAndDrop.paths[0])).ToLower();
+
+                string filename = Path.GetFileNameWithoutExtension(DragAndDrop.paths[0]).ToLower();
+
+                if (mainWindow.Project.IsContainAssetBundleName(filename))
+                {
+                    XFABAssetBundle b = mainWindow.Project.GetAssetBundle(filename);
+                    if (b.files.Count == 1 && b.files[0].AssetPath == DragAndDrop.paths[0])
+                    {
+                        mainWindow.ShowNotification(new GUIContent("资源已经存在,请勿重复添加!"));
+                        return DragAndDropVisualMode.None;
+                    }
+                }
+                 
+                string bundleName = GetBundleName(filename).ToLower();
                 XFABAssetBundle bundle = new XFABAssetBundle(bundleName,mainWindow.Project.name);
 
                 for (int i = 0; i < DragAndDrop.paths.Length; i++)
@@ -362,6 +375,9 @@ public class BundleListTree : TreeView
                 mainWindow.Project.AddAssetBundle(bundle);
                 // 保存
                 mainWindow.Project.Save();
+
+                //Debug.LogFormat("bundleName:{0} contain:{1}", bundleName, mainWindow.Project.IsContainAssetBundleName(bundleName));
+
                 Reload();
             }
 
