@@ -109,7 +109,7 @@ namespace YukiFrameWork.Knapsack
             if (GUILayout.Button("打开物品品质类(可用于标识物品的稀有度,可自定义)",GUILayout.Height(25)))
             {
                 string info = AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.importPath).text;                
-                ImportSettingWindow.Data data = AssemblyHelper.DeserializeObject<ImportSettingWindow.Data>(info);
+                ImportSettingWindow.Data data = AssemblyHelper.DeserializedObject<ImportSettingWindow.Data>(info);
                 MonoScript mono = AssetDatabase.LoadAssetAtPath<MonoScript>(data.path + "/Knapsack/Core/ItemQuality/ItemQuality.cs");
                 AssetDatabase.OpenAsset(mono);
             }     
@@ -224,7 +224,7 @@ namespace YukiFrameWork.Knapsack
                 {
                     if (GUILayout.Button(type.Name))
                     {
-                        var item = AssemblyHelper.DeserializeObject("{ }", type) as ItemData;
+                        var item = AssemblyHelper.DeserializedObject("{ }", type) as ItemData;
                         item.ID = configData.itemDatas.Count;
                         item.Name = $"第{configData.itemDatas.Count}个物品";
                         item.Description = $"这是第{configData.itemDatas.Count}个物品的介绍";

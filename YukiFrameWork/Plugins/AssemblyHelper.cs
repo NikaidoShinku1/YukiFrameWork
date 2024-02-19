@@ -17,6 +17,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Linq;
+using System.Text;
 
 namespace YukiFrameWork.Extension
 {
@@ -117,11 +118,11 @@ namespace YukiFrameWork.Extension
             return assembly?.GetTypes();
         }
 
-        public static T DeserializeObject<T>(string value)
+        public static T DeserializedObject<T>(string value)
             => JsonConvert.DeserializeObject<T>(value);
 
 
-        public static object DeserializeObject(string value, Type type)
+        public static object DeserializedObject(string value, Type type)
             => JsonConvert.DeserializeObject(value,type);
 
         public static string SerializedObject(object value, Newtonsoft.Json.Formatting formatting = Newtonsoft.Json.Formatting.Indented)
@@ -146,12 +147,12 @@ namespace YukiFrameWork.Extension
             }
         }
 
-        public static T XmlDeserializeObject<T>(string value)
+        public static T XmlDeserializedObject<T>(string value)
         {
-            return (T)XmlDeserializeObject(value, typeof(T));
+            return (T)XmlDeserializedObject(value, typeof(T));
         }
 
-        public static object XmlDeserializeObject(string value, Type type)
+        public static object XmlDeserializedObject(string value, Type type)
         {
             object obj = null;
             using (StringReader render = new StringReader(value))
@@ -164,25 +165,17 @@ namespace YukiFrameWork.Extension
             return obj;
         }
 
-        public static byte[] ByteSerializeObject(object value)
+        public static byte[] ByteSerializedObject(object value)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                formatter.Serialize(stream, value);
-
-                return stream.ToArray();
-            }           
+            return Encoding.UTF8.GetBytes(SerializedObject(value));           
         }       
 
-        public static object ByteDeserializeObject(byte[] value)
+        public static object ByteDeserializedObject(byte[] value,Type type)
         {
-            MemoryStream stream = new MemoryStream(value);
-
-            BinaryFormatter formatter = new BinaryFormatter();
-
-            return formatter.Deserialize(stream);
+            return DeserializedObject(Encoding.UTF8.GetString(value), type);          
         }
+
+        public static T ByteDeserializedObject<T>(byte[] value)
+            => (T)ByteDeserializedObject(value, typeof(T));
     }
 }

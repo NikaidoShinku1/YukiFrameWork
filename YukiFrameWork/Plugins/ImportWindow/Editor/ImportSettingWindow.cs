@@ -84,7 +84,7 @@ namespace YukiFrameWork.Extension
 
             TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(packagePath + "/package.json");
 
-            versionData = AssemblyHelper.DeserializeObject<VersionData>(versionText.text); 
+            versionData = AssemblyHelper.DeserializedObject<VersionData>(versionText.text); 
            
             
         }

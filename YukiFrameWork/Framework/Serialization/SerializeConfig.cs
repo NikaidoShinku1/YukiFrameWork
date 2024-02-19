@@ -38,7 +38,7 @@ namespace YukiFrameWork.Extension
                             break;
                         case SerializationType.Bytes:
                             {
-                                Byte[] bytes = AssemblyHelper.ByteSerializeObject(serializable);
+                                Byte[] bytes = AssemblyHelper.ByteSerializedObject(serializable);
 
                                 string hex = BitConverter.ToString(bytes).Replace("-", " ");
 

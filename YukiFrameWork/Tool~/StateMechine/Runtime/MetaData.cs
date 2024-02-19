@@ -199,7 +199,7 @@ namespace YukiFrameWork.States
                         }
                         return list;
                     }
-                    else return AssemblyHelper.DeserializeObject(data, Type);
+                    else return AssemblyHelper.DeserializedObject(data, Type);
                 case TypeCode.Array:
                     if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
                     {
@@ -211,7 +211,7 @@ namespace YukiFrameWork.States
                         }
                         return list;
                     }
-                    else return AssemblyHelper.DeserializeObject(data, Type);
+                    else return AssemblyHelper.DeserializedObject(data, Type);
             }
             return null;
         }

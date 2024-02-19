@@ -12,7 +12,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using YukiFrameWork.XFABManager;
-using LitJson;
 using System;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
@@ -61,12 +60,12 @@ namespace YukiFrameWork.Knapsack
                     textAsset = Resources.Load<TextAsset>(configData.ProjectPath);
                     break;               
             }
-            Info[] datas = AssemblyHelper.DeserializeObject<Info[]>(textAsset.text);
-            object[] values = AssemblyHelper.DeserializeObject<object[]>(textAsset.text);
+            Info[] datas = AssemblyHelper.DeserializedObject<Info[]>(textAsset.text);
+            object[] values = AssemblyHelper.DeserializedObject<object[]>(textAsset.text);
             for (int i = 0; i < datas.Length; i++)
             {
                 Type type = AssemblyHelper.GetType(datas[i].TypeName);
-                ItemData data = AssemblyHelper.DeserializeObject(values[i].ToString(), type) as ItemData;               
+                ItemData data = AssemblyHelper.DeserializedObject(values[i].ToString(), type) as ItemData;               
                 AddItem(data);
             }          
             IsInited = true;

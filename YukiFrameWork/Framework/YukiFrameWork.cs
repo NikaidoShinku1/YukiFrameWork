@@ -144,7 +144,7 @@ namespace YukiFrameWork
 
         public static IArchitecture CreateInstance(Type type)
         {
-            IArchitecture architecture = GetArchitecture(type) ?? AssemblyHelper.DeserializeObject("{ }", type) as IArchitecture;                     
+            IArchitecture architecture = GetArchitecture(type) ?? AssemblyHelper.DeserializedObject("{ }", type) as IArchitecture;                     
             return architecture;
         }
 
