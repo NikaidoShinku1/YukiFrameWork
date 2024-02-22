@@ -78,10 +78,22 @@ namespace YukiFrameWork.IOC
                 var rect = EditorGUILayout.BeginVertical(scope.selectIndex == i ? "SelectionRect" : GUIStyle.none);
                 EditorGUILayout.Space();
                 EditorGUILayout.LabelField("注册器");
-               
 
+                EditorGUILayout.BeginHorizontal();
                 info.monoScript = (MonoScript)EditorGUILayout.ObjectField(info.monoScript, typeof(MonoScript), true);
-
+                if (info.monoScript != null)
+                {
+                    try
+                    {
+                        info.typeName = info.monoScript.GetClass().FullName;
+                        GUILayout.FlexibleSpace();
+                        GUI.color = Color.cyan;
+                        EditorGUILayout.LabelField(info.typeName);
+                        GUI.color = Color.white;
+                    }
+                    catch { }
+                }
+                EditorGUILayout.EndHorizontal();
                 info.lifeTime = (LifeTime)EditorGUILayout.EnumPopup(info.lifeTime);
 
                 switch (Event.current.type)

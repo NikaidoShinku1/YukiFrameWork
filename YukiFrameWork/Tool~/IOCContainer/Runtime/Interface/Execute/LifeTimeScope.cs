@@ -2,6 +2,8 @@
 using UnityEngine;
 using System;
 using YukiFrameWork.Pools;
+using YukiFrameWork.Extension;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -41,11 +43,11 @@ namespace YukiFrameWork.IOC
         {
             foreach (var info in infos)
             {
-                if (info.monoScript == null) continue;
+                if (string.IsNullOrEmpty(info.typeName)) continue;
 
-                if (info.monoScript.GetClass().IsSubclassOf(typeof(UnityEngine.Object))) continue;
-
-                containerBuilder.Register(info.monoScript.GetClass(), info.lifeTime);
+                Type type = AssemblyHelper.GetType(info.typeName);              
+                if (type == null || type.IsSubclassOf(typeof(UnityEngine.Object))) continue;
+                containerBuilder.Register(type, info.lifeTime);
             }
         }
 

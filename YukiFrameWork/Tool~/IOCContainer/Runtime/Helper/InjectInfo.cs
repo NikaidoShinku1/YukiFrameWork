@@ -21,7 +21,12 @@ namespace YukiFrameWork.IOC
 	[Serializable]
 	public class InjectInfo
 	{
-		public MonoScript monoScript;				
+#if UNITY_EDITOR
+		public MonoScript monoScript;
+#endif
+		[HideInInspector]
+		public string typeName;
+		
 		public LifeTime lifeTime = LifeTime.Transient;			
 	}
 
