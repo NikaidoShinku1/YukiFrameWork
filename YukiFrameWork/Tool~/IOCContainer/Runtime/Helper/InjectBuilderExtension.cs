@@ -1,4 +1,6 @@
-﻿///=====================================================
+﻿using System.Reflection;
+
+///=====================================================
 /// - FileName:      InjectBuilderExtension.cs
 /// - NameSpace:     YukiFrameWork.IOC
 /// - Description:   Container拓展
@@ -38,5 +40,49 @@ namespace YukiFrameWork.IOC
         {
             return d.ResolveEntry(typeof(T), name);
         }
+
+        public static IEntryPoint Inject<T>(this IEntryPoint point, T value)
+        {
+            return Inject<T>(point,value,string.Empty);
+        }
+
+        public static IEntryPoint Inject<T>(this IEntryPoint point,T value,string labelName)
+        {
+            System.Type valueType = point.Value.GetType();
+
+            if (valueType == null) throw new System.Exception("获取类型失败请重新查找，EntryPoint:" + point.Name);
+
+            foreach (var member in valueType.GetMembers())
+            {               
+                DynamicValueAttribute attribute = member.GetCustomAttribute<DynamicValueAttribute>();
+
+                if (attribute == null) continue;
+                SetPointValue<T>(point, member, attribute, labelName, value);
+            }
+
+            return point;
+        }
+
+        private static void SetPointValue<T>(IEntryPoint point, MemberInfo member, DynamicValueAttribute attribute,string labelName, T value)
+        {
+            bool IsLabelNullOrEmpty = (string.IsNullOrEmpty(attribute.LabelName) || string.IsNullOrEmpty(labelName));
+
+            if (member is FieldInfo fieldInfo)
+            {
+                if (IsLabelNullOrEmpty && fieldInfo.FieldType.Equals(typeof(T)))
+                    fieldInfo.SetValue(point.Value, value);
+                else if (attribute.LabelName == labelName)
+                    fieldInfo.SetValue(point.Value, value);
+            }
+            else if (member is PropertyInfo propertyInfo)
+            {
+                if (IsLabelNullOrEmpty && propertyInfo.PropertyType.Equals(typeof(T)))
+                    propertyInfo.SetValue(point.Value, value);
+                else if (attribute.LabelName == labelName && propertyInfo.PropertyType.Equals(typeof(T)))
+                    propertyInfo.SetValue(point.Value, value);
+            }
+        }
+
+       
     }
 }
