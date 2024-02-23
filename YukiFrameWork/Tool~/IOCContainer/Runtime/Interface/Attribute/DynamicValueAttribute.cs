@@ -24,7 +24,7 @@ namespace YukiFrameWork.IOC
         /// }	
         /// 
         /// IEntryPoint point = Container.ResolveEntry(typeof(A));
-        /// point.Inject("数字1",10);
+        /// point.Inject(10,"数字1");
         private string labelName;
 
 		public string LabelName => labelName;
