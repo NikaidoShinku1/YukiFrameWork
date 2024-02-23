@@ -52,7 +52,7 @@ namespace YukiFrameWork.IOC
 
             if (valueType == null) throw new System.Exception("获取类型失败请重新查找，EntryPoint:" + point.Name);
 
-            foreach (var member in valueType.GetMembers())
+            foreach (var member in valueType.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty))
             {               
                 DynamicValueAttribute attribute = member.GetCustomAttribute<DynamicValueAttribute>();
 
