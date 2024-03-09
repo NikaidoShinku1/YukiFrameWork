@@ -20,16 +20,22 @@ namespace YukiFrameWork
         protected PropertyDrawedInfo info;
         protected SerializedProperty property;
         protected bool IsMonoObjectValue => fieldInfo?.DeclaringType.IsSubclassOf(typeof(UnityEngine.Object)) == true;
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUI.GetPropertyHeight(property, label);
+        }
+       
         //protected bool IsIEnumerableValue => fieldInfo?.DeclaringType.GetInterfaces().FirstOrDefault(x => x == typeof(IEnumerable)) != null;
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {   
             EditorGUI.BeginChangeCheck();          
-            if (IsMonoObjectValue )
-            {             
+            if (IsMonoObjectValue)
+            {              
                 property.serializedObject.Update();
                 GUIColorAttribute color = fieldInfo.GetCustomAttribute<GUIColorAttribute>(true);                               
-                GUI.color = color != null ? color.Color : Color.white;
-                EditorGUI.PropertyField(position, property, label,true);
+                GUI.color = color != null ? color.Color : Color.white;               
+                EditorGUI.PropertyField(position, property, label,true);                
                 GUI.color = Color.white;
             }
             else
