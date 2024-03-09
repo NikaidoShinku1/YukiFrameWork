@@ -22,6 +22,15 @@ namespace YukiFrameWork
 
         public T ToObject<T>()
             => (T)_object;
-        
+
+        public override string ToString()
+        {
+            return _object.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return _object.GetHashCode();
+        }
     }
 }

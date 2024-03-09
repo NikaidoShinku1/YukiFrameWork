@@ -24,7 +24,22 @@ namespace YukiFrameWork.States
         private List<Type> behaviourTypes = new List<Type>();
         private List<string> fieldName = new List<string>();
         private IEnumerable<FieldInfo> fieldInfos;
-        private bool isRecomposeScript = false;   
+        private bool isRecomposeScript = false;
+
+        private void OnEnable()
+        {
+            StateInspectorHelper helper = (StateInspectorHelper)target;
+            if (helper == null) return;
+            var state = helper.node;
+            for (int i = 0; i < state.dataBases.Count; i++)
+            {
+                Type type = AssemblyHelper.GetType(state.dataBases[i].typeName);
+                if (type == null)
+                    continue;
+                Update_StateFieldInfo(type, state.dataBases[i]);
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;            
@@ -121,9 +136,8 @@ namespace YukiFrameWork.States
 
             var helper = target as StateInspectorHelper;
             if (helper == null) return;
-            Update_StateFieldInfo(type, dataBase);
+          
             SerializationStateField(type, dataBase);
-
             EditorGUILayout.Space();
             EditorGUILayout.BeginVertical("OL box NoExpand");
             for (int i = 0; i < dataBase.metaDatas.Count; i++)
@@ -134,6 +148,7 @@ namespace YukiFrameWork.States
                 EditorGUILayout.Space();
 
             }
+          
 
             EditorGUILayout.EndVertical();
         }  
@@ -165,104 +180,101 @@ namespace YukiFrameWork.States
 
         private void Update_StateFieldInfo(Type type, StateDataBase dataBase)
         {
-            foreach (var attribute in type.GetCustomAttributes())
+            SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>();
+            if (serializedState != null)
             {
-                if (attribute is SerializedStateAttribute)
+                fieldName.Clear();
+                for (int i = 0; i < dataBase.metaDatas.Count; i++)
                 {
-                    fieldName.Clear();
-                    for (int i = 0; i < dataBase.metaDatas.Count; i++)
-                    {                
-                        fieldInfos ??= type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
-                        foreach (var field in fieldInfos)
-                        {                         
-                            if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
-                            {
-                                fieldName.Add(field.Name);
-                            }
-                        }                                            
-                    }
-
-                    for (int i = 0; i < dataBase.metaDatas.Count; i++)
+                    var fieldInfos = type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                    foreach (var field in fieldInfos)
                     {
-                        bool contains = false;
-                        for (int j = 0; j < fieldName.Count; j++)
+                        if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
                         {
-                            if (dataBase.metaDatas[i].name.Equals(fieldName[j]))
-                            {
-                                contains = true;
-                            }
-                        }
-                        if (!contains)
-                        {
-                            dataBase.metaDatas.RemoveAt(i);
-                            i--;
+                            fieldName.Add(field.Name);
                         }
                     }
-
                 }
+
+                for (int i = 0; i < dataBase.metaDatas.Count; i++)
+                {
+                    bool contains = false;
+                    for (int j = 0; j < fieldName.Count; j++)
+                    {
+                        if (dataBase.metaDatas[i].name.Equals(fieldName[j]))
+                        {
+                            contains = true;
+                        }
+                    }
+                    if (!contains)
+                    {
+                        dataBase.metaDatas.RemoveAt(i);
+                        i--;
+                    }
+                }
+
+
             }
         }
 
         private void SerializationStateField(Type type, StateDataBase dataBase)
         {
-            foreach (var attribute in type.GetCustomAttributes())
+            SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>();
+            if (serializedState != null)
             {
-                if (attribute is SerializedStateAttribute)
+                var fieldInfos = type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                foreach (var field in fieldInfos)
                 {
-                    fieldInfos ??= type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
-                    foreach (var field in fieldInfos)
+                    var tempData = dataBase.metaDatas.Find(x => !x.typeName.Equals(field.FieldType.ToString()) && x.name.Equals(field.Name));
+                    if (tempData != null)
                     {
-                        var tempData = dataBase.metaDatas.Find(x => !x.typeName.Equals(field.FieldType.ToString()) && x.name.Equals(field.Name));
-                        if (tempData != null)
+                        tempData.typeName = field.FieldType.ToString();
+                    }       
+                    if (dataBase.metaDatas.Find(x => x.name == field.Name) != null) continue;
+                   
+                    HideFieldAttribute hideField = field.GetCustomAttribute<HideFieldAttribute>();
+                    if (hideField != null) continue;
+
+                    var target = Activator.CreateInstance(type);//AssemblyHelper.DeserializeObject("{ }", type);                     
+                    if (Type.GetTypeCode(field.FieldType) == System.TypeCode.Object)
+                    {
+                        if (field.FieldType.IsSubclassOf(typeof(Object)) || field.FieldType == typeof(Object))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Object, target, field));
+                        else if (field.FieldType.IsGenericType)
                         {
-                            tempData.typeName = field.FieldType.ToString();
+                            var gta = field.FieldType.GenericTypeArguments;
+                            if (gta.Length > 1)
+                                continue;
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.GenericType, target, field));
                         }
-                    
-                        if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name)) != null) continue;
-                      
-                        HideFieldAttribute hideField = field.GetCustomAttribute<HideFieldAttribute>();
-                        if (hideField != null) continue;
-                       
-                        var target = Activator.CreateInstance(type);//AssemblyHelper.DeserializeObject("{ }", type);                     
-                        if (Type.GetTypeCode(field.FieldType) == System.TypeCode.Object)
-                        {                       
-                            if (field.FieldType.IsSubclassOf(typeof(Object)) || field.FieldType == typeof(Object))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Object, target, field));
-                            else if (field.FieldType.IsGenericType && !field.FieldType.FullName.Contains("BindablePropertyToList"))
-                            {
-                                var gta = field.FieldType.GenericTypeArguments;
-                                if (gta.Length > 1)
-                                    continue;
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.GenericType, target, field));
-                            }
-                            else if (field.FieldType.IsArray)
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Array, target, field));
-                            else if (field.FieldType == typeof(Vector2))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector2, target, field));
-                            else if (field.FieldType == typeof(Vector3))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector3, target, field));
-                            else if (field.FieldType == typeof(Vector4))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector4, target, field));
-                            else if (field.FieldType == typeof(Quaternion))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Quaternion, target, field));
-                            else if (field.FieldType == typeof(Rect))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Rect, target, field));
-                            else if (field.FieldType == typeof(Color))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color, target, field));
-                            else if (field.FieldType == typeof(Color32))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color32, target, field));
-                            else if (field.FieldType == typeof(AnimationCurve))
-                                dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.AnimationCurve, target, field));
-                        }
-                        else if (field.FieldType.IsEnum)
-                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Enum, target, field));
-                        else
-                        {                           
-                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), (TypeCode)Type.GetTypeCode(field.FieldType), target, field));
-                        }
-                       
+                        else if (field.FieldType.IsArray)
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.FullName, TypeCode.Array, target, field));
+                        else if (field.FieldType == typeof(Vector2))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector2, target, field));
+                        else if (field.FieldType == typeof(Vector3))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector3, target, field));
+                        else if (field.FieldType == typeof(Vector4))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Vector4, target, field));
+                        else if (field.FieldType == typeof(Quaternion))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Quaternion, target, field));
+                        else if (field.FieldType == typeof(Rect))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Rect, target, field));
+                        else if (field.FieldType == typeof(Color))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color, target, field));
+                        else if (field.FieldType == typeof(Color32))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Color32, target, field));
+                        else if (field.FieldType == typeof(AnimationCurve))
+                            dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.AnimationCurve, target, field));
                     }
+                    else if (field.FieldType.IsEnum)
+                        dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), TypeCode.Enum, target, field));
+                    else
+                    {
+                        dataBase.metaDatas.Add(new Metadata(field.Name, field.FieldType.ToString(), (TypeCode)Type.GetTypeCode(field.FieldType), target, field));
+                    }
+
                 }
+
             }
         }
 
@@ -324,14 +336,16 @@ namespace YukiFrameWork.States
                 EditorGUILayout.BeginVertical();
                 var rect = EditorGUILayout.GetControlRect();
                 //rect.x += width;
+                
                 metadata.foldout = EditorGUI.BeginFoldoutHeaderGroup(rect, metadata.foldout, metadata.name);
                 if (metadata.foldout)
                 {
                     //EditorGUI.indentLevel = arrayBeginSpace;
                     EditorGUI.BeginChangeCheck();
+                    
                     var arraySize = EditorGUILayout.DelayedIntField("Size", metadata.arraySize);
                     bool flag8 = EditorGUI.EndChangeCheck();
-                    IList list = (IList)metadata.value;
+                    IList list = (IList)metadata.value;                  
                     if (flag8 | list.Count != metadata.arraySize)
                     {
                         metadata.arraySize = arraySize;
@@ -350,10 +364,9 @@ namespace YukiFrameWork.States
                     }
                     for (int i = 0; i < list.Count; i++)
                     {
-                        list[i] = PropertyField("Element " + i, list[i], metadata.itemType);
+                        list[i] = PropertyField("Element " + i, list[i], metadata.itemType);                        
                         metadata.value = list;
-                    }
-                    //EditorGUI.indentLevel = arrayEndSpace;
+                    }                   
                 }
                 EditorGUI.EndFoldoutHeaderGroup();
                 EditorGUILayout.EndVertical();

@@ -122,7 +122,7 @@ namespace YukiFrameWork.States
         public Metadata(string name, string fullName, TypeCode type, object target, FieldInfo field)
         {
             this.name = name;
-            typeName = fullName;
+            typeName = fullName;           
             this.type = type;
             this.field = field;
             this.target = target;
