@@ -12,42 +12,20 @@
 using UnityEngine;
 using System;
 using UnityEditor;
-using System.Collections.Generic;
-using YukiFrameWork;
-using System.Reflection;
-using YukiFrameWork.Extension;
 
 #if UNITY_EDITOR
 namespace YukiFrameWork.IOC
 {
     [CustomEditor(typeof(LifeTimeScope),true)]
     [CanEditMultipleObjects]
-    public class LifeTimeScopeInspector : Editor
+    public class LifeTimeScopeInspector : CustomInspectorEditor
     { 
-        private List<string> typeNames = new List<string>();    
-        private List<GenericLayer> layers = new List<GenericLayer>();   
-        private void OnEnable()
-        {
-            LifeTimeScope scope = target as LifeTimeScope;
-            if (scope == null) return;
-
-            if (layers.Count == 0)
-            {
-                layers.Add(new MemberInfoLayer(target,target.GetType(),this));
-                layers.Add(new MethodInfoLayer(serializedObject, target.GetType()));
-            }
-
-        }
-
         public override void OnInspectorGUI()
         {            
             SerializedInjectedGameObjects();
             EditorGUILayout.Space();
-            foreach (var layer in layers) 
-            {
-                layer.OnInspectorGUI();
-                EditorGUILayout.Space();
-            }
+
+            base.OnInspectorGUI();
         }      
 
         private void SerializedInjectedGameObjects()
@@ -120,9 +98,10 @@ namespace YukiFrameWork.IOC
             if (EditorGUI.EndChangeCheck())
             {
                 scope.SaveData();
+                serializedObject.ApplyModifiedProperties();
             } 
 
-            serializedObject.ApplyModifiedProperties();
+           
         }
     }
 }

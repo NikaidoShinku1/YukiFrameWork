@@ -8,20 +8,18 @@ using YukiFrameWork.Extension;
 using UnityEditor;
 #endif
 namespace YukiFrameWork.IOC
-{ 
-    [Serializable]
+{  
     public class LifeTimeScope : MonoBehaviour,IDisposable
     {
         [SerializeField]
         [HelperBox("是否打开列表添加GameObject自动注入")]
         [BoolanPopup("关闭", "打开")]
-        private bool IsAutoInjectObject = true;
-
+        protected bool IsAutoInjectObject = true;   
         [ListDrawerSetting]
         [SerializeField]
         [ArrayLabel("需要注入的GameObject")]
         [EnableIf("IsAutoInjectObject")]  
-        private List<GameObject> gameObjects = ListPools<GameObject>.Get();
+        protected List<GameObject> gameObjects = ListPools<GameObject>.Get();
 
         [HideInInspector]
         public List<InjectInfo> infos = new List<InjectInfo>();
@@ -55,7 +53,8 @@ namespace YukiFrameWork.IOC
         }
 
         private void InitializeAllObjects()
-        {            
+        {
+            InJectAutoInGameObject(gameObject);
             if (IsAutoInjectObject)
             {               
                 for (int i = 0; i < gameObjects.Count; i++)

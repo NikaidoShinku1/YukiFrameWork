@@ -52,13 +52,13 @@ namespace YukiFrameWork
         private Object target;
 
         private void InitMemberInfos(Type type)
-        {
-            IEnumerable<MemberInfo> memberInfos = type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.Default);
-
+        {       
+            IEnumerable<MemberInfo> memberInfos = type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.SetProperty | BindingFlags.Instance | BindingFlags.Default | BindingFlags.FlattenHierarchy);
             foreach (var member in memberInfos)
-            {
-                SerializedProperty property = serializedObject.FindProperty(member.Name);             
+            {              
+                SerializedProperty property = serializedObject.FindProperty(member.Name);               
                 HideInInspector hideInInspector = member.GetCustomAttribute<HideInInspector>();
+               
                 if (property == null || hideInInspector != null) continue;
 
                 member.CreateAllSettingAttribute
@@ -279,7 +279,7 @@ namespace YukiFrameWork
                     {
                         EditorUtility.SetDirty(target);
                         AssetDatabase.SaveAssets();
-                        editor.Repaint();                       
+                        editor?.Repaint();                       
                         serializedObject.ApplyModifiedProperties();
                     }
                 }

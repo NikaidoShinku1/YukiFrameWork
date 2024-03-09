@@ -34,7 +34,7 @@ namespace YukiFrameWork
         }
 
         protected virtual void InitLayers()
-        {
+        {            
             layers.Add(new MemberInfoLayer(target,target.GetType(),this));
             layers.Add(new MethodInfoLayer(serializedObject, target.GetType()));
         }
@@ -45,7 +45,7 @@ namespace YukiFrameWork
         }
 
         public override void OnInspectorGUI()
-        {                 
+        {                          
             serializedObject.Update();
             var rect = EditorGUILayout.BeginVertical();
             EditorGUI.BeginDisabledGroup(true);
