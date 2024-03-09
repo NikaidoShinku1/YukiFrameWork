@@ -11,6 +11,7 @@ namespace YukiFrameWork
    
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
+    [CustomPropertySetting("_items", "Element")]
     public class FastListSafe<T> : FastList<T>
     {
         public override void Add(T item, out int index)

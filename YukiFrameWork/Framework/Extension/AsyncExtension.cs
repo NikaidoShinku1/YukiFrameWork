@@ -4,13 +4,12 @@
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
 /// - Description:   框架异步拓展
-/// -  (C) Copyright 2008 - 2023,Yuki
+/// -  (C) Copyright 2008 - 2024,Yuki
 /// -  All Rights Reserved.
 ///======================================================
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
@@ -75,8 +74,9 @@ namespace YukiFrameWork
   
         public object Current { get; set; }
         public bool IsPause { get;private set; }
-        public bool IsRunning { get; private set; }      
+        public bool IsRunning { get; private set; }
 
+        private bool isRelease = true;
         public static AsyncExtensionCore Get(IEnumerator enumerator, Action callBack = null)
         {
             var core = simpleObjectPools.Get();
@@ -94,7 +94,8 @@ namespace YukiFrameWork
             this.enumerator = enumerator;
             this.callBack = callBack;
             IsRunning = true;
-            AsyncCore.I.Eneuque(ExecuteAsync());       
+            isRelease = false;
+            MonoHelper.Start(ExecuteAsync());       
         }       
 
         private IEnumerator ExecuteAsync()
@@ -113,33 +114,36 @@ namespace YukiFrameWork
                     else
                     {
                         IsRunning = false;
+                        Cancel();
                     }
 
                 }
-            }               
-            Cancel();
+            }                          
         }
 
         public IAsyncExtensionCore ExecuteAsync(Action callBack = null)
         {
-             return AsyncExecution(callBack).Start();
+             return Execution(callBack).Start();
         }
 
         /// <summary>
         /// 等待当前拓展协程(异步)执行完毕,如果该执行没有启动或已经完成则直接跳过
         /// </summary>
         /// <returns></returns>
-        private IEnumerator AsyncExecution(Action callBack = null)
+        private IEnumerator Execution(Action callBack = null)
         {
             yield return new WaitUntil(() => !IsRunning);
             callBack?.Invoke();
         }
 
         public void Cancel()
-        {            
+        {
+            if (isRelease) return;
+            
             IsRunning = false;
-            callBack?.Invoke();
-            simpleObjectPools.Release(this);            
+            callBack?.Invoke();           
+            simpleObjectPools.Release(this);
+            isRelease = true;
         }
 
         public void CancelWaitGameObjectDestroy<TComponent>(TComponent component) where TComponent : Component
@@ -161,44 +165,5 @@ namespace YukiFrameWork
         {
             IsPause = false;
         }
-    }
-
-    public class AsyncCore : SingletonMono<AsyncCore>
-    {        
-        private object _lock = new object();
-
-        private readonly Queue<Action> asyncCore = new Queue<Action>();
-
-        protected override void Awake()
-        {
-            IsDonDestroyLoad = true;
-            base.Awake();
-        }
-
-        public void Eneuque(IEnumerator enumerator)
-        {
-            asyncCore.Enqueue(() => StartCoroutine(enumerator));
-        }
-
-        private void Update()
-        {
-            lock (_lock)
-            {
-                if (asyncCore.Count > 0)
-                {
-                    asyncCore.Dequeue()?.Invoke();
-                }
-            }
-        }
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            asyncCore.Clear();
-            _lock = null;         
-        }
-
-
-    }
-
+    }  
 }

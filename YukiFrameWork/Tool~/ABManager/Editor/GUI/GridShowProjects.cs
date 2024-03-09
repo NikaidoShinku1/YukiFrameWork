@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
 public class GridShowProjects : BaseShowProjects
 {

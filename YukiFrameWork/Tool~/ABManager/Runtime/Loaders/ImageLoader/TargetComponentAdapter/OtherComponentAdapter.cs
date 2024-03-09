@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class OtherComponentAdapter : TargetComponentAdapter

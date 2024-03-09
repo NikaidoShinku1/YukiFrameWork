@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class ImageComponentAdapter : TargetComponentAdapter
     {

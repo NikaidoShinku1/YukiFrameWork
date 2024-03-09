@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     [System.Obsolete("请使用IPostprocessBuildProject代替!",true)]
     public interface IOnBuildComplete

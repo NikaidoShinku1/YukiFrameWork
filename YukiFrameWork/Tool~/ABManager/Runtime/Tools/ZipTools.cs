@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager {
+namespace XFABManager {
     public class ZipTools
     {
 
@@ -30,8 +30,8 @@ namespace YukiFrameWork.XFABManager {
             }
 
             // 如果压缩文件已经存在 则 删除
-            if (File.Exists(zipFilePath)) {
-                File.Delete(zipFilePath);
+            if (System.IO.File.Exists(zipFilePath)) {
+                System.IO.File.Delete(zipFilePath);
             }
 
 
@@ -45,7 +45,7 @@ namespace YukiFrameWork.XFABManager {
                     return false;
                 }
 
-                using (ZipOutputStream s = new ZipOutputStream(File.Create(zipFilePath)))
+                using (ZipOutputStream s = new ZipOutputStream(System.IO.File.Create(zipFilePath)))
                 {
 
                     s.SetLevel(9); // 压缩级别 0-9
@@ -55,7 +55,7 @@ namespace YukiFrameWork.XFABManager {
                         ZipEntry entry = new ZipEntry(Path.GetFileName(file));
                         entry.DateTime = DateTime.Now;
                         s.PutNextEntry(entry);
-                        using (FileStream fs = File.OpenRead(file))
+                        using (FileStream fs = System.IO.File.OpenRead(file))
                         {
                             int sourceBytes;
                             do
@@ -82,7 +82,7 @@ namespace YukiFrameWork.XFABManager {
         /// </summary>
         public static bool UnZipFile(string zipFilePath,string targetDirectory)
         {
-            if (!File.Exists(zipFilePath))
+            if (!System.IO.File.Exists(zipFilePath))
             {
                 Debug.LogError( string.Format( "Cannot find file '{0}'", zipFilePath));
                 return false;
@@ -97,13 +97,13 @@ namespace YukiFrameWork.XFABManager {
 
             try
             {
-                using (ZipInputStream s = new ZipInputStream(File.OpenRead(zipFilePath)))
+                using (ZipInputStream s = new ZipInputStream(System.IO.File.OpenRead(zipFilePath)))
                 {
                     ZipEntry theEntry;
                     while ((theEntry = s.GetNextEntry()) != null)
                     {
                         string fileName = Path.GetFileName(theEntry.Name);
-                        if (fileName != String.Empty)
+                        if (fileName != string.Empty)
                         {
                             string path = string.Format("{0}/{1}", targetDirectory, theEntry.Name);
 
@@ -112,8 +112,8 @@ namespace YukiFrameWork.XFABManager {
                             if (!Directory.Exists(dir))
                                 Directory.CreateDirectory(dir);
 
-                            if (File.Exists(path)) File.Delete(path);
-                            using (FileStream streamWriter = File.Create(path))
+                            if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                            using (FileStream streamWriter = System.IO.File.Create(path))
                             {
                                 while (true)
                                 {
@@ -149,7 +149,7 @@ namespace YukiFrameWork.XFABManager {
         /// <returns></returns>
         public static async Task<bool> UnZipFileAsync(string zipFilePath, string targetDirectory,Action<float> progress = null)
         {
-            if (!File.Exists(zipFilePath))
+            if (!System.IO.File.Exists(zipFilePath))
             {
                 Debug.LogError(string.Format("Cannot find file '{0}'", zipFilePath));
                 return false;
@@ -170,20 +170,20 @@ namespace YukiFrameWork.XFABManager {
 
                     int allCount = 0;
 
-                    using (ZipInputStream s = new ZipInputStream(File.OpenRead(zipFilePath))) {
+                    using (ZipInputStream s = new ZipInputStream(System.IO.File.OpenRead(zipFilePath))) {
                         while ( s.GetNextEntry() != null) {
                             allCount++;
                         }
                     }
 
-                    using (ZipInputStream s = new ZipInputStream(File.OpenRead(zipFilePath)))
+                    using (ZipInputStream s = new ZipInputStream(System.IO.File.OpenRead(zipFilePath)))
                     {
                         long unZipCount = 0;
                         ZipEntry theEntry;
                         while ((theEntry = s.GetNextEntry()) != null)
                         {
                             string fileName = Path.GetFileName(theEntry.Name);
-                            if (fileName != String.Empty)
+                            if (fileName != string.Empty)
                             {
                                 string path = string.Format("{0}/{1}", targetDirectory, theEntry.Name);
                                 string dir = Path.GetDirectoryName(path);
@@ -191,8 +191,8 @@ namespace YukiFrameWork.XFABManager {
                                 if (!Directory.Exists(dir))
                                     Directory.CreateDirectory(dir);
 
-                                if (File.Exists(path)) File.Delete(path);
-                                using (FileStream streamWriter = File.Create(path))
+                                if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
+                                using (FileStream streamWriter = System.IO.File.Create(path))
                                 {
                                     while (true)
                                     {
@@ -209,7 +209,7 @@ namespace YukiFrameWork.XFABManager {
                                 }
                             }
                             unZipCount++;
-                            progress?.Invoke(unZipCount * 1.0f /allCount);
+                            progress?.Invoke(unZipCount * 1.0f / allCount);
                         }
                     }
                 }

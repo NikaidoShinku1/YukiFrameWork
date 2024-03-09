@@ -28,7 +28,7 @@ namespace YukiFrameWork.UI
         [HideInInspector]
         public UICustomData Data;
 
-        [Header("面板的层级"),SerializeField,HideInInspector]        
+        [Label("面板层级"),SerializeField,RuntimeDisabledGroup]        
         protected UILevel mLevel = UILevel.Common;
 
         public UILevel Level
@@ -43,7 +43,7 @@ namespace YukiFrameWork.UI
             }
         }
       
-        [Header("面板是否缓存"),SerializeField,HideInInspector]
+        [Label("面板是否缓存"),BoolanPopup("关闭缓存","开启缓存"),SerializeField,RuntimeDisabledGroup,HelperBox("如果关闭则每次开关面板都会进行销毁生成",Message.Warning)]
         protected bool isPanelCache = true;
 
         public bool IsPanelCache => isPanelCache;

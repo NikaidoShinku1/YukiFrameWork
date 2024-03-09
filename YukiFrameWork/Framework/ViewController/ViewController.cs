@@ -35,8 +35,6 @@ namespace YukiFrameWork
         [SerializeField]
         private string assetPath = "Assets";
         [SerializeField]
-        private string customAssemblyName = "Assembly-Csharp";
-        [SerializeField]
         private bool isCustomAssembly = false;
 
         public string AssetPath
@@ -60,12 +58,6 @@ namespace YukiFrameWork
         {
             get => autoArchitectureIndex;
             set => autoArchitectureIndex = value;
-        }
-
-        public string CustomAssemblyName
-        {
-            get => customAssemblyName;
-            set => customAssemblyName = value;
         }
 
         public bool IsCustomAssembly

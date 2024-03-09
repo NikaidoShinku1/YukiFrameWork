@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class SpriteRendererComponentAdapter : TargetComponentAdapter
     {

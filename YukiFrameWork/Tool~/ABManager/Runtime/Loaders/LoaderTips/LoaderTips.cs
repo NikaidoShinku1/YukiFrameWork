@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     internal abstract class LoaderTips
     {

@@ -1,8 +1,9 @@
 ﻿using System;
+using UnityEngine;
 namespace YukiFrameWork
 {
     public abstract class Singleton<T> : ISingletonKit<T>, IDisposable where T : Singleton<T>
-    {
+    {      
         protected static T instance;
 
         private readonly static object _lock = new object();
@@ -34,7 +35,7 @@ namespace YukiFrameWork
         }
 
         public void Dispose()
-        {
+        {          
             OnDestroy();
         }
     }

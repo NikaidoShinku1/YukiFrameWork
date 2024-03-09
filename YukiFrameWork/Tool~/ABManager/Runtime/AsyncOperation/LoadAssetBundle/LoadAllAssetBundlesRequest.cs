@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class LoadAllAssetBundlesRequest : CustomAsyncOperation<LoadAllAssetBundlesRequest>
     {
@@ -49,7 +49,7 @@ namespace YukiFrameWork.XFABManager
 
                 for (int i = 0; i < list.Count; i++)
                 {
-                    string bundleName = string.Format("{0}_{1}{2}",projectName.ToLower(), list[i],AssetBundleManager.GetAssetBundleSuffix(projectName));
+                    string bundleName = string.Format("{0}_{1}{2}", projectName.ToLower(), list[i], AssetBundleManager.GetAssetBundleSuffix(projectName));
                     if (bundleName.Equals(XFABTools.GetCurrentPlatformName())) continue;
                     yield return AssetBundleManager.LoadAssetBundleAsync(projectName, bundleName);
                     progress = (float)i / list.Count;
@@ -57,7 +57,7 @@ namespace YukiFrameWork.XFABManager
 
             }
             else {
-                Completed(string.Format("projectName:{0}读取AssetBundle列表失败!",projectName));
+                Completed(string.Format("projectName:{0}读取AssetBundle列表失败!", projectName));
                 yield break;
             }
 

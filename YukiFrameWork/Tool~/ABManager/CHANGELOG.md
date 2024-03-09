@@ -1,3 +1,33 @@
+## version 1.10.6 更新内容
+
+1. 优化GameObjectLoader从对象池中加载出的游戏物体会默认放到DontDestroyOnLoad场景的问题!
+
+## version 1.10.5 更新内容
+
+1. 修复guid重复的问题!
+
+## version 1.10.4 更新内容
+
+1. 优化 GameObjectLoader 资源卸载逻辑!
+
+## version 1.10.3 更新内容
+
+1. 兼容OpenHarmony平台 
+
+## version 1.10.2 更新内容
+
+1. 兼容WebGL平台
+2. 修改Build文件夹名称，防止被Git忽略!
+
+## version 1.10.1 更新内容
+
+1. 修复 RuntimeAnimatorController 类型的资源加载失败!
+
+## version 1.10.0 更新内容
+
+1. 修改 CheckUpdateResult默认值!
+2. 优化CustomAsyncOperation代码!
+
 ## version 1.9.9 更新内容
 
 1. 修复重复拖拽资源到AssetBundle列表添加失败的问题!

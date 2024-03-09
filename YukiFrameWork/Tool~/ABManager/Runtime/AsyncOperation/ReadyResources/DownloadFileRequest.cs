@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     /// <summary>
@@ -98,22 +98,27 @@ namespace YukiFrameWork.XFABManager
                 downloadFile.disposeDownloadHandlerOnDispose = true;
                 downloadFile.disposeCertificateHandlerOnDispose = true;
                 DownloadHandlerFileRange downloadHandler = null;
-                try
+
+                if (Application.platform != RuntimePlatform.WebGLPlayer) 
                 {
-                    // 如果文件大于1g ，采用10mb缓冲区 , 理想情况下网速大概能达到200 ~ 300 mb /s 足够使用了 (100g 10分钟不到就能下载完毕) 
-                    if (length <= GB) 
-                        downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile); 
-                    else
-                        downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile,1024 * 1024 * 10);
-                }
-                catch (System.Exception e)
-                {
-                    Completed(e.Message);
-                    yield break;
-                }
+                    try
+                    {
+                        // 如果文件大于1g ，采用10mb缓冲区 , 理想情况下网速大概能达到200 ~ 300 mb /s 足够使用了 (100g 10分钟不到就能下载完毕) 
+                        if (length <= GB) 
+                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile); 
+                        else
+                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile,1024 * 1024 * 10);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Completed(e.Message);
+                        yield break;
+                    }
                  
 
-                downloadFile.downloadHandler = downloadHandler;
+                    downloadFile.downloadHandler = downloadHandler;
+                }
+
                 UnityWebRequestAsyncOperation asyncOperation = null;
                  
                 try
@@ -139,10 +144,17 @@ namespace YukiFrameWork.XFABManager
                     yield return null;
                     if(progress < downloadFile.downloadProgress)
                         progress = downloadFile.downloadProgress;
-                     
+
                     // 计算网速
-                    DownloadedSize = downloadHandler.DownloadedSize;
-                    AllSize = downloadHandler.FileSize;
+                    if (downloadHandler != null)
+                    {
+                        DownloadedSize = downloadHandler.DownloadedSize;
+                        AllSize = downloadHandler.FileSize;
+                    }
+                    else {
+                        DownloadedSize = (long)downloadFile.downloadedBytes;
+                        AllSize = length;
+                    }
 
                     // 添加超时逻辑
                     if (Speed == 0) // 当前下载速度为0 开始计时
@@ -156,11 +168,15 @@ namespace YukiFrameWork.XFABManager
                     else
                         timer = 0; 
                 }
+
+                if (downloadHandler != null) 
+                {                    
+                    while (!downloadHandler.AllTaskCompleted()) 
+                        yield return null;
                 
-                while (!downloadHandler.AllTaskCompleted()) 
-                    yield return null;
+                    downloadHandler.Close();
+                }
                 
-                downloadHandler.Close();
 
                 downloadError = string.Empty;
 
@@ -174,11 +190,11 @@ namespace YukiFrameWork.XFABManager
                 {
                     downloadError = string.Format("url:{0} error:{1}",file_url,downloadFile.error) ;
                 }
-                
-                downloadFile?.Dispose();
-
-                if (!string.IsNullOrEmpty(downloadError))
+                 
+                if (!string.IsNullOrEmpty(downloadError)) {
+                    downloadFile?.Dispose();
                     yield return new WaitForSeconds(1); // 一秒之后重试
+                }
                 else 
                     break;
             }
@@ -189,11 +205,20 @@ namespace YukiFrameWork.XFABManager
                 yield break;
             }
 
-            // 说明已经下载完成 但是没有把临时文件转成正式文件
-            if (File.Exists(localfile))
-                File.Delete(localfile);
-              
-            File.Move(tempfile, localfile); 
+            if (Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                // 说明已经下载完成 但是没有把临时文件转成正式文件
+                if (File.Exists(localfile))
+                    File.Delete(localfile);
+
+                File.Move(tempfile, localfile);
+            }
+            else {
+                File.WriteAllBytes(localfile, downloadFile.downloadHandler.data);
+            }
+            
+            downloadFile?.Dispose();
+
             Completed();
         }
         protected override void OnCompleted()

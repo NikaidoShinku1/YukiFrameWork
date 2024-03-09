@@ -32,7 +32,7 @@ namespace YukiFrameWork.Audio
         {
             if (isInit)
             {
-                "UI模块已经完成初始化，无需再次调用!".LogInfo();
+                "声音模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
             }          
             isInit = true;
@@ -44,7 +44,7 @@ namespace YukiFrameWork.Audio
         {
             if (isInit)
             {
-                "UI模块已经完成初始化，无需再次调用!".LogInfo();
+                "声音模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
             }
             isInit = true;

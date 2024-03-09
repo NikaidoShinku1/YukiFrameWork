@@ -11,20 +11,63 @@
 
 using System;
 using System.Reflection;
-using System.Linq;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
+using UnityEngine;
 
 namespace YukiFrameWork
 {
     public class ArchitectureConstructor : Singleton<ArchitectureConstructor>
     {
+        private static object _object = new object();
+#if UNITY_2020_1_OR_NEWER
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void InitArchitecture()
+        {
+            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+
+            lock (_object)
+            {
+                Assembly assembly = null;
+                try
+                {
+                    assembly = Assembly.Load(info.assembly);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("请检查是否输入正确的程序集定义!在编辑器左上方YukiFrameWork/LocalScriptsGenerator修改,本次运行不会预生成全局架构，将以首次调用而生成" + ex.Message);
+                }
+
+                if (assembly == null) return;
+
+                Type[] types = assembly.GetTypes();
+
+                for (int i = 0; i < types.Length; i++)
+                {
+                    Type type = types[i];
+
+                    if (type.GetInterface("IArchitecture") == null) continue;
+
+                    if (type.GetCustomAttribute<NoGenericArchitectureAttribute>() != null) continue;
+
+                    var architecture = Architecture.CreateInstance(type);
+
+                    I.RegisterGlobal(type, architecture.Default);
+                }
+            }          
+        }
+#endif
         private ArchitectureConstructor() { }
 
         /// <summary>
         /// 保存所有的全局架构
         /// </summary>
         private readonly Dictionary<Type,IArchitecture> globalDicts = DictionaryPools<Type,IArchitecture>.Get();
+
+        private void RegisterGlobal(Type type, IArchitecture architecture)
+        {
+            globalDicts[type] = architecture;
+        }
 
         public IArchitecture Enquene<T>(T viewController) where T : ViewController
         {
@@ -38,7 +81,7 @@ namespace YukiFrameWork
             RuntimeInitializeOnArchitecture runtime = type.GetCustomAttribute<RuntimeInitializeOnArchitecture>();
 
             if (runtime == null)
-            {
+            {               
                 throw new Exception("无法进行初始化,请在取消RuntimeInitializeOnArchitecture标记后手动重写RuntimeArchitecture属性!");               
             }
 

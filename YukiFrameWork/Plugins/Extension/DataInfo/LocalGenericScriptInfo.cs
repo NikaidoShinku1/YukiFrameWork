@@ -12,5 +12,7 @@ namespace YukiFrameWork
 
         public bool IsParent;
         public string parentName = "MonoBehaviour";
+
+        public string assembly = "Assembly-CSharp";
     }
 }

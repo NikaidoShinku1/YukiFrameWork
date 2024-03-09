@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     [System.Serializable]
     public enum AtlasCompressionType {
@@ -236,7 +236,7 @@ namespace YukiFrameWork.XFABManager
                     foreach (var asset_path in AssetBundleNameMapping.Keys)
                     { 
                         //Debug.LogFormat("asset:{0} exist:{1}",asset_path, System.IO.File.Exists(asset_path)); 
-                        if (string.IsNullOrEmpty(asset_path) || !System.IO.File.Exists(asset_path)) continue;
+                        if (string.IsNullOrEmpty(asset_path) || !File.Exists(asset_path)) continue;
                         //if (!System.IO.File.Exists(asset_path)) continue;
                         string asset_name_with_type = AssetBundleTools.GetAssetNameWithType(asset_path);
                         if (!asset_bundle_name_mapping_with_type.ContainsKey(asset_name_with_type)) {
@@ -309,7 +309,7 @@ namespace YukiFrameWork.XFABManager
                     foreach (var asset_path in AssetBundleNameMappingEditorLoad.Keys)
                     {
                         //Debug.LogFormat("asset:{0} exist:{1}",asset_path, System.IO.File.Exists(asset_path)); 
-                        if (string.IsNullOrEmpty(asset_path) || !System.IO.File.Exists(asset_path)) continue;
+                        if (string.IsNullOrEmpty(asset_path) || !File.Exists(asset_path)) continue;
                         //if (!System.IO.File.Exists(asset_path)) continue;
                         string asset_name_with_type = AssetBundleTools.GetAssetNameWithType(asset_path);
                         if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name_with_type))
@@ -364,7 +364,9 @@ namespace YukiFrameWork.XFABManager
             //buildAssetBundleOption.Add(new ToggleData("CollectDependencies", "", true, BuildAssetBundleOptions.CollectDependencies));
             //buildAssetBundleOption.Add(new ToggleData("CompleteAssets", "", true, BuildAssetBundleOptions.CompleteAssets));
             buildAssetBundleOptions.Add(new BuildOptionToggleData("DisableWriteTypeTree", "不包括 AssetBundle 中的类型信息。", false, BuildAssetBundleOptions.DisableWriteTypeTree));
+#if !UNITY_2021_1_OR_NEWER
             buildAssetBundleOptions.Add(new BuildOptionToggleData("DeterministicAssetBundle", "使用存储在资源包中对象的 ID 的哈希构建资源包。", false, BuildAssetBundleOptions.DeterministicAssetBundle));
+#endif
             buildAssetBundleOptions.Add(new BuildOptionToggleData("ForceRebuildAssetBundle", "强制重新构建 assetBundle。", false, BuildAssetBundleOptions.ForceRebuildAssetBundle));
             buildAssetBundleOptions.Add(new BuildOptionToggleData("IgnoreTypeTreeChanges", "在执行增量构建检查时忽略类型树更改。", false, BuildAssetBundleOptions.IgnoreTypeTreeChanges));
             buildAssetBundleOptions.Add(new BuildOptionToggleData("AppendHashToAssetBundleName", "向 assetBundle 名称附加哈希。", false, BuildAssetBundleOptions.AppendHashToAssetBundleName));

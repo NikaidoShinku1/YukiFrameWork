@@ -6,7 +6,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     [Serializable]
     // 项目显示模式

@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-
-namespace YukiFrameWork.XFABManager {
+namespace XFABManager {
 
     /// <summary>
     /// 加载并且实例化GameObject的类，并且对GameObject的加载进行管理和引用计数,当引用为0时会自动卸载资源(推荐使用)
@@ -195,6 +195,10 @@ namespace YukiFrameWork.XFABManager {
         private Dictionary<int,GameObjectInfo> allObjs = new Dictionary<int, GameObjectInfo>(); 
         private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器
         
+        private static Dictionary<int,GameObject> sceneRoot = new Dictionary<int, GameObject>();
+
+        private static List<GameObject> rootObjects = new List<GameObject>();
+
         private GameObject prefab;
 
         private static Transform _GameObjectLoaderParent;
@@ -278,8 +282,22 @@ namespace YukiFrameWork.XFABManager {
                 GameObjectInfo info = new GameObjectInfo(obj);
                 allObjs.Add(info.Hash,info);
             }
-            else { 
-                obj.transform.SetParent(parent, false);
+            else 
+            {
+
+                if (parent == null)
+                { 
+                    // 找到当前活跃的场景 
+                    GameObject root = GetActiveSceneRoot();
+                    if (root != null) 
+                        obj.transform.SetParent(root.transform);
+                    obj.transform.SetParent(null);
+                }
+                else 
+                {
+                    obj.transform.SetParent(parent, false);
+                }
+
                 obj.transform.localEulerAngles = Vector3.zero;
                 obj.transform.localPosition = Vector3.zero;
                 obj.SetActive(true);
@@ -353,14 +371,45 @@ namespace YukiFrameWork.XFABManager {
         /// <summary>
         /// 关闭池子
         /// </summary>
-        public void Close() {
+        public void Close() 
+        {
             if (!IsCanClose) return;
-            AssetBundleManager.UnloadAsset(prefab);
+            if (!prefab.IsDestroy())
+                AssetBundleManager.UnloadAsset(prefab); 
             GameObject.Destroy(Parent.gameObject); 
         }
 
         public bool ContainsObject(int obj_hash_code) {
             return allObjs.ContainsKey(obj_hash_code);
+        }
+
+        private static GameObject GetActiveSceneRoot() 
+        {
+
+            Scene scene = SceneManager.GetActiveScene();
+            if (!scene.IsValid()) return null;
+
+            int key = scene.GetHashCode();
+
+            if (sceneRoot.ContainsKey(key) && sceneRoot[key] != null && !sceneRoot[key].IsDestroy())
+                return sceneRoot[key];
+            
+            if(sceneRoot.ContainsKey(key))
+                sceneRoot.Remove(key);
+
+            rootObjects.Clear();
+            scene.GetRootGameObjects(rootObjects);
+
+            GameObject root = null;
+
+            if (rootObjects.Count == 0)
+                root = new GameObject("root");
+            else 
+                root = rootObjects[0];
+             
+            sceneRoot.Add(key, root);
+            rootObjects.Clear();
+            return root;
         }
 
     }
@@ -382,16 +431,9 @@ namespace YukiFrameWork.XFABManager {
         }
 
 
-        public bool IsDestroy() {
-
-            try
-            {
-                return Obj == null;
-            }
-            catch (System.Exception)
-            { 
-                return true;
-            } 
+        public bool IsDestroy() 
+        { 
+            return Obj.IsDestroy();
         }
 
 

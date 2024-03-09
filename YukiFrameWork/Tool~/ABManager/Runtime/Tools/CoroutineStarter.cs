@@ -4,21 +4,22 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
+using YukiFrameWork;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     /// <summary>
     /// 协程启动类(适用于非继承自MonoBehaviour的脚本启动协程)
     /// </summary>
-    public class CoroutineStarter 
-    {  
+    public class CoroutineStarter
+    {
         /// <summary>
         /// 启动协程（适用于在非继承自MonoBehaviour的脚本中启动协程）,且通过该方法启动的协程不会因为切换场景而停止
         /// </summary>
         /// <param name="enumerator"></param>
         public static Coroutine Start(IEnumerator enumerator) {
-            return AsyncCore.I.StartCoroutine(enumerator);
+            return MonoHelper.Start(enumerator);
         }
 
         /// <summary>
@@ -26,9 +27,9 @@ namespace YukiFrameWork.XFABManager
         /// </summary>
         /// <param name="coroutine"></param>
         public static void Stop(Coroutine coroutine) {
-            AsyncCore.I.StopCoroutine(coroutine);
-        }
-           
+             MonoHelper.Stop(coroutine);
+        }      
+
     }
 
 }

@@ -14,7 +14,30 @@ namespace YukiFrameWork
 {
 #if UNITY_EDITOR
     public class LocalGenericWindow : EditorWindow
-    {     
+    {
+        [InitializeOnLoadMethod]
+        public static void Init()
+        {
+            var info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+
+            if (info == null)
+            {
+                info = ScriptableObject.CreateInstance<LocalGenericScriptInfo>();
+
+                string infoPath = "Assets/Resources";
+                if (!Directory.Exists(infoPath))
+                {
+                    Directory.CreateDirectory(infoPath);
+                    AssetDatabase.Refresh();
+                }
+
+                AssetDatabase.CreateAsset(info, infoPath + "/LocalGenericScriptInfo.asset");
+                AssetDatabase.Refresh();
+                EditorUtility.SetDirty(info);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
         [MenuItem("YukiFrameWork/Local Scripts Generator")]
         private static void OpenWindow()
         {
@@ -31,6 +54,7 @@ namespace YukiFrameWork
         private SerializedProperty parentProperty;
         private SerializedProperty parentNameProperty;
         private SerializedObject serializedObject;
+        private SerializedProperty assemblyProperty;
         private void OnEnable()
         {
             Update_Info();
@@ -103,13 +127,20 @@ namespace YukiFrameWork
                  serializedObject.ApplyModifiedProperties();
                 GUIUtility.ExitGUI();
             }
-            serializedObject.ApplyModifiedProperties();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
             Generic();
+            EditorGUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUI.color = Color.red;
+            GUILayout.Label("项目(架构)脚本所依赖的程序集定义(非必要不更改):");
+            GUI.color = Color.white;
+            EditorGUILayout.PropertyField(assemblyProperty, new GUIContent());
+            EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
-            EditorGUI.EndChangeCheck();           
+            EditorGUI.EndChangeCheck();
+            serializedObject.ApplyModifiedProperties();
         }
 
         private void DragObject(Rect rect,out string path)
@@ -217,6 +248,7 @@ namespace YukiFrameWork
             pathProperty = serializedObject.FindProperty("genericPath");
             parentProperty = serializedObject.FindProperty("IsParent");
             parentNameProperty = serializedObject.FindProperty("parentName");
+            assemblyProperty = serializedObject.FindProperty("assembly");
         }
     }
 #endif  

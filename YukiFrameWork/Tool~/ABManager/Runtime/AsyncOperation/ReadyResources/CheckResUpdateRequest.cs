@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     /// <summary>
@@ -80,8 +80,8 @@ namespace YukiFrameWork.XFABManager
              
             result.version = requestVersion.version;
             // 检测是否有压缩文件
-            if (result.updateType == UpdateType.Download)
-            { 
+            if (result.updateType == UpdateType.Download && Application.platform != RuntimePlatform.WebGLPlayer)
+            {
                 // 判断服务端是否有.zip文件  
                 string zipPath = XFABTools.ServerPath(AssetBundleManager.GetProfile(projectName).url, projectName, requestVersion.version, string.Format("{0}.zip", projectName));
                 RemoteFileInfoRequest zip_file_info = RemoteFileInfoRequest.RequestInfo(zipPath);
@@ -228,44 +228,15 @@ namespace YukiFrameWork.XFABManager
                 yield return isHaveBuiltIn;
                 // 如果有内置资源并且内置目录不可写才需要判断(如果可写内置目录与数据目录是一个，再判断没有意义)
                 if (isHaveBuiltIn.isHave && !XFABTools.StreamingAssetsWritable())
-                {
-                    // 检查需要更新的文件列表中 有没有已经内置的资源 如果有 直接复制 并且移除
-                    string project_build_info = XFABTools.BuildInDataPath(result.projectName, XFABConst.project_build_info);
-
-                    string content = string.Empty;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                    UnityWebRequest requestBuildInfo = UnityWebRequest.Get(project_build_info);
-                    yield return requestBuildInfo.SendWebRequest();
-                    if (string.IsNullOrEmpty(requestBuildInfo.error))
-                        content = requestBuildInfo.downloadHandler.text;
-                    else 
-                    {
-                        Completed(string.Format("读取文件失败:{0} error:{1}", project_build_info, requestBuildInfo.error));
+                { 
+                    ReadBuildInProjectBuildInfoRequest request_build_in_info = ReadBuildInProjectBuildInfoRequest.BuildInProjectBuildInfo(result.projectName);
+                    yield return request_build_in_info;
+                    if (!string.IsNullOrEmpty(request_build_in_info.error)) {
+                        Completed(request_build_in_info.error);
                         yield break;
                     }
-#else
-                    try
-                    {
-                        content = File.ReadAllText(project_build_info);
-                    }
-                    catch (Exception e)
-                    {
-                        Completed(string.Format("文件读取失败:{0} error:{1}", project_build_info, e.ToString()));
-                        yield break;
-                    }
-#endif
-                    ProjectBuildInfo buildInfo = null;
-                    try
-                    {
-                        buildInfo = JsonConvert.DeserializeObject<ProjectBuildInfo>(content);
-                    }
-                    catch (Exception e)
-                    {
-                        Completed(string.Format("json 解析失败:{0} error:{1}", content, e.ToString()));
-                        yield break;
-                    }
-
+                    ProjectBuildInfo buildInfo = request_build_in_info.ProjectBuildInfo;
+                      
                     List<BundleInfo> need_extra = new List<BundleInfo>();
                     foreach (var item in need_update_files)
                     {
@@ -363,42 +334,15 @@ namespace YukiFrameWork.XFABManager
                     yield break;
                 }
 
-
-                // 代码执行到这里说明 内置有资源且不可读
-                string project_build_info = XFABTools.BuildInDataPath(projectName, XFABConst.project_build_info);
-                string content = string.Empty;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                UnityWebRequest requestBuildInfo = UnityWebRequest.Get(project_build_info);
-                yield return requestBuildInfo.SendWebRequest();
-                if (string.IsNullOrEmpty(requestBuildInfo.error))
-                    content = requestBuildInfo.downloadHandler.text;
-                else 
+                // 读取内置文件的信息
+                ReadBuildInProjectBuildInfoRequest request_build_in_info = ReadBuildInProjectBuildInfoRequest.BuildInProjectBuildInfo(projectName);
+                yield return request_build_in_info;
+                if (!string.IsNullOrEmpty(request_build_in_info.error))
                 {
-                    Completed(string.Format("读取文件失败:{0} error:{1}", project_build_info, requestBuildInfo.error));
+                    Completed(request_build_in_info.error);
                     yield break;
                 }
-#else
-                try
-                {
-                    content = File.ReadAllText(project_build_info);
-                }
-                catch (Exception e)
-                {
-                    Completed(string.Format("文件读取失败:{0} error:{1}", project_build_info, e.ToString()));
-                    yield break;
-                }
-#endif
-                ProjectBuildInfo buildInfo = null;
-                try
-                {
-                    buildInfo = JsonConvert.DeserializeObject<ProjectBuildInfo>(content);
-                }
-                catch (Exception e)
-                {
-                    Completed(string.Format("json 解析失败:{0} error:{1}", content, e.ToString()));
-                    yield break;
-                }
+                ProjectBuildInfo buildInfo = request_build_in_info.ProjectBuildInfo;
 
 #if XFABMANAGER_LOG_OPEN_TESTING
                 System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();

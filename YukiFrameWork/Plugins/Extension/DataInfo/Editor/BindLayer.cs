@@ -10,22 +10,24 @@ namespace YukiFrameWork.Extension
     public class BindLayer : GenericLayer
     {
         private ISerializedFieldInfo info;
-        public event Action GenericCallBack;     
+        public event Action GenericCallBack;
+        public event Action EventCenterCallBack;
         private Component infoAsset => info as Component;
         public BindLayer(GenericDataBase data, Type targetType) : base(data, targetType)
         {
             
         }
+        private Type targetType;
 
-        public BindLayer(ISerializedFieldInfo info) 
+        public BindLayer(ISerializedFieldInfo info,Type type) 
         {
-            this.info = info;         
+            this.info = info;     
+            this.targetType = type;
         }
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();                   
-
+            base.OnInspectorGUI();         
             EditorGUI.BeginDisabledGroup(IsPlaying);
             EditorGUILayout.Space(20);
             GUILayout.Label(GenericScriptDataInfo.BindExtensionInfo, "PreviewPackageInUse");
@@ -92,10 +94,14 @@ namespace YukiFrameWork.Extension
             {               
                 GenericCallBack?.Invoke();
             }
-
-            EditorGUILayout.EndVertical();           
+          
+            EditorGUILayout.EndVertical();
+            if (!infoAsset.GetType().Equals(targetType))
+            {
+                EventCenterCallBack?.Invoke();
+            }
             EditorGUI.EndDisabledGroup();
-        }
+        }        
 
         private void DragObject(Rect rect)
         {

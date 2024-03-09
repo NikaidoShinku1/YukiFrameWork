@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class XFAssetBundleManagerMenu : MonoBehaviour
     {

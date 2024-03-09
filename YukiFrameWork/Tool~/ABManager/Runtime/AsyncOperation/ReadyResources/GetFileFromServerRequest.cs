@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class GetFileFromServerRequest : CustomAsyncOperation<GetFileFromServerRequest>
     {

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     [CustomEditor(typeof(ImageLoader))]
     public class ImageLoaderInspector : Editor

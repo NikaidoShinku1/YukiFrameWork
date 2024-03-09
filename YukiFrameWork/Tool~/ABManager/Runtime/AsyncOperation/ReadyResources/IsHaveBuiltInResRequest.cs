@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class IsHaveBuiltInResRequest : CustomAsyncOperation<IsHaveBuiltInResRequest>
@@ -17,13 +17,18 @@ namespace YukiFrameWork.XFABManager
         {
             yield return null;
             string project_build_info = string.Format("{0}{1}", XFABTools.BuildInDataPath(projectName), XFABConst.project_build_info);
-#if UNITY_ANDROID && !UNITY_EDITOR
-            UnityWebRequest requestFiles = UnityWebRequest.Get(project_build_info);
-            yield return requestFiles.SendWebRequest();
-            isHave = string.IsNullOrEmpty(requestFiles.error);
-#else
-            isHave = File.Exists(project_build_info);
-#endif
+
+            if (XFABTools.StreamingAssetsReadable() || Application.isEditor)
+            {
+                isHave = File.Exists(project_build_info);
+            }
+            else 
+            {
+                UnityWebRequest requestFiles = UnityWebRequest.Get(project_build_info);
+                yield return requestFiles.SendWebRequest();
+                isHave = string.IsNullOrEmpty(requestFiles.error);
+            }
+
             Completed();
         }
 

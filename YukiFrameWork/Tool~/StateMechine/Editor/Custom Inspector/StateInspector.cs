@@ -22,10 +22,9 @@ namespace YukiFrameWork.States
         private string fileName = "NewStateBehaviour";
 
         private List<Type> behaviourTypes = new List<Type>();
-
-        private bool isRecomposeScript = false;
-
-      
+        private List<string> fieldName = new List<string>();
+        private IEnumerable<FieldInfo> fieldInfos;
+        private bool isRecomposeScript = false;   
         public override void OnInspectorGUI()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;            
@@ -142,7 +141,7 @@ namespace YukiFrameWork.States
         private static void SetData(Metadata data,object value)
         {
             StateInspectorHelper helper = StateInspectorHelper.Instance;
-            if (helper == null) return;
+            if (helper == null) return;       
             StateMechine stateMechine = helper.StateMechine;
             if (stateMechine == null) 
             {
@@ -156,8 +155,8 @@ namespace YukiFrameWork.States
                     data.value = value as Object;
                     stateMechine.SaveToMechine();
                 }
-            }
-            else if (data.value.ToString() != value.ToString())
+            }           
+            else if (value != null && data.value != null && data.value.ToString() != value.ToString())
             {
                 data.value = value;
                 stateMechine.SaveToMechine();
@@ -170,10 +169,11 @@ namespace YukiFrameWork.States
             {
                 if (attribute is SerializedStateAttribute)
                 {
-                    List<string> fieldName = new List<string>();
+                    fieldName.Clear();
                     for (int i = 0; i < dataBase.metaDatas.Count; i++)
-                    {                      
-                        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                    {                
+                        fieldInfos ??= type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                        foreach (var field in fieldInfos)
                         {                         
                             if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
                             {
@@ -209,7 +209,8 @@ namespace YukiFrameWork.States
             {
                 if (attribute is SerializedStateAttribute)
                 {
-                    foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                    fieldInfos ??= type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                    foreach (var field in fieldInfos)
                     {
                         var tempData = dataBase.metaDatas.Find(x => !x.typeName.Equals(field.FieldType.ToString()) && x.name.Equals(field.Name));
                         if (tempData != null)
@@ -518,7 +519,7 @@ namespace YukiFrameWork.States
                 fileName += i;
                 targetPath = filePath + fileName + ".cs";
             }
-
+            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
             using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");                       
@@ -531,7 +532,7 @@ namespace YukiFrameWork.States
 
                 string content = textAsset.text;
                 content = content.Replace("#SCRIPTNAME#", fileName);
-                content = content.Replace("YukiFrameWork.Project", !string.IsNullOrEmpty(PlayerPrefs.GetString("NameSpace")) ? PlayerPrefs.GetString("NameSpace") : "YukiFrameWork.Project");
+                content = content.Replace("YukiFrameWork.Project", info.nameSpace);
                 StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
                 sw.Write(content);
 

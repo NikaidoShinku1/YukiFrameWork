@@ -12,7 +12,6 @@ using System;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;

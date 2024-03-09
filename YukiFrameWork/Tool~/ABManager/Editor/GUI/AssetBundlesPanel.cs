@@ -4,7 +4,7 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class AssetBundlesPanel

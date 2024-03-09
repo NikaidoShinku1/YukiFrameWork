@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     /// <summary>
     /// 加载模式 资源的加载方式

@@ -6,8 +6,8 @@ namespace YukiFrameWork
 {
     public class BezierExecution : MonoBehaviour
     {
-        private FastList<Bezier> releaseList = new FastList<Bezier>();
-        private FastList<Bezier> runtimeCores = new FastList<Bezier>();
+        private List<Bezier> releaseList = new List<Bezier>();
+        private List<Bezier> runtimeCores = new List<Bezier>();
         public void AddCore(Bezier core)
         {
             runtimeCores.Add(core);

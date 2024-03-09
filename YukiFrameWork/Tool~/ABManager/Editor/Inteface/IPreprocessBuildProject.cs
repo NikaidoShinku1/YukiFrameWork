@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     /// <summary>
     /// 某一个资源模块打包前的事件监听(仅在Editor模式下可用)

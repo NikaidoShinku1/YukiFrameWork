@@ -13,14 +13,17 @@ namespace YukiFrameWork.IOC
     public class LifeTimeScope : MonoBehaviour,IDisposable
     {
         [SerializeField]
-        [Header("是否将容器保存的实例自动注入到列表中的GameObject")]
+        [HelperBox("是否打开列表添加GameObject自动注入")]
+        [BoolanPopup("关闭", "打开")]
         private bool IsAutoInjectObject = true;
 
+        [ListDrawerSetting]
         [SerializeField]
-        [Space]
+        [ArrayLabel("需要注入的GameObject")]
+        [EnableIf("IsAutoInjectObject")]  
         private List<GameObject> gameObjects = ListPools<GameObject>.Get();
 
-        [SerializeField]
+        [HideInInspector]
         public List<InjectInfo> infos = new List<InjectInfo>();
 
         private readonly Stack<GameObject> initEnterObjs = new Stack<GameObject>();
@@ -94,6 +97,7 @@ namespace YukiFrameWork.IOC
         }
 
 #if UNITY_EDITOR
+        [HideInInspector]
         public int selectIndex = -1;
 
         public void SaveData()

@@ -6,7 +6,7 @@ using UnityEngine;
 
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class AssetTreeItem : TreeViewItem
     {

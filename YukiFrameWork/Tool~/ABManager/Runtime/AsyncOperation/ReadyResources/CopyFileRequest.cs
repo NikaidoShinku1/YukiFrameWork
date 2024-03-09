@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class CopyFileRequest : CustomAsyncOperation<CopyFileRequest>
     {
@@ -35,8 +35,13 @@ namespace YukiFrameWork.XFABManager
 #else
             UnityWebRequest copyFile = UnityWebRequest.Get(source);
 #endif
-            DownloadHandlerFile handlerFile = new DownloadHandlerFile(des);
-            copyFile.downloadHandler = handlerFile;
+
+            if (Application.platform != RuntimePlatform.WebGLPlayer) 
+            {                 
+                DownloadHandlerFile handlerFile = new DownloadHandlerFile(des);
+                copyFile.downloadHandler = handlerFile;
+            }
+
             yield return copyFile.SendWebRequest();
 
 #if UNITY_2020_1_OR_NEWER
@@ -48,6 +53,9 @@ namespace YukiFrameWork.XFABManager
                 Completed(copyFile.error);
                 yield break;
             }
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+                File.WriteAllBytes(des, copyFile.downloadHandler.data);
 
             Completed();
         }

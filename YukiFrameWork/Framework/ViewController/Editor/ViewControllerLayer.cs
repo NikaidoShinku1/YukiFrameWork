@@ -28,7 +28,8 @@ namespace YukiFrameWork
             list.Add("None");
             try
             {
-                var types = AssemblyHelper.GetTypes(Assembly.Load(Data.CustomAssemblyName));
+                LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+                var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));
                 if (types != null)
                 {
                     foreach (var type in types)
@@ -41,7 +42,7 @@ namespace YukiFrameWork
             catch { }
         }
         public override void OnInspectorGUI()
-        {                       
+        {     
             GUIStyle style = new GUIStyle("AM HeaderStyle")
             {
                 alignment = TextAnchor.MiddleLeft,
@@ -108,19 +109,10 @@ namespace YukiFrameWork
                 SelectArchitecture(Data);
             }
             EditorGUILayout.Space(10);
-             EditorGUI.EndDisabledGroup();     
-            if(Data.IsAutoMation)
-            {
-                Data.IsCustomAssembly = EditorGUILayout.ToggleLeft(GenericScriptDataInfo.AssemblyInfo, Data.IsCustomAssembly);
-                if(Data.IsCustomAssembly)
-                {       
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label(GenericScriptDataInfo.IsEN ? "Input Assembly Name:" : "输入程序集名称:");
-                    Data.CustomAssemblyName = EditorGUILayout.TextField(Data.CustomAssemblyName);
-                    EditorGUILayout.EndHorizontal();
-                }           
-                else Data.CustomAssemblyName = "Assembly-CSharp";
-            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.Space(20);
+            GenericScripts();
 
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
@@ -185,9 +177,7 @@ namespace YukiFrameWork
                         streamWriter.Close();
 
                         fileStream.Close();
-                        //正在改变脚本
                         Data.OnLoading = true;
-
                     }
 
                     AssetDatabase.SaveAssets();

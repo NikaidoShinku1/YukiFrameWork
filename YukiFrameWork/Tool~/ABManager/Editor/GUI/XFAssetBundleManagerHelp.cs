@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using YukiFrameWork.Extension;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class PackageInfo {

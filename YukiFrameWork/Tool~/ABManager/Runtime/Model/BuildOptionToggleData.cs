@@ -3,7 +3,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     [System.Serializable]
     public class BuildOptionToggleData

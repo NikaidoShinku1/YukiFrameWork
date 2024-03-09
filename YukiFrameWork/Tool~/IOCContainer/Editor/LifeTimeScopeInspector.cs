@@ -15,6 +15,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using YukiFrameWork;
 using System.Reflection;
+using YukiFrameWork.Extension;
 
 #if UNITY_EDITOR
 namespace YukiFrameWork.IOC
@@ -22,27 +23,31 @@ namespace YukiFrameWork.IOC
     [CustomEditor(typeof(LifeTimeScope),true)]
     [CanEditMultipleObjects]
     public class LifeTimeScopeInspector : Editor
-    {
-        private SerializedProperty autoRunProperty;
-        private SerializedProperty property;
-        private SerializedProperty infoProperty;
+    { 
         private List<string> typeNames = new List<string>();    
+        private List<GenericLayer> layers = new List<GenericLayer>();   
         private void OnEnable()
         {
             LifeTimeScope scope = target as LifeTimeScope;
             if (scope == null) return;
 
-            autoRunProperty = serializedObject.FindProperty("IsAutoInjectObject");
-            property = serializedObject.FindProperty("gameObjects");
-            infoProperty = serializedObject.FindProperty("infos");
+            if (layers.Count == 0)
+            {
+                layers.Add(new MemberInfoLayer(target,target.GetType(),this));
+                layers.Add(new MethodInfoLayer(serializedObject, target.GetType()));
+            }
+
         }
 
         public override void OnInspectorGUI()
-        {
-            LifeTimeScope scope = target as LifeTimeScope;
-            if (scope == null) return;
-            
+        {            
             SerializedInjectedGameObjects();
+            EditorGUILayout.Space();
+            foreach (var layer in layers) 
+            {
+                layer.OnInspectorGUI();
+                EditorGUILayout.Space();
+            }
         }      
 
         private void SerializedInjectedGameObjects()
@@ -115,10 +120,7 @@ namespace YukiFrameWork.IOC
             if (EditorGUI.EndChangeCheck())
             {
                 scope.SaveData();
-            }
-            EditorGUILayout.PropertyField(autoRunProperty);
-            if(autoRunProperty.boolValue)
-                EditorGUILayout.PropertyField(property);
+            } 
 
             serializedObject.ApplyModifiedProperties();
         }

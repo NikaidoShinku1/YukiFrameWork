@@ -24,10 +24,8 @@ namespace YukiFrameWork.Extension
 {
     [CustomEditor(typeof(ViewController), true)]
     [CanEditMultipleObjects]
-    public class ViewControllerEditor : Editor
-    {       
-        private ViewControllerLayer layer;
-        private BindLayer bind;
+    public class ViewControllerEditor : CustomInspectorEditor
+    {              
         [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1000)]
         private static void CreateViewController()
         {           
@@ -66,29 +64,19 @@ namespace YukiFrameWork.Extension
             }
         }
 
-        private void OnEnable()
+        protected override void OnEnable()
         {            
+            base.OnEnable();
             ViewController controller = target as ViewController;
             if (controller == null) return;
+        
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";
-          
-            layer = new ViewControllerLayer(controller.Data,target.GetType());
-            layer.Save += () =>
-            {
-                EditorUtility.SetDirty(target);
-                AssetDatabase.SaveAssets();
-            };
-            if (bind == null)
-            {
-                bind = new BindLayer(controller);
-                bind.GenericCallBack += GenericPartialScripts;
-            }
+                     
             if (controller.Data.OnLoading)
             {
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
-            }
-
+            }             
             LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
             controller.Data.ScriptNamespace = !info ? controller.Data.ScriptNamespace : info.nameSpace;
             
@@ -97,11 +85,34 @@ namespace YukiFrameWork.Extension
                 
         }
 
-        private void OnDisable()
+        protected override void InitLayers()
+        {           
+            ViewController controller = target as ViewController;
+            if (!controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
+                layers.Add(new MemberInfoLayer(target, target.GetType(), this));
+            layers.Add(new MethodInfoLayer(serializedObject, target.GetType()));
+
+            var vLayer = new ViewControllerLayer(controller.Data, target.GetType());
+            vLayer.Save += () =>
+            {
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssets();
+            };
+            layers.Add(vLayer);
+            if (!target.GetType().Equals(typeof(ViewController)))
+            {
+                var bind = new BindLayer(controller, typeof(ViewController));
+                bind.GenericCallBack += GenericPartialScripts;
+                bind.EventCenterCallBack += () => AddEventCenter(controller);
+                layers.Add(bind);
+            }
+        }
+
+        protected override void OnDisable()
         {
+            base.OnDisable();
             LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
             if (info == null) return;
-
 
             ViewController controller = target as ViewController;
             if (controller == null) return;
@@ -138,40 +149,31 @@ namespace YukiFrameWork.Extension
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
+            serializedObject.Update();
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
             }
-            EditorGUILayout.Space(20);
-            DrawControllerGUI();
+            base.OnInspectorGUI();          
         }
 
-        private void DrawControllerGUI()
-        { 
-            GUILayout.BeginVertical("OL box NoExpand");
-            ViewController controller = target as ViewController;
-            if(controller == null)return;
-            layer?.OnInspectorGUI();                           
-            EditorGUILayout.Space(20);
+        public override void OnDrawingLayer(Rect rect)
+        {
+            ViewController controller = target as ViewController;       
+            if (controller == null) return;        
+            foreach (var layer in layers)
+            {           
+                if (layer is ViewControllerLayer)
+                    rect = EditorGUILayout.BeginVertical("OL box NoExpand");                         
+                layer.OnInspectorGUI();
+                layer.OnGUI(rect);
+                if (layer is ViewControllerLayer)
+                    EditorGUILayout.EndVertical();
 
-            EditorGUILayout.BeginHorizontal();
-            {
-                layer?.GenericScripts();
+                EditorGUILayout.Space();
             }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(15);          
-            if (!target.GetType().Equals(typeof(ViewController)))
-            {                                   
-                bind.OnInspectorGUI();                                     
-                EditorGUILayout.Space(15);
-
-                AddEventCenter(controller);
-            }
-            GUILayout.EndVertical();           
-        }    
+        }
 
         private void AddEventCenter(ViewController controller)
         {

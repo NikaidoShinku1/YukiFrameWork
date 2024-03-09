@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public enum RemoteFileExistType 

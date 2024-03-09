@@ -56,7 +56,7 @@ namespace YukiFrameWork
         }
 
         public static Exception Exception(object message)
-        {
+        {           
             if (!LogEnabled) return null;
             Exception ex = new Exception(message.ToString());
             return ex;

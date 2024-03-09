@@ -99,9 +99,6 @@ namespace YukiFrameWork
             }
         }
 #endif
-
-
-
         protected override void Awake()
         {
             base.Awake();           
@@ -171,6 +168,15 @@ namespace YukiFrameWork
         public static void Destroy_RemoveListener(Action<MonoHelper> onDestroyEvent)
         {
             Instance.onDestroyEvent -= onDestroyEvent;
+        }
+
+        public static Coroutine Start(IEnumerator enumerator)
+        {
+            return I.StartCoroutine(enumerator);
+        }
+        public static void Stop(Coroutine coroutine)
+        {
+            I.StopCoroutine(coroutine);
         }
 
         private void Update()

@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
 namespace YukiFrameWork.UI
 {
@@ -24,16 +24,18 @@ namespace YukiFrameWork.UI
 
         public T Load<T>(string name) where T : BasePanel
         {
-            return AssetBundleManager.LoadAsset<GameObject>(projectName,name).GetComponent<T>();
+            return GameObjectLoader.Load(projectName,name).GetComponent<T>();
         }
 
         public void LoadAsync<T>(string name, Action<T> onCompleted) where T : BasePanel
-            => AssetBundleManager.LoadAssetAsync<GameObject>(projectName, name).AddCompleteEvent(request => 
+        {     
+            GameObjectLoader.LoadAsync(projectName, name).AddCompleteEvent(request =>
             {
-                GameObject panelObj = request.asset as GameObject;
+                GameObject panelObj = request.Obj;
 
                 T panel = panelObj.GetComponent<T>();
                 onCompleted?.Invoke(panel);
             });
+        }
     }
 }

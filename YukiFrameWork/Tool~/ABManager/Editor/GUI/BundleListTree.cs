@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
 public class BundleListTree : TreeView
 {

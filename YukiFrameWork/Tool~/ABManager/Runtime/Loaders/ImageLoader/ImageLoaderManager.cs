@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 
 // Fix 编码
-namespace YukiFrameWork.XFABManager {
+namespace XFABManager {
 
     [Serializable]
     public class ImageData {
@@ -201,7 +201,7 @@ namespace YukiFrameWork.XFABManager {
             {
                 try
                 {
-                    DateTime time = File.GetLastWriteTime(file);
+                    DateTime time = System.IO.File.GetLastWriteTime(file);
                     TimeSpan detal = DateTime.Now - time; 
                     if (detal.TotalDays >= ClearImageCacheOutOfTime)
                         File.Delete(file);

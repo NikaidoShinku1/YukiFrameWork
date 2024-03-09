@@ -356,7 +356,7 @@ namespace YukiFrameWork.States
                         behaviour.name = typeName;
                     }
 
-                    foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
+                    foreach (var field in type.GetRuntimeFields())
                     {
                         for (int i = 0; i < metaDatas.Count; i++)
                         {

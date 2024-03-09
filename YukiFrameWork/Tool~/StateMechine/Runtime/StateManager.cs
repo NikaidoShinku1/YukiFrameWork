@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
@@ -8,15 +6,19 @@ using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     public enum RuntimeInitType
-    {
+    {       
         Awake,      
         Start
     }
 
     public enum DeBugLog
     {
-        关闭,
-        开启      
+        [Label("开启")]
+        [GUIColor(ColorType.Green)]
+        Open,
+        [Label("关闭")]
+        [GUIColor(ColorType.Red)]
+        Close      
     }
 
 }
@@ -24,13 +26,22 @@ namespace YukiFrameWork.States
 {
     public class StateManager : MonoBehaviour, IState,ISendEvent
     {
-        #region 字段      
+        #region 字段    
+        [Label("状态机初始化方式:")]
+        [HelperBox("决定了状态机初始化的生命周期")]
         public RuntimeInitType initType;
 
+        [Label("状态机是否开启调试:")]
+        [HelperBox("开启后每次切换状态都会Debug一次")]
         public DeBugLog deBugLog;
-     
+
+#if UNITY_EDITOR
+        [EnableIf("IsMechineOrEmpty")]
+#endif
+        [Label("状态机本体:")]
         public StateMechine stateMechine;      
         
+
         public StateBase CurrentState { get; set; } = null;        
 
         public Dictionary<string,StateParameterData> ParametersDicts => parametersDict;
@@ -39,14 +50,18 @@ namespace YukiFrameWork.States
 
         public Dictionary<int, StateBase> runTimeStatesDict { get; } = DictionaryPools<int, StateBase>.Get();
 
+        
         public List<StateTransition> transitions = ListPools<StateTransition>.Get();
 
         private bool isDefaultTransition = false;
 
-/*#if UNITY_EDITOR
-        //是否绘制过渡
-        public bool isDrawLine = false;
-#endif*/
+#if UNITY_EDITOR
+        private bool IsMechineOrEmpty => stateMechine != null;
+#endif
+        /*#if UNITY_EDITOR
+                //是否绘制过渡
+                public bool isDrawLine = false;
+        #endif*/
 
 #endregion
 
@@ -192,7 +207,7 @@ namespace YukiFrameWork.States
         {   
             if (state == null) return;
             CurrentState?.OnExit(isBack);
-            if (deBugLog == DeBugLog.开启)
+            if (deBugLog == DeBugLog.Open)
             {
                 Debug.Log($"状态切换: {(CurrentState != null ? CurrentState.name : "进入默认状态") } -> {state.name} 状态机归属： {gameObject.name}");
             }

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class CustomAsyncOperation<T> : CustomYieldInstruction where T : CustomAsyncOperation<T>
     {
@@ -15,6 +15,10 @@ namespace YukiFrameWork.XFABManager
         //public event Action<int> completed;
 
         private bool _isCompleted = false;
+
+        private string _error = string.Empty;
+
+        private const string CHECKING_ERROR = "正在检测中...";
 
         #endregion
 
@@ -41,7 +45,19 @@ namespace YukiFrameWork.XFABManager
 
         public float progress { get; protected set; }
 
-        public string error { get; protected set; }
+
+
+        public string error { 
+            get {
+                if (!isDone)
+                    return CHECKING_ERROR;
+                return _error;
+            } protected set 
+            {
+                _error = value;
+            }
+        
+        }
 
         #endregion
 

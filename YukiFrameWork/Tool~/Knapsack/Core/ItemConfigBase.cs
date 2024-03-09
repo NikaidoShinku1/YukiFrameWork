@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 using System;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;

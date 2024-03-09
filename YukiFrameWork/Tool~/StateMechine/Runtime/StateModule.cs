@@ -17,7 +17,7 @@ namespace YukiFrameWork.States
     public class StateModule : Architecture<StateModule>
     {
         public override void OnInit()
-        {
+        {            
             this.RegisterSystem(new StateMechineSystem());
         }
     }

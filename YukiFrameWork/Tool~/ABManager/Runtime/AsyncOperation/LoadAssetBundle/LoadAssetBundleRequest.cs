@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class LoadAssetBundleRequest : CustomAsyncOperation<LoadAssetBundleRequest>
     {
@@ -77,7 +77,7 @@ namespace YukiFrameWork.XFABManager
                     AssetBundleManager.AddDependencesBundles(request.assetBundle, projectName, bundleName, dependences[i]);
                 }
                 else {
-                    if(System.IO.File.Exists(bundlePath))
+                    if(File.Exists(bundlePath))
                         Completed(string.Format("AssetBundle:{0}加载失败,请检测文件是否损坏或密钥是否填写正确!", bundlePath));
                     else
                         Completed(string.Format("AssetBundle:{0}加载失败!", bundlePath));
@@ -100,7 +100,7 @@ namespace YukiFrameWork.XFABManager
             if (request_bundle == null || request_bundle.assetBundle == null)
             {
 
-                if (System.IO.File.Exists(bundle_path))
+                if (File.Exists(bundle_path))
                     Completed(string.Format("AssetBundle:{0}加载失败,请检测文件是否损坏或密钥是否填写正确!", bundle_path));
                 else
                     Completed(string.Format("AssetBundle:{0}加载失败!", bundle_path));

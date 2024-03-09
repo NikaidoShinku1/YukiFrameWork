@@ -20,6 +20,8 @@
 
 #### 框架支持工具
 
+- 框架编辑器工具:[InspectorTool](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/EditorTool.md)
+
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Serialization/序列化工具.md)
@@ -61,6 +63,24 @@
 注意：使用本框架Unity版本不能低于2020.3
 
 #### 框架更新版本速览
+
+V1.9.1 优化底层细节，修复贝塞尔曲线丢失命名空间的问题，对编辑器序列化重新排版
+
+V1.9.0 优化反射系统，新增对象以及方法的缓存，优化部分编辑器底层代码适配。
+
+V1.8.9 框架全面新增对于编辑器自定义的样式特性支持,详情查看框架支持工具:框架编辑器工具
+
+V1.8.8 框架新增可序列化字典YDictionary,使用方式与Dictionary相同,可以在编辑器下修改数据
+
+V1.8.7 资源管理模块统一命名空间using XFABManager,支持OpenHarmony平台，修复GameObjectLoader加载物品仍在DonDestroyOnLoad的问题,修复guid重复的问题
+
+V1.8.6 同步更新XFABManager，现在可以支持对WebGL的打包，优化细节
+
+V1.8.5 状态机字段序列化添加对私有字段(加上SerializeField特性)的支持
+
+V1.8.4 同步更新XFABManager
+
+V1.8.3 架构初始化优化，会在运行时提前预存好所有可能的架构全局,线程安全,优化代码生成器
 
 V1.8.2 修复在使用IOC模块时打包报错的问题
 

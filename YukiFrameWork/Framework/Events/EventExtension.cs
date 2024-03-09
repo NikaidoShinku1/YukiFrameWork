@@ -59,7 +59,7 @@ namespace YukiFrameWork
             => StringEventSystem.Global.Send(name,arg1, arg2, arg3, arg4);
 
         public static void SendEnumGlobalEvent(this object user, Enum name)
-           => EnumEventSystem.Global.Send(name);
+            => EnumEventSystem.Global.Send(name);
         public static void SendEnumGlobalEvent<T>(this object user, Enum name, T arg1)
             => EnumEventSystem.Global.Send(name, arg1);
         public static void SendEnumGlobalEvent<T, K>(this object user, Enum name, T arg1, K arg2)
@@ -68,5 +68,38 @@ namespace YukiFrameWork
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3);
         public static void SendEnumGlobalEvent<T, K, Q, R>(this object user, Enum name, T arg1, K arg2, Q arg3, R arg4)
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4);
+
+        public static void RemoveListener(this object user, Action call)
+            => TypeEventSystem.Global.UnRegister(call);
+        public static void RemoveListener<T>(this object user, Action<T> call)
+            => TypeEventSystem.Global.UnRegister(call);
+        public static void RemoveListener<T, K>(this object user, Action<T, K> call)
+            => TypeEventSystem.Global.UnRegister(call);
+        public static void RemoveListener<T, K, Q>(this object user, Action<T, K, Q> call)
+            => TypeEventSystem.Global.UnRegister(call);
+        public static void RemoveListener<T, K, Q, R>(this object user, Action<T, K, Q, R> call)
+            => TypeEventSystem.Global.UnRegister(call);
+
+        public static void RemoveListener(this object user, string name, Action call)
+            => StringEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T>(this object user, string name, Action<T> call)
+            => StringEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K>(this object user, string name, Action<T, K> call)
+            => StringEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K, Q>(this object user, string name, Action<T, K, Q> call)
+            => StringEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K, Q, R>(this object user, string name, Action<T, K, Q, R> call)
+            => StringEventSystem.Global.UnRegister(name, call);
+
+        public static void RemoveListener(this object user, Enum name, Action call)
+            => EnumEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T>(this object user, Enum name, Action<T> call)
+            => EnumEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K>(this object user, Enum name, Action<T, K> call)
+            => EnumEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K, Q>(this object user, Enum name, Action<T, K, Q> call)
+            => EnumEventSystem.Global.UnRegister(name, call);
+        public static void RemoveListener<T, K, Q, R>(this object user, Enum name, Action<T, K, Q, R> call)
+            => EnumEventSystem.Global.UnRegister(name, call);
     }
 }

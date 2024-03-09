@@ -38,7 +38,7 @@ namespace YukiFrameWork
     /// <typeparam name="T"></typeparam>
     [DebuggerTypeProxy(typeof(Mscorlib_CollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
-    [Serializable]
+    [Serializable]  
     public class ListSafe<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
         public ListSafe()

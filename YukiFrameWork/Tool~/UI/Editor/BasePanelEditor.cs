@@ -1,6 +1,4 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,14 +12,8 @@ namespace YukiFrameWork.UI
 {
     [CustomEditor(typeof(BasePanel), true)]
     [CanEditMultipleObjects]
-    public class BasePanelEditor : Editor
-    {       
-        private UIBaseLayer layer;
-        private BindLayer bind;
-
-        private SerializedProperty mLevelProperty;
-        private SerializedProperty cacheProperty;
-
+    public class BasePanelEditor : CustomInspectorEditor
+    {             
         private void Awake()
         {
             BasePanel panel = target as BasePanel;
@@ -36,19 +28,30 @@ namespace YukiFrameWork.UI
             }
 
         }
-        private void OnEnable()
+
+        protected override void InitLayers()
         {
+            base.InitLayers();
             BasePanel panel = target as BasePanel;
-            if (panel == null) return;
-            layer ??= new UIBaseLayer(panel.Data, target.GetType());
-            layer.Save += panel.SaveData;
+            if (panel == null) return;        
+            var uiBaseLayer = new UIBaseLayer(panel.Data, target.GetType());
+            uiBaseLayer.Save += panel.SaveData;
+            layers.Add(uiBaseLayer);
+            if (!target.GetType().Equals(typeof(BasePanel)))
+            {
+                var bind = new BindLayer(panel, typeof(BasePanel));
+                bind.GenericCallBack += GenericPartialScripts;
+                layers.Add(bind);
+            }
+        }
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            BasePanel panel = target as BasePanel;
+            if (panel == null) return;           
             if (panel?.Data.OnLoading == false)
             {                
-                if (bind == null)
-                {
-                    bind = new BindLayer(panel);
-                    bind.GenericCallBack += GenericPartialScripts;
-                }
+                
             }
             else
             {
@@ -57,22 +60,21 @@ namespace YukiFrameWork.UI
                 Update_ScriptGenericScriptDataInfo(path, panel);
                 AssetDatabase.Refresh();
             }
-            string nsp = PlayerPrefs.GetString("UIPanelNameSpace");
-            panel.Data.ScriptNamespace = string.IsNullOrEmpty(nsp) ? "YukiFrameWork.UI.Project" : nsp;
+
+            if (panel.GetType() == typeof(BasePanel))
+            {
+                var genericInfo = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+                panel.Data.ScriptNamespace = genericInfo != null ? genericInfo.nameSpace + ".UI" : "YukiFrameWork.Example.UI";
+            }
 
             if(panel.Data.IsPartialLoading)
                 EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);
-          
-            mLevelProperty = serializedObject.FindProperty("mLevel");
-            cacheProperty = serializedObject.FindProperty("isPanelCache");
+                   
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
-            BasePanel panel = target as BasePanel;
-            if (panel == null) return;
-            PlayerPrefs.SetString("UIPanelNameSpace", panel.Data.ScriptNamespace);
-            layer.Save -= panel.SaveData;
+            base.OnDisable();             
         }
 
         private void Bind_AllFieldInfo(BasePanel panel)
@@ -107,28 +109,30 @@ namespace YukiFrameWork.UI
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-            EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            if (!target.GetType().Equals(typeof(BasePanel)))
-            {
-                EditorGUILayout.PropertyField(mLevelProperty);
-                EditorGUILayout.PropertyField(cacheProperty);
-            }
-            EditorGUI.EndDisabledGroup();
+            serializedObject.Update();
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
-            }
-            EditorGUILayout.Space(15);
-            layer.OnInspectorGUI();
-            if (!target.GetType().Equals(typeof(BasePanel)))
+            }       
+            base.OnInspectorGUI();           
+          
+        }
+
+        public override void OnDrawingLayer(Rect rect)
+        {
+            foreach (var layer in layers)
             {               
-                bind.OnInspectorGUI();
-                serializedObject.ApplyModifiedProperties();
-                serializedObject.Update();
-            }           
-        }      
+                if (layer is UIBaseLayer)
+                    rect = EditorGUILayout.BeginVertical("OL box NoExpand");                 
+                layer.OnInspectorGUI();
+                layer.OnGUI(rect);
+                if (layer is UIBaseLayer)
+                    EditorGUILayout.EndVertical();
+
+                EditorGUILayout.Space();
+            }
+        }
 
         private void GenericPartialScripts()
         {
@@ -170,9 +174,7 @@ namespace YukiFrameWork.UI
             builder.AppendLine("\t}");
 
             builder.AppendLine("}");
-
-            
-
+         
             using (FileStream stream = new FileStream(examplePath, fileMode, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 StreamWriter streamWriter = new StreamWriter(stream);

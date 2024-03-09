@@ -5,9 +5,9 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
 

@@ -22,15 +22,6 @@ namespace YukiFrameWork
     [Serializable]
     public partial class BezierVisualTool : MonoBehaviour
     {       
-#if UNITY_EDITOR      
-        [Header("在场景中检视"),SerializeField]
-        private bool isScene;      
-
-        public bool IsScene => isScene;        
-#endif
-
-        [HideInInspector]
-        public List<Vector3> paths = new List<Vector3>();
 
         public Vector3 StartValue
             => pointType == PointType.Vector ? start : startPos.position;

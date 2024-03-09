@@ -21,7 +21,7 @@ namespace YukiFrameWork.UI
 
         public override void OnInspectorGUI()
         {
-            GUILayout.BeginVertical("OL box NoExpand");
+            GUILayout.BeginVertical();
             GUIStyle style = new GUIStyle("AM HeaderStyle")
             {
                 alignment = TextAnchor.MiddleLeft,
@@ -158,7 +158,6 @@ namespace YukiFrameWork.UI
                         streamWriter.Close();
 
                         fileStream.Close();
-                        //正在改变脚本
                         Data.OnLoading = true;
 
                     }

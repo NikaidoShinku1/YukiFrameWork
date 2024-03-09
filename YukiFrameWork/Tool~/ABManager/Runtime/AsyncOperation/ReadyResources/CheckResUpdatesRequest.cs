@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     /// <summary>
@@ -84,7 +84,7 @@ namespace YukiFrameWork.XFABManager
 
     public class CheckUpdateResult
     {
-        public UpdateType updateType;
+        public UpdateType updateType = UpdateType.DontNeedUpdate;
         /// <summary>
         /// 需要更新的文件总大小 单位 字节
         /// </summary>
@@ -104,7 +104,7 @@ namespace YukiFrameWork.XFABManager
         /// <summary>
         /// 需要更新的资源包信息
         /// </summary>
-        public BundleInfo[] need_update_bundles;
+        public BundleInfo[] need_update_bundles = new BundleInfo[0];
 
         /// <summary>
         /// 当前的版本

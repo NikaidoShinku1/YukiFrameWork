@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class AssetBundleTools
@@ -56,9 +56,11 @@ namespace YukiFrameWork.XFABManager
 
             return false;
         }
-        internal static System.Type GetAssetType(string asset_path) { 
-            
+        internal static System.Type GetAssetType(string asset_path) 
+        {
             System.Type type = AssetDatabase.GetMainAssetTypeAtPath(asset_path);
+
+            AssetImporter asset = AssetImporter.GetAtPath(asset_path);
 
             if (type == typeof(Texture2D))
             {
@@ -72,8 +74,17 @@ namespace YukiFrameWork.XFABManager
             {
                 return typeof(UnityEngine.SceneManagement.Scene);
             }
-            else if (type.FullName == "UnityEditor.Audio.AudioMixerController") { 
+            else if (type.FullName == "UnityEditor.Audio.AudioMixerController") {
                 return typeof(UnityEngine.Audio.AudioMixer);
+            }
+            else if (type == typeof(UnityEditor.Animations.AnimatorController))
+            {
+                return typeof(RuntimeAnimatorController);
+            }
+
+            while (type.FullName.StartsWith("UnityEditor."))
+            {
+                type = type.BaseType;
             }
 
             return type;

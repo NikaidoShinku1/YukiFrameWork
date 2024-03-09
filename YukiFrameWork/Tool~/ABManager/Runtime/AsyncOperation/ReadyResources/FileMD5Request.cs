@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
 public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
 {
@@ -18,53 +18,57 @@ public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
     private const int file_stream_buffer_min = 1024 * 1024;         // 文件流缓冲区最小值 1 MB
 
     private const int file_stream_buffer_max = 1024 * 1024 * 20;    // 文件流缓冲区最大值 20MB
-
-
-    private const int md5_cache_file_count = 1000;                  // 缓存1000个 文件的md5值 如果超出则清空缓存
-
-
+     
+    //private const int md5_cache_file_count = 1000;                  // 缓存1000个 文件的md5值 如果超出则清空缓存
     //经过考虑 缓存文件md5值得功能 不太需要,
     //因为检测更新 或者 验证文件 都需要拿到文件最新的md5值 计算是必不可少的
     //所以没有缓存的必要
     //private static Dictionary<string, string> md5_caches = new Dictionary<string, string>();
 
 
-    public IEnumerator CaculateMD5(string filePath) {
+    public IEnumerator CaculateMD5(string filePath) 
+    {
 
-        using (FileStream inputStream = File.OpenRead(filePath))
+        if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
-            if (inputStream.Length < md5_max_file_size)
+            using (FileStream inputStream = System.IO.File.OpenRead(filePath))
             {
-                md5 = XFABTools.md5file(inputStream);
-            }
-            else
-            {
-                MD5CryptoServiceProvider hashAlgorithm = new MD5CryptoServiceProvider();
-                byte[] buffer = GetFileStreamBuffer((int)inputStream.Length);
-                var output = new byte[buffer.Length];
-
-                int timerFrame = 0;
-
-                while (inputStream.Position < inputStream.Length)
+                if (inputStream.Length < md5_max_file_size)
                 {
-                    int count = inputStream.Read(buffer, 0, buffer.Length);
-                    if (inputStream.Position < inputStream.Length)
-                        //分块计算哈希值
-                        hashAlgorithm.TransformBlock(buffer, 0, buffer.Length, output, 0);
-                    else
-                        hashAlgorithm.TransformFinalBlock(buffer, 0, count);
-
-                    if (IsWaitForFrame(ref timerFrame))
-                    {
-                        yield return null;
-                    }
+                    md5 = XFABTools.md5file(inputStream);
                 }
-                // 有文件 判断md5值 需不需要更新
-                md5 = CaculateProviderMd5(hashAlgorithm);
+                else
+                {
+                    MD5CryptoServiceProvider hashAlgorithm = new MD5CryptoServiceProvider();
+                    byte[] buffer = GetFileStreamBuffer((int)inputStream.Length);
+                    var output = new byte[buffer.Length];
+
+                    int timerFrame = 0;
+
+                    while (inputStream.Position < inputStream.Length)
+                    {
+                        int count = inputStream.Read(buffer, 0, buffer.Length);
+                        if (inputStream.Position < inputStream.Length)
+                            //分块计算哈希值
+                            hashAlgorithm.TransformBlock(buffer, 0, buffer.Length, output, 0);
+                        else
+                            hashAlgorithm.TransformFinalBlock(buffer, 0, count);
+
+                        if (IsWaitForFrame(ref timerFrame))
+                        {
+                            yield return null;
+                        }
+                    }
+                    // 有文件 判断md5值 需不需要更新
+                    md5 = CaculateProviderMd5(hashAlgorithm);
+                }
             }
+
         }
-
-
+        else {
+            md5 = XFABTools.md5file(filePath);
+        }
+         
         yield return null;  // 防止 completed 没有触发
         Completed();
     }

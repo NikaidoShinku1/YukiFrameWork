@@ -11,7 +11,7 @@
 
 using UnityEngine;
 using System;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 namespace YukiFrameWork.Audio
 {
     public class ABManagerAudioLoader : IAudioLoader

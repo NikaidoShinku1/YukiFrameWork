@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.UI; 
 
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     [Serializable]

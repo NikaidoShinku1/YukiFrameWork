@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic; 
 using UnityEngine;
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     /// <summary>
     /// 当前正在处理的操作的类型
@@ -78,6 +78,15 @@ namespace YukiFrameWork.XFABManager
                 yield break;
             }
 
+#if XFABMANAGER_LOG_OPEN_TESTING
+
+            foreach (var item in checkReq.results)
+            { 
+                Debug.LogFormat("准备资源前检测:{0}", item);
+            }
+
+#endif
+
             yield return CoroutineStarter.Start(ReadyRes(checkReq.results));
             //Completed();
         }
@@ -85,8 +94,6 @@ namespace YukiFrameWork.XFABManager
 
         internal IEnumerator ReadyRes(CheckUpdateResult[] results)
         {
-
-
 
             // 具体操作
             for (int i = 0; i < results.Length; i++)
@@ -134,6 +141,10 @@ namespace YukiFrameWork.XFABManager
                         {
                             yield return null;
                             progress = extractReq.progress / results.Length * (i + 1);
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+                            Debug.LogFormat("释放资源:{0}",progress);
+#endif
                         }
 
                         if (!string.IsNullOrEmpty(extractReq.error))
@@ -154,7 +165,12 @@ namespace YukiFrameWork.XFABManager
                             CurrentProjectName = readyUpdate.CurrentProjectName;
                             CurrentSpeed = readyUpdate.CurrentSpeed;
                             DownloadedSize = readyUpdate.DownloadedSize;
-                            NeedDownloadedSize = readyUpdate.NeedDownloadedSize; 
+                            NeedDownloadedSize = readyUpdate.NeedDownloadedSize;
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+                            Debug.LogFormat("释放资源之后再次调用准备:{0} type:{1}", readyUpdate.progress, ExecutionType);
+#endif
+
                         }
 
                         if ( !string.IsNullOrEmpty(readyUpdate.error) ) {

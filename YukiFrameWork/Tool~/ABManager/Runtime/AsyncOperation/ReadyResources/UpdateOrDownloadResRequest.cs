@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class UpdateOrDownloadResRequest : CustomAsyncOperation<UpdateOrDownloadResRequest>
     {
@@ -147,7 +147,7 @@ namespace YukiFrameWork.XFABManager
                 }
 
 #if XFABMANAGER_LOG_OPEN_TESTING
-                UnityEngine.Debug.LogFormat("压缩包md5信息校验成功:{0}",File.Exists(localfile));
+                UnityEngine.Debug.LogFormat("压缩包md5信息校验成功:{0}", File.Exists(localfile));
 #endif
 
                 ExecutionType = ExecutionType.Decompression;

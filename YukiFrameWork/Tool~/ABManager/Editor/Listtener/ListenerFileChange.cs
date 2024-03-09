@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using YukiFrameWork.XFABManager;
+using XFABManager;
 
 public class ListenerFileChange : UnityEditor.AssetModificationProcessor {
 

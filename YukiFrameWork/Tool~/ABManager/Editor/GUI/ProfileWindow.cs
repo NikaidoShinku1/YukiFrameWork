@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager {
+namespace XFABManager {
 	
 	public class ProfileWindow : EditorWindow
 	{

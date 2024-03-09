@@ -12,7 +12,7 @@ using UnityEditor;
 
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     // 工具方法
     public class XFABTools
@@ -82,6 +82,7 @@ namespace YukiFrameWork.XFABManager
         /// <returns></returns>
         public static string GetCurrentPlatformName()
         {
+             
 #if UNITY_EDITOR
             return EditorUserBuildSettings.activeBuildTarget.ToString();
 #else
@@ -163,8 +164,16 @@ namespace YukiFrameWork.XFABManager
         {
             try
             {
-                FileStream fs = new FileStream(file, FileMode.Open);
-                return md5file(fs);
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                { 
+                    return md5file(File.ReadAllBytes(file));
+                }
+                else 
+                { 
+                    FileStream fs = new FileStream(file, FileMode.Open);
+                    return md5file(fs);
+                }
+
             }
             catch (Exception ex)
             {
@@ -179,6 +188,21 @@ namespace YukiFrameWork.XFABManager
             byte[] retVal = md5.ComputeHash(fileStream);
             fileStream.Close();
 
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < retVal.Length; i++)
+            {
+                sb.Append(retVal[i].ToString("x2"));
+            }
+            return sb.ToString();
+
+        }
+
+        internal static string md5file(byte[] bytes)
+        { 
+
+            System.Security.Cryptography.MD5 md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+            byte[] retVal = md5.ComputeHash(bytes);
+              
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < retVal.Length; i++)
             {
@@ -233,14 +257,26 @@ namespace YukiFrameWork.XFABManager
         /// </summary>
         /// <returns></returns>
         internal static bool StreamingAssetsWritable() 
-        { 
+        {
+
+//#if UNITY_OPENHARMONY
+//#endif
+
 #if UNITY_EDITOR
+
             return false;
 #else
-            if ( Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ) 
-                return false;  // 当前认为 Android 和 iOS 没有写入权限
+            if (Application.platform == RuntimePlatform.Android || 
+                Application.platform == RuntimePlatform.IPhonePlayer || 
+                Application.platform == RuntimePlatform.WebGLPlayer)
+                return false;  // 当前认为 Android , iOS , WebGL 没有写入权限
+
+#if UNITY_OPENHARMONY // 如果是鸿蒙是不能写的
+            return false;
+#endif
+
             return true;
-#endif 
+#endif
         }
 
         /// <summary>
@@ -252,10 +288,17 @@ namespace YukiFrameWork.XFABManager
         /// <returns></returns>
         internal static bool StreamingAssetsReadable() 
         {
+             
+
 #if UNITY_EDITOR
             return false;
 #else
-            if (Application.platform == RuntimePlatform.Android) return false; // 目前只发现Android平台不能直接读取
+
+#if UNITY_OPENHARMONY // 如果是鸿蒙 不能直接读取内置目录
+            return false;
+#endif 
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.WebGLPlayer) 
+                return false; // 目前发现Android和WebGL平台不能直接读取
             return true;
 #endif 
         }

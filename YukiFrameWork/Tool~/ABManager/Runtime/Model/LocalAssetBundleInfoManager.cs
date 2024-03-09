@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     /// <summary>
     /// 本地的AssetBundle文件信息的管理类(内部类)
@@ -180,7 +180,7 @@ namespace YukiFrameWork.XFABManager
                 suffixs.Add(projectName, suffix);
 
 #if XFABMANAGER_LOG_OPEN_TESTING
-                UnityEngine.Debug.LogFormat("GetSuffix projectName:{0} suffix:{1} from file:{2}",projectName,suffix,suffix_path);
+                UnityEngine.Debug.LogFormat("GetSuffix projectName:{0} suffix:{1} from file:{2}", projectName, suffix, suffix_path);
 #endif
 
                 return suffix;

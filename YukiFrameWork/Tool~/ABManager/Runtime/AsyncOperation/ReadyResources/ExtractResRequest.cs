@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
     public class ExtractResRequest : CustomAsyncOperation<ExtractResRequest>
     {
@@ -57,40 +57,15 @@ namespace YukiFrameWork.XFABManager
             switch (result.updateType)
             {
                 case UpdateType.ExtractLocal:
-                    string project_build_info = XFABTools.BuildInDataPath(result.projectName, XFABConst.project_build_info);
-                    string content = string.Empty;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                    UnityWebRequest requestBuildInfo = UnityWebRequest.Get(project_build_info);
-                    yield return requestBuildInfo.SendWebRequest();
-                    if (string.IsNullOrEmpty(requestBuildInfo.error))
-                        content = requestBuildInfo.downloadHandler.text;
-                    else 
+                    // 读取内置文件的信息
+                    ReadBuildInProjectBuildInfoRequest request_build_in_info = ReadBuildInProjectBuildInfoRequest.BuildInProjectBuildInfo(result.projectName);
+                    yield return request_build_in_info;
+                    if (!string.IsNullOrEmpty(request_build_in_info.error))
                     {
-                        Completed(string.Format("读取文件失败:{0} error:{1}", project_build_info, requestBuildInfo.error));
+                        Completed(request_build_in_info.error);
                         yield break;
                     }
-#else
-                    try
-                    {
-                        content = File.ReadAllText(project_build_info);
-                    }
-                    catch (Exception e)
-                    {
-                        Completed(string.Format("文件读取失败:{0} error:{1}", project_build_info, e.ToString()));
-                        yield break;
-                    }
-#endif
-                    ProjectBuildInfo buildInfo = null;
-                    try
-                    {
-                        buildInfo = JsonConvert.DeserializeObject<ProjectBuildInfo>(content);
-                    }
-                    catch (Exception e)
-                    {
-                        Completed(string.Format("json 解析失败:{0} error:{1}", content, e.ToString()));
-                        yield break;
-                    }
+                    ProjectBuildInfo buildInfo = request_build_in_info.ProjectBuildInfo;
 
                     // 保存后缀
                     LocalAssetBundleInfoManager.Instance.SaveSuffix(result.projectName, buildInfo.suffix);

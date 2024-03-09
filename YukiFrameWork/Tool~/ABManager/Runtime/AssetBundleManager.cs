@@ -14,9 +14,8 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
-//using UnityEngine.SceneManagement;
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     public class AssetBundleManager
@@ -348,7 +347,15 @@ namespace YukiFrameWork.XFABManager
                 string key = GetSecret(projectName);
                 if (string.IsNullOrEmpty(key) || System.IO.Path.GetExtension(bundle_path).Equals(string.Empty))
                 {
-                    bundle = AssetBundle.LoadFromFile(bundle_path);
+                    if (Application.platform == RuntimePlatform.WebGLPlayer)
+                    {
+                        // WebGL平台通过字节数组加载
+                        bundle = AssetBundle.LoadFromMemory(File.ReadAllBytes(bundle_path));
+                    }
+                    else { 
+                        bundle = AssetBundle.LoadFromFile(bundle_path);
+                    }
+
                     if (bundle == null)
                         Debug.LogErrorFormat("AssetBundle {0} 加载失败！", bundle_path);
                 }
@@ -452,13 +459,20 @@ namespace YukiFrameWork.XFABManager
 
             AssetBundleCreateRequest request = null;
 
-            if (string.IsNullOrEmpty(key) || System.IO.Path.GetExtension(bundle_path).Equals(string.Empty) )
+            if (string.IsNullOrEmpty(key) || Path.GetExtension(bundle_path).Equals(string.Empty) )
             {
-                request = AssetBundle.LoadFromFileAsync(bundle_path);
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    request = AssetBundle.LoadFromMemoryAsync(File.ReadAllBytes(bundle_path));
+                }
+                else {
+                    request = AssetBundle.LoadFromFileAsync(bundle_path);
+                }
+
                 if (request == null) Debug.LogErrorFormat("AssetBundle {0} 加载失败！", bundle_path);
             }
             else {
-                request = AssetBundle.LoadFromMemoryAsync( EncryptTools.Decrypt( File.ReadAllBytes( bundle_path),key));
+                request = AssetBundle.LoadFromMemoryAsync(EncryptTools.Decrypt(File.ReadAllBytes( bundle_path), key));
                 if (request == null) Debug.LogErrorFormat("AssetBundle {0} 加载失败！key:{1}", bundle_path,key);
             }
 
@@ -1345,15 +1359,26 @@ namespace YukiFrameWork.XFABManager
             if (asset == null) return;
 
             string assetName = string.Empty;
-             
-            UnityEngine.Object obj = asset as UnityEngine.Object;
-            if (obj != null)
-                assetName = obj.name;
-            else {
-                // 通过反射获取
-                System.Reflection.PropertyInfo info = asset.GetType().GetProperty("name");
-                if (info != null  && info.GetValue(asset) != null)
-                    assetName = info.GetValue(asset).ToString();  
+
+            if (asset is UnityEngine.Object)
+            {
+                UnityEngine.Object obj = asset as UnityEngine.Object;
+                if (obj != null)
+                    assetName = obj.name;
+            }
+            else 
+            {
+                try
+                {
+                    // 通过反射获取
+                    System.Reflection.PropertyInfo info = asset.GetType().GetProperty("name");
+                    if (info != null && info.GetValue(asset) != null)
+                        assetName = info.GetValue(asset).ToString();
+                }
+                catch (Exception)
+                {
+                    return;
+                } 
             }
              
             if (string.IsNullOrEmpty(assetName)) return;

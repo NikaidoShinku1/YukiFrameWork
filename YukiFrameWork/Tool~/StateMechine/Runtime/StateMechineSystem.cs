@@ -63,7 +63,7 @@ namespace YukiFrameWork.States
                     state.OnInit(manager);
                 }
 
-                if (manager.deBugLog == DeBugLog.开启)
+                if (manager.deBugLog == DeBugLog.Open)
                 {
                     Debug.Log($"状态机归属： {manager.gameObject.name},初始化完成！");
                 }

@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace YukiFrameWork.XFABManager{
+namespace XFABManager{
 
 
 

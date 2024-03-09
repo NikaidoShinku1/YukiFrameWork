@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
  
 
-namespace YukiFrameWork.XFABManager
+namespace XFABManager
 {
 
     /// <summary>

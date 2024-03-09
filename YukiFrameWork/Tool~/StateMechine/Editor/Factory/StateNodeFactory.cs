@@ -5,7 +5,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 namespace YukiFrameWork.States
 {
-    public class StateNodeFactory : MonoBehaviour
+    public class StateNodeFactory
     {
         private static int createIndex = 0;
         public static StateBase CreateStateNode(StateMechine stateMechine,string name,Rect rect,bool defaultState = false)
