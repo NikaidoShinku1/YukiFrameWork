@@ -118,13 +118,13 @@ namespace YukiFrameWork
                             , out _
                             , out _);
 
-                        if (arrayLabel == null)
+                        if (arrayLabel == null && listDrawerSetting != null)
                             arrayLabel = newLabel;
                     }
 
                     if (label == null) label = new LabelAttribute(member.Name);
 
-                    if (property.propertyType == SerializedPropertyType.Generic && arrayLabel == null)
+                    if (property.propertyType == SerializedPropertyType.Generic && arrayLabel == null && listDrawerSetting != null)
                         arrayLabel = new ArrayLabelAttribute(setting.ArrayLabel);                 
                 }
 
