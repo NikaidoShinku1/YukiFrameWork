@@ -155,7 +155,7 @@ namespace YukiFrameWork
         {
             if (itemType == null || property == null) return false;
 
-            return itemType.IsSubclassOf(typeof(Enum)) || itemType.Equals(typeof(Enum)) || property.propertyType == SerializedPropertyType.Enum;
+            return itemType.IsSubclassOf(typeof(Enum)) || itemType.Equals(typeof(Enum));
         }
 
         public virtual void InitInfo(SerializedProperty property)
