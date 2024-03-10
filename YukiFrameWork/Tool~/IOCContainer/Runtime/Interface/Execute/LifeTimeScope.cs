@@ -54,7 +54,7 @@ namespace YukiFrameWork.IOC
 
         private void InitializeAllObjects()
         {
-            InJectAutoInGameObject(gameObject);
+            //InJectAutoInGameObject(gameObject);不对自己进行注入，会跟自身组件注入冲突
             if (IsAutoInjectObject)
             {               
                 for (int i = 0; i < gameObjects.Count; i++)
