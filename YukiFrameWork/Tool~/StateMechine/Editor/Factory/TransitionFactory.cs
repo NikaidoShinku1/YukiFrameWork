@@ -15,31 +15,65 @@ namespace YukiFrameWork.States
            
             if (fromStateName.Equals(toStateName))
                 return;
-           
-            foreach (var item in stateMechine.transitions)
+
+            if (!stateMechine.IsSubLayerAndContainsName())
             {
-                if (item.fromStateName.Equals(fromStateName) && item.toStateName.Equals(toStateName))
+                foreach (var item in stateMechine.transitions)
                 {
-                    Debug.LogError($"过渡{fromStateName} -> {toStateName}已经存在！");
-                    return;
-                }             
+                    if (item.fromStateName.Equals(fromStateName) && item.toStateName.Equals(toStateName))
+                    {
+                        string message = $"过渡{fromStateName} -> {toStateName}已经存在！";
+                        Debug.LogError(message);
+                        StateMechineEditorWindow.OnShowNotification(message);
+                        return;
+                    }
+                }
+
+                StateTransitionData transition = new StateTransitionData()
+                {
+                    fromStateName = fromStateName,
+                    toStateName = toStateName,
+                    layerName = stateMechine.layerName
+                };
+
+                stateMechine.transitions.Add(transition);
             }
-
-            StateTransitionData transition = new StateTransitionData()
+            else
             {
-                fromStateName = fromStateName,
-                toStateName = toStateName,
-            };
+                if (!stateMechine.subTransitions.ContainsKey(stateMechine.layerName))
+                {
+                    stateMechine.subTransitions.Add(stateMechine.layerName, new List<StateTransitionData>());
+                }
 
-            stateMechine.transitions.Add(transition);
+                foreach (var item in stateMechine.subTransitions[stateMechine.layerName])
+                {
+                    if (item.fromStateName.Equals(fromStateName) && item.toStateName.Equals(toStateName))
+                    {
+                        string message = $"子状态机{stateMechine.layerName} 过渡{fromStateName} -> {toStateName}已经存在！";
+                        Debug.LogError(message);
+                        StateMechineEditorWindow.OnShowNotification(message);
+                        return;
+                    }
+                }
+                StateTransitionData transition = new StateTransitionData()
+                {
+                    fromStateName = fromStateName,
+                    toStateName = toStateName,
+                    layerName = stateMechine.layerName
+                };
+                stateMechine.subTransitions[stateMechine.layerName].Add(transition);
+            }
             EditorUtility.SetDirty(stateMechine);
             AssetDatabase.SaveAssets();
         }
 
         public static void DeleteTransition(StateMechine stateMechine, StateTransitionData transition)
-        {
-          
+        {        
             stateMechine.transitions.Remove(transition);
+            foreach (var item in stateMechine.subTransitions.Values)
+            {            
+                item.Remove(transition);
+            }
             EditorUtility.SetDirty(stateMechine);
             AssetDatabase.SaveAssets();
         }                   

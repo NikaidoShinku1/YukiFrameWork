@@ -191,6 +191,10 @@ namespace YukiFrameWork
         private StringEventSystem stringEventSystem = new StringEventSystem();
         #endregion
 
+        ~Architecture()
+        {
+            OnDestroy();
+        }
         public abstract void OnInit();       
 
         public virtual void OnDestroy()
@@ -555,7 +559,7 @@ namespace YukiFrameWork
         public T GetOrAddEvent<T>(string name) where T : IEasyEventSystem, new()
         {
             if (!events.TryGetValue(name, out var easyEvent))
-            {
+            {             
                 easyEvent = new T();
                 events.Add(name, easyEvent);
             }

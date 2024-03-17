@@ -14,13 +14,26 @@ namespace YukiFrameWork.States
         [HideField]
         public int index;
 
+        [HideField]
+        public string layerName;
+
         public IState StateManager { get; set; } 
 
         protected Transform transform => StateManager.transform;
         
         private StateDataBase _dataBase;
 
-        protected StateBase state => StateManager.runTimeStatesDict[index];
+        private StateBase _state;
+
+        protected StateBase state
+        {
+            get
+            {
+                if(_state == null)
+                    _state = StateManager.runTimeSubStatePair[layerName].stateBases.Find(x => x.name == name);
+                return _state;
+            }
+        }
 
         protected StateDataBase stateBehaviourData
         {
@@ -167,7 +180,7 @@ namespace YukiFrameWork.States
             => StateManager.OnChangeState(index);
 
         protected void OnChangeState(string name)
-            => StateManager.OnChangeState(name);
+            => StateManager.OnChangeState(name,layerName);
 
         protected void SetInt(string name, int v) 
             => StateManager.SetInt(name, v);

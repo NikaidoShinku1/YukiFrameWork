@@ -17,7 +17,7 @@ namespace YukiFrameWork.States
         private float transitionTimer = 0f;
 
         #region 方法
-        public TransitionLayer(StateMechineEditor editorWindow) : base(editorWindow)
+        public TransitionLayer(StateMechineEditorWindow editorWindow) : base(editorWindow)
         {
         }
 
@@ -63,12 +63,14 @@ namespace YukiFrameWork.States
         {
             if (this.Context.StateMechine == null) return;
 
-            StateBase entryState = this.Context.StateMechine.states.Where(x => x.name.Equals(StateConst.entryState)).FirstOrDefault();
-            StateBase defaultState = this.Context.StateMechine.states.Where(x => x.defaultState).FirstOrDefault();
-            //绘制默认过渡
-            DrawTransition(entryState, defaultState, Color.yellow);
+            List<StateBase> stateBases = GetLayerStates();         
 
-            foreach (var item in this.Context.StateMechine.transitions)
+            StateBase entryState = stateBases.Where(x => x.name.Equals(StateConst.entryState)).FirstOrDefault();
+            StateBase defaultState = stateBases.Where(x => x.defaultState).FirstOrDefault();
+            //绘制默认过渡
+            DrawTransition(entryState, defaultState, Color.yellow,true,1,false);
+
+            foreach (var item in GetLayerTransitions())
             {
                 DrawTransition(item.fromStateName, item.toStateName, item == this.Context.selectTransition ? ColorConst.SelectColor : Color.white);
             }
@@ -90,13 +92,13 @@ namespace YukiFrameWork.States
         }
 
         private void DrawTransition(string fromStateName, string toStateName, Color color, bool isShowArrow = true,float progress = 1f)
-        {
-            var fromState = this.Context.StateMechine.states.Where(x => x.name.Equals(fromStateName)).FirstOrDefault();
-            var toState = this.Context.StateMechine.states.Where(x => x.name.Equals(toStateName)).FirstOrDefault();
+        {                   
+            var fromState = GetLayerStates()?.Where(x => x.name.Equals(fromStateName)).FirstOrDefault();
+            var toState = GetLayerStates()?.Where(x => x.name.Equals(toStateName)).FirstOrDefault();
             DrawTransition(fromState, toState, color, isShowArrow,progress);
-        }
+        }     
 
-        private void DrawTransition(StateBase startNode, StateBase endNode, Color color, bool isShowArrow = true,float progress = 1f)
+        private void DrawTransition(StateBase startNode, StateBase endNode, Color color, bool isShowArrow = true,float progress = 1f,bool isArrow = true)
         {
             if (startNode == null || endNode == null) return;
 
@@ -110,7 +112,7 @@ namespace YukiFrameWork.States
                 || position.Contains(start.center + offect + (end.center - start.center) * 0.5f))
             {
                 Vector2 endPoint = Vector2.Lerp(start.center + offect, end.center + offect, progress);
-                DrawTransition(start.center + offect, endPoint, color, isShowArrow);
+                DrawTransition(start.center + offect, endPoint, color, isShowArrow,isArrow);
             }
         }
 
@@ -133,13 +135,16 @@ namespace YukiFrameWork.States
             return offect * this.Context.ZoomFactor;
         }
 
-        private void DrawTransition(Vector2 start,Vector2 end,Color color,bool isShowArrow = true)
+        private void DrawTransition(Vector2 start,Vector2 end,Color color,bool isShowArrow = true,bool isArrow = true)
         {
             Handles.BeginGUI();
 
             Handles.color = color;
 
-            Handles.DrawAAPolyLine(5f, start, end);
+            float width = GetMinDistanceToLine(Event.current.mousePosition, start, end) <= 5 && isArrow ? 7.5f : 5f;
+
+            float arrowWidth = GetMinDistanceToLine(Event.current.mousePosition, start, end) <= 5 && isArrow ? 12.5f : 10f;
+            Handles.DrawAAPolyLine(width, start, end);       
 
             if (isShowArrow)
             {
@@ -148,9 +153,9 @@ namespace YukiFrameWork.States
                 Vector2 crossDir = Vector3.Cross(direction, Vector3.forward);
                 Vector3[] targetPos = new Vector3[] 
                 {
-                    direction.normalized * 10 + center,
-                    center + crossDir.normalized * 5,
-                    center - crossDir.normalized * 5
+                    direction.normalized * arrowWidth + center,
+                    center + crossDir.normalized * width,
+                    center - crossDir.normalized * width
                 };
                 Handles.DrawAAConvexPolygon(targetPos);
             }
@@ -160,13 +165,11 @@ namespace YukiFrameWork.States
 
         private void CheckTransitionClick()
         {
-            foreach (var item in this.Context.StateMechine.transitions)
-            {
-                StateBase fromState = this.Context.StateMechine.states.Where(x => x.name.Equals(item.fromStateName)).FirstOrDefault();
-                StateBase toState = this.Context.StateMechine.states.Where(x => x.name.Equals(item.toStateName)).FirstOrDefault();
-
-                if (fromState == null || toState == null) return;
-
+            foreach (var item in GetLayerTransitions())
+            {               
+                StateBase fromState = GetLayerStates()?.Where(x => x.name.Equals(item.fromStateName)).FirstOrDefault();
+                StateBase toState = GetLayerStates()?.Where(x => x.name.Equals(item.toStateName)).FirstOrDefault();             
+                if (fromState == null || toState == null) return;               
                 Rect startRect = GetTransformedRect(fromState.rect);
                 Rect endRect = GetTransformedRect(toState.rect);
 
@@ -217,11 +220,15 @@ namespace YukiFrameWork.States
 
             if (this.Context.StateManager == null) return;
 
-            if (this.Context.StateManager.CurrentState == null) return;         
+            if (this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState == null) return;         
 
             if (string.IsNullOrEmpty(currentStateName))
             {
-                currentStateName = this.Context.StateManager.CurrentState.name;
+                if (!this.Context.StateManager.stateMechine.IsSubLayerAndContainsName())
+                    currentStateName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name;
+                else if (this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState == null) return;
+
+                else currentStateName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name;
                 transitionTimer = 0f;
                 return;
             }
@@ -234,21 +241,54 @@ namespace YukiFrameWork.States
                 currentManager = this.Context.StateManager;
                 return;
             }
-
-            if (!this.Context.StateManager.CurrentState.name.Equals(currentStateName))
+            if (!this.Context.StateManager.stateMechine.IsSubLayerAndContainsName())
             {
-
-                transitionTimer += Time.deltaTime;
-                if (transitionTimer >= 1)
+                if (!this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name.Equals(currentStateName))
                 {
-                    currentStateName = this.Context.StateManager.CurrentState.name;
-                    transitionTimer = 0;
-                }
-                //状态正在切换
+                    ChangeTimer();
+                    //状态正在切换
 
-                if (this.Context.StateManager.stateMechine.transitions.Find(x => x.fromStateName.Equals(currentStateName) && x.toStateName.Equals(this.Context.StateManager.CurrentState.name)) != null)
-                    DrawTransition(currentStateName, this.Context.StateManager.CurrentState.name, ColorConst.TransitionColor, false, transitionTimer);
-                             
+                    if (this
+                        .Context
+                        .StateManager
+                        .stateMechine
+                        .transitions
+                        .Find(x 
+                        => x.fromStateName.Equals(currentStateName) 
+                        && x.toStateName.Equals(this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name)) 
+                        != null)
+                        DrawTransition(currentStateName
+                            , this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name
+                            , ColorConst.TransitionColor, false, transitionTimer);
+
+                }
+            }
+            else
+            {
+                if (this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState?.name.Equals(currentStateName) == false)
+                {
+                    ChangeTimer();
+
+                    if (this.Context.StateManager.stateMechine.subTransitions
+                        [this.Context.StateManager.stateMechine.layerName]
+                        .Find(x 
+                        => x.fromStateName.Equals(currentStateName) 
+                        && x.toStateName.Equals(this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name)) 
+                        != null)
+                        DrawTransition(currentStateName
+                            , this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name
+                            , ColorConst.TransitionColor, false, transitionTimer);
+                }
+            }
+        }
+
+        private void ChangeTimer()
+        {
+            transitionTimer += Time.deltaTime;
+            if (transitionTimer >= 1)
+            {
+                currentStateName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name;
+                transitionTimer = 0;
             }
         }
         #endregion

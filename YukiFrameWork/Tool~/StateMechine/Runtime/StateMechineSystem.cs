@@ -6,15 +6,20 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
-using UnityEngine;
-using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
 namespace YukiFrameWork.States
 {
     public class StateMechineSystem : AbstractSystem
     {
-        public const string StateInited = "StateInited";
+        internal const string StateInited = "StateInited";
+
+        internal const string AddManager = "AddManager";
+
+        internal const string RemoveManager = "RemoveManager";
     
         private FastList<StateManager> stateManagers = new FastList<StateManager>();
 
@@ -26,6 +31,8 @@ namespace YukiFrameWork.States
 
             MonoHelper.LateUpdate_AddListener(_ => LateUpdate());
 
+            this.RegisterEvent<StateManager>(AddManager, AddStateManager);
+            this.RegisterEvent<StateManager>(RemoveManager, RemoveStateManager);
             this.RegisterEvent<StateManager>(StateInited,manager =>
             {
                 if (manager.stateMechine == null)
@@ -44,51 +51,68 @@ namespace YukiFrameWork.States
                     }
                     manager.ParametersDicts.Add(manager.stateMechine.parameters[i].name, manager.stateMechine.parameters[i]);
                 }
-
+                List<StateBase> list = new List<StateBase>();
                 for (int i = 0; i < manager.stateMechine.states.Count; i++)
                 {
                     if (manager.stateMechine.states[i].name.Equals(StateConst.entryState) || manager.stateMechine.states[i].index == -1)
                         continue;
-                    manager.runTimeStatesDict.Add(manager.stateMechine.states[i].index, manager.stateMechine.states[i]);
+
+                    list.Add(manager.stateMechine.states[i]);
                 }
+
+                manager.runTimeSubStatePair = manager.stateMechine.subStatesPair.ToDictionary(v => v.Key,v => v.Value);
+
+                manager.runTimeSubStatePair.Add("BaseLayer", new SubStateData(list));
 
                 foreach (var item in manager.stateMechine.transitions)
                 {
-                    StateTransition stateTransition = new StateTransition(manager, item);
+                    StateTransition stateTransition = new StateTransition(manager, item,"BaseLayer");
                     manager.transitions.Add(stateTransition);
                 }
 
-                foreach (var state in manager.runTimeStatesDict.Values)
+                manager.subTransitions = manager.stateMechine.subTransitions.ToDictionary(v => v.Key, v => 
                 {
-                    state.OnInit(manager);
-                }
+                    List<StateTransition> transitions = new List<StateTransition>();
 
+                    for (int i = 0; i < v.Value.Count; i++)
+                    {
+                        transitions.Add(new StateTransition(manager, v.Value[i],v.Key,true));
+                    }
+
+                    return transitions;
+                });
+                manager.subTransitions.Add("BaseLayer", manager.transitions);
+                foreach (var state in manager.runTimeSubStatePair.Values)
+                {
+                    foreach (var item in state.stateBases)
+                    {
+                        item.OnInit(manager);
+                    }
+                }
                 if (manager.deBugLog == DeBugLog.Open)
                 {
                     Debug.Log($"状态机归属： {manager.gameObject.name},初始化完成！");
                 }
 
-                foreach (var state in manager.runTimeStatesDict.Values)
+                foreach (var item in manager.runTimeSubStatePair["BaseLayer"].stateBases)
                 {
-                    if (state.defaultState)
+                    if (item.defaultState)
                     {
-                        manager.OnChangeState(state);
+                        manager.OnChangeState(item);
                         break;
                     }
-                }
-
-                foreach (var item in manager.transitions)
-                {
-                    item.CheckConditionIsMeet();
-                }
+                }       
             });
-        }          
+        }
 
         private void Update()
         {           
             for (int i = 0; i < stateManagers.Count; i++)
             {
-                stateManagers[i].CurrentState?.OnUpdate();
+                for (int j = 0; j < stateManagers[i].currents.Count; j++)
+                {
+                    stateManagers[i].currents[j].OnUpdate();
+                }
             }
         }
 
@@ -96,19 +120,25 @@ namespace YukiFrameWork.States
         {
             for (int i = 0; i < stateManagers.Count; i++)
             {
-                stateManagers[i].CurrentState?.OnFixedUpdate();
+                for (int j = 0; j < stateManagers[i].currents.Count; j++)
+                {
+                    stateManagers[i].currents[j].OnFixedUpdate();
+                }
             }
         }
         private void LateUpdate()
         {
             for (int i = 0; i < stateManagers.Count; i++)
             {
-                stateManagers[i].CurrentState?.OnLateUpdate();
+                for (int j = 0; j < stateManagers[i].currents.Count; j++)
+                {
+                    stateManagers[i].currents[j].OnLateUpdate();
+                }
             }
         }
 
-        public void AddStateManager(StateManager stateManager) => stateManagers.Add(stateManager);
+        internal void AddStateManager(StateManager stateManager) => stateManagers.Add(stateManager);
  
-        public void RemoveStateManager(StateManager stateManager) => stateManagers.Remove(stateManager);
+        internal void RemoveStateManager(StateManager stateManager) => stateManagers.Remove(stateManager);
     } 
 }

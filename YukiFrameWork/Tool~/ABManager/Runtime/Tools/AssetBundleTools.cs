@@ -72,7 +72,7 @@ namespace XFABManager
             }
             else if (type == typeof(UnityEditor.SceneAsset))
             {
-                return typeof(UnityEngine.SceneManagement.Scene);
+                return typeof(SceneObject);
             }
             else if (type.FullName == "UnityEditor.Audio.AudioMixerController") {
                 return typeof(UnityEngine.Audio.AudioMixer);

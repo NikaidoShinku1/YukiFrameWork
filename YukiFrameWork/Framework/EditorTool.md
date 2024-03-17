@@ -139,17 +139,23 @@
 
 	- [PropertyRange(minValue:0,maxValue:10)]//可以用于属性的等效于UnityEngine.Range特性的特性。在数组/列表标记了ListDrawerSetting时该特性可以使用
 
-	- [ListDrawerSetting(IsReadOnly:false)] //将数组/列表的绘制转换为ReorderableList，IsReadOnly判断该数组是否可以被外部修改(只读)
+	- [ListDrawerSetting(IsReadOnly:false)] //将数组/列表的绘制转换为ReorderableList，IsReadOnly判断该数组是否可以被外部修改(只读),该特性仅对类派生自UnityEngine.Object时的字段/属性生效
 	- [ArrayLabel(label:"")]//只能用于标记了ListDrawerSetting的数组/列表,在该特性下可以为元素指定标签
 
-	- [RuntimeDisableGroup]//运行时不可被修改
-	- [EditorDisableGroup]//编辑模式下不可被修改
+	- [RuntimeDisableGroup]//运行时不可被修改//该特性使用在数组/列表时仅在标记了Serializable并且不派生自UnityEngine.Object的类生效
+	- [EditorDisableGroup]//编辑模式下不可被修改//该特性使用在数组/列表时仅在标记了Serializable并且不派生自UnityEngine.Object的类生效
 
 	- [MethodButton(label:"",width"",height"",params object[] args)]//只能用于方法标记，标记后可以在编辑器中序列化出调用该方法的按钮，可以传入Label自定义标签，以及按钮的长度跟高度，如果方法的参数均为编译时数据类型，可以在特性中直接传入对应的参数进行测试
 
-	- [CustomPropertySettingAttribute(itemName:"",arrayLabel:"")]//对于不继承UnityEngine.Object的类，如果只想序列化其某一个字段/属性，可以使用这个特性进行标记，多用于比如对列表的封装，会进行对内部封装的数组进行序列化。
+	- [CustomPropertySettingAttribute(itemName:"",arrayLabel:"")]//这个特性在不继承UnityEngine.Object的类上标记，如果想单独序列化里面的某一个数组/列表，可以使用这个特性进行标记，会进行对指定的序列化，同时该类可以使用ListDrawingSetting
+
+	- [DisableGroupEnumValueIf]//使用方式与DisableEnumVaueIf相同，该特性判断参数是否被禁止修改,对于数组/列表，仅可以在不派生自UnityEngine.Object且可序列化的类中使用
+
+	- [DisableGroupIf]//使用方式与DisableIf相同，该特性判断参数是否被禁止修改,对于数组/列表，仅可以在不派生自UnityEngine.Object且可序列化的类中使用
+
 
 	//注意：对于标记了Serializable特性的普通类的序列化，在其内部只有Label,GUIColor,RuntimeDisableGroup,EditorDisableGroup,PropertyRange可以使用。
+	//使用本框架的编辑器样式有一定的限制: 对于继承自MonoBehaviour但是该类为某个类的派生类时，其父类的属性无法显示在Inspector中，对于标记了SerializeField的字段，仅声明符protected可以被序列化，private不可
 
 
 

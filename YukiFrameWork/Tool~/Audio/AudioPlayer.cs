@@ -17,7 +17,7 @@ namespace YukiFrameWork.Audio
     {
         private AudioSource mAudioSource;
         private Action onEndCallback = null;      
-        private IAsyncExtensionCore audioTimer;
+        private IYieldExtension audioTimer;
 
         public bool IsAudioFree { get; private set; } = true;
 

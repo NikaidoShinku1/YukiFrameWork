@@ -57,37 +57,35 @@ namespace YukiFrameWork
 
         #endregion
 
-
-        public static GameObject SetPosition(this GameObject core, Vector3 position)
+        #region LifeCycle
+        public static bool Destroy<T>(this T obj, float time) where T : Object
         {
-            core.transform.position = position;
-            return core;
-        }
-
-        public static T SetName<T>(this T core,string name) where T : Object
-        {
-            core.name = name;
-            return core;
-        }
-
-        public static T Rotate<T>(this T core, Vector3 target) where T : Component
-        {
-            Rotate(core.gameObject, target);
-            return core;
-        }
-
-        public static GameObject Rotate(this GameObject core, Vector3 target) 
-        {
-            core.transform.Rotate(target);
-            return core;
-        }
+            try
+            {
+                Object.Destroy(obj, time);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }       
+        public static bool Destroy<T>(this T obj) where T : Object
+            => Destroy(obj, 0);
 
         public static T DonDestroyOnLoad<T>(this T core) where T : Object
         {
             Object.DontDestroyOnLoad(core);
             return core;
         }
+        #endregion
 
+        #region Info
+        public static T SetName<T>(this T core,string name) where T : Object
+        {
+            core.name = name;
+            return core;
+        }      
         public static T Layer<T>(this T component, int layer) where T : Component
         {
             Layer(component.gameObject, layer);
@@ -123,22 +121,27 @@ namespace YukiFrameWork
             gameObject.tag = tag;
             return gameObject;
         }
+        #endregion
 
-        public static bool Destroy<T>(this T obj,float time) where T : Object
+        #region Position
+        public static T Rotate<T>(this T core, Vector3 target) where T : Component
         {
-            try
-            {
-                Object.Destroy(obj, time);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            Rotate(core.gameObject, target);
+            return core;
         }
 
-        public static bool Destroy<T>(this T obj) where T : Object
-            => Destroy(obj, 0);
+        public static GameObject Rotate(this GameObject core, Vector3 target)
+        {
+            core.transform.Rotate(target);
+            return core;
+        }
+
+
+        public static GameObject SetPosition(this GameObject core, Vector3 position)
+        {
+            core.transform.position = position;
+            return core;
+        }
 
         public static T SetPosition<T>(this T core, Vector3 position) where T : Component
         {
@@ -162,6 +165,18 @@ namespace YukiFrameWork
         public static GameObject SetLocalScale(this GameObject core, Vector3 localScale)
         {
             core.transform.localScale = localScale;
+            return core;
+        }
+
+        public static GameObject SetParent(this GameObject core, Transform parent)
+        {
+            core.transform.parent = parent;
+            return core;
+        }
+
+        public static T SetParent<T>(this T core, Transform parent) where T : Component
+        {
+            SetParent(core.gameObject, parent);
             return core;
         }
 
@@ -209,7 +224,7 @@ namespace YukiFrameWork
             SetLocalRotation(core.gameObject, quaternion);
             return core;
         }
-
+        #endregion
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
             T component = core.GetComponent<T>();

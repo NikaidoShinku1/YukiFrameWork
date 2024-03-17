@@ -21,10 +21,9 @@ namespace YukiFrameWork.IOC
     public class LifeTimeScopeInspector : CustomInspectorEditor
     { 
         public override void OnInspectorGUI()
-        {            
+        {         
             SerializedInjectedGameObjects();
             EditorGUILayout.Space();
-
             base.OnInspectorGUI();
         }      
 

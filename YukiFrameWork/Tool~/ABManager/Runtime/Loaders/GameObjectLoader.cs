@@ -376,7 +376,11 @@ namespace XFABManager {
             if (!IsCanClose) return;
             if (!prefab.IsDestroy())
                 AssetBundleManager.UnloadAsset(prefab); 
-            GameObject.Destroy(Parent.gameObject); 
+
+            if(!_parent.IsEmpty() && !_parent.gameObject.IsDestroy())
+                GameObject.Destroy(_parent.gameObject); 
+
+            _parent = null;
         }
 
         public bool ContainsObject(int obj_hash_code) {

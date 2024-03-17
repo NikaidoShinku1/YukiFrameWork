@@ -1,5 +1,5 @@
 ///=====================================================
-/// - FileName:      AsyncExtension.cs
+/// - FileName:      YieldExtension.cs
 /// - NameSpace:     YukiFrameWork
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
@@ -14,7 +14,7 @@ using UnityEngine;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
-    public static class AsyncExtension
+    public static class YieldExtension
     {
         /// <summary>
         /// 启动协程
@@ -22,31 +22,21 @@ namespace YukiFrameWork
         /// <param name="enumerator">迭代器</param>
         /// <param name="callBack">回调(在迭代器结束运行时启动)</param>
         /// <returns></returns>
-        public static IAsyncExtensionCore Start(this IEnumerator enumerator, Action callBack = null)
-            => AsyncExtensionCore.Get(enumerator, callBack);      
-        
-        /// <summary>
-        /// 等待当前拓展协程结束
-        /// </summary>
-        /// <param name="core">拓展异步本体</param>
-        /// <returns></returns>
-        public static CustomYieldInstruction OnExecuteAsync(this IAsyncExtensionCore core)
-        {
-            return new WaitUntil(() => !core.IsRunning);
-        }
+        public static IYieldExtension Start(this IEnumerator enumerator, Action callBack = null)
+            => YieldExtensionCore.Get(enumerator, callBack);      
 
         /// <summary>
         /// 等待当前拓展协程结束，执行回调
         /// </summary>
         /// <param name="core">拓展异步本体</param>
         /// <param name="callBack">回调</param>
-        public static IAsyncExtensionCore OnExecuteAsync(this IAsyncExtensionCore core, Action callBack)        
-            =>((AsyncExtensionCore)core).ExecuteAsync(callBack);
+        public static IYieldExtension Request(this IYieldExtension core, Action callBack)        
+            =>((YieldExtensionCore)core).ExecuteAsync(callBack);
         
 
-        public static IAsyncExtensionCore CancelWaitGameObjectDestroy<TComponent>(this IAsyncExtensionCore core, TComponent component) where TComponent : Component
+        public static IYieldExtension CancelWaitGameObjectDestroy<TComponent>(this IYieldExtension core, TComponent component) where TComponent : Component
         {
-            ((AsyncExtensionCore)core).CancelWaitGameObjectDestroy(component);
+            ((YieldExtensionCore)core).CancelWaitGameObjectDestroy(component);
             return core;
         }  
     }
@@ -54,40 +44,45 @@ namespace YukiFrameWork
     /// <summary>
     /// 拓展协程本体
     /// </summary>
-    public interface IAsyncExtensionCore
+    public interface IYieldExtension
     {
         object Current { get; set; }
         bool IsPause { get;}
-        bool IsRunning { get; }     
+        bool IsRunning { get; }    
+        CustomYieldInstruction Request { get; }
         void OnPause();
         void OnResume();
         void Cancel();
     }
 
-    public class AsyncExtensionCore : IAsyncExtensionCore
+    public class YieldExtensionCore : IYieldExtension
     {
         private IEnumerator enumerator;
         private Action callBack;
         
-        private static readonly SimpleObjectPools<AsyncExtensionCore> simpleObjectPools
-            = new SimpleObjectPools<AsyncExtensionCore>(() => new AsyncExtensionCore(), null, 10);
+        private static readonly SimpleObjectPools<YieldExtensionCore> simpleObjectPools
+            = new SimpleObjectPools<YieldExtensionCore>(() => new YieldExtensionCore(), null, 10);
   
         public object Current { get; set; }
         public bool IsPause { get;private set; }
         public bool IsRunning { get; private set; }
 
         private bool isRelease = true;
-        public static AsyncExtensionCore Get(IEnumerator enumerator, Action callBack = null)
+        public static YieldExtensionCore Get(IEnumerator enumerator, Action callBack = null)
         {
             var core = simpleObjectPools.Get();
             core.Init(enumerator, callBack);
             return core;
         }
-        public AsyncExtensionCore() { }
-        public AsyncExtensionCore(IEnumerator enumerator, Action callBack = null)
+        public YieldExtensionCore() { }
+        public YieldExtensionCore(IEnumerator enumerator, Action callBack = null)
         {
             Init(enumerator, callBack);
         }
+
+        private WaitUntil WaitUntil;
+
+        public CustomYieldInstruction Request => WaitUntil;
 
         public void Init(IEnumerator enumerator, Action callBack)
         {
@@ -95,9 +90,9 @@ namespace YukiFrameWork
             this.callBack = callBack;
             IsRunning = true;
             isRelease = false;
+            WaitUntil = new WaitUntil(() => !IsRunning);
             MonoHelper.Start(ExecuteAsync());       
-        }       
-
+        }
         private IEnumerator ExecuteAsync()
         {
             while (IsRunning)
@@ -121,7 +116,7 @@ namespace YukiFrameWork
             }                          
         }
 
-        public IAsyncExtensionCore ExecuteAsync(Action callBack = null)
+        public IYieldExtension ExecuteAsync(Action callBack = null)
         {
              return Execution(callBack).Start();
         }
@@ -132,7 +127,7 @@ namespace YukiFrameWork
         /// <returns></returns>
         private IEnumerator Execution(Action callBack = null)
         {
-            yield return new WaitUntil(() => !IsRunning);
+            yield return Request;
             callBack?.Invoke();
         }
 

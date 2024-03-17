@@ -23,6 +23,8 @@ namespace YukiFrameWork.Extension
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
 
+        public static string SaveSystemInfo => !IsEN ? "框架存档系统，可用于数据的保存以及持久化" : "Framework SaveSystem, which can be used for data preservation and persistence";
+
         public static string StateMechineInfo => !IsEN ? "状态机模块,可以实现对于状态的管理等操作,或者基础动作游戏设计,编辑器可视化" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization";
 
         public static string IOCInfo => !IsEN ? "IOC容器,可以完整实现控制反转的结构思想,DI注入等操作" : "IOC container can realize the structure idea of inversion of control,DI injection and other operations";
@@ -42,7 +44,7 @@ namespace YukiFrameWork.Extension
         public static string UniRxInfo => !IsEN ? "插件集成：UniRx,一个响应式框架 (链式编程),Unity编程框架,专注于解决时间上的异步" : "Plugin Integration: UniRx, a responsive framework (chain programming),Unity programming framework, focused on solving asynchronous time";
         #endregion
 
-        public static string ImportAllModuleInfo => !IsEN ? "一键导入所有模块" : "Import all modules with One click";
+        public static string ImportAllModuleInfo => !IsEN ? "一键导入所有模块" : "Import all modules";
 
         public static string ReImportAllModuleInfo => !IsEN ? "重新导入已经导入的模块" : "Re-import modules that have already been imported";
 

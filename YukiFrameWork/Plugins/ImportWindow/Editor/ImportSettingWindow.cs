@@ -65,6 +65,7 @@ namespace YukiFrameWork.Extension
         {
             ["ActionKit"] = packagePath + "/Tool~/ActionKit",
             ["Bezier"] = packagePath + "/Tool~/Bezier",
+            ["SaveSystem"] = packagePath + "/Tool~/SaveSystem",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["ABManager"] = packagePath + "/Tool~/ABManager",
@@ -157,6 +158,9 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.white, ImportWindowInfo.BezierInfo
             , MessageType.Info, string.Format("{0}/Bezier", data.path), "Bezier", packagePath + "/Tool~/Bezier");
+            
+            DrawBoxGUI(Color.white, ImportWindowInfo.SaveSystemInfo
+            , MessageType.Info, string.Format("{0}/SaveSystem", data.path), "SaveSystem", packagePath + "/Tool~/SaveSystem");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.StateMechineInfo
            , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
@@ -189,18 +193,11 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.BeginHorizontal();
             GUI.color = Color.white;
             if (GUILayout.Button(ImportWindowInfo.ImportAllModuleInfo, GUILayout.Height(20)))
-            {              
-                Import(packagePath + "/Tool~/ActionKit", "ActionKit");
-                Import(packagePath + "/Tool~/Bezier", "Bezier");
-                Import(packagePath + "/Tool~/StateMechine", "StateMechine");
-                Import(packagePath + "/Tool~/IOCContainer", "IOCContainer");
-                Import(packagePath + "/Tool~/ABManager", "ABManager");
-                Import(packagePath + "/Tool~/UI", "UI");
-                Import(packagePath + "/Tool~/Audio", "Audio");
-                Import(packagePath + "/Tool~/Knapsack", "Knapsack");
-                Import(packagePath + "/Tool~/DoTween", "DoTween");
-                Import(packagePath + "/Tool~/UniRx", "UniRx");
-                Import(packagePath + "/Tool~/UniTask", "UniTask");
+            {
+                foreach (var key in moduleInfo.Keys)
+                {
+                    Import(moduleInfo[key], key);
+                }              
             }
             EditorGUILayout.EndHorizontal();
 
@@ -211,7 +208,7 @@ namespace YukiFrameWork.Extension
             {
                 foreach (var key in moduleInfo.Keys)
                 {
-                    string path = string.Format("{0}/YukiFrameWork/", Application.dataPath);
+                    string path = string.Format("{0}/", data.path);                 
                     if (Directory.Exists(path + key))
                     {
                         Directory.Delete(path + key,true);
@@ -224,7 +221,7 @@ namespace YukiFrameWork.Extension
             if (data.develop == 1)
             {
                 DrawReverBoxGUI(Color.white, ImportWindowInfo.IsEN ? "Export the imported module" : "把已经导入的模块导回仓库"
-                    , MessageType.Warning, ImportWindowInfo.IsEN ? "Export the imported module" : "反导已经导入的模块");
+                    , MessageType.Warning, ImportWindowInfo.IsEN ? "Export the imported module" : "反导已经导入的");
             }
 
             GUILayout.EndScrollView();

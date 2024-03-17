@@ -14,6 +14,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 
 namespace XFABManager
 {
@@ -135,9 +136,17 @@ namespace XFABManager
             SetServerFilePath(new DefaultServerFilePath());
 
             // 监听场景切换的事件
-            SceneManager.sceneUnloaded += (scene)=> {
-                // 当某一个场景被卸载时触发,当场景被卸载时同时卸载资源
-                UnloadAsset(scene);
+            SceneManager.sceneUnloaded += (scene)=> 
+            {
+                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
+                TimerManager.DelayInvoke(() => 
+                {
+                    Scene scene1 = SceneManager.GetSceneByName(s.name);
+                    if (scene1.IsValid() && scene1.GetHashCode() == s.GetHashCode())
+                        return;
+                    // 当某一个场景被卸载时触发,当场景被卸载时同时卸载资源
+                    UnloadAsset(s);
+                }, 1);
             };
 
             isInited = true; 
@@ -788,7 +797,7 @@ namespace XFABManager
         }
         [System.Obsolete("该方法已经过时,将会在未来的版本中移除,请使用AssetBundleManager.LoadScene(string projectName , string sceneName, LoadSceneMode mode) 代替!")]
         public static void LoadScene(string projectName, string bundleName, string sceneName, LoadSceneMode mode) {
-            string bundle_name = GetBundleName(projectName, sceneName, typeof(Scene));
+            string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
             if (string.IsNullOrEmpty(bundle_name))
                 bundle_name = bundleName;
             LoadSceneInternal(projectName, bundle_name, sceneName,mode);
@@ -797,7 +806,7 @@ namespace XFABManager
         // UnityEditor.SceneAsset
         [System.Obsolete("该方法已经过时,将会在未来的版本中移除,请使用AssetBundleManager.LoadSceneAsync(string projectName , string sceneName, LoadSceneMode mode) 代替!")]
         public static AsyncOperation LoadSceneAsync(string projectName, string bundleName, string sceneName, LoadSceneMode mode) {
-            string bundle_name = GetBundleName(projectName, sceneName, typeof(Scene));
+            string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
             if (string.IsNullOrEmpty(bundle_name))
                 bundle_name = bundleName;
             return LoadSceneAsyncInternal(projectName, bundle_name, sceneName,mode);
@@ -1009,7 +1018,7 @@ namespace XFABManager
         /// <param name="mode"></param>
         public static void LoadScene(string projectName , string sceneName, LoadSceneMode mode)
         {
-            string bundle_name = GetBundleName(projectName, sceneName, typeof(Scene));
+            string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
             if (string.IsNullOrEmpty(bundle_name)) { 
                 //Debug.LogException(new Exception(String.Format("bundleName 查询失败: assetName: {0} type:{1}", sceneName, typeof(Scene).FullName)));
                 return;
@@ -1026,7 +1035,7 @@ namespace XFABManager
         /// <param name="mode"></param>
         public static AsyncOperation LoadSceneAsync(string projectName , string sceneName, LoadSceneMode mode)
         {
-            string bundle_name = GetBundleName(projectName, sceneName, typeof(Scene));
+            string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
             if (string.IsNullOrEmpty(bundle_name)) { 
                 //Debug.LogException( new Exception(String.Format("bundleName 查询失败: assetName: {0} type:{1}", sceneName, typeof(Scene).FullName)));
                 return null;
@@ -1276,9 +1285,10 @@ namespace XFABManager
             SceneManager.LoadScene(sceneName, mode);
 
             Scene scene = SceneManager.GetSceneByName(sceneName);
-            if (scene.IsValid()) { 
+            if (scene.IsValid()) {
                 // 添加缓存
-                AddAssetCache(projectName, bundleName,scene);
+                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
+                AddAssetCache(projectName, bundleName,s);
             }
         }
 
@@ -1296,7 +1306,7 @@ namespace XFABManager
             {
                 XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 //bundle.GetAssetPathByFileName(assetName);
-                return EditorSceneManager.LoadSceneAsyncInPlayMode(bundle.GetAssetPathByFileName(sceneName, typeof(UnityEngine.SceneManagement.Scene)), new LoadSceneParameters() { loadSceneMode = mode });
+                return EditorSceneManager.LoadSceneAsyncInPlayMode(bundle.GetAssetPathByFileName(sceneName, typeof(SceneObject)), new LoadSceneParameters() { loadSceneMode = mode });
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
@@ -1309,7 +1319,8 @@ namespace XFABManager
                 if (scene.IsValid())
                 {
                     // 添加缓存
-                    AddAssetCache(projectName, bundleName, scene);
+                    SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
+                    AddAssetCache(projectName, bundleName, s);
                 }
             };
             return async;

@@ -17,11 +17,13 @@ namespace YukiFrameWork.States
 
         public string FromStateName => transitionData.fromStateName;
 
-        public List<StateCondition> conditions;          
+        public List<StateCondition> conditions;
+
+        private string layerName;
       
         #endregion
 
-        public StateTransition(IState stateManager, StateTransitionData transitionData)
+        public StateTransition(StateManager stateManager, StateTransitionData transitionData,string layerName, bool childMechine = false)
         {
             this.transitionData = transitionData;
             this.stateManager = stateManager;
@@ -35,12 +37,22 @@ namespace YukiFrameWork.States
                 this.conditions.Add(condition);
             }
 
-            var targetState = stateManager.runTimeStatesDict.Values.Where(x => x.name == transitionData.toStateName).FirstOrDefault();
+            StateBase targetState = null;
+            if (!childMechine)
+            {
+                targetState = stateManager.runTimeSubStatePair["BaseLayer"].stateBases.Where(x => x.name == transitionData.toStateName).FirstOrDefault();
+            }
+            else
+            {
+                targetState = stateManager.runTimeSubStatePair[transitionData.layerName].stateBases.Where(x => x.name == transitionData.toStateName).FirstOrDefault();
+            }
 
             if (targetState != null)
             {
                 toState = targetState;
             }
+
+            this.layerName = layerName;
         }
 
         /// <summary>
@@ -64,15 +76,12 @@ namespace YukiFrameWork.States
                 return;
             }         
 
-            if (!transitionData.fromStateName.Equals(stateManager.CurrentState?.name))
+            if (!transitionData.fromStateName.Equals(stateManager.runTimeSubStatePair[layerName].CurrentState?.name))
             {
-
-                if (stateManager.CurrentState.name.Equals(transitionData.toStateName))
+                if (stateManager.runTimeSubStatePair[layerName].CurrentState.name.Equals(transitionData.toStateName))
                     return;
             }                    
-
             stateManager.OnChangeState(toState);
-
 
         }
      

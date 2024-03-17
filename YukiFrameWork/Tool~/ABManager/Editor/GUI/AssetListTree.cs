@@ -65,16 +65,16 @@ namespace XFABManager
             };
             retVal[0].headerContent = new GUIContent("Asset", "Short name of asset. For full name select asset and see message below");
             retVal[0].minWidth = 50;
-            retVal[0].width = 100;
-            retVal[0].maxWidth = 300;
+            retVal[0].width = 200;
+            retVal[0].maxWidth = 1000;
             retVal[0].headerTextAlignment = TextAlignment.Left;
             retVal[0].canSort = false;
             retVal[0].autoResize = true;
 
             retVal[1].headerContent = new GUIContent("Bundle", "Bundle name. 'auto' means asset was pulled in due to dependency");
             retVal[1].minWidth = 50;
-            retVal[1].width = 100;
-            retVal[1].maxWidth = 300;
+            retVal[1].width = 200;
+            retVal[1].maxWidth = 1000;
             retVal[1].headerTextAlignment = TextAlignment.Left;
             retVal[1].canSort = false;
             retVal[1].autoResize = true;
@@ -89,7 +89,7 @@ namespace XFABManager
 
             retVal[2].headerContent = new GUIContent("FullPath", "Errors, Warnings, or Info");
             retVal[2].minWidth = 30;
-            retVal[2].width = 300;
+            retVal[2].width = 200;
             retVal[2].maxWidth = 1000;
             retVal[2].headerTextAlignment = TextAlignment.Left;
             retVal[2].canSort = false;
@@ -97,7 +97,7 @@ namespace XFABManager
 
             retVal[3].headerContent = new GUIContent("Filter", "打包该文件夹下指定类型文件,默认全都打包!");
             retVal[3].minWidth = 30;
-            retVal[3].width = 300;
+            retVal[3].width = 150;
             retVal[3].maxWidth = 1000;
             retVal[3].headerTextAlignment = TextAlignment.Left;
             retVal[3].canSort = false;
@@ -223,15 +223,13 @@ namespace XFABManager
                 case 0:
                     {
 
-                        if (item.depth == 1 || item.FileInfo.type == XFBundleFileType.Directory)
-                        {
-                            item_offset_x = 15;
-                        }
-                        else
-                        {
-                            item_offset_x = 0;
-                        }
+                        item_offset_x = item.depth * 15;
 
+                        if (item.FileInfo.type == XFBundleFileType.Directory)
+                        {
+                            item_offset_x += 15;
+                        }
+                         
                         var iconRect = new Rect(cellRect.x + 1 + item_offset_x, cellRect.y + 1, cellRect.height - 2, cellRect.height - 2);
                         if (item.icon != null)
                             GUI.DrawTexture(iconRect, item.icon, ScaleMode.ScaleToFit);
@@ -254,9 +252,8 @@ namespace XFABManager
                     break;
                 case 3:
 
-                    if (item.FileInfo.type == XFBundleFileType.Directory)
-                    {
-                        //DefaultGUI.Label(cellRect, "All", args.selected, args.focused);
+                    if (item.FileInfo.type == XFBundleFileType.Directory && item.depth == 0)
+                    { 
 
                         string filter = string.IsNullOrEmpty(item.FileInfo.filter) ? "All" : item.FileInfo.filter;
 
@@ -323,6 +320,9 @@ namespace XFABManager
             string[] files = fileInfo.Files;
             for (int i = 0; i < files.Length; i++)
             {
+                if (AssetDatabase.IsValidFolder(files[i]))
+                    continue;
+
                 AssetTreeItem child = new AssetTreeItem(new XFABManager.FileInfo(AssetDatabase.AssetPathToGUID(files[i])), root.depth + 1);
                 root.AddChild(child);
             }

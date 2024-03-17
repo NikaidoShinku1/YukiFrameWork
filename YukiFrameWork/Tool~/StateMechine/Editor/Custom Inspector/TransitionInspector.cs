@@ -35,12 +35,19 @@ namespace YukiFrameWork.States
         {
             TransitionInspectorHelper helper = target as TransitionInspectorHelper;
             if (helper == null) return;
-
+          
             reorderableList = new ReorderableList(helper.transition.conditions,typeof(StateConditionData),true,true,true,true);
+            reorderableList.drawHeaderCallback += DrawHeaderCallBack;
             reorderableList.onAddCallback += OnAddCallBack;
             reorderableList.onRemoveCallback += OnRemoveCallBack;
             reorderableList.drawElementCallback += DrawItem;
         }
+
+        private void DrawHeaderCallBack(Rect rect)
+        {
+            EditorGUI.LabelField(rect, new GUIContent("参数条件设置"));          
+        }
+
         public override void OnInspectorGUI()
         {
             TransitionInspectorHelper helper = target as TransitionInspectorHelper;
@@ -48,8 +55,6 @@ namespace YukiFrameWork.States
             reorderableList.list = helper.transition.conditions;
             //绘制类似动画状态机的参数设置
             reorderableList.DoLayoutList();
-
-
         }
 
         protected override void OnHeaderGUI()

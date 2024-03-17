@@ -277,7 +277,7 @@ namespace YukiFrameWork.Extension
             "d_SceneViewAlpha", "d_SceneViewAudio", "d_SceneViewFx", "d_SceneViewLighting", "d_SceneViewOrtho",
             "d_SceneViewRGB", "d_ScrollShadow", "d_Settings", "d_SettingsIcon", "d_SocialNetworks.FacebookShare",
             "d_SocialNetworks.LinkedInShare", "d_SocialNetworks.Tweet", "d_SocialNetworks.UDNOpen", "d_SpeedScale",
-            "d_StepButton On", "d_StepButton", "d_StepLeftButton-On", "d_StepLeftButton", "d_SVN_AddedLocal",
+            "d_cs Script Icon","d_StepButton On", "d_StepButton", "d_StepLeftButton-On", "d_StepLeftButton", "d_SVN_AddedLocal",
             "d_SVN_Conflicted", "d_SVN_DeletedLocal", "d_SVN_Local", "d_SVN_LockedLocal", "d_SVN_OutOfSync",
             "d_tab_next",
             "d_tab_next@2x", "d_tab_prev", "d_tab_prev@2x", "d_TerrainInspector.TerrainToolLower On",

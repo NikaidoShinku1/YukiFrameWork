@@ -30,6 +30,23 @@ namespace YukiFrameWork.Extension
             
         }
 
+        protected bool OnDisableGroup(PropertyDrawedInfo info,bool currentCheckValue = false)
+        {
+            if (info is PropertyReorderableListDrawedInfo || currentCheckValue)
+            {
+                return false;
+            }
+            if (info.RuntimeDisabledGroup != null && info.EditorDisabledGroup != null)
+                return true;
+
+            if (info.RuntimeDisabledGroup != null)
+                return IsPlaying;
+            else if (info.EditorDisabledGroup != null)
+                return !IsPlaying;
+
+            return false;
+        }
+
         public virtual void GenericScripts() { }
 
         public void SelectFolder<T>(T Data) where T : GenericDataBase

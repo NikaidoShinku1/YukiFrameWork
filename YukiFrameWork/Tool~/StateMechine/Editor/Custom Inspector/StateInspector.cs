@@ -51,18 +51,29 @@ namespace YukiFrameWork.States
                 return;
             }
 
-            bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState);
+            bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState) || helper.node.name.StartsWith(StateConst.upState);
 
             EditorGUI.BeginDisabledGroup(disabled);
-
-
-            EditorGUILayout.BeginHorizontal();           
-            EditorGUILayout.EndHorizontal();           
-            EditorGUILayout.BeginHorizontal();         
+            bool child = helper.node.layerName != "BaseLayer";
+            EditorGUI.BeginDisabledGroup(child);
+            if (child)
+                EditorGUILayout.HelpBox("子状态机中的状态不允许修改下标", MessageType.Warning);
+            EditorGUILayout.BeginHorizontal();
+           
             EditorGUILayout.LabelField("状态下标：", GUILayout.Width(80));
+            int currentIndex = helper.node.index;
             helper.node.index = EditorGUILayout.IntField(helper.node.index);
+            if (currentIndex != helper.node.index
+                && helper.node.IsSubingState 
+                && helper.StateMechine?.subStatesPair.ContainsKey(helper.node.name) == true)
+            {
+                foreach (var item in helper.StateMechine.subStatesPair[helper.node.name].stateBases)
+                {
+                    item.index = helper.node.index;
+                }
+            }    
             EditorGUILayout.EndHorizontal();
-
+            EditorGUI.EndDisabledGroup();
             if (!helper.node.name.Equals(stateName))
             {
                 stateName = helper.node.name;
@@ -83,7 +94,8 @@ namespace YukiFrameWork.States
             for (int i = 0; i < state.dataBases.Count; i++)
             {
                 EditorGUILayout.Space();
-                var rect = EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.BeginHorizontal("Wizard Box");
+                GUILayout.Label(EditorGUIUtility.IconContent("cs Script Icon"), GUILayout.Width(20), GUILayout.Height(20));
                 state.dataBases[i].isActive = EditorGUILayout.ToggleLeft(state.dataBases[i].typeName, state.dataBases[i].isActive);
                 SelectScriptMenu(rect, state.dataBases[i].typeName);
                 if (GUILayout.Button("Delete","ToggleMixed"))
@@ -92,10 +104,10 @@ namespace YukiFrameWork.States
                     i--;
                     helper.StateMechine.SaveToMechine();
                     continue;
-                }                
-
-                EditorGUILayout.EndHorizontal();                               
+                }
+                EditorGUILayout.EndHorizontal();
                 SerializationStateField(state.dataBases[i]);
+                
             }
             EditorGUILayout.Space();
             RecomposeScript(state);
@@ -112,12 +124,14 @@ namespace YukiFrameWork.States
                     menu.AddItem(new GUIContent("编辑脚本"), false, () => 
                     {
                         Type type = AssemblyHelper.GetType(typeName);
-                        if (type == null) return;
-
-                        IEnumerable<string> paths = AssetDatabase.GetAllAssetPaths().Where(path => path.EndsWith(".cs"));           
-                        var script = paths.Where(path => path.EndsWith(".cs"))
+                        if (type == null) return;                      
+                        IEnumerable<string> paths = AssetDatabase.GetAllAssetPaths()
+                        .Where(path => path.EndsWith(".cs"));                          
+                         var script = paths.Where(path => path.EndsWith(".cs"))
                         .Select(AssetDatabase.LoadAssetAtPath<MonoScript>)
-                        .FirstOrDefault(target => target != null && target.GetClass() != null && target.GetClass().ToString().Equals(type.ToString())) 
+                        .FirstOrDefault(target => target != null 
+                        && target.GetClass() != null 
+                        && target.GetClass().ToString().Equals(type.ToString())) 
                         ?? throw LogKit.Exception("打开脚本失败!请检查脚本是否单独新建了一个cs文件进行编写!The Script is None! --- Type:" + type);
                         AssetDatabase.OpenAsset(script);                                                           
                     });
@@ -139,7 +153,8 @@ namespace YukiFrameWork.States
           
             SerializationStateField(type, dataBase);
             EditorGUILayout.Space();
-            EditorGUILayout.BeginVertical("OL box NoExpand");
+            if(dataBase.metaDatas.Count > 0)
+                EditorGUILayout.BeginVertical("OL box NoExpand");
             for (int i = 0; i < dataBase.metaDatas.Count; i++)
             {             
                 EditorGUILayout.BeginHorizontal();
@@ -148,9 +163,8 @@ namespace YukiFrameWork.States
                 EditorGUILayout.Space();
 
             }
-          
-
-            EditorGUILayout.EndVertical();
+            if (dataBase.metaDatas.Count > 0)
+                EditorGUILayout.EndVertical();
         }  
 
         private static void SetData(Metadata data,object value)
@@ -180,15 +194,15 @@ namespace YukiFrameWork.States
 
         private void Update_StateFieldInfo(Type type, StateDataBase dataBase)
         {
-            SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>();
+            SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>(true);
             if (serializedState != null)
             {
                 fieldName.Clear();
                 for (int i = 0; i < dataBase.metaDatas.Count; i++)
                 {
-                    var fieldInfos = type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                    var fieldInfos = type.GetRuntimeFields().Where(x => (x.IsPublic || x.GetCustomAttribute<SerializeField>(true) != null) && x.GetCustomAttribute<HideFieldAttribute>(true) == null);
                     foreach (var field in fieldInfos)
-                    {
+                    {                      
                         if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
                         {
                             fieldName.Add(field.Name);
@@ -471,7 +485,8 @@ namespace YukiFrameWork.States
                                 {
                                     typeName = typeName,
                                     index = state.index,
-                                    isActive = true
+                                    isActive = true,
+                                    layerName = state.layerName
                                 };
                                 state.dataBases.Add(stateDataBase);
 
@@ -569,7 +584,7 @@ namespace YukiFrameWork.States
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label(EditorGUIUtility.IconContent("icons/processed/unityeditor/animations/animatorstate icon.asset"), GUILayout.Width(30), GUILayout.Height(30));
                 EditorGUILayout.LabelField("状态名称：", GUILayout.Width(60));
-                bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState);
+                bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState) || helper.node.name.StartsWith(StateConst.upState);
 
                 EditorGUI.BeginDisabledGroup(disabled);
                 name = EditorGUILayout.DelayedTextField(helper.node.name);

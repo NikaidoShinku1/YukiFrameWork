@@ -37,6 +37,11 @@ namespace YukiFrameWork.States
             CreateMechine(manager);
         }
 
+        public static StateBase CreateStateNode(StateMechine stateMechine)
+        {
+            return StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
+        }
+
         private void CreateMechine(StateManager manager)
         {
             bool IsMechineExist = manager.stateMechine != null;
@@ -52,7 +57,7 @@ namespace YukiFrameWork.States
 
                         stateMechine.transform.SetParent(manager.transform);
 
-                        StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
+                        CreateStateNode(stateMechine);
                     }
                     manager.stateMechine = stateMechine;
                 }
@@ -61,7 +66,7 @@ namespace YukiFrameWork.States
             {                              
                 if (GUILayout.Button("打开状态机编辑器",GUILayout.Height(40)))
                 {
-                    StateMechineEditor.OpenWindow();
+                    StateMechineEditorWindow.OpenWindow();
                 }
             }
         }
@@ -69,6 +74,11 @@ namespace YukiFrameWork.States
         private bool DisabledGroup()
         {
             return Application.isPlaying;
+        }
+
+        protected override void OnHeaderGUI()
+        {
+            GUILayout.Label("StateManager");
         }
     }
 }

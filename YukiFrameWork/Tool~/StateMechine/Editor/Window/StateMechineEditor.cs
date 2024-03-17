@@ -7,12 +7,12 @@ using YukiFrameWork.States;
 #if UNITY_EDITOR
 namespace YukiFrameWork.States
 {
-    public class StateMechineEditor : EditorWindow
+    public class StateMechineEditorWindow : EditorWindow
     {
         #region 字段
         private static StateManager stateManager = null;
 
-        private static StateMechineEditor instance;
+        private static StateMechineEditorWindow instance;
 
         private Rect paramArea;
         private Rect stateArea;
@@ -43,7 +43,8 @@ namespace YukiFrameWork.States
         }
         private void OnEnable()
         {
-            wantsMouseEnterLeaveWindow = true;
+            wantsMouseEnterLeaveWindow = true;          
+            instance = this;
         }
 
         private void Update()
@@ -100,7 +101,7 @@ namespace YukiFrameWork.States
         [MenuItem("YukiFrameWork/StateMechine",false,1)]
         public static void OpenWindow()
         {
-            instance = GetWindow<StateMechineEditor>();
+            instance = GetWindow<StateMechineEditorWindow>();
             instance.Show();
             instance.titleContent = new GUIContent("游戏状态机编辑器");
         }
@@ -109,9 +110,14 @@ namespace YukiFrameWork.States
         {
             OpenWindow();
             instance.Context.StateManager = stateManager;
-            StateMechineEditor.stateManager = stateManager;
+            StateMechineEditorWindow.stateManager = stateManager;
         }
-   
+
+        public static void OnShowNotification(string message)
+        {
+            instance.ShowNotification(new GUIContent(message.ToString()));
+        }    
+
         /// <summary>
         /// 调整参数区域
         /// </summary>
@@ -120,10 +126,17 @@ namespace YukiFrameWork.States
             paramResizeArea.Set(paramArea.width - ResizeWidth / 2, 0, ResizeWidth, position.height);
             EditorGUIUtility.AddCursorRect(paramResizeArea, MouseCursor.ResizeHorizontal);
 
-            if (isResizingParamArea)
+            if (paramResizeArea.Contains(Event.current.mousePosition))
             {
-                percent_of_param = Mathf.Clamp(Event.current.mousePosition.x / position.width,0.1f,0.5f);
-                
+                Vector3 start = paramResizeArea.center - new Vector2(-1, paramResizeArea.height / 2);
+                Vector3 end = paramResizeArea.center + new Vector2(1, paramResizeArea.height / 2);
+                Handles.color = isResizingParamArea ? Color.cyan : Color.white;
+                Handles.DrawLine(start, end);
+            }
+
+            if (isResizingParamArea)
+            {              
+                percent_of_param = Mathf.Clamp(Event.current.mousePosition.x / position.width,0.1f,0.5f);                
             }
 
             switch (Event.current.type)

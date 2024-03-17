@@ -144,7 +144,7 @@ namespace YukiFrameWork
             for (int i = 0; i < list.Count; i++)
             {
                 dict[list[i]._key] = i;
-            }
+            }          
             return dict;
         }
 
@@ -157,11 +157,13 @@ namespace YukiFrameWork
         {
            
         }
-        public bool Remove(TKey key)
+        public bool Remove(TKey key,out TValue value)
         {
+            value = default;
             if (dictPosition.TryGetValue(key, out int index))
             {
                 dictPosition.Remove(key);
+                value = list[index]._value;
                 list.RemoveAt(index);
 
                 for (int i = 0; i < list.Count; i++)
@@ -171,6 +173,11 @@ namespace YukiFrameWork
                 return true;
             }
             return false;
+        }
+
+        public bool Remove(TKey key)
+        {
+            return Remove(key, out _);
         }
         public bool Remove(KeyValuePair<TKey, TValue> item)
             => Remove(item.Key);

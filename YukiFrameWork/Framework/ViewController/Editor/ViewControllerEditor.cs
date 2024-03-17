@@ -89,8 +89,9 @@ namespace YukiFrameWork.Extension
         {           
             ViewController controller = target as ViewController;
             if (!controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
-                layers.Add(new MemberInfoLayer(target, target.GetType(), this));
-            layers.Add(new MethodInfoLayer(serializedObject, target.GetType()));
+            {
+                base.InitLayers();
+            }
 
             var vLayer = new ViewControllerLayer(controller.Data, target.GetType());
             vLayer.Save += () =>
@@ -149,7 +150,7 @@ namespace YukiFrameWork.Extension
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
+            serializedObject.Update();           
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);

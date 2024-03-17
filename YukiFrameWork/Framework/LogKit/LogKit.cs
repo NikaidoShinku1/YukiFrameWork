@@ -59,7 +59,7 @@ namespace YukiFrameWork
         {           
             if (!LogEnabled) return null;
             Exception ex = new Exception(message.ToString());
-            return ex;
+            throw ex;
         }      
     }
 

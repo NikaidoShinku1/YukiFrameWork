@@ -100,7 +100,7 @@ namespace YukiFrameWork
         public virtual bool IsCompleted { get; protected set; }
 
         public bool IsInit { get; protected set; } = false;      
-
+  
         public abstract IEnumerator ToCoroutine();
 
         public abstract void OnFinish();

@@ -18,26 +18,31 @@ namespace YukiFrameWork.Project
         public override void OnInit()
         {
             base.OnInit();
+            Debug.Log("State Init!");
         }
 
         public override void OnEnter()
         {
             base.OnEnter();
+            Debug.Log("State Enter!");
         }
 
         public override void OnUpdate()
         {
             base.OnUpdate();
+            Debug.Log("State Update!");
         }
 
         public override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
+            Debug.Log("State FixedUpdate!");
         }
 
         public override void OnExit()
         {
             base.OnExit();
+            Debug.Log("State Exit!");
         }
     }
 }

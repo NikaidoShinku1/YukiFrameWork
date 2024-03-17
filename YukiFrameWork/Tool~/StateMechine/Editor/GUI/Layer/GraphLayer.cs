@@ -18,14 +18,14 @@ namespace YukiFrameWork.States
         #endregion
 
         #region 属性
-        public StateMechineEditor EditorWindow { get; private set; } = null;
+        public StateMechineEditorWindow EditorWindow { get; private set; } = null;
 
         protected Context Context => EditorWindow.Context;
         #endregion
 
         #region 方法
 
-        public GraphLayer(StateMechineEditor editorWindow)
+        public GraphLayer(StateMechineEditorWindow editorWindow)
         {
             this.EditorWindow = editorWindow;
 
@@ -66,7 +66,13 @@ namespace YukiFrameWork.States
 
             if (this.Context.StateMechine != null)
             {
-                foreach (var item in this.Context.StateMechine.states)
+                List<StateBase> stateBases = null;
+                if (this.Context.StateMechine.IsSubLayerAndContainsName())
+                {
+                    stateBases = this.Context.StateMechine.subStatesPair[this.Context.StateMechine.layerName].stateBases;
+                }
+                else stateBases = this.Context.StateMechine.states;
+                foreach (var item in stateBases)
                 {
                     Rect rect = GetTransformedRect(item.rect);
                     if (position.Overlaps(rect) && rect.Contains(Event.current.mousePosition))
@@ -97,6 +103,38 @@ namespace YukiFrameWork.States
             if (UnityEditor.EditorWindow.mouseOverWindow != null && UnityEditor.EditorWindow.mouseOverWindow.GetType().ToString().Equals("UnityEditor.InspectorWindow")) return;
             this.Context.ClearSelections();
         }
+
+        protected List<StateBase> GetLayerStates()
+        {
+            if (this.Context.StateMechine == null)
+                return null;
+
+            List<StateBase> stateBases = null;
+
+            if (this.Context.StateMechine.IsSubLayerAndContainsName())
+            {
+                stateBases = this.Context.StateMechine.subStatesPair[this.Context.StateMechine.layerName].stateBases;
+            }
+            else
+            {
+                stateBases = this.Context.StateMechine.states;
+            }
+            return stateBases;
+        }
+
+        protected List<StateTransitionData> GetLayerTransitions()
+        {
+            if (this.Context.StateMechine == null)
+                return null;
+
+            if (this.Context.StateMechine.IsSubLayerAndContainsName())
+            {
+                this.Context.StateMechine.subTransitions.TryGetValue(this.Context.StateMechine.layerName, out var value);
+                return value;
+            }
+            return this.Context.StateMechine.transitions;
+        }
+
 
         #endregion
     }

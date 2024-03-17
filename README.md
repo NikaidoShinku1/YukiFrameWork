@@ -26,7 +26,7 @@
 
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Serialization/序列化工具.md)
 
-- 框架存档系统:SaveSystem[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/SaveSystem/存档系统.md)
+- 框架存档系统:SaveSystem[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveSystem/存档系统.md)
 
 - IOC:LifeTimeScope[IOC介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md)
 
@@ -60,9 +60,13 @@
 框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
 ![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
 
-注意：使用本框架Unity版本不能低于2020.3
+注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！
 
 #### 框架更新版本速览
+
+V1.9.3 状态机支持子状态机的创建，优化框架底层细节，InspectorTool新增DisableGroupIf和DisableGroupEnumValueIf特性，更新ABManager到1.10.8，优化存档系统，优化细节
+
+V1.9.2 优化底层细节，将存档系统移动到模块导入窗口中不内置框架，优化状态机编辑器，优化贝塞尔曲线模块，修复编辑器绘制不及时的问题，补充文档
 
 V1.9.1 优化底层细节，修复贝塞尔曲线丢失命名空间的问题，对编辑器序列化重新排版
 

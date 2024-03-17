@@ -6,13 +6,11 @@ namespace YukiFrameWork.States
 {
     public interface IState : IController
     {
-        Transform transform { get; }
-
-        Dictionary<int, StateBase> runTimeStatesDict { get; }
-
-        StateBase CurrentState { get; set; }
+        Transform transform { get; }             
 
         Dictionary<string,StateParameterData> ParametersDicts { get; }
+
+        Dictionary<string, SubStateData> runTimeSubStatePair { get; }
 
         bool GetBool(string name);
 
@@ -25,11 +23,10 @@ namespace YukiFrameWork.States
         void SetFloat(string name, float v);
 
         void SetInt(string name, int v);
-
         void OnChangeState(StateBase state, System.Action callBack = null, bool isBack = true);
 
         void OnChangeState(int index, System.Action callBack = null, bool isBack = true);
 
-        void OnChangeState(string name, System.Action callBack = null, bool isBack = true);
+        void OnChangeState(string name,string layerName, System.Action callBack = null, bool isBack = true);
     }
 }

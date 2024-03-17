@@ -10,8 +10,8 @@ namespace YukiFrameWork.States
     public class StateTransitionData
     {
         public string fromStateName;
-        public string toStateName;     
-
+        public string toStateName;
+        public string layerName;
         public List<StateConditionData> conditions = new List<StateConditionData>();
     }
 }

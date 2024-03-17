@@ -14,7 +14,7 @@ namespace YukiFrameWork.States
 
         #region 字段
         private ReorderableList reorderableList;
-
+        private GUIStyle fontStyle;
         private Vector2 scrollView;
 
         //参数区域
@@ -72,7 +72,7 @@ namespace YukiFrameWork.States
 
         #region 方法
 
-        public ParamLayer(StateMechineEditor editorWindow) : base(editorWindow)
+        public ParamLayer(StateMechineEditorWindow editorWindow) : base(editorWindow)
         {
         }
 
@@ -80,8 +80,7 @@ namespace YukiFrameWork.States
         {
             GUI.Box(rect, string.Empty, GUI.skin.GetStyle("CN Box"));
 
-            if (this.Context.StateMechine == null) return;
-
+            if (this.Context.StateMechine == null) return;          
             if (reorderableList == null)
             {
                 reorderableList = new ReorderableList(this.Context.StateMechine.parameters, typeof(StateParameterData), true, true, true, true);
@@ -99,12 +98,23 @@ namespace YukiFrameWork.States
             }
 
             reorderableList.list = this.Context.StateMechine.parameters;
-
+            
             GUILayout.BeginArea(rect);
-            scrollView = GUILayout.BeginScrollView(scrollView);
+            EditorGUILayout.Space();
+            //scrollView = GUILayout.BeginScrollView(scrollView);
             //绘制
-            reorderableList.DoLayoutList();
-            GUILayout.EndScrollView();
+            EditorGUILayout.BeginHorizontal("HelpBox", GUILayout.Width(rect.width - 5));
+            if (fontStyle == null)
+            {
+                fontStyle = new GUIStyle();
+                fontStyle.fontStyle = FontStyle.Bold;
+                fontStyle.alignment = TextAnchor.MiddleCenter;
+                fontStyle.normal.textColor = Color.white;
+            }
+            GUILayout.Label(new GUIContent("Parameters"),fontStyle);                      
+            EditorGUILayout.EndHorizontal();
+            reorderableList.DoLayoutList();          
+            //GUILayout.EndScrollView();
             GUILayout.EndArea();
         }
 

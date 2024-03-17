@@ -42,11 +42,10 @@ namespace YukiFrameWork.States
         OnMouseEnter,
         OnMouseExit,
         OnMouseUp,
-        OnMouseOver,       
+        OnMouseOver,
     }
-
     [System.Serializable]
-    public class StateBase 
+    public class StateBase
     {
 #if UNITY_EDITOR
         public Rect rect;
@@ -56,9 +55,13 @@ namespace YukiFrameWork.States
 
         public string name;
 
-        public int index;      
+        public string layerName;
 
-        public List<StateDataBase> dataBases = new List<StateDataBase>();       
+        public int index;
+
+        public List<StateDataBase> dataBases = new List<StateDataBase>();
+     
+        public bool IsSubingState;
 
         private readonly Stack<Action> callBacks = new Stack<Action>();
 
@@ -71,22 +74,27 @@ namespace YukiFrameWork.States
                     StateBehaviour state = dataBases[i].Behaviour;
                     state.StateManager = stateManager;
                 }
-            }          
+            }
             SetAllBaseLifeCycle(StateLifeCycle.OnInit);
         }
 
+       /* public List<StateBase> GetAllStatesOfSubMechine()
+        {
+            return subState.stateBases;
+        }       */
+
         public void OnEnter(Action callBack = null)
         {
-            if(callBack != null)callBacks.Push(callBack);
-            SetAllBaseLifeCycle(StateLifeCycle.OnEnter);         
+            if (callBack != null) callBacks.Push(callBack);
+            SetAllBaseLifeCycle(StateLifeCycle.OnEnter);
         }
 
         public void OnUpdate()
         {
-            SetAllBaseLifeCycle(StateLifeCycle.OnUpdate);          
+            SetAllBaseLifeCycle(StateLifeCycle.OnUpdate);
         }
 
-        public void OnFixedUpdate() 
+        public void OnFixedUpdate()
         {
             SetAllBaseLifeCycle(StateLifeCycle.OnFixedUpdate);
         }
@@ -225,7 +233,7 @@ namespace YukiFrameWork.States
         }
 
         [Obsolete]
-        private void SetAllAPIExtension(UnityAPIExtension extension,object paremater = null)
+        private void SetAllAPIExtension(UnityAPIExtension extension, object paremater = null)
         {
             for (int i = 0; i < dataBases.Count; i++)
             {
@@ -290,7 +298,7 @@ namespace YukiFrameWork.States
                             break;
                         case UnityAPIExtension.OnMouseOver:
                             state.OnMouseOver();
-                            break;                      
+                            break;
                     }
                 }
             }
@@ -299,7 +307,7 @@ namespace YukiFrameWork.States
         #endregion
         private void SetAllBaseLifeCycle(StateLifeCycle lifeCycle)
         {
-            for (int i = 0;i < dataBases.Count;i++)
+            for (int i = 0; i < dataBases.Count; i++)
             {
                 if (dataBases[i].isActive)
                 {
@@ -328,15 +336,28 @@ namespace YukiFrameWork.States
                     }
                 }
             }
+
+           /* if (IsSubingState)
+            {
+                var states = GetAllStatesOfSubMechine();
+
+                if (states != null)
+                {
+                    for (int i = 0; i < states.Count; i++)
+                    {
+                        states[i].SetAllBaseLifeCycle(lifeCycle);
+                    }
+                }
+            }*/
         }
     }
-
     [System.Serializable]
     public class StateDataBase
     {
         public string typeName;
         public int index;
         public bool isActive;
+        public string layerName;
 
         public List<Metadata> metaDatas = new List<Metadata>();
 
@@ -354,6 +375,7 @@ namespace YukiFrameWork.States
                         behaviour = System.Activator.CreateInstance(type) as StateBehaviour;
                         behaviour.index = index;
                         behaviour.name = typeName;
+                        behaviour.layerName = layerName;
                     }
 
                     foreach (var field in type.GetRuntimeFields())
@@ -372,7 +394,7 @@ namespace YukiFrameWork.States
                                 else
                                 {
                                     field.SetValue(Behaviour, metaDatas[i].value);
-                                }                              
+                                }
                             }
                         }
                     }
@@ -382,5 +404,5 @@ namespace YukiFrameWork.States
         }
 
     }
-   
 }
+

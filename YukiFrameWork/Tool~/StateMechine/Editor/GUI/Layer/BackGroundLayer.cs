@@ -1,7 +1,8 @@
-﻿using UnityEditor;
+﻿using System;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using UnityEditor;
 namespace YukiFrameWork.States
 {
     public class BackGroundLayer : GraphLayer
@@ -16,7 +17,7 @@ namespace YukiFrameWork.States
 
         #endregion
         #region 方法
-        public BackGroundLayer(StateMechineEditor editorWindow) : base(editorWindow)
+        public BackGroundLayer(StateMechineEditorWindow editorWindow) : base(editorWindow)
         {
         }
 
@@ -29,7 +30,7 @@ namespace YukiFrameWork.States
             {
                 DrawGrid(Cell_Size_Min, ColorConst.GridColor, rect);
                 DrawGrid(Cell_Size_Max, ColorConst.GridColor, rect);
-            }        
+            }           
         }
 
         public override void ProcessEvents()
@@ -71,10 +72,13 @@ namespace YukiFrameWork.States
                     break;
                 case EventType.MouseUp:
                     {
-                        if (e.button == 1 && this.Context.StateMechine != null && !Application.isPlaying)
+                        if (e.button == 1 && !Application.isPlaying)
                         {
-                            this.Context.CancelPreviewTransition();
-                            mousePosition = e.mousePosition;
+                            if (this.Context.StateMechine != null)
+                            {
+                                this.Context.CancelPreviewTransition();
+                                mousePosition = e.mousePosition;
+                            }
                             ShowMenu();
                             e.Use();
                         }
@@ -209,18 +213,31 @@ namespace YukiFrameWork.States
         {
             this.Context.ClearSelections();
             var genericMenu = new GenericMenu();
-            genericMenu.AddItem(new GUIContent("Create State"), false, CreateState);
-
+            if (this.Context.StateMechine == null)
+            {
+                genericMenu.AddDisabledItem(new GUIContent("Create State"));
+                genericMenu.AddDisabledItem(new GUIContent("Create Sub-Mechine"));
+            }
+            else
+            {
+                genericMenu.AddItem(new GUIContent("Create State"), false, () => CreateState(false));
+                genericMenu.AddItem(new GUIContent("Create Sub-Mechine"), false, CreateSubMechine);
+            }
             genericMenu.ShowAsContext();
         }
 
-        private void CreateState()
+        private void CreateSubMechine()
+        {
+            CreateState(true);
+        }
+
+        private void CreateState(bool subState = false)
         {
             Rect rect = new Rect(0, 0, StateConst.StateWith, StateConst.StateHeight);
 
             rect.center = GetNodePosition(mousePosition);
 
-            StateNodeFactory.CreateStateNode(this.Context.StateMechine, rect, this.Context.StateMechine.states.Count == 1);
+            StateNodeFactory.CreateStateNode(this.Context.StateMechine, rect, this.Context.StateMechine.states.Count == 1,subState);
         }
 
         private Vector2 GetNodePosition(Vector2 mousePosition)
