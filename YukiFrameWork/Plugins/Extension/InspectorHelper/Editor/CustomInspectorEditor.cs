@@ -30,10 +30,11 @@ namespace YukiFrameWork
             try
             {
                 script = serializedObject.FindProperty("m_Script");
+                if (layers.Count == 0)
+                    InitLayers();  
             }
             catch { }
-            if (layers.Count == 0)
-                InitLayers();
+            
         }
 
         protected virtual void InitLayers()
