@@ -26,7 +26,8 @@ namespace YukiFrameWork
             ,out RuntimeDisabledGroupAttribute runtimeDisabledGroup
             ,out EditorDisabledGroupAttribute editorDisabledGroup
             ,out ListDrawerSettingAttribute listDrawerSetting,out BoolanPopupAttribute boolanPopup
-            ,out DisableGroupIfAttribute disableGroupIf,out DisableGroupEnumValueIfAttribute disableGroupEnumValueIf)
+            ,out DisableGroupIfAttribute disableGroupIf,out DisableGroupEnumValueIfAttribute disableGroupEnumValueIf
+            ,out SpaceAttribute spaceAttribute) 
 		{
             label = member.GetCustomAttribute<LabelAttribute>(true);
             color = member.GetCustomAttribute<GUIColorAttribute>(true);
@@ -47,6 +48,7 @@ namespace YukiFrameWork
             boolanPopup = member.GetCustomAttribute<BoolanPopupAttribute>(true);
             disableGroupIf = member.GetCustomAttribute<DisableGroupIfAttribute>(true);
             disableGroupEnumValueIf = member.GetCustomAttribute<DisableGroupEnumValueIfAttribute>(true);
+            spaceAttribute = member.GetCustomAttribute<SpaceAttribute>(true);
         }
 	}
 }

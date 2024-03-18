@@ -26,7 +26,7 @@ namespace YukiFrameWork
             , MethodButtonAttribute method, GUIColorAttribute color, EnableEnumValueIfAttribute[] e
             , DisableEnumValueIfAttribute[] d, EnableIfAttribute[] e2, DisableIfAttribute[] d2, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd,EditorDisabledGroupAttribute ed
             , DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def)
-            : base(target,property,null,null,null,null,propertyRange, label, color, e, d, e2, d2, helperBox,rd, ed,dgf,def)
+            : base(target,property,null,null,null,null,propertyRange, label, color, e, d, e2, d2, helperBox,rd, ed,dgf,def,null)
         {
             MethodInfo = methodInfo;
             Method = method;
@@ -68,6 +68,7 @@ namespace YukiFrameWork
 
         public override void OnGUI()
         {
+            base.OnGUI();
             serializedObject.Update();
             DrawHelperBox();
             EditorGUI.BeginDisabledGroup(OnDisableGroup(this) || OnDefaultDisableGroup());

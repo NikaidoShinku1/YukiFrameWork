@@ -11,6 +11,8 @@ using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -58,7 +60,7 @@ namespace YukiFrameWork
                 , out _, out _
                 , out _, out _
                 , out RuntimeDisabledGroupAttribute runtimeDisabledGroup, out EditorDisabledGroupAttribute editorDisabledGroup
-                ,out _,out _,out _,out _);    
+                ,out _,out _,out _,out _,out _);    
                 methodInfoDicts.Add(new Method( methodInfo.Name,new PropertyMethodDrawedInfo(serializedObject,target
                     ,methodInfo, method,color,enableEnumValueIfAttribute,disable
                     ,enableIf,disableIf,helperBox,runtimeDisabledGroup,editorDisabledGroup))); 

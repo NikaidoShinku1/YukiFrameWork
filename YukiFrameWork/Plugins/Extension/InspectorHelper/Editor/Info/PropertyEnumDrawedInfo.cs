@@ -22,8 +22,9 @@ namespace YukiFrameWork
 
         private Dictionary<int, GUIColorAttribute> colors = new Dictionary<int, GUIColorAttribute>();
         public PropertyEnumDrawedInfo(UnityEngine.Object target,BoolanPopupAttribute boolanPopup, ArrayLabelAttribute arrayLabel,ListDrawerSettingAttribute listDrawerSetting, DisplayTextureAttribute displayTexture, LabelAttribute label, PropertyRangeAttribute propertyRange, SerializedProperty property, GUIColorAttribute color, EnableEnumValueIfAttribute[] e
-            , DisableEnumValueIfAttribute[] d, EnableIfAttribute[] e2, DisableIfAttribute[] d2, HelperBoxAttribute helperBox, RuntimeDisabledGroupAttribute rd, EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def) :
-            base(target, property,boolanPopup,arrayLabel,listDrawerSetting, displayTexture, propertyRange, label, color, e, d, e2, d2, helperBox, rd, ed,dgf,def)   
+            , DisableEnumValueIfAttribute[] d, EnableIfAttribute[] e2, DisableIfAttribute[] d2, HelperBoxAttribute helperBox
+            , RuntimeDisabledGroupAttribute rd, EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def,SpaceAttribute spaceAttribute) :
+            base(target, property,boolanPopup,arrayLabel,listDrawerSetting, displayTexture, propertyRange, label, color, e, d, e2, d2, helperBox, rd, ed,dgf,def,spaceAttribute)   
         {
             
         }
@@ -72,6 +73,7 @@ namespace YukiFrameWork
 
         public override void OnGUI()
         {
+            base.OnGUI();
             string[] names = Property.enumNames;
             int indexed =  Property.enumValueIndex;
             string[] displayNames = new string[names.Length];

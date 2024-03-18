@@ -20,14 +20,16 @@ namespace YukiFrameWork
     public sealed class PropertyMemberDrawedInfo : PropertyDrawedInfo
     {  
         public PropertyMemberDrawedInfo(UnityEngine.Object target,BoolanPopupAttribute boolanPopup,ArrayLabelAttribute arrayLabel,ListDrawerSettingAttribute listDrawerSetting,DisplayTextureAttribute displayTexture,LabelAttribute label,PropertyRangeAttribute propertyRange, SerializedProperty property, GUIColorAttribute color, EnableEnumValueIfAttribute[] e
-            , DisableEnumValueIfAttribute[] d, EnableIfAttribute[] e2, DisableIfAttribute[] d2, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd,EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def) :
-            base(target,property,boolanPopup,arrayLabel,listDrawerSetting,displayTexture,propertyRange, label, color, e, d, e2, d2, helperBox,rd,ed,dgf,def)
+            , DisableEnumValueIfAttribute[] d, EnableIfAttribute[] e2, DisableIfAttribute[] d2, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd
+            ,EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def,SpaceAttribute spaceAttribute) :
+            base(target,property,boolanPopup,arrayLabel,listDrawerSetting,displayTexture,propertyRange, label, color, e, d, e2, d2, helperBox,rd,ed,dgf,def,spaceAttribute)
         {
             
         }
 
         public override void OnGUI()
-        {          
+        {
+            base.OnGUI();
             EditorGUI.BeginDisabledGroup(OnDefaultDisableGroup() && !CheckPropertyInGeneric());
             if ((this.Property.propertyType == SerializedPropertyType.Integer
                 || this.Property.propertyType == SerializedPropertyType.Float)
@@ -117,7 +119,7 @@ namespace YukiFrameWork
         }
 
         private void DefaultProperty(GUIContent content, PropertyDrawedInfo member, bool isValueType = false)
-        {                 
+        {        
             if (member.GUIColor != null)
                 GUI.color = member.GUIColor.Color;          
             if (!isValueType)

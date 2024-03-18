@@ -19,8 +19,10 @@ namespace YukiFrameWork
         public PropertyTextureDrawedInfo(UnityEngine.Object target,BoolanPopupAttribute boolanPopup,ArrayLabelAttribute arrayLabel,ListDrawerSettingAttribute listDrawerSetting,DisplayTextureAttribute displayTexture,PropertyRangeAttribute propertyRange
             , SerializedProperty property, LabelAttribute label, GUIColorAttribute color
             , EnableEnumValueIfAttribute[] enableEnumValueIfAttribute, DisableEnumValueIfAttribute[] disableEnumValueIfAttribute
-            , EnableIfAttribute[] enableIf, DisableIfAttribute[] disableIf, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd,EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def) 
-            : base(target,property,boolanPopup,arrayLabel,listDrawerSetting,displayTexture,propertyRange, label, color, enableEnumValueIfAttribute, disableEnumValueIfAttribute, enableIf, disableIf, helperBox,rd,ed,dgf,def)
+            , EnableIfAttribute[] enableIf, DisableIfAttribute[] disableIf, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd
+            ,EditorDisabledGroupAttribute ed,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def,SpaceAttribute spaceAttribute) 
+            : base(target,property,boolanPopup,arrayLabel,listDrawerSetting,displayTexture,propertyRange, label, color, enableEnumValueIfAttribute
+                  , disableEnumValueIfAttribute, enableIf, disableIf, helperBox,rd,ed,dgf,def,spaceAttribute)
         {
             this.DisplayTexture = displayTexture;
         }
@@ -66,7 +68,8 @@ namespace YukiFrameWork
         }
 
         public override void OnGUI()
-        {    
+        {
+            base.OnGUI();
             Rect rect = new Rect(EditorGUILayout.BeginVertical(GUILayout.Width(EditorGUIUtility.currentViewWidth)))
             {
                 x = EditorGUIUtility.currentViewWidth - 100,

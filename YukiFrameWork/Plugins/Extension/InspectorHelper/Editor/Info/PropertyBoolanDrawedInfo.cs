@@ -21,9 +21,9 @@ namespace YukiFrameWork
         public PropertyBoolanDrawedInfo(UnityEngine.Object target, SerializedProperty property, BoolanPopupAttribute boolanPopup, ArrayLabelAttribute arrayLabel, ListDrawerSettingAttribute listDrawerSetting, DisplayTextureAttribute displayTexture, PropertyRangeAttribute propertyRange
             , LabelAttribute label, GUIColorAttribute color, EnableEnumValueIfAttribute[] enableEnumValueIfAttribute
             , DisableEnumValueIfAttribute[] disableEnumValueIfAttribute, EnableIfAttribute[] enableIf, DisableIfAttribute[] disableIf, HelperBoxAttribute helperBox, RuntimeDisabledGroupAttribute runtimeDisabledGroup
-            , EditorDisabledGroupAttribute editorDisabledGroup,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def) 
+            , EditorDisabledGroupAttribute editorDisabledGroup,DisableGroupIfAttribute dgf,DisableGroupEnumValueIfAttribute def,SpaceAttribute spaceAttribute) 
             : base(target, property, boolanPopup, arrayLabel, listDrawerSetting, displayTexture, propertyRange, label, color, enableEnumValueIfAttribute
-                  , disableEnumValueIfAttribute, enableIf, disableIf, helperBox, runtimeDisabledGroup, editorDisabledGroup,dgf,def)
+                  , disableEnumValueIfAttribute, enableIf, disableIf, helperBox, runtimeDisabledGroup, editorDisabledGroup,dgf,def,spaceAttribute)
         {
             values = new string[] { boolanPopup.FalseValue, boolanPopup.TrueValue };
         }
@@ -64,6 +64,7 @@ namespace YukiFrameWork
 
         public override void OnGUI()
         {
+            base.OnGUI();
             int indexed = Property.boolValue ? 1 : 0;
             GUI.color = GUIColor != null ? GUIColor.Color : Color.white;
             indexed = EditorGUILayout.Popup(Content,indexed, values);

@@ -64,6 +64,8 @@
 
 #### 框架更新版本速览
 
+V1.9.4 优化AudioKit的细节，新增AudioInfo可视化添加音频，优化框架底层
+
 V1.9.3 状态机支持子状态机的创建，优化框架底层细节，InspectorTool新增DisableGroupIf和DisableGroupEnumValueIf特性，更新ABManager到1.10.8，优化存档系统，优化细节
 
 V1.9.2 优化底层细节，将存档系统移动到模块导入窗口中不内置框架，优化状态机编辑器，优化贝塞尔曲线模块，修复编辑器绘制不及时的问题，补充文档

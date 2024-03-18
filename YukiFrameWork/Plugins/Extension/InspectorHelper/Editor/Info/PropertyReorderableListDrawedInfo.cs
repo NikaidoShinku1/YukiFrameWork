@@ -28,9 +28,10 @@ namespace YukiFrameWork
         private ListDrawerSettingAttribute listDrawerSetting => ListDrawerSetting;
         public PropertyReorderableListDrawedInfo(Object target,BoolanPopupAttribute boolanPopup,DisplayTextureAttribute displayTexture,ListDrawerSettingAttribute listDrawerSetting,ArrayLabelAttribute arrayLabel,RangeAttribute defaultRange,PropertyRangeAttribute propertyRange,LabelAttribute label, SerializedObject serializedObject, SerializedProperty property, GUIColorAttribute color
             , EnableEnumValueIfAttribute[] enableEnumValueIfAttribute, DisableEnumValueIfAttribute[] disableEnumValueIfAttribute, EnableIfAttribute[] enableIf
-            , DisableIfAttribute[] disableIf, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd,EditorDisabledGroupAttribute ed,DisableGroupEnumValueIfAttribute def,DisableGroupIfAttribute dgf) 
+            , DisableIfAttribute[] disableIf, HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute rd
+            ,EditorDisabledGroupAttribute ed,DisableGroupEnumValueIfAttribute def,DisableGroupIfAttribute dgf,SpaceAttribute sp) 
             : base(target,property,boolanPopup,arrayLabel,listDrawerSetting,displayTexture,propertyRange, label, color, enableEnumValueIfAttribute
-                , disableEnumValueIfAttribute, enableIf, disableIf, helperBox,rd,ed,dgf,def)
+                , disableEnumValueIfAttribute, enableIf, disableIf, helperBox,rd,ed,dgf,def,sp)
         {     
             this.defaultRange = defaultRange;   
             ReorderableList = new ReorderableList(serializedObject, property, true, true, true,true);
@@ -43,6 +44,7 @@ namespace YukiFrameWork
 
         public override void OnGUI()
         {
+            base.OnGUI();
             ReorderableList.DoLayoutList();
         }
         private void Init()

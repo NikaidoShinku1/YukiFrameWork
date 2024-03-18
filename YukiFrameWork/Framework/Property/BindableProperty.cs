@@ -98,8 +98,8 @@ namespace YukiFrameWork
         /// <returns>返回自身</returns>
         public IUnRegister RegisterWithInitValue(Action<T> action)
         {
-            onValueChange.RegisterEvent(action);
-            onValueChange.SendEvent(value);
+            action.Invoke(value);
+            onValueChange.RegisterEvent(action);           
             return onValueChange;
         }
 

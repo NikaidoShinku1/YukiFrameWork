@@ -8,6 +8,7 @@
 ///=====================================================
 using UnityEngine;
 using System;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using System.Reflection; 
@@ -18,23 +19,22 @@ namespace YukiFrameWork
     public class BasePropertyDrawer : PropertyDrawer
 	{
         protected PropertyDrawedInfo info;
-        protected SerializedProperty property;
+        protected SerializedProperty property;      
         protected bool IsMonoObjectValue => fieldInfo?.DeclaringType.IsSubclassOf(typeof(UnityEngine.Object)) == true;
-
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             return EditorGUI.GetPropertyHeight(property, label);
         }
-
+      
         //protected bool IsIEnumerableValue => fieldInfo?.DeclaringType.GetInterfaces().FirstOrDefault(x => x == typeof(IEnumerable)) != null;
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {           
+        {          
             EditorGUI.BeginChangeCheck();          
             if (IsMonoObjectValue)
             {             
                 property.serializedObject.Update();
                 GUIColorAttribute color = fieldInfo.GetCustomAttribute<GUIColorAttribute>(true);                               
-                GUI.color = color != null ? color.Color : Color.white;               
+                GUI.color = color != null ? color.Color : Color.white;             
                 EditorGUI.PropertyField(position, property, label,true);                
                 GUI.color = Color.white;
             }
@@ -170,14 +170,17 @@ namespace YukiFrameWork
                 , out var group, out DisplayTextureAttribute displayTexture
                , out var propertyRange, out var arrayLabel, out var defaultRange, out var runtimeDisableGroup
                , out var editorDisabledGroup, out var listDrawerSetting
-               , out BoolanPopupAttribute boolanPopup,out DisableGroupIfAttribute disableGroupIf,out DisableGroupEnumValueIfAttribute disableGroupEnumValueIf);
+               , out BoolanPopupAttribute boolanPopup,out DisableGroupIfAttribute disableGroupIf
+               ,out DisableGroupEnumValueIfAttribute disableGroupEnumValueIf
+               ,out SpaceAttribute spaceAttribute);
 
 
             if (CheckPropertyInGeneric(fieldInfo.FieldType) && listDrawerSetting != null)
             {              
                 var listInfo = new PropertyReorderableListDrawedInfo
                     (property.serializedObject.targetObject, boolanPopup, displayTexture, listDrawerSetting, arrayLabel, defaultRange, propertyRange, label, property.serializedObject
-                    , property, color, enableEnumValue, disableEnumValue, enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupEnumValueIf,disableGroupIf);
+                    , property, color, enableEnumValue, disableEnumValue
+                    , enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupEnumValueIf,disableGroupIf,spaceAttribute);
                 listInfo.ItemType = fieldInfo.FieldType;
                 this.info = listInfo;
                
@@ -188,7 +191,7 @@ namespace YukiFrameWork
                     , property, boolanPopup, arrayLabel, listDrawerSetting, displayTexture
                     , propertyRange, label, color, enableEnumValue
                     , disableEnumValue, enableIf, disableIf, helperBox
-                    , runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf);
+                    , runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf,spaceAttribute);
                 bInfo.ItemType = fieldInfo.FieldType;
                 this.info = bInfo;
             }
@@ -197,7 +200,7 @@ namespace YukiFrameWork
                 var eInfo = new PropertyEnumDrawedInfo(property.serializedObject.targetObject
                     , boolanPopup, arrayLabel, listDrawerSetting, displayTexture, label
                     , propertyRange, property, color, enableEnumValue, disableEnumValue
-                    , enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf);
+                    , enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf,spaceAttribute);
                 eInfo.ItemType = fieldInfo.FieldType;
                 this.info = eInfo;
             }
@@ -206,7 +209,7 @@ namespace YukiFrameWork
                 var tInfo = new PropertyTextureDrawedInfo(property.serializedObject.targetObject
                     , boolanPopup, arrayLabel, listDrawerSetting, displayTexture, propertyRange, property, label
                     , color, enableEnumValue, disableEnumValue
-                    , enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf);
+                    , enableIf, disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf,spaceAttribute);
                 tInfo.ItemType = fieldInfo.FieldType;
                 this.info = tInfo;
             }
@@ -215,7 +218,7 @@ namespace YukiFrameWork
                 var info = new PropertyMemberDrawedInfo(property.serializedObject.targetObject, boolanPopup
                     , arrayLabel, listDrawerSetting, displayTexture, label, propertyRange
                     , property, color, enableEnumValue, disableEnumValue, enableIf
-                    , disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf);
+                    , disableIf, helperBox, runtimeDisableGroup, editorDisabledGroup,disableGroupIf,disableGroupEnumValueIf,spaceAttribute);
                 info.ItemType = fieldInfo.FieldType;
                 this.info = info;
             }

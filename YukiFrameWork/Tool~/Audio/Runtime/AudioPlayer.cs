@@ -16,9 +16,9 @@ namespace YukiFrameWork.Audio
     public class AudioPlayer
     {
         private AudioSource mAudioSource;
-        private Action onEndCallback = null;      
+        private Action<float> onEndCallback = null;      
         private IYieldExtension audioTimer;
-
+        private bool isRealTime;
         public bool IsAudioFree { get; private set; } = true;
 
         public float Volume
@@ -33,7 +33,7 @@ namespace YukiFrameWork.Audio
             set => mAudioSource.mute = value;
         }
 
-        public void SetAudio(Transform target,AudioClip clip, bool loop,Action onStartCallback, Action onEndCallback,bool isRealTime)
+        public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime)
         {
             if (mAudioSource == null)
             {
@@ -43,7 +43,7 @@ namespace YukiFrameWork.Audio
             if (mAudioSource.clip == null || !mAudioSource.clip.Equals(clip))
             {
                 Stop();
-                onStartCallback?.Invoke();
+                onStartCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
                 this.onEndCallback = onEndCallback;
                 mAudioSource.clip = clip;
                 mAudioSource.loop = loop;               
@@ -54,6 +54,7 @@ namespace YukiFrameWork.Audio
                     audioTimer = StartTimer(clip.length, isRealTime).Start();
                 }
             }
+            this.isRealTime = isRealTime;
         }
 
         private System.Collections.IEnumerator StartTimer(float length,bool isRealTime)
@@ -92,7 +93,7 @@ namespace YukiFrameWork.Audio
                 audioTimer.Cancel();
             audioTimer = null;
             IsAudioFree = true;
-            onEndCallback?.Invoke();
+            onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
             onEndCallback = null;
             mAudioSource.clip = null;
         }       

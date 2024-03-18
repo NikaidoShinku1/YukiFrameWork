@@ -36,11 +36,13 @@ namespace YukiFrameWork
         public BoolanPopupAttribute BoolanPopup { get; protected set; }
         public DisableGroupEnumValueIfAttribute DisableGroupEnumValueIf { get; protected set; }
         public DisableGroupIfAttribute DisableGroupIf { get; protected set; }
+        public SpaceAttribute SpaceAttribute { get; protected set; }
         protected GUIContent Content { get; set; }
         public PropertyDrawedInfo(Object target,SerializedProperty property,BoolanPopupAttribute boolanPopup,ArrayLabelAttribute arrayLabel,ListDrawerSettingAttribute listDrawerSetting,DisplayTextureAttribute displayTexture,PropertyRangeAttribute propertyRange,LabelAttribute label,GUIColorAttribute color,EnableEnumValueIfAttribute[] enableEnumValueIfAttribute
             ,DisableEnumValueIfAttribute[] disableEnumValueIfAttribute,EnableIfAttribute[] enableIf
             ,DisableIfAttribute[] disableIf,HelperBoxAttribute helperBox,RuntimeDisabledGroupAttribute runtimeDisabledGroup,EditorDisabledGroupAttribute editorDisabledGroup
-            ,DisableGroupIfAttribute disableGroupIf,DisableGroupEnumValueIfAttribute disableGroupEnumValueIf)
+            ,DisableGroupIfAttribute disableGroupIf,DisableGroupEnumValueIfAttribute disableGroupEnumValueIf
+            ,SpaceAttribute spaceAttribute)
 		{
 			GUIColor = color;
             this.target = target;
@@ -60,6 +62,7 @@ namespace YukiFrameWork
             this.EditorDisabledGroup = editorDisabledGroup;
             this.DisableGroupEnumValueIf = disableGroupEnumValueIf;
             this.DisableGroupIf = disableGroupIf;
+            this.SpaceAttribute = spaceAttribute;
             string name = Label == null ? 
                 char.ToUpper(Property.displayName[0]) 
                 +
@@ -74,7 +77,12 @@ namespace YukiFrameWork
 
         public PropertyDrawedInfo() { }
 
-        public abstract void OnGUI();
+        public virtual void OnGUI()
+        {
+            if (SpaceAttribute != null)
+                EditorGUILayout.Space(SpaceAttribute.height);
+            DrawHelperBox();
+        }
 
         public virtual void DrawHelperBox(bool rectValue = false,Rect rect = new Rect())
         {

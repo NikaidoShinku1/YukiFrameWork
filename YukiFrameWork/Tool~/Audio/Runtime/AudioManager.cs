@@ -27,12 +27,7 @@ namespace YukiFrameWork.Audio
         private SimpleObjectPools<AudioPlayer> audioPools;
 
         public void OnInit()
-        {
-            if (AudioKit.Config.LoaderPools == null)
-            {
-                throw new System.NullReferenceException("没有对AudioKit进行初始化！请调用一次AudioKit.Init()方法！Config.LoaderPools is Null!");
-            }
-
+        {          
             MusicPlayer = new AudioPlayer();
             VoicePlayer = new AudioPlayer();
             audioPools = new SimpleObjectPools<AudioPlayer>(() => new AudioPlayer(),10);
