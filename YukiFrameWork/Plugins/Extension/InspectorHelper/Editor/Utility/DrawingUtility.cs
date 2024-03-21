@@ -108,8 +108,12 @@ namespace YukiFrameWork
 
 			reorderableList.elementHeightCallback = index =>
 			{
-                var value = item.property.GetArrayElementAtIndex(index);
-                return EditorGUI.GetPropertyHeight(value, true);
+				if (item.property.isArray && item.property.arraySize > 0)
+				{
+					var value = item.property.GetArrayElementAtIndex(index);
+					return EditorGUI.GetPropertyHeight(value, true);
+				}
+				return 20;
 			};			
 		}	
 		public static void PropertyField(InfoData item,LabelAttribute label,Dictionary<string,ReorderableList> listPairs)
