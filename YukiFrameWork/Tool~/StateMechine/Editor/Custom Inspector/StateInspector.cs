@@ -22,8 +22,7 @@ namespace YukiFrameWork.States
         private string fileName = "NewStateBehaviour";
 
         private List<Type> behaviourTypes = new List<Type>();
-        private List<string> fieldName = new List<string>();
-        private IEnumerable<FieldInfo> fieldInfos;
+        private List<string> fieldName = new List<string>();  
         private bool isRecomposeScript = false;
 
         private void OnEnable()
@@ -195,40 +194,40 @@ namespace YukiFrameWork.States
         private void Update_StateFieldInfo(Type type, StateDataBase dataBase)
         {
             SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>(true);
-            if (serializedState != null)
+            if (serializedState == null)
             {
-                fieldName.Clear();
-                for (int i = 0; i < dataBase.metaDatas.Count; i++)
-                {
-                    var fieldInfos = type.GetRuntimeFields().Where(x => (x.IsPublic || x.GetCustomAttribute<SerializeField>(true) != null) && x.GetCustomAttribute<HideFieldAttribute>(true) == null);
-                    foreach (var field in fieldInfos)
-                    {                      
-                        if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
-                        {
-                            fieldName.Add(field.Name);
-                        }
-                    }
-                }
-
-                for (int i = 0; i < dataBase.metaDatas.Count; i++)
-                {
-                    bool contains = false;
-                    for (int j = 0; j < fieldName.Count; j++)
-                    {
-                        if (dataBase.metaDatas[i].name.Equals(fieldName[j]))
-                        {
-                            contains = true;
-                        }
-                    }
-                    if (!contains)
-                    {
-                        dataBase.metaDatas.RemoveAt(i);
-                        i--;
-                    }
-                }
-
-
+                dataBase.metaDatas.Clear();
+                return;
             }
+            fieldName.Clear();
+            for (int i = 0; i < dataBase.metaDatas.Count; i++)
+            {
+                var fieldInfos = type.GetRuntimeFields().Where(x => (x.IsPublic || x.GetCustomAttribute<SerializeField>(true) != null) && x.GetCustomAttribute<HideFieldAttribute>(true) == null);
+                foreach (var field in fieldInfos)
+                {
+                    if (dataBase.metaDatas.Find(x => x.name.Equals(field.Name) && x.typeName.Equals(field.FieldType.ToString())) != null)
+                    {
+                        fieldName.Add(field.Name);
+                    }
+                }
+            }
+
+            for (int i = 0; i < dataBase.metaDatas.Count; i++)
+            {
+                bool contains = false;
+                for (int j = 0; j < fieldName.Count; j++)
+                {
+                    if (dataBase.metaDatas[i].name.Equals(fieldName[j]))
+                    {
+                        contains = true;
+                    }
+                }
+                if (!contains)
+                {
+                    dataBase.metaDatas.RemoveAt(i);
+                    i--;
+                }
+            }      
         }
 
         private void SerializationStateField(Type type, StateDataBase dataBase)
@@ -236,7 +235,7 @@ namespace YukiFrameWork.States
             SerializedStateAttribute serializedState = type.GetCustomAttribute<SerializedStateAttribute>();
             if (serializedState != null)
             {
-                var fieldInfos = type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);
+                var fieldInfos = type.GetRuntimeFields().Where(x => x.IsPublic || x.GetCustomAttribute<SerializeField>() != null);          
                 foreach (var field in fieldInfos)
                 {
                     var tempData = dataBase.metaDatas.Find(x => !x.typeName.Equals(field.FieldType.ToString()) && x.name.Equals(field.Name));
