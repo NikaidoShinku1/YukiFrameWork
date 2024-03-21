@@ -50,20 +50,38 @@ namespace YukiFrameWork
 
                     if (type.GetCustomAttribute<NoGenericArchitectureAttribute>() != null) continue;
 
-                    var architecture = Architecture.CreateInstance(type);
-
-                    I.RegisterGlobal(type, architecture.Default);
+                    I.GetOrAddArchitecture(type);
+                    
                 }
             }          
         }
 #endif
         private ArchitectureConstructor() { }
 
+        ~ArchitectureConstructor()
+        {
+            globalDicts.Clear();
+        }
         /// <summary>
         /// 保存所有的全局架构
         /// </summary>
         private readonly Dictionary<Type,IArchitecture> globalDicts = DictionaryPools<Type,IArchitecture>.Get();
 
+        public IArchitecture GetOrAddArchitecture<T>()
+        {
+            return GetOrAddArchitecture(typeof(T));
+        }
+
+        public IArchitecture GetOrAddArchitecture(Type type)
+        {
+            if (!globalDicts.TryGetValue(type, out var value))
+            {
+                value = Activator.CreateInstance(type) as IArchitecture;
+                value.OnInit();
+                RegisterGlobal(type, value);
+            }
+            return value;
+        }
         private void RegisterGlobal(Type type, IArchitecture architecture)
         {
             globalDicts[type] = architecture;
@@ -92,26 +110,13 @@ namespace YukiFrameWork
                 throw new Exception($"无法进行对{runtime.ArchitectureType}架构的初始化,这个架构是标记了NoGenericArchitecture特性的,仅作为全局手动使用");            
             }
 
-            IArchitecture architecture = null;         
-            IArchitecture global = null;
-
-            if (runtime.IsOnly)
+            if (!runtime.IsGeneric)
             {
-                if (!globalDicts.ContainsKey(runtime.ArchitectureType))
-                {
-                    architecture = Architecture.CreateInstance(runtime.ArchitectureType);                   
-                    globalDicts.Add(runtime.ArchitectureType, architecture.Default);                   
-                }
-                
-                global = globalDicts[runtime.ArchitectureType];
+                throw new Exception($"RuntimeInitializeOnArchitecture IsGeneric为False,不会为该控制器获取架构实例!");
             }
-            else
-            {              
-                architecture = Architecture.CreateInstance(runtime.ArchitectureType);
-                architecture.OnInit();
-            }           
 
-            return runtime.IsOnly ? global : architecture;             
+            IArchitecture architecture = GetOrAddArchitecture(runtime.ArchitectureType);                            
+            return architecture;             
         }       
     }
 }

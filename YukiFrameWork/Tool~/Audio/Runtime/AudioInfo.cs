@@ -9,7 +9,6 @@
 using YukiFrameWork;
 using UnityEngine;
 using System;
-using UnityEditor;
 using UnityEngine.Events;
 namespace YukiFrameWork.Audio
 {
@@ -26,7 +25,7 @@ namespace YukiFrameWork.Audio
 		[RuntimeDisabledGroup]
 		[HelperBox("音频的播放类型,Music用于背景音乐，Voice用于人声，Sound可以用于音效或者多个音频播放,\n特别提示:当使用Sound类型播放时，AudioSource会被添加在持有AudioInfo的这个对象上")
 			,Label("音频的播放方式"),Space]
-		[SerializeField,EnableIf("PlayOnAwake")] private PlayType playType;
+		[SerializeField,EnableIf(nameof(PlayOnAwake))] private PlayType playType;
         [field: GUIGroup("使用AudioInfo进行音频加载无需执行AudioKit.Init方法!")]
         [field: Label("是否在运行时自动播放")]
 		[field: SerializeField,RuntimeDisabledGroup]		

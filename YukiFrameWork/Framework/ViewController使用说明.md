@@ -18,8 +18,25 @@ ViewController编辑器使用说明
 
 ![输入图片说明](Texture/controllerEditor.png)
 
-开启后必须设置一个架构(不为None才可以创建脚本),创建后的脚本如图所示:
+开启后必须设置一个架构(不为None才可以创建脚本),创建后的脚本内容所示:
 
-![输入图片说明](Texture/controller4.png)
+```
+
+using YukiFrameWork;
+using UnityEngine;
+using System;
+
+namespace YukiFrameWork.Example
+{
+    ///对架构的自动化注入，设置类型为架构类型后该控制器即可实现层级逻辑的编写，第二个参数默认是true，表示可以访问到架构，如果设置为False该控制器无法得到架构本体
+    [RuntimeInitializeOnArchitecture(typeof(PointGame),true)]
+    public class ViewControllerExample : ViewController
+    {
+        
+    }
+}
+    
+
+```
 
 默认开启,如果选择关闭的话则创建默认的ViewController脚本。

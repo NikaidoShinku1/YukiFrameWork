@@ -87,8 +87,9 @@ namespace YukiFrameWork.IOC
             if (scope == null)
                 throw new NullReferenceException();
 
-            T Component = scope.GetComponentInChildren<T>(includeInactive);           
-            RegisterComponent(Component);
+            T component = scope.GetComponent<T>();
+            component ??= scope.GetComponentInChildren<T>(includeInactive);           
+            RegisterComponent(component);
         }
 
         public void RegisterComponentInHierarchy<T>(string path) where T : Component

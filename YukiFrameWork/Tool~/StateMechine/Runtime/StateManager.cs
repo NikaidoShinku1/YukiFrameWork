@@ -15,11 +15,9 @@ namespace YukiFrameWork
 
     public enum DeBugLog
     {
-        [Label("开启")]
-        [GUIColor(ColorType.Green)]
+        [Label("开启")]   
         Open,
-        [Label("关闭")]
-        [GUIColor(ColorType.Red)]
+        [Label("关闭")]  
         Close      
     }
 

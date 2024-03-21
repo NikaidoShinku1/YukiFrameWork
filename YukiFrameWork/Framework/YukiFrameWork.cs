@@ -20,7 +20,6 @@ namespace YukiFrameWork
     /// </summary>
     public interface IArchitecture
     {
-        IArchitecture Default { get; }
         void OnInit();
         void OnDestroy();
         void RegisterModel<T>(T model) where T : class, IModel;      
@@ -131,54 +130,6 @@ namespace YukiFrameWork
     {
         void SetArchitecture(IArchitecture architecture);
     }
-    
-    public sealed class Architecture
-    {
-        private static Dictionary<Type, Queue<IArchitecture>> architectureDicts = DictionaryPools<Type, Queue<IArchitecture>>.Get();       
-        #region 创建架构实例
-        [MethodAPI("创建实例")]
-        public static T CreateInstance<T>() where T : class, IArchitecture
-        {          
-            return CreateInstance(typeof(T)) as T;
-        }
-
-        public static IArchitecture CreateInstance(Type type)
-        {
-            IArchitecture architecture = GetArchitecture(type) ?? AssemblyHelper.DeserializedObject("{ }", type) as IArchitecture;                     
-            return architecture;
-        }
-
-        public static void ReleaseArchitecture<T>(T architecture) where T : IArchitecture
-        {
-            var queue = GetQueues(typeof(T));
-
-            queue.Enqueue(architecture);
-        }
-
-        private static IArchitecture GetArchitecture(Type type)
-        {
-            var queue = GetQueues(type);
-            return queue.Count > 0 ? queue.Dequeue() : null;
-
-        }
-
-        private static Queue<IArchitecture> GetQueues(Type type)
-        {
-            if (!architectureDicts.TryGetValue(type, out var queue))
-            {
-                queue = new Queue<IArchitecture>();
-                architectureDicts.Add(type, queue);
-            }
-            return queue;
-        }
-
-        #endregion
-
-        ~Architecture() 
-        {
-            architectureDicts.Clear();
-        }
-    }    
 
     [ClassAPI("框架核心本体")]
     [GUIDancePath("YukiFrameWork")]
@@ -195,6 +146,7 @@ namespace YukiFrameWork
         {
             OnDestroy();
         }
+      
         public abstract void OnInit();       
 
         public virtual void OnDestroy()
@@ -209,8 +161,7 @@ namespace YukiFrameWork
         private static TCore mGlobal = null;
         private readonly static object _object = new object();
 
-        //内部访问对象直接定位全局
-        IArchitecture IArchitecture.Default => Global;
+        //内部访问对象直接定位全局 
         [SerializationArchitecture]
         public static TCore Global
         {
@@ -220,8 +171,7 @@ namespace YukiFrameWork
                 {
                     if (mGlobal == null)
                     {
-                        mGlobal = Architecture.CreateInstance<TCore>();
-                        mGlobal.OnInit();
+                        mGlobal = ArchitectureConstructor.I.GetOrAddArchitecture<TCore>() as TCore;                     
                     }
                     return mGlobal;
                 }

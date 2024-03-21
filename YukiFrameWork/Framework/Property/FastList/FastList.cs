@@ -13,7 +13,7 @@ namespace YukiFrameWork
     /// <typeparam name="T"></typeparam>  
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    [CustomPropertySetting("_items","Element")]
+    [CustomPropertySetting("_items")]
     public class FastList<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>,IBindableProperty<T>
     {
         public FastList()

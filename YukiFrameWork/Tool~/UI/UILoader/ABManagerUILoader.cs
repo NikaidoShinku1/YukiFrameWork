@@ -24,14 +24,14 @@ namespace YukiFrameWork.UI
 
         public T Load<T>(string name) where T : BasePanel
         {
-            return GameObjectLoader.Load(projectName,name).GetComponent<T>();
+            return AssetBundleManager.LoadAsset<GameObject>(projectName,name).GetComponent<T>();
         }
 
         public void LoadAsync<T>(string name, Action<T> onCompleted) where T : BasePanel
-        {     
-            GameObjectLoader.LoadAsync(projectName, name).AddCompleteEvent(request =>
+        {
+            AssetBundleManager.LoadAssetAsync<GameObject>(projectName, name).AddCompleteEvent(request =>
             {
-                GameObject panelObj = request.Obj;
+                GameObject panelObj = request.asset as GameObject;
 
                 T panel = panelObj.GetComponent<T>();
                 onCompleted?.Invoke(panel);

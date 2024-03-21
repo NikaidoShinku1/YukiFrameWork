@@ -35,8 +35,6 @@ namespace YukiFrameWork
         public Vector3 ThirdOrderControl
             => pointType == PointType.Vector ? control2 :control2Pos.position;
 
-        public BezierRuntimeMode Mode { get; set; } = BezierRuntimeMode.OnFixedUpdate;
-
         public void SetFirstOrderBezier(IFirstOrderBezierCurve curve)
         {
             stage = BezierStage.一阶;

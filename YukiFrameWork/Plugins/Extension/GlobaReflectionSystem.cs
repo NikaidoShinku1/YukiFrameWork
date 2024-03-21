@@ -204,6 +204,13 @@ namespace YukiFrameWork
             return null;
         }
 
+        public static IEnumerable<MemberInfo> GetRuntimeMemberInfos(this Type type)
+        {
+            return type.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic
+                | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Default | BindingFlags.InvokeMethod | BindingFlags.PutDispProperty
+                | BindingFlags.DeclaredOnly | BindingFlags.FlattenHierarchy);
+        }
+
         private static MethodInfo GetMethodInfos<T>(string methodName,Type[] types)
         {
             return GetMethodInfos(typeof(T), methodName, types);           

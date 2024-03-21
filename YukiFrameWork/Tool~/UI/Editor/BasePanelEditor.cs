@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace YukiFrameWork.UI
 
         }
 
-        protected override void InitLayers()
+       /* protected override void InitLayers()
         {
             base.InitLayers();
             BasePanel panel = target as BasePanel;
@@ -43,7 +44,7 @@ namespace YukiFrameWork.UI
                 bind.GenericCallBack += GenericPartialScripts;
                 layers.Add(bind);
             }
-        }
+        }*/
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -70,13 +71,7 @@ namespace YukiFrameWork.UI
             if(panel.Data.IsPartialLoading)
                 EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);
                    
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();             
-        }
-
+        }  
         private void Bind_AllFieldInfo(BasePanel panel)
         {
             if (Application.isPlaying) return;
@@ -109,31 +104,81 @@ namespace YukiFrameWork.UI
 
         public override void OnInspectorGUI()
         {
+            BasePanel panel = target as BasePanel;
             serializedObject.Update();
             if (EditorApplication.isCompiling)
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
             }       
-            base.OnInspectorGUI();           
-          
-        }
+            base.OnInspectorGUI();
+            EditorGUILayout.Space(10);
+            EditorGUILayout.BeginVertical("OL box NoExpand");
+            GUIStyle style = new GUIStyle("AM HeaderStyle")
+            {
+                alignment = TextAnchor.MiddleLeft,
+                fontSize = 16,
+            };
+            style.normal.textColor = Color.white;
+            style.fontStyle = FontStyle.Bold;
+            EditorGUI.BeginChangeCheck();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(GenericScriptDataInfo.TitleTip, style);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
+            GUILayout.Label("EN");
+            GenericScriptDataInfo.IsEN = EditorGUILayout.Toggle(GenericScriptDataInfo.IsEN);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 
-        public override void OnDrawingLayer(Rect rect)
-        {
-            foreach (var layer in layers)
-            {               
-                if (layer is UIBaseLayer)
-                    rect = EditorGUILayout.BeginVertical("OL box NoExpand");                 
-                layer.OnInspectorGUI();
-                layer.OnGUI(rect);
-                if (layer is UIBaseLayer)
-                    EditorGUILayout.EndVertical();
+            EditorGUILayout.Space();
+            EditorGUI.BeginDisabledGroup(CodeManager.IsPlaying);
+            EditorGUILayout.BeginHorizontal();
+            var Data = panel.Data;
+            GUILayout.Label(GenericScriptDataInfo.Email, GUILayout.Width(200));
+            Data.CreateEmail = EditorGUILayout.TextField(Data.CreateEmail);
+            EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            Data.SystemNowTime = DateTime.Now.ToString();
+
+            EditorGUILayout.BeginHorizontal();
+
+            GUILayout.Label(GenericScriptDataInfo.NameSpace, GUILayout.Width(200));
+            Data.ScriptNamespace = EditorGUILayout.TextField(Data.ScriptNamespace);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+
+            GUILayout.Label(GenericScriptDataInfo.Name, GUILayout.Width(200));
+            Data.ScriptName = EditorGUILayout.TextField(Data.ScriptName);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+
+            GUILayout.Label(GenericScriptDataInfo.Path, GUILayout.Width(200));
+            GUILayout.TextField(Data.ScriptPath);
+            CodeManager.SelectFolder(Data);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            EditorGUI.EndDisabledGroup();
+            CodeManager.GenericPanelScripts(Data);
+            EditorGUILayout.EndVertical();
+            if (EditorGUI.EndChangeCheck())
+                panel.SaveData();
+            
+            if (!target.GetType().Equals(typeof(BasePanel)))
+            {
+                CodeManager.BindInspector(panel, panel, GenericPartialScripts);
             }
-        }
 
+        }
+ 
         private void GenericPartialScripts()
         {
             BasePanel panel = target as BasePanel;

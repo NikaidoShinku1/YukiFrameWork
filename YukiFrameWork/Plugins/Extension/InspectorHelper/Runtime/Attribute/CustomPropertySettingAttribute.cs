@@ -18,11 +18,10 @@ namespace YukiFrameWork
 	public class CustomPropertySettingAttribute : PropertyAttribute
 	{
 		public string ItemName { get; }		
-		public string ArrayLabel { get; }
-		public CustomPropertySettingAttribute(string itemName,string arrayLabel) 
+		public CustomPropertySettingAttribute(string itemName) 
 		{
 			this.ItemName = itemName;
-			this.ArrayLabel = arrayLabel;
+			
 		}
 	}
 }

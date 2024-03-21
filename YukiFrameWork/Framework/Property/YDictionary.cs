@@ -20,7 +20,7 @@ namespace YukiFrameWork
 {
     [Serializable]
     [ClassAPI("可支持面板序列化的字典")]
-    [CustomPropertySetting("list", "Dictionary")]
+    [CustomPropertySetting("list")]
     public class YDictionary
 	{
 #if UNITY_EDITOR

@@ -16,8 +16,7 @@ namespace YukiFrameWork.IOC
         [BoolanPopup("关闭", "打开")]
         protected bool IsAutoInjectObject = true;   
         [ListDrawerSetting]
-        [SerializeField]
-        [ArrayLabel("需要注入的GameObject")]
+        [SerializeField] 
         [EnableIf("IsAutoInjectObject")]  
         protected List<GameObject> gameObjects = ListPools<GameObject>.Get();
 

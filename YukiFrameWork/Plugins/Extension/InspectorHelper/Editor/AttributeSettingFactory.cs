@@ -22,7 +22,7 @@ namespace YukiFrameWork
             ,out DisableEnumValueIfAttribute[] disable,out EnableIfAttribute[] enableIf,out DisableIfAttribute[] disableIf
             ,out HelperBoxAttribute helperBox,out GUIGroupAttribute group
             ,out DisplayTextureAttribute displayTexture
-            ,out PropertyRangeAttribute propertyRange,out ArrayLabelAttribute arrayLabel,out RangeAttribute defaultRange
+            ,out PropertyRangeAttribute propertyRange,out RangeAttribute defaultRange
             ,out RuntimeDisabledGroupAttribute runtimeDisabledGroup
             ,out EditorDisabledGroupAttribute editorDisabledGroup
             ,out ListDrawerSettingAttribute listDrawerSetting,out BoolanPopupAttribute boolanPopup
@@ -40,7 +40,7 @@ namespace YukiFrameWork
             displayTexture = member.GetCustomAttribute<DisplayTextureAttribute>(true);
            
             propertyRange = member.GetCustomAttribute<PropertyRangeAttribute>(true);
-            arrayLabel = member.GetCustomAttribute<ArrayLabelAttribute>(true);
+          
             defaultRange = member.GetCustomAttribute<RangeAttribute>(true);
             runtimeDisabledGroup = member.GetCustomAttribute<RuntimeDisabledGroupAttribute>(true);
             editorDisabledGroup = member.GetCustomAttribute<EditorDisabledGroupAttribute>(true);

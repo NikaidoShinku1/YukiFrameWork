@@ -19,20 +19,20 @@ namespace YukiFrameWork
     public class RuntimeInitializeOnArchitecture : Attribute
     {
         private readonly Type type;
-        private readonly bool isOnly = false;
+        private readonly bool isGeneric = false;
 
         public Type ArchitectureType => type;
-        public bool IsOnly => isOnly;   
+        public bool IsGeneric => isGeneric;   
 
         /// <summary>
         /// 特性标记
         /// </summary>
         /// <param name="type">架构类型</param>
         /// <param name="IsOnly">是否是全局唯一的架构</param>
-        public RuntimeInitializeOnArchitecture(Type type,bool IsOnly = false)
+        public RuntimeInitializeOnArchitecture(Type type,bool IsGeneric = false)
         {
             this.type = type;
-            this.isOnly = IsOnly;
+            this.isGeneric = IsGeneric;
         }
     }
 
