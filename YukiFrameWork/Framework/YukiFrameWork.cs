@@ -334,6 +334,42 @@ namespace YukiFrameWork
         public IUnRegister Register<T, K, Q, P>(Enum type, Action<T, K, Q, P> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>(type).RegisterEvent(onEvent);
 
+        public IUnRegister Register<T, K, Q, P, W>(Enum type,Action<T,K,Q,P,W> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T,K,Q,P, W>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R>(Enum type, Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S>(Enum type, Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F>(Enum type, Action<T, K, Q, P, W, R, S,F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G>(Enum type, Action<T, K, Q, P, W, R, S, F,G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(type).RegisterEvent(onEvent);
+        
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(type).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(type).RegisterEvent(onEvent);
+
         public void Send(Enum type)
             => events.GetEvent<EasyEvent>(type)?.SendEvent();
 
@@ -349,6 +385,42 @@ namespace YukiFrameWork
         public void Send<T, K, Q, P>(Enum type, T t, K k, Q q, P p)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(type)?.SendEvent(t, k, q, p);
 
+        public void Send<T, K, Q, P, W>(Enum type, T t, K k, Q q, P p,W w)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W>>(type)?.SendEvent(t, k, q, p, w);
+
+        public void Send<T, K, Q, P, W, R>(Enum type, T t, K k, Q q, P p, W w, R r)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R>>(type)?.SendEvent(t, k, q, p, w, r);
+
+        public void Send<T, K, Q, P, W, R,S>(Enum type, T t, K k, Q q, P p, W w, R r,S s)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R,S>>(type)?.SendEvent(t, k, q, p, w, r,s);
+
+        public void Send<T, K, Q, P, W, R, S,F>(Enum type, T t, K k, Q q, P p, W w, R r, S s,F f)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S,F>>(type)?.SendEvent(t, k, q, p, w, r, s,f);
+
+        public void Send<T, K, Q, P, W, R, S, F,G>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f,G g)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F,G>>(type)?.SendEvent(t, k, q, p, w, r, s, f,g);
+
+        public void Send<T, K, Q, P, W, R, S, F, G,M>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g,M m)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G,M>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g,m);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M,N>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m,N n)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M,N>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m,n);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N,B>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n,B b)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N,B>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n,b);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B,V>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j)
+          => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J,X>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j,X x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V,J,X>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,v,j,x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j, X x,Z z)
+           => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V, J, X,Z>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,v, j, x,z);
+
         public void UnRegister(Enum type, Action onEvent)
             => events.GetEvent<EasyEvent>(type)?.UnRegister(onEvent);
 
@@ -363,6 +435,43 @@ namespace YukiFrameWork
 
         public void UnRegister<T, K, Q, P>(Enum type, Action<T, K, Q, P> onEvent)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(type)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W>(Enum type, Action<T, K, Q, P, W> onEvent)
+           => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R>(Enum type, Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S>(Enum type, Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F>(Enum type, Action<T, K, Q, P, W, R, S, F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G>(Enum type, Action<T, K, Q, P, W, R, S, F, G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(type).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(type).UnRegister(onEvent);
+
 
         public void Clear() => events.ClearEvent();
     }
@@ -388,6 +497,42 @@ namespace YukiFrameWork
         public IUnRegister Register<T, K, Q, P>(string name, Action<T, K, Q, P> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>(name).RegisterEvent(onEvent);
 
+        public IUnRegister Register<T, K, Q, P, W>(string name, Action<T, K, Q, P, W> onEvent)
+           => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R>(string name, Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S>(string name, Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F>(string name, Action<T, K, Q, P, W, R, S, F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G>(string name, Action<T, K, Q, P, W, R, S, F, G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M>(string name, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(name).RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(name).RegisterEvent(onEvent);
+
         public void Send(string name)
             => events.GetEvent<EasyEvent>(name)?.SendEvent();
 
@@ -403,6 +548,42 @@ namespace YukiFrameWork
         public void Send<T, K, Q, P>(string name, T t, K k, Q q, P p)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(name)?.SendEvent(t, k, q, p);
 
+        public void Send<T, K, Q, P, W>(string name, T t, K k, Q q, P p, W w)
+           => events.GetEvent<EasyEvent<T, K, Q, P, W>>(name)?.SendEvent(t, k, q, p, w);
+
+        public void Send<T, K, Q, P, W, R>(string name, T t, K k, Q q, P p, W w, R r)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R>>(name)?.SendEvent(t, k, q, p, w, r);
+
+        public void Send<T, K, Q, P, W, R, S>(string name, T t, K k, Q q, P p, W w, R r, S s)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S>>(name)?.SendEvent(t, k, q, p, w, r, s);
+
+        public void Send<T, K, Q, P, W, R, S, F>(string name, T t, K k, Q q, P p, W w, R r, S s, F f)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(name)?.SendEvent(t, k, q, p, w, r, s, f);
+
+        public void Send<T, K, Q, P, W, R, S, F, G>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j)
+          => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j, X x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j, x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(string name, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j, X x, Z z)
+           => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(name)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j, x, z);
+
         public void UnRegister(string name, Action onEvent)
             => events.GetEvent<EasyEvent>(name)?.UnRegister(onEvent);
 
@@ -417,6 +598,42 @@ namespace YukiFrameWork
 
         public void UnRegister<T, K, Q, P>(string name, Action<T, K, Q, P> onEvent)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(name)?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W>(string name, Action<T, K, Q, P, W> onEvent)
+           => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R>(string name, Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S>(string name, Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F>(string name, Action<T, K, Q, P, W, R, S, F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G>(string name, Action<T, K, Q, P, W, R, S, F, G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M>(string name, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(name).UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(string name, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(name).UnRegister(onEvent);
 
         public void Clear() => events.ClearEvent();
     }
@@ -442,6 +659,42 @@ namespace YukiFrameWork
         public IUnRegister Register<T, K, Q, P>(Action<T, K, Q, P> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>().RegisterEvent(onEvent);
 
+        public IUnRegister Register<T, K, Q, P, W>(Action<T, K, Q, P, W> onEvent)
+          => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R>(Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S>(Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F>(Action<T, K, Q, P, W, R, S, F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G>(Action<T, K, Q, P, W, R, S, F, G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M>(Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N>(Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B>(Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>().RegisterEvent(onEvent);
+
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>().RegisterEvent(onEvent);
+
         public void Send()
             => events.GetEvent<EasyEvent>()?.SendEvent();                
        
@@ -457,6 +710,42 @@ namespace YukiFrameWork
         public void Send<T, K, Q, P>(T t, K k, Q q, P p)
             => events.GetEvent<EasyEvent<T, K, Q,P>>()?.SendEvent(t, k, q,p);
 
+        public void Send<T, K, Q, P, W>(T t, K k, Q q, P p, W w)
+           => events.GetEvent<EasyEvent<T, K, Q, P, W>>()?.SendEvent(t, k, q, p, w);
+
+        public void Send<T, K, Q, P, W, R>(T t, K k, Q q, P p, W w, R r)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R>>()?.SendEvent(t, k, q, p, w, r);
+
+        public void Send<T, K, Q, P, W, R, S>(T t, K k, Q q, P p, W w, R r, S s)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S>>()?.SendEvent(t, k, q, p, w, r, s);
+
+        public void Send<T, K, Q, P, W, R, S, F>(T t, K k, Q q, P p, W w, R r, S s, F f)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F>>()?.SendEvent(t, k, q, p, w, r, s, f);
+
+        public void Send<T, K, Q, P, W, R, S, F, G>(T t, K k, Q q, P p, W w, R r, S s, F f, G g)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>()?.SendEvent(t, k, q, p, w, r, s, f, g);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j)
+          => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j, X x)
+            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j, x);
+
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j, X x, Z z)
+           => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>()?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j, x, z);
+
         public void UnRegister(Action onEvent)
             => events.GetEvent<EasyEvent>()?.UnRegister(onEvent);
 
@@ -471,6 +760,42 @@ namespace YukiFrameWork
 
         public void UnRegister<T, K, Q, P>(Action<T, K, Q,P > onEvent)
             => events.GetEvent<EasyEvent<T, K, Q, P>>()?.UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W>(Action<T, K, Q, P, W> onEvent)
+          => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R>(Action<T, K, Q, P, W, R> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S>(Action<T, K, Q, P, W, R, S> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F>(Action<T, K, Q, P, W, R, S, F> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G>(Action<T, K, Q, P, W, R, S, F, G> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M>(Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N>(Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B>(Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>().UnRegister(onEvent);
+
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>().UnRegister(onEvent);
 
         public void Clear() => events.ClearEvent();
     }
@@ -572,129 +897,6 @@ namespace YukiFrameWork
         }
     }
 
-    public class EasyEvent : IEasyEventSystem
-    {
-        Action OnEasyEvent;
-
-        public IUnRegister RegisterEvent(Action onEvent)
-        {
-            OnEasyEvent += onEvent;
-            return this;
-        }
-
-        public void SendEvent()
-        {
-            OnEasyEvent?.Invoke();
-        }
-
-        public void UnRegister(Action onEvent)
-        {
-            OnEasyEvent -= onEvent;
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            OnEasyEvent = null;
-        }
-    }
-
-    public class EasyEvent<T> : IEasyEventSystem
-    {
-        Action<T> OnEasyEvent;     
-
-        public IUnRegister RegisterEvent(Action<T> onEvent)
-        {
-            OnEasyEvent += onEvent;
-            return this;
-        }
-
-        public void SendEvent(T t)
-        {
-            OnEasyEvent?.Invoke(t);
-        }
-
-        public void UnRegister(Action<T> onEvent)
-        {
-            OnEasyEvent -= onEvent;
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            OnEasyEvent = null;
-        }
-    }
-
-    public class EasyEvent<T, K> : IEasyEventSystem
-    {
-        Action<T,K> OnEasyEvent;
-
-        public IUnRegister RegisterEvent(Action<T, K> onEvent)
-        {
-            OnEasyEvent += onEvent;           
-            return this;
-        }
-
-        public void SendEvent(T t, K k)
-            => OnEasyEvent?.Invoke(t, k);
-
-        public void UnRegister(Action<T, K> onEvent)
-        {
-             OnEasyEvent -= onEvent;
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            OnEasyEvent = null;
-        }
-    }
-
-    public class EasyEvent<T, K, Q> : IEasyEventSystem
-    {
-        Action<T, K, Q> OnEasyEvent;
-
-        public IUnRegister RegisterEvent(Action<T, K,Q> onEvent)
-        {
-            OnEasyEvent += onEvent;
-            return this;
-        }
-
-        public void SendEvent(T t, K k,Q q)
-            => OnEasyEvent?.Invoke(t, k, q);
-
-        public void UnRegister(Action<T, K, Q> onEvent)
-        {
-             OnEasyEvent -= onEvent;
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            OnEasyEvent = null;
-        }
-    }
-
-    public class EasyEvent<T, K, Q, P> : IEasyEventSystem
-    {
-        Action<T, K, Q, P> OnEasyEvent;
-
-        public IUnRegister RegisterEvent(Action<T, K, Q, P> onEvent)
-        {
-            OnEasyEvent += onEvent;
-            return this;
-        }
-
-        public void SendEvent(T t, K k, Q q,P p)
-            => OnEasyEvent?.Invoke(t, k, q,p);
-
-        public void UnRegister(Action<T, K, Q,P> onEvent)
-        {
-            OnEasyEvent -= onEvent;
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            OnEasyEvent = null;
-        }
-    }
 
     public static class BindablePropertyOrEventExtension
     {
