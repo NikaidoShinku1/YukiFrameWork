@@ -26,8 +26,10 @@ namespace YukiFrameWork.Audio
 
         public AudioClip LoadClip(string name)
         {
-            if(_clip == null)
-                _clip = AssetBundleManager.LoadAsset<AudioClip>(projectName,name);
+            if (_clip == null)
+            {              
+                _clip = AssetBundleManager.LoadAsset<AudioClip>(projectName, name);
+            }
             return _clip;
         }
 
@@ -37,10 +39,8 @@ namespace YukiFrameWork.Audio
             {
                 completedLoad?.Invoke(_clip);
                 return;
-            }
-
+            }          
             var request = AssetBundleManager.LoadAssetAsync<AudioClip>(projectName,name);
-
             request.AddCompleteEvent(operation => 
             {
                 _clip = operation.asset as AudioClip;
@@ -51,6 +51,7 @@ namespace YukiFrameWork.Audio
         public void UnLoad()
         {
             AssetBundleManager.UnloadAsset(_clip);
+            _clip = null;
         }
     }
 }

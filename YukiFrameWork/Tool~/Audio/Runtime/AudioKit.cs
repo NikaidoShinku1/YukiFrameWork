@@ -24,6 +24,10 @@ namespace YukiFrameWork.Audio
 
         public static AudioConfig Config { get; } = new AudioConfig();
 
+        public const int UNLOAD_CACHESECOUND = 5 * 60;
+
+        public const int DETECTION_INTERVAL = 60;
+
         private static AudioPlayer musicPlayer;
         private static AudioPlayer voicePlayer;
        
@@ -64,21 +68,20 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);          
-            PlayMusicExecute(audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayMusicExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
         }
 
         public static void PlayMusic(AudioInfo audioInfo)
         {
             if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            AudioClip clip = audioInfo.Clip;
-
+            AudioClip clip = audioInfo.Clip;            
             if (clip == null)
                 LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
 
-            PlayMusicExecute(audioMgr, clip
+            PlayMusicExecute(null,audioMgr, clip
                 , audioInfo.Loop
                 ,value => audioInfo.onStartCallBack?.Invoke(value)
                 ,value => audioInfo.onEndCallBack?.Invoke(value)
@@ -90,18 +93,18 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
 
             if (loader.Clip != null)
-                PlayMusicExecute(audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
+                PlayMusicExecute(loader,audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
             else
                 loader.LoadClipAsync(name, clip =>
                 {
-                    PlayMusicExecute(audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
+                    PlayMusicExecute(loader, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
                 });
         }
 
-        private static void PlayMusicExecute(AudioManager audioMgr, AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static void PlayMusicExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {
             void SetAudioVolume(float value) => musicPlayer.Volume = value;
           
@@ -121,7 +124,8 @@ namespace YukiFrameWork.Audio
                 .RegisterWithInitValue(SetAudioVolume)
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
-            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime);
+            AudioManager.I.CheckLoaderCache(loader);
+            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader);
         }
 
         [MethodAPI("播放人声，与背景音乐一致有单独的层，一般只适用于一个语音播放")]
@@ -129,9 +133,9 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
-            PlayVoiceExecute(audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayVoiceExecute(loader, audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
          
         }
 
@@ -144,7 +148,7 @@ namespace YukiFrameWork.Audio
             if (clip == null)
                 LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
 
-            PlayVoiceExecute(audioMgr, clip
+            PlayVoiceExecute(null,audioMgr, clip
                 , audioInfo.Loop
                 , value => audioInfo.onStartCallBack?.Invoke(value)
                 , value => audioInfo.onEndCallBack?.Invoke(value)
@@ -157,14 +161,14 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
             if (loader.Clip != null)
-                PlayVoiceExecute(audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
+                PlayVoiceExecute(loader, audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
             else
-                loader.LoadClipAsync(name, clip => PlayVoiceExecute(audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime));
+                loader.LoadClipAsync(name, clip => PlayVoiceExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime));
         }
 
-        private static void PlayVoiceExecute(AudioManager audioMgr, AudioClip clip, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static void PlayVoiceExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {           
             void SetAudioVolume(float value)
             {
@@ -189,8 +193,8 @@ namespace YukiFrameWork.Audio
                 .RegisterWithInitValue(SetAudioVolume)
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
-
-            voicePlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime);
+            AudioManager.I.CheckLoaderCache(loader);
+            voicePlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
         }
         
         [MethodAPI("播放声音、特效等，可以用于在多人说话的时候使用,可以传递自定义的父节点挂载AudioSource")]        
@@ -198,11 +202,11 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsSoundOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
 
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
 
-            PlaySoundExecute(audioMgr,clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
+            PlaySoundExecute(loader,audioMgr,clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
         }
 
         public static void PlaySound(AudioInfo audioInfo)
@@ -214,7 +218,7 @@ namespace YukiFrameWork.Audio
             if (clip == null)
                 LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
 
-            PlaySoundExecute(audioMgr, clip
+            PlaySoundExecute(null,audioMgr, clip
                 , audioInfo.Loop
                 , audioInfo.transform,value => audioInfo.onStartCallBack?.Invoke(value)
                 , value => audioInfo.onEndCallBack?.Invoke(value)
@@ -227,14 +231,14 @@ namespace YukiFrameWork.Audio
         {
             if (!Setting.IsSoundOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            var loader = GetAudioLoader(name);
+            var loader = GetOrAddAudioLoader(name);
             if (loader.Clip != null)
-                PlaySoundExecute(audioMgr, loader.Clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
+                PlaySoundExecute(loader,audioMgr, loader.Clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
             else
-                loader.LoadClipAsync(name, clip => PlaySoundExecute(audioMgr, clip, loop, parent,onStartCallback, onEndCallback, isRealTime));
+                loader.LoadClipAsync(name, clip => PlaySoundExecute(loader,audioMgr, clip, loop, parent,onStartCallback, onEndCallback, isRealTime));
         }
 
-        private static void PlaySoundExecute(AudioManager audioMgr,AudioClip clip, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static void PlaySoundExecute(IAudioLoader loader,AudioManager audioMgr,AudioClip clip, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {            
             var soundPlayer = SoundActivitiesExist(clip.name);
             //防止注册的事件重复，注册前注销一次
@@ -254,7 +258,8 @@ namespace YukiFrameWork.Audio
                 .RegisterWithInitValue(SetAudioVolume)
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
-            soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime);
+            AudioManager.I.CheckLoaderCache(loader);
+            soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
         }
 
         private static AudioPlayer SoundActivitiesExist(string name)
@@ -270,7 +275,7 @@ namespace YukiFrameWork.Audio
             return player;
         }
 
-        private static IAudioLoader GetAudioLoader(string name)
+        private static IAudioLoader GetOrAddAudioLoader(string name)
         {
             if (!audioLoaderDict.TryGetValue(name, out var loader))
             {
@@ -281,6 +286,17 @@ namespace YukiFrameWork.Audio
                 loader = Config.LoaderPools.Get();
                 audioLoaderDict.Add(name, loader);
             }
+            return loader;
+        }
+
+        /// <summary>
+        /// 获取已经被创建的加载器，可以手动通过加载器卸载音频，加载器名称与音频名称相同
+        /// </summary>
+        /// <param name="name">音频名称</param>
+        /// <returns>返回一个音频加载器</returns>
+        public static IAudioLoader GetAudioLoader(string name)
+        {
+            audioLoaderDict.TryGetValue(name, out var loader);
             return loader;
         }
 

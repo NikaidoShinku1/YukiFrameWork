@@ -19,6 +19,7 @@ namespace YukiFrameWork.Audio
         private Action<float> onEndCallback = null;      
         private IYieldExtension audioTimer;
         private bool isRealTime;
+        private IAudioLoader loader;
         public bool IsAudioFree { get; private set; } = true;
 
         public float Volume
@@ -33,7 +34,7 @@ namespace YukiFrameWork.Audio
             set => mAudioSource.mute = value;
         }
 
-        public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime)
+        public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader)
         {
             if (mAudioSource == null)
             {
@@ -41,8 +42,10 @@ namespace YukiFrameWork.Audio
             }
 
             if (mAudioSource.clip == null || !mAudioSource.clip.Equals(clip))
-            {
+            {            
                 Stop();
+                if(loader != null)
+                    this.loader = loader;
                 onStartCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
                 this.onEndCallback = onEndCallback;
                 mAudioSource.clip = clip;
@@ -58,10 +61,10 @@ namespace YukiFrameWork.Audio
         }
 
         private System.Collections.IEnumerator StartTimer(float length,bool isRealTime)
-        {
+        {            
             float time = 0;
             while (time < length)
-            {
+            {              
                 time += isRealTime ? Time.unscaledDeltaTime : Time.deltaTime;
                 yield return null;
             }
@@ -89,13 +92,15 @@ namespace YukiFrameWork.Audio
 
         public void Stop()
         {
-            if (audioTimer?.IsRunning == false)
-                audioTimer.Cancel();
+            if (audioTimer?.IsRunning == true)                           
+                audioTimer.Cancel();          
             audioTimer = null;
             IsAudioFree = true;
             onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
-            onEndCallback = null;
-            mAudioSource.clip = null;
+            onEndCallback = null;           
+            mAudioSource.clip = null;         
+            AudioManager.Instance.AddLoaderCacheTime(loader);
+            loader = null;
         }       
     }
 }
