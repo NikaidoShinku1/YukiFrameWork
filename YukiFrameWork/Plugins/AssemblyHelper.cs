@@ -124,8 +124,12 @@ namespace YukiFrameWork.Extension
         public static object DeserializedObject(string value, Type type)
             => JsonConvert.DeserializeObject(value,type);
 
-        public static string SerializedObject(object value, Newtonsoft.Json.Formatting formatting = Newtonsoft.Json.Formatting.Indented)
-            => JsonConvert.SerializeObject(value, formatting);
+        public static string SerializedObject(object value, Newtonsoft.Json.Formatting formatting = Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings settings = null)
+        {
+            if (settings == null)
+                return JsonConvert.SerializeObject(value, formatting);
+            else return JsonConvert.SerializeObject(value, formatting, settings);
+        }
 
         public static string XmlSerializedObject(object value,XmlWriterSettings settings = default)
         {            

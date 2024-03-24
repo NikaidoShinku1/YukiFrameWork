@@ -15,42 +15,32 @@ namespace YukiFrameWork
 	public sealed class MethodButtonAttribute : PropertyAttribute
 	{
         private string label;
-        private float height;
-        private float width;
+        private float height;    
         public string Label => label;
         public float Height => height;
-        public float Width => width;       
-        public object[] Args { get; set; }
-        public MethodButtonAttribute(string label,float width,float height,params object[] args)
+              
+        public MethodButtonAttribute(string label,float height)
         {
             this.label = label;
-            this.height = height;
-            this.width = width;
-            this.Args = args;
+            this.height = height;         
+           
         }
-
-        public MethodButtonAttribute(float width,float height,params object[] args)
+        public MethodButtonAttribute(float height)
         {
             this.label = string.Empty;
-            this.height = height;
-            this.width = width;
-            this.Args = args;
+            this.height = height;                     
         }
 
-        public MethodButtonAttribute(string label,params object[] args)
+        public MethodButtonAttribute(string label)
         {
             this.label = label;
-            this.height = 20;
-            this.Args = args;
-            this.width =  -1;
+            this.height = 20;                
         }
 
-        public MethodButtonAttribute(params object[] args)
+        public MethodButtonAttribute()
         {
             this.label = string.Empty;
-            this.height = 20;
-            this.Args = args;
-            this.width =  -1;
+            this.height = 20;                      
         }
     }
 }

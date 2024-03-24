@@ -6,7 +6,8 @@ namespace YukiFrameWork
     public interface ILoggerExtension : ILogger
     {
         T ToObject<T>();
-        object ToObject();       
+        object ToObject();
+        string ToString();
     }
     public class CustomLogger : Logger, ILoggerExtension
     {       

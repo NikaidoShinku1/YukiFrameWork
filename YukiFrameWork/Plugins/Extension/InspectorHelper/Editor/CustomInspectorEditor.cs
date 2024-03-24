@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System;
+using System.Collections;
+
 #if UNITY_EDITOR
 using UnityEditorInternal;
 using UnityEditor;
@@ -21,23 +23,47 @@ namespace YukiFrameWork
     public class InfoData
     {
         public MemberInfo member;
-        public SerializedProperty property;
-
+        public SerializedProperty property;       
         public bool active;
+    }
+
+    public class MethodData
+    {
+        public MethodInfo method;
+        public SerializedObject serializedObject;    
+        public MethodButtonAttribute methodButton;
+        public object[] args;
+        public bool foldOut;
+        public List<string> displayNames = new List<string>();
+        public int displayIndex;
+        public List<ReoderableInfo> reoderableInfos = new List<ReoderableInfo>();
+        public class ReoderableInfo
+        {
+            public ReorderableList reorderableList;
+            public int index;
+            public Type type;
+            public bool foldOut;
+            public List<string> displayNames = new List<string>();
+            public int displayIndex;
+            public List<ReoderableInfo> childs = new List<ReoderableInfo>();
+        }
     }
     [CustomEditor(typeof(MonoBehaviour), true)]
     [CanEditMultipleObjects]
     public class CustomInspectorEditor : Editor
     {
-        private Dictionary<string, List<InfoData>> infoDataPairs = new Dictionary<string, List<InfoData>>();
-        private Dictionary<string, ReorderableList> listPairs = new Dictionary<string, ReorderableList>();
-        private List<string> enumDisplayNames = new List<string>();
+        private readonly Dictionary<string, List<InfoData>> infoDataPairs = new Dictionary<string, List<InfoData>>();
+        private readonly Dictionary<string, ReorderableList> listPairs = new Dictionary<string, ReorderableList>();
+        private readonly List<string> enumDisplayNames = new List<string>();      
         private SerializedProperty script;
+        [SerializeField]public List<MethodData> methodDatas = new List<MethodData>();
         protected virtual void OnEnable()
         {
             infoDataPairs.Clear();
             listPairs.Clear();
             enumDisplayNames.Clear();
+            methodDatas.Clear();
+
             infoDataPairs.Add("Default", new List<InfoData>());           
             try
             {
@@ -59,19 +85,153 @@ namespace YukiFrameWork
                     group ??= new GUIGroupAttribute("Default");
                     SetGroup(group, field, property, field.FieldType);
                 }
-                script = serializedObject.FindProperty("m_Script");         
+                script = serializedObject.FindProperty("m_Script");
+
+                MethodInfo[] methodInfos = target.GetType().GetRuntimeMethods().ToArray();
+
+                for (int i = 0; i < methodInfos.Length; i++)
+                {           
+                    var button = methodInfos[i].GetCustomAttribute<MethodButtonAttribute>(true);
+                    if (button == null) continue;
+
+                    methodDatas.Add(InitMethodData(methodInfos[i].GetParameters(), methodInfos[i],button));
+                }
             }
             catch { }
             
         }
 
+        private MethodData InitMethodData(ParameterInfo[] parameters, MethodInfo methodInfo, MethodButtonAttribute method)
+        {
+            MethodData methodData = new MethodData()
+            {
+                method = methodInfo,
+                args = new object[parameters.Length],
+                methodButton = method
+            };
+            for (int j = 0; j < parameters.Length; j++)
+            {
+                Type type = parameters[j].ParameterType;
+                IList list = null;               
+                if (type.IsArray)
+                    list = Array.CreateInstance(type, 0);
+                else if (type.IsGenericType)
+                    list = Activator.CreateInstance(type) as IList;            
+                if (list == null) continue;
+                var elementType = type.IsArray ? type.GetElementType() : type.GetGenericArguments()[0];
+                var info = new MethodData.ReoderableInfo()
+                {
+                    index = j,
+                    type = parameters[j].ParameterType
+                };
+
+                var reoderableList = CreateReorderableList(list, type, elementType, info, parameters[j].Name);
+                info.reorderableList = reoderableList;
+                methodData.reoderableInfos.Add(info);
+            }
+            return methodData;
+        }
+
+        private ReorderableList CreateReorderableList(IList list,Type type,Type elementType,MethodData.ReoderableInfo info,string name)
+        {
+            var reoderableList = new ReorderableList(list, elementType, true, true, true, true);
+            reoderableList.onAddCallback = r =>
+            {
+                bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
+                if (type.IsArray)
+                {
+                    var tempList = Array.CreateInstance(elementType, reoderableList.list.Count + 1);
+                    Array.Copy((Array)reoderableList.list, tempList, reoderableList.list.Count);
+                    reoderableList.list = tempList;
+                }
+                else if (type.IsGenericType)
+                {
+                    if (subObject)
+                        reoderableList.list.Add(null);
+                    else reoderableList.list.Add(Activator.CreateInstance(elementType));
+                }
+            };
+            reoderableList.onRemoveCallback = r =>
+            {
+                bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
+                if (type.IsArray)
+                {
+                    if (reoderableList.list.Count > 0)
+                    {
+                        for (int i = r.index; i < reoderableList.list.Count;i++)
+                        {
+                            if (i + 1 < reoderableList.list.Count)
+                            {
+                                reoderableList.list[i] = reoderableList.list[i + 1];
+                            }
+                        }
+                        var tempList = Array.CreateInstance(elementType, reoderableList.list.Count - 1);
+                        Array.Copy((Array)reoderableList.list, tempList, reoderableList.list.Count - 1);
+                        reoderableList.list = tempList;
+                    }
+                }
+                else if (type.IsGenericType)
+                {                    
+                    reoderableList.list.RemoveAt(r.index);                 
+                }
+            };
+            reoderableList.drawHeaderCallback = rect =>
+            {
+                EditorGUI.LabelField(rect, new GUIContent(name));
+            };
+            reoderableList.drawElementCallback = (v, index, b, c) =>
+            {
+                if (elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object)))
+                {                  
+                    reoderableList.list[index] = EditorGUI.ObjectField(v, (UnityEngine.Object)reoderableList.list[index], elementType, true);
+                }
+                else
+                {                   
+                    if (elementType.IsArray || elementType.IsGenericType)
+                    {
+                        EditorGUI.HelpBox(v, "方法参数不支持对循环嵌套的数组/列表序列化!", MessageType.Warning);
+                    }
+                    else if (elementType.GetCustomAttribute<SerializableAttribute>() != null && elementType.IsClass)
+                    {
+                        EditorGUI.HelpBox(v, "方法参数不支持对标记Serializable的类的序列化!", MessageType.Warning);
+                    }
+                    else if (elementType.IsSubclassOf(typeof(Enum)) || elementType.Equals(typeof(Enum)))
+                    {
+                        info.displayNames.Clear();
+                        foreach (var field in elementType.GetRuntimeFields())
+                        {
+                            if (field.Name.StartsWith("value_")) continue;
+                            var enumName = field.Name;
+
+                            var enumType = field.FieldType.GetField(enumName);
+                            var labelAttributes = enumType.GetCustomAttributes(typeof(LabelAttribute), false).ToArray();
+                            info.displayNames.Add(labelAttributes.Length > 0 ? (labelAttributes[0] as LabelAttribute).Label : enumName);
+                        }
+                        int selectIndex = (int)Enum.Parse(elementType, reoderableList.list[index].ToString());
+                        selectIndex = EditorGUI.Popup(v,string.Empty, selectIndex, info.displayNames.ToArray());
+                        reoderableList.list[index] = Enum.GetValues(elementType).GetValue(selectIndex);
+                    }
+                    else
+                        reoderableList.list[index] = Convert.ChangeType(DrawingUtility.PropertyField(string.Empty, reoderableList.list[index], elementType, v), elementType);
+                }
+            };          
+            return reoderableList;
+        }
+
+
         public override void OnInspectorGUI()
-        {           
+        {                   
             serializedObject.Update();       
 
             if (script != null)
             {
+                MonoScript monoScript = script.objectReferenceValue as MonoScript;
                 GUI.enabled = false;
+                if (monoScript == null)
+                {
+                    GUI.enabled = true;
+                    EditorGUILayout.HelpBox("脚本组件丢失请重新挂载!", MessageType.Error);
+                }              
                 EditorGUILayout.PropertyField(script);
                 GUI.enabled = true;
             }
@@ -106,19 +266,14 @@ namespace YukiFrameWork
 
                 EditorGUILayout.EndVertical();
             }
-            MethodInfo[] methodInfos = target.GetType().GetRuntimeMethods().ToArray();
-
-            if (methodInfos.Length > 0)
+            
+            if (methodDatas?.Count > 0)
             {
                 EditorGUILayout.Space(15);
-                foreach (var methodInfo in methodInfos)
+                for(int i = 0;i < methodDatas.Count; i++)
                 {
-                    var button = methodInfo.GetCustomAttribute<MethodButtonAttribute>(true);
-
-                    if (button != null)
-                    {
-                        SerializeMethod(methodInfo, button);
-                    }
+                    SerializeMethod(methodDatas[i]);
+                    EditorGUILayout.Space(5);
                 }
             }
             this.serializedObject.ApplyModifiedProperties();
@@ -181,9 +336,9 @@ namespace YukiFrameWork
             GUI.color = Color.white;
         }
 
-        private void SerializeMethod(MethodInfo methodInfo,MethodButtonAttribute Method)
+        private void SerializeMethod(MethodData methodData)
         {
-            methodInfo.CreateAllSettingAttribute
+            methodData.method.CreateAllSettingAttribute
                (out _
                , out GUIColorAttribute color, out EnableEnumValueIfAttribute[] enableEnumValueIfAttribute
                , out DisableEnumValueIfAttribute[] disable, out EnableIfAttribute[] enableIf, out DisableIfAttribute[] disableIf
@@ -194,30 +349,76 @@ namespace YukiFrameWork
                , out _, out _, out var disableGroupIf, out var disableGroupEnumValueIf, out _);      
             if (ConditionUtility.DrawConditionIf(enableEnumValueIfAttribute, enableIf, disable, disableIf, target.GetType(), target))
             {
+                var Method = methodData.methodButton;
                 GUI.color = color != null ? color.Color : Color.white;
                 EditorGUI.BeginDisabledGroup(ConditionUtility.DisableGroupLifeCycle(runtimeDisabledGroup, editorDisabledGroup) || ConditionUtility.DisableGroupInValue(target.GetType(), target, disableGroupEnumValueIf, disableGroupIf));
                 if (helperBox != null)
                     DrawingUtility.PropertyFieldInHelperBox(helperBox);
 
-                bool executed = Method.Width == -1
-            ? GUILayout.Button(string.IsNullOrEmpty(Method.Label) ? methodInfo.Name : Method.Label, GUILayout.Height(Method.Height))
-            : GUILayout.Button(string.IsNullOrEmpty(Method.Label) ? methodInfo.Name : Method.Label, GUILayout.Height(Method.Height), GUILayout.Width(Method.Width));
-                GUI.color = Color.white;
-                EditorGUI.EndDisabledGroup();
-                if (executed)
-                {
-                    object[] args = null;
-                    if (methodInfo.GetParameters().Length != Method.Args?.Length)
-                        args = new object[methodInfo.GetParameters().Length];
-                    else args = Method.Args;
-                    methodInfo.Invoke(target, args);
-                    AssetDatabase.Refresh();
-                    EditorUtility.SetDirty(target);
-                    AssetDatabase.SaveAssets();
+                ParameterInfo[] parameterInfos = methodData.method.GetParameters();
 
-                    serializedObject.ApplyModifiedProperties();
+                string label = string.IsNullOrEmpty(Method.Label) ? methodData.method.Name : Method.Label;
+                bool executed = false;
+               
+                if (parameterInfos.Length != 0)
+                {
+                    EditorGUILayout.BeginVertical("PreferencesSectionBox", GUILayout.Height(Method.Height + 3));
+                    EditorGUILayout.BeginHorizontal();
+                    methodData.foldOut = EditorGUILayout.Foldout(methodData.foldOut, label, true);
+                    executed = GUILayout.Button("Invoke", GUILayout.Width(60));
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.Space();
+                }
+                else
+                {
+                    EditorGUILayout.BeginVertical();
+                    executed = GUILayout.Button(label, GUILayout.Height(Method.Height));
+                }
+                if (methodData.foldOut)
+                {
+                    EditorGUILayout.BeginVertical("OL box flat");
+                    for(int i = 0; i < parameterInfos.Length;i++)
+                    { 
+                        var parameter = parameterInfos[i];
+                        string name = parameter.Name.ToUpper()[0] + parameter.Name.Substring(1);
+                        ReorderableList list = methodData.reoderableInfos.Find(x => x.index == i && x.type == parameter.ParameterType)?.reorderableList;
+                        if (list != null)
+                        {
+                            list.DoLayoutList();
+                            methodData.args[i] = list.list;
+                        }
+                        else if (parameter.ParameterType.GetCustomAttribute<SerializableAttribute>() != null && parameter.ParameterType.IsClass)
+                        {
+                            EditorGUILayout.HelpBox("方法参数不支持对标记Serializable的类的序列化!", MessageType.Warning);
+                        }
+                        else if (parameter.ParameterType.IsSubclassOf(typeof(Enum)) || parameter.ParameterType.Equals(typeof(Enum)))
+                        {
+                            methodData.displayNames.Clear();
+                            foreach (var field in parameter.ParameterType.GetRuntimeFields())
+                            {
+                                if (field.Name.StartsWith("value_")) continue;
+                                var enumName = field.Name;
+
+                                var enumType = field.FieldType.GetField(enumName);
+                                var labelAttributes = enumType.GetCustomAttributes(typeof(LabelAttribute), false).ToArray();
+                                methodData.displayNames.Add(labelAttributes.Length > 0 ? (labelAttributes[0] as LabelAttribute).Label : enumName);
+                            }
+
+
+                            methodData.displayIndex = EditorGUILayout.Popup(name, methodData.displayIndex, methodData.displayNames.ToArray());
+                            methodData.args[i] = Enum.GetValues(parameter.ParameterType).GetValue(methodData.displayIndex);
+                        }
+                        else
+                            methodData.args[i] = DrawingUtility.PropertyField(name, methodData.args[i], parameter.ParameterType);                       
+                    }
+                    EditorGUILayout.EndVertical();
                 }
 
+                if (executed)
+                {
+                    methodData.method.Invoke(target,methodData.args);
+                }
+                EditorGUILayout.EndVertical();           
                 EditorGUI.EndDisabledGroup();
                 GUI.color = Color.white;
             }
@@ -245,7 +446,7 @@ namespace YukiFrameWork
             var listDrawerSetting = info.GetCustomAttribute<ListDrawerSettingAttribute>(true);
             if (PropertyUtility.CheckPropertyInGeneric(type) && listDrawerSetting != null)
             {
-                var list = new UnityEditorInternal.ReorderableList(serializedObject, property, true, true, true, true);
+                var list = new ReorderableList(serializedObject, property, true, true, true, true);
                 DrawingUtility.SetReoderableList(data, list, label,listDrawerSetting,target,target.GetType());
                 listPairs[data.member.Name] = list;
             }

@@ -268,7 +268,11 @@ namespace YukiFrameWork.States
                         for (int i = 0; i < list.Count; i++)
                             Values.Add(list[i] as Object);
                     }
-                    else data = AssemblyHelper.SerializedObject(value,Newtonsoft.Json.Formatting.None);
+                    else data = AssemblyHelper.SerializedObject(value,Newtonsoft.Json.Formatting.None,new Newtonsoft.Json.JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+                        PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects
+                    });
                 }
                 else data = value.ToString();
             }

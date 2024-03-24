@@ -377,68 +377,14 @@ namespace YukiFrameWork.States
                     }
                     for (int i = 0; i < list.Count; i++)
                     {
-                        list[i] = PropertyField("Element " + i, list[i], metadata.itemType);                        
+                        list[i] = DrawingUtility.PropertyField("Element " + i, list[i], metadata.itemType);                        
                         metadata.value = list;
                     }                   
                 }
                 EditorGUI.EndFoldoutHeaderGroup();
                 EditorGUILayout.EndVertical();
             }
-        }
-
-        private static object PropertyField(string name, object obj, Type type)
-        {
-            var typeCode = (TypeCode)Type.GetTypeCode(type);
-            if (typeCode == TypeCode.Byte)
-                obj = (byte)EditorGUILayout.IntField(name, (byte)obj);
-            else if (typeCode == TypeCode.SByte)
-                obj = (sbyte)EditorGUILayout.IntField(name, (sbyte)obj);
-            else if (typeCode == TypeCode.Boolean)
-                obj = EditorGUILayout.Toggle(name, (bool)obj);
-            else if (typeCode == TypeCode.Int16)
-                obj = (short)EditorGUILayout.IntField(name, (short)obj);
-            else if (typeCode == TypeCode.UInt16)
-                obj = (ushort)EditorGUILayout.IntField(name, (ushort)obj);
-            else if (typeCode == TypeCode.Char)
-                obj = EditorGUILayout.TextField(name, (string)obj).ToCharArray().FirstOrDefault();
-            else if (typeCode == TypeCode.Int32)
-                obj = EditorGUILayout.IntField(name, (int)obj);
-            else if (typeCode == TypeCode.UInt32)
-                obj = (uint)EditorGUILayout.IntField(name, (int)obj);
-            else if (typeCode == TypeCode.Single)
-                obj = EditorGUILayout.FloatField(name, (float)obj);
-            else if (typeCode == TypeCode.Int64)
-                obj = EditorGUILayout.LongField(name, (long)obj);
-            else if (typeCode == TypeCode.UInt64)
-                obj = (ulong)EditorGUILayout.LongField(name, (long)obj);
-            else if (typeCode == TypeCode.Double)
-                obj = EditorGUILayout.DoubleField(name, (double)obj);
-            else if (typeCode == TypeCode.String)
-                obj = EditorGUILayout.TextField(name, (string)obj);
-            else if (type == typeof(Vector2))
-                obj = EditorGUILayout.Vector2Field(name, (Vector2)obj);
-            else if (type == typeof(Vector3))
-                obj = EditorGUILayout.Vector3Field(name, (Vector3)obj);
-            else if (type == typeof(Vector4))
-                obj = EditorGUILayout.Vector4Field(name, (Vector4)obj);
-            else if (type == typeof(Quaternion))
-            {
-                var value = EditorGUILayout.Vector4Field(name, (Vector4)obj);
-                Quaternion quaternion = new Quaternion(value.x, value.y, value.z, value.w);
-                obj = quaternion;
-            }
-            else if (type == typeof(Rect))
-                obj = EditorGUILayout.RectField(name, (Rect)obj);
-            else if (type == typeof(Color))
-                obj = EditorGUILayout.ColorField(name, (Color)obj);
-            else if (type == typeof(Color32))
-                obj = EditorGUILayout.ColorField(name, (Color32)obj);
-            else if (type == typeof(AnimationCurve))
-                obj = EditorGUILayout.CurveField(name, (AnimationCurve)obj);
-            else if (type.IsSubclassOf(typeof(Object)) | type == typeof(Object))
-                obj = EditorGUILayout.ObjectField(name, (Object)obj, type, true);
-            return obj;
-        }
+        }          
 
         private void RecomposeScript(StateBase state)
         {
