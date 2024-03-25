@@ -24,7 +24,7 @@ namespace YukiFrameWork
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InitArchitecture()
         {
-            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
 
             lock (_object)
             {

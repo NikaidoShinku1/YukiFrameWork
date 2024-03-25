@@ -20,13 +20,46 @@ using UnityEditor;
 namespace YukiFrameWork
 {
 #if UNITY_EDITOR	
+    /// <summary>
+    /// 参数信息数据
+    /// </summary>
     public class InfoData
     {
         public MemberInfo member;
         public SerializedProperty property;       
         public bool active;
+        public LocalConfigInfo config;
+        public bool foldOut
+        {
+            get
+            {
+                CheckPair();
+                return config.elementFoldOutPairs[member.DeclaringType.FullName][property.displayName];
+            }
+            set
+            {
+                CheckPair();
+                config.elementFoldOutPairs[member.DeclaringType.FullName][property.displayName] = value;
+            }
+        }
+
+        private void CheckPair() 
+        {
+            if (!config.elementFoldOutPairs.ContainsKey(member.DeclaringType.FullName))
+            {
+                config.elementFoldOutPairs[member.DeclaringType.FullName] = new YDictionary<string, bool>();
+            }
+
+            if (!config.elementFoldOutPairs[member.DeclaringType.FullName].ContainsKey(property.displayName))
+            {
+                config.elementFoldOutPairs[member.DeclaringType.FullName][property.displayName] = false;
+            }
+        }
     }
 
+    /// <summary>
+    /// 方法信息数据
+    /// </summary>
     public class MethodData
     {
         public MethodInfo method;
@@ -56,20 +89,21 @@ namespace YukiFrameWork
         private readonly Dictionary<string, ReorderableList> listPairs = new Dictionary<string, ReorderableList>();
         private readonly List<string> enumDisplayNames = new List<string>();      
         private SerializedProperty script;
-        [SerializeField]public List<MethodData> methodDatas = new List<MethodData>();
+        private List<MethodData> methodDatas = new List<MethodData>();
+        private LocalConfigInfo config;
         protected virtual void OnEnable()
         {
             infoDataPairs.Clear();
             listPairs.Clear();
             enumDisplayNames.Clear();
             methodDatas.Clear();
-
+            config = Resources.Load<LocalConfigInfo>("LocalConfigInfo");          
             infoDataPairs.Add("Default", new List<InfoData>());           
             try
             {
                 IEnumerable<FieldInfo> memberInfos = target.GetType().GetRuntimeFields()
                 .Where(x => this.serializedObject.FindProperty(x.Name) != null && x.GetCustomAttribute<HideInInspector>() == null);
-
+                List<SerializedProperty> setProperties = new List<SerializedProperty>();
                 foreach (var field in memberInfos)
                 {
                     var group = field.GetCustomAttribute<GUIGroupAttribute>(true);
@@ -81,10 +115,11 @@ namespace YukiFrameWork
                     {
                         property = property.FindPropertyRelative(settingAttribute.ItemName);
                     }
-
+                    setProperties.Add(property);
                     group ??= new GUIGroupAttribute("Default");
                     SetGroup(group, field, property, field.FieldType);
-                }
+                }             
+
                 script = serializedObject.FindProperty("m_Script");
 
                 MethodInfo[] methodInfos = target.GetType().GetRuntimeMethods().ToArray();
@@ -95,6 +130,13 @@ namespace YukiFrameWork
                     if (button == null) continue;
 
                     methodDatas.Add(InitMethodData(methodInfos[i].GetParameters(), methodInfos[i],button));
+                }
+
+                string[] noSerializeNames = config.elementFoldOutPairs[target.GetType().FullName].Keys.Where(x => setProperties.Find(y => y.displayName == x) == null).ToArray();
+
+                foreach (var n in noSerializeNames)
+                {
+                    config.elementFoldOutPairs[target.GetType().FullName].Remove(n);
                 }
             }
             catch { }
@@ -131,56 +173,18 @@ namespace YukiFrameWork
             }
             return methodData;
         }
-
+    
         private ReorderableList CreateReorderableList(IList list,Type type,Type elementType,MethodData.ReoderableInfo info,string name)
         {
-            var reoderableList = new ReorderableList(list, elementType, true, true, true, true);
-            reoderableList.onAddCallback = r =>
+            var reoderableList = new ReorderableList(list, elementType, true, true, false, false);
+            reoderableList.headerHeight = 0;
+            reoderableList.drawElementBackgroundCallback = (v, index, b, c) =>
             {
-                bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
-                if (type.IsArray)
-                {
-                    var tempList = Array.CreateInstance(elementType, reoderableList.list.Count + 1);
-                    Array.Copy((Array)reoderableList.list, tempList, reoderableList.list.Count);
-                    reoderableList.list = tempList;
-                }
-                else if (type.IsGenericType)
-                {
-                    if (subObject)
-                        reoderableList.list.Add(null);
-                    else reoderableList.list.Add(Activator.CreateInstance(elementType));
-                }
-            };
-            reoderableList.onRemoveCallback = r =>
-            {
-                bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
-                if (type.IsArray)
-                {
-                    if (reoderableList.list.Count > 0)
-                    {
-                        for (int i = r.index; i < reoderableList.list.Count;i++)
-                        {
-                            if (i + 1 < reoderableList.list.Count)
-                            {
-                                reoderableList.list[i] = reoderableList.list[i + 1];
-                            }
-                        }
-                        var tempList = Array.CreateInstance(elementType, reoderableList.list.Count - 1);
-                        Array.Copy((Array)reoderableList.list, tempList, reoderableList.list.Count - 1);
-                        reoderableList.list = tempList;
-                    }
-                }
-                else if (type.IsGenericType)
-                {                    
-                    reoderableList.list.RemoveAt(r.index);                 
-                }
-            };
-            reoderableList.drawHeaderCallback = rect =>
-            {
-                EditorGUI.LabelField(rect, new GUIContent(name));
+                EditorGUI.DrawRect(new Rect(v) { width = v.width + 1, height = v.height + 6, y = v.y - 3 }, new Color(0.2f, 0.2f, 0.2f, 1));
             };
             reoderableList.drawElementCallback = (v, index, b, c) =>
             {
+                v.width -= 20;
                 if (elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object)))
                 {                  
                     reoderableList.list[index] = EditorGUI.ObjectField(v, (UnityEngine.Object)reoderableList.list[index], elementType, true);
@@ -214,6 +218,41 @@ namespace YukiFrameWork
                     else
                         reoderableList.list[index] = Convert.ChangeType(DrawingUtility.PropertyField(string.Empty, reoderableList.list[index], elementType, v), elementType);
                 }
+                var removeRect = new Rect(v)
+                {
+                    x = v.xMax + 8,
+                    width = 20,                  
+                };
+                GUIStyle style = new GUIStyle();
+                style.alignment = TextAnchor.MiddleLeft;
+                style.fontStyle = FontStyle.Bold;
+                style.fontSize = 14;
+                GUI.Box(new Rect(removeRect) { x = removeRect.x - 5, width = 20 }, string.Empty, "GroupBox");
+                style.normal.textColor = removeRect.Contains(Event.current.mousePosition) ? Color.white : Color.grey;
+                if (GUI.Button(removeRect, "X", style))
+                {
+                    bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
+                    if (type.IsArray)
+                    {
+                        if (reoderableList.list.Count > 0)
+                        {
+                            for (int i = index; i < reoderableList.list.Count; i++)
+                            {
+                                if (i + 1 < reoderableList.list.Count)
+                                {
+                                    reoderableList.list[i] = reoderableList.list[i + 1];
+                                }
+                            }
+                            var tempList = Array.CreateInstance(elementType, reoderableList.list.Count - 1);
+                            Array.Copy((Array)reoderableList.list, tempList, reoderableList.list.Count - 1);
+                            reoderableList.list = tempList;
+                        }
+                    }
+                    else if (type.IsGenericType)
+                    {
+                        reoderableList.list.RemoveAt(index);
+                    }
+                }
             };          
             return reoderableList;
         }
@@ -221,10 +260,9 @@ namespace YukiFrameWork
 
         public override void OnInspectorGUI()
         {                   
-            serializedObject.Update();       
-
+            serializedObject.Update();         
             if (script != null)
-            {
+            {               
                 MonoScript monoScript = script.objectReferenceValue as MonoScript;
                 GUI.enabled = false;
                 if (monoScript == null)
@@ -257,14 +295,13 @@ namespace YukiFrameWork
                     GUILayout.Label(key, style, GUILayout.Width(EditorGUIUtility.currentViewWidth - 25));
                     EditorGUILayout.BeginVertical("Wizard Box");
                     EditorGUILayout.Space();
-                }
-                else EditorGUILayout.BeginVertical();          
+                }                    
                 foreach (var item in pair)
-                {
+                {                 
                     SerializedField(item);
                 }
-
-                EditorGUILayout.EndVertical();
+                if (!key.Equals("Default") && changeTip)
+                    EditorGUILayout.EndVertical();
             }
             
             if (methodDatas?.Count > 0)
@@ -276,7 +313,11 @@ namespace YukiFrameWork
                     EditorGUILayout.Space(5);
                 }
             }
-            this.serializedObject.ApplyModifiedProperties();
+            try
+            {              
+                this.serializedObject.ApplyModifiedProperties();
+            }
+            catch { }
         }
 
         private void SerializedField(InfoData item)
@@ -381,11 +422,53 @@ namespace YukiFrameWork
                     { 
                         var parameter = parameterInfos[i];
                         string name = parameter.Name.ToUpper()[0] + parameter.Name.Substring(1);
-                        ReorderableList list = methodData.reoderableInfos.Find(x => x.index == i && x.type == parameter.ParameterType)?.reorderableList;
-                        if (list != null)
+                        var list = methodData.reoderableInfos.Find(x => x.index == i && x.type == parameter.ParameterType);
+                        if (list != null && list.reorderableList != null)
                         {
-                            list.DoLayoutList();
-                            methodData.args[i] = list.list;
+                            var newRect = EditorGUILayout.BeginHorizontal("OL box NoExpand");
+                            GUILayout.Label(" ");
+                            list.foldOut = EditorGUILayout.Foldout(list.foldOut, parameter.Name);
+                            GUIStyle nameStype = new GUIStyle();
+                            nameStype.fontStyle = FontStyle.Bold;
+                            nameStype.alignment = TextAnchor.MiddleCenter;
+                            nameStype.fontSize = 22;
+                            nameStype.fixedHeight = 18;
+                            nameStype.fixedWidth = 25;
+                            nameStype.normal.textColor = Color.grey;
+                            GUI.Box(new Rect(newRect) { x = newRect.xMax - 28, width = 1 }, string.Empty, "LODBlackBox");                          
+                            GUILayout.FlexibleSpace();
+                            if (GUILayout.Button("+", nameStype))
+                            {
+                                var type = list.type;
+                                Type elementType = null;
+                                if (type.IsArray)
+                                    elementType = type.GetElementType();
+                                else if (type.IsGenericType)
+                                    elementType = type.GetGenericArguments()[0];
+
+                                if (elementType == null) continue;
+                                bool subObject = elementType.IsSubclassOf(typeof(UnityEngine.Object)) || elementType.Equals(typeof(UnityEngine.Object));
+                                if (type.IsArray)
+                                {
+                                    var tempList = Array.CreateInstance(elementType, list.reorderableList.list.Count + 1);
+                                    Array.Copy((Array)list.reorderableList.list, tempList, list.reorderableList.list.Count);
+                                    list.reorderableList.list = tempList;
+                                }
+                                else if (type.IsGenericType)
+                                {
+                                    if (subObject)
+                                        list.reorderableList.list.Add(null);
+                                    else list.reorderableList.list.Add(Activator.CreateInstance(elementType));
+                                }
+                            }
+                            else if (newRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+                            {
+                                list.foldOut = !list.foldOut;
+                            }
+                            EditorGUILayout.EndHorizontal();
+                            if (list.foldOut)
+                                list.reorderableList.DoLayoutList();
+                            methodData.args[i] = list.reorderableList.list;
                         }
                         else if (parameter.ParameterType.GetCustomAttribute<SerializableAttribute>() != null && parameter.ParameterType.IsClass)
                         {
@@ -425,8 +508,7 @@ namespace YukiFrameWork
         }
 
         private void SetGroup(GUIGroupAttribute group, MemberInfo info,SerializedProperty property,Type type)
-        {
-           
+        {          
             if (infoDataPairs.ContainsKey(group.GroupName))
             { }
             else
@@ -440,14 +522,15 @@ namespace YukiFrameWork
             var data = new InfoData()
             {
                 member = info,
-                property = property
+                property = property,
+                config = config
             };
             var label = info.GetCustomAttribute<LabelAttribute>(true);
             var listDrawerSetting = info.GetCustomAttribute<ListDrawerSettingAttribute>(true);
             if (PropertyUtility.CheckPropertyInGeneric(type) && listDrawerSetting != null)
-            {
-                var list = new ReorderableList(serializedObject, property, true, true, true, true);
-                DrawingUtility.SetReoderableList(data, list, label,listDrawerSetting,target,target.GetType());
+            {               
+                var list = new ReorderableList(serializedObject, property, true, true, false, false);
+                DrawingUtility.SetReoderableList(data, list, listDrawerSetting,target,target.GetType());
                 listPairs[data.member.Name] = list;
             }
             infoDataPairs[group.GroupName].Add(data);

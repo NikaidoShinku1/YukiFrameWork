@@ -492,7 +492,7 @@ namespace YukiFrameWork.States
                 fileName += i;
                 targetPath = filePath + fileName + ".cs";
             }
-            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
             using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");                       

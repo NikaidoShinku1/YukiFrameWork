@@ -64,7 +64,7 @@ namespace YukiFrameWork.UI
 
             if (panel.GetType() == typeof(BasePanel))
             {
-                var genericInfo = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+                var genericInfo = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
                 panel.Data.ScriptNamespace = genericInfo != null ? genericInfo.nameSpace + ".UI" : "YukiFrameWork.Example.UI";
             }
 

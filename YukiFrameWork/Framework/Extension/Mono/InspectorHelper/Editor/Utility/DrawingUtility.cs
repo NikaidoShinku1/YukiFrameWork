@@ -6,12 +6,8 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
 using UnityEngine;
 using System;
-using System.Collections;
-using YukiFrameWork.Extension;
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,93 +20,94 @@ namespace YukiFrameWork
 {
 	public static class DrawingUtility
 	{	
-		public static void SetReoderableList(InfoData item, ReorderableList reorderableList, LabelAttribute label,ListDrawerSettingAttribute listDrawerSetting,object target,Type type)
-		{
-			var displayNames = new List<string>();
-			reorderableList.drawHeaderCallback = rect =>
-			{
-                var newRect = new Rect(rect.xMax - 60, rect.y, 60, rect.height);
-                EditorGUI.LabelField(rect, string.Format("{0}: {1}", PropertyUtility.GetLabel(item, label).text, item.property.arraySize), EditorStyles.label);
-                if (GUI.Button(newRect, "Clear", "minibutton"))
-                {
-                    reorderableList.serializedProperty.arraySize = 0;
-                }       
-			};
+		public static void SetReoderableList(InfoData item, ReorderableList reorderableList,ListDrawerSettingAttribute listDrawerSetting,object target,Type type)
+		{           
+            var displayNames = new List<string>();
+			GUIContent content = new GUIContent();
+			reorderableList.headerHeight = 0;			
 			var propertyRange = item.member.GetCustomAttribute<PropertyRangeAttribute>(true);
 			var range = item.member.GetCustomAttribute<RangeAttribute>(true);
-			reorderableList.drawElementCallback = (rect, index, b, c) =>
-			{			         
-				if (item.property.isArray)
-				{
-                    var value = item.property.GetArrayElementAtIndex(index);
-                    if (listDrawerSetting.IsAutoOnly)
-						EditorGUI.BeginDisabledGroup(listDrawerSetting.IsReadOnly);
-					else
-					{
-						object obj = GlobalReflectionSystem.GetValue(type, target, listDrawerSetting.ValueName);
+            reorderableList.drawElementCallback = (rect, index, b, c) =>
+            {
+                Type type = (item.member as FieldInfo).FieldType;
+                Type itemType = null;
 
-						if (obj is bool v)
-						{
-							EditorGUI.BeginDisabledGroup(listDrawerSetting.IsReversal ? !v : v);
-						}
-						else EditorGUI.BeginDisabledGroup(false);
-					}
-					if (value.propertyType == SerializedPropertyType.Enum)
-					{
-                        Type type = (item.member as FieldInfo).FieldType;
-                        Type itemType = null;
-						if (type.IsArray)
-							itemType = type.GetElementType();
-						else if (type.IsGenericType)
-							itemType = type.GetGenericArguments()[0];		
-                        displayNames.Clear();
-                        foreach (var enumName in value.enumNames)
-                        {
-                            var enumType = itemType.GetField(enumName);
-                            var labelAttributes = enumType?.GetCustomAttributes<LabelAttribute>(false).ToArray();
+                rect.width -= 20;
+                var value = item.property.GetArrayElementAtIndex(index);
+                var removeRect = new Rect(rect)
+                {
+                    x =
+                    rect.xMax + 8,
+                    width = 20,
+                    height = EditorGUI.GetPropertyHeight(value, true)
+                };
+                if (listDrawerSetting.IsAutoOnly)
+                    EditorGUI.BeginDisabledGroup(listDrawerSetting.IsReadOnly);
+                else
+                {
+                    object obj = GlobalReflectionSystem.GetValue(type, target, listDrawerSetting.ValueName);
 
-                            displayNames.Add(labelAttributes.Length > 0 ? labelAttributes[0].Label : enumName);
-                        }
-
-                        int indexed = value.enumValueIndex;
-
-                        indexed = EditorGUI.Popup(rect,value.displayName, indexed, displayNames.ToArray());
-
-                        if (indexed != value.enumValueIndex)
-                        {
-                            value.enumValueIndex = indexed;
-
-                        }
+                    if (obj is bool v)
+                    {
+                        EditorGUI.BeginDisabledGroup(listDrawerSetting.IsReversal ? !v : v);
                     }
-					else if ((value.propertyType == SerializedPropertyType.Integer || value.propertyType == SerializedPropertyType.Float)
-					&& (range != null || propertyRange != null))
-					{
-						float minValue = range != null ? range.min : propertyRange.MinValue;
-						float maxValue = propertyRange != null ? propertyRange.MaxValue : range.max;
-						if (value.propertyType == SerializedPropertyType.Float)
-						{
-							EditorGUI.Slider(rect, value, minValue, maxValue);
-						}
-						else
-							EditorGUI.IntSlider(rect, value, (int)minValue, (int)maxValue);
-					}
-					else
-					{
-						EditorGUI.PropertyField(rect, value, true);
-					}
-					EditorGUI.EndDisabledGroup();
-				}
-				else
-				{
-                    string warning = typeof(ListDrawerSettingAttribute).Name + " can be used only on arrays or lists";
-                    EditorGUILayout.HelpBox(warning, MessageType.Warning);
-                    Debug.LogWarning(warning, PropertyUtility.GetTargetObject(item.property));
-
-                    EditorGUILayout.PropertyField(item.property, true);
+                    else EditorGUI.BeginDisabledGroup(false);
                 }
-			};
+                if (value.propertyType == SerializedPropertyType.Enum)
+                {
+                    if (type.IsArray)
+                        itemType = type.GetElementType();
+                    else if (type.IsGenericType)
+                        itemType = type.GetGenericArguments()[0];
+                    displayNames.Clear();
+                    foreach (var enumName in value.enumNames)
+                    {
+                        var enumType = itemType.GetField(enumName);
+                        var labelAttributes = enumType?.GetCustomAttributes<LabelAttribute>(false).ToArray();
 
-			reorderableList.elementHeightCallback = index =>
+                        displayNames.Add(labelAttributes.Length > 0 ? labelAttributes[0].Label : enumName);
+                    }
+
+                    int indexed = value.enumValueIndex;
+
+                    indexed = EditorGUI.Popup(rect, content.text, indexed, displayNames.ToArray());
+
+                    if (indexed != value.enumValueIndex)
+                    {
+                        value.enumValueIndex = indexed;
+
+                    }
+                }
+                else if ((value.propertyType == SerializedPropertyType.Integer || value.propertyType == SerializedPropertyType.Float)
+                && (range != null || propertyRange != null))
+                {
+                    float minValue = range != null ? range.min : propertyRange.MinValue;
+                    float maxValue = propertyRange != null ? propertyRange.MaxValue : range.max;
+                    if (value.propertyType == SerializedPropertyType.Float)
+                    {
+                        EditorGUI.Slider(rect, value, minValue, maxValue, content);
+                    }
+                    else
+                        EditorGUI.IntSlider(rect, value, (int)minValue, (int)maxValue, content);
+                }
+                else
+                {
+                    EditorGUI.PropertyField(rect, value, content, true);
+                }
+                GUIStyle style = new GUIStyle();
+                style.alignment = TextAnchor.MiddleLeft;
+                style.fontStyle = FontStyle.Bold;
+                style.fontSize = 14;
+                GUI.Box(new Rect(removeRect) { x = removeRect.x - 5, width = 20 }, content, "GroupBox");
+                style.normal.textColor = removeRect.Contains(Event.current.mousePosition) ? Color.white : Color.grey;              
+                EditorGUI.EndDisabledGroup();
+                if (GUI.Button(removeRect, "X", style))
+                {
+                    ReorderableList.defaultBehaviours.DoRemoveButton(reorderableList);
+                }
+            };
+
+            reorderableList.elementHeightCallback = index =>
 			{
 				if (item.property.isArray && item.property.arraySize > 0)
 				{
@@ -118,14 +115,52 @@ namespace YukiFrameWork
 					return EditorGUI.GetPropertyHeight(value, true);
 				}
 				return 20;
-			};			
+			};
+
+			reorderableList.drawElementBackgroundCallback = (v, a, c, b) => 
+			{
+				EditorGUI.DrawRect(new Rect(v) {width = v.width + 3,height = v.height + 6,y = v.y - 3 },new Color(0.2f,0.2f,0.2f,1));
+			};
 		}	
 		public static void PropertyField(InfoData item,LabelAttribute label,Dictionary<string,ReorderableList> listPairs)
 		{
 			if (listPairs.ContainsKey(item.member.Name))
-			{
-				listPairs[item.member.Name].DoLayoutList();
-			}			
+            {
+                Type type = (item.member as FieldInfo).FieldType;
+                if (item.property.isArray && (!type.FullName.Contains("FastList") && !type.FullName.Contains("ListSafe")))
+				{
+					var newRect = EditorGUILayout.BeginHorizontal("OL box NoExpand",GUILayout.Height(15));
+					GUILayout.Label(" ");
+					item.foldOut = EditorGUILayout.Foldout(item.foldOut, string.Format(" {0}: {1}", PropertyUtility.GetLabel(item, label).text, item.property.arraySize));
+					GUIStyle nameStype = new GUIStyle();
+					nameStype.fontStyle = FontStyle.Bold;
+					nameStype.alignment = TextAnchor.MiddleCenter;
+					nameStype.fontSize = 22;
+					nameStype.fixedHeight = 18;
+					nameStype.fixedWidth = 25;
+					nameStype.normal.textColor = Color.grey;
+					GUI.Box(new Rect(newRect) { x = newRect.xMax - 28, width = 1 }, string.Empty, "LODBlackBox");					
+					GUILayout.FlexibleSpace();
+					if (GUILayout.Button("+", nameStype))
+					{
+						ReorderableList.defaultBehaviours.DoAddButton(listPairs[item.member.Name]);
+					}
+					else if (newRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown && Event.current.button == 0)
+					{
+						item.foldOut = !item.foldOut;
+					}
+					EditorGUILayout.EndHorizontal();					
+					if (item.foldOut)
+						listPairs[item.member.Name].DoLayoutList();
+				}
+				else
+				{
+                    string warning = typeof(ListDrawerSettingAttribute).Name + " can be used only on arrays or lists given by the system";
+                    EditorGUILayout.HelpBox(warning, MessageType.Warning);
+                    Debug.LogWarning(warning, PropertyUtility.GetTargetObject(item.property));
+                    EditorGUILayout.PropertyField(item.property, true);
+                }
+            }			
 			else
 			{
 				EditorGUILayout.PropertyField(item.property, PropertyUtility.GetLabel(item, label), true);

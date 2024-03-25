@@ -77,7 +77,7 @@ namespace YukiFrameWork.Extension
                 controller.Data.OnLoading = false;
                 Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
             }             
-            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
             controller.Data.ScriptNamespace = !info ? controller.Data.ScriptNamespace : info.nameSpace;
             
             if(controller.Data.IsPartialLoading)           
@@ -104,7 +104,7 @@ namespace YukiFrameWork.Extension
 
         private void OnDisable()
         { 
-            LocalGenericScriptInfo info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
             if (info == null) return;
 
             ViewController controller = target as ViewController;

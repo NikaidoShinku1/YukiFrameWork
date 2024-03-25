@@ -13,16 +13,16 @@ using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {
 #if UNITY_EDITOR
-    public class LocalGenericWindow : EditorWindow
+    public class LocalConfigWindow : EditorWindow
     {
         [InitializeOnLoadMethod]
         public static void Init()
         {
-            var info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            var info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
 
             if (info == null)
             {
-                info = ScriptableObject.CreateInstance<LocalGenericScriptInfo>();
+                info = ScriptableObject.CreateInstance<LocalConfigInfo>();
 
                 string infoPath = "Assets/Resources";
                 if (!Directory.Exists(infoPath))
@@ -31,23 +31,23 @@ namespace YukiFrameWork
                     AssetDatabase.Refresh();
                 }
 
-                AssetDatabase.CreateAsset(info, infoPath + "/LocalGenericScriptInfo.asset");
+                AssetDatabase.CreateAsset(info, infoPath + "/LocalConfigInfo.asset");
                 AssetDatabase.Refresh();
                 EditorUtility.SetDirty(info);
                 AssetDatabase.SaveAssets();
             }
         }
 
-        [MenuItem("YukiFrameWork/Local Scripts Generator")]
+        [MenuItem("YukiFrameWork/Local Config Generator")]
         private static void OpenWindow()
         {
-            var window = GetWindow<LocalGenericWindow>();
+            var window = GetWindow<LocalConfigWindow>();
 
-            window.titleContent = new GUIContent("脚本生成器");
+            window.titleContent = new GUIContent("框架本地生成器");
             window.Show();
         }
 
-        private LocalGenericScriptInfo info;
+        private LocalConfigInfo info;
         private SerializedProperty nameProperty;
         private SerializedProperty namesPaceProperty;
         private SerializedProperty pathProperty;
@@ -223,11 +223,11 @@ namespace YukiFrameWork
         }
         private void Update_Info()
         {
-            info = Resources.Load<LocalGenericScriptInfo>("LocalGenericScriptInfo");
+            info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
 
             if (info == null)
             {
-                info = ScriptableObject.CreateInstance<LocalGenericScriptInfo>();
+                info = ScriptableObject.CreateInstance<LocalConfigInfo>();
                 
                 string infoPath = "Assets/Resources";
                 if (!Directory.Exists(infoPath))
@@ -236,7 +236,7 @@ namespace YukiFrameWork
                     AssetDatabase.Refresh();
                 }
 
-                AssetDatabase.CreateAsset(info, infoPath + "/LocalGenericScriptInfo.asset");                
+                AssetDatabase.CreateAsset(info, infoPath + "/LocalConfigInfo.asset");                
                 AssetDatabase.Refresh();
                 EditorUtility.SetDirty(info);
                 AssetDatabase.SaveAssets();
