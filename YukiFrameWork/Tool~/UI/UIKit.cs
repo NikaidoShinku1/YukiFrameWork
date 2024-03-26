@@ -12,29 +12,43 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Pools;
-using XFABManager;
 using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
+using System.Collections;
 namespace YukiFrameWork.UI
 {
     public class UIKit
     {
         private static IUIConfigLoader loader = null;
+
         //层级堆栈
         private readonly static Dictionary<UILevel, Stack<BasePanel>> uiLevelPanelDicts = DictionaryPools<UILevel, Stack<BasePanel>>.Get();
 
         //储存已经被创造出来的panel
-        private readonly static Dictionary<UILevel,FastList<BasePanel>> creativityPanels = DictionaryPools<UILevel,FastList<BasePanel>>.Get();
+        private readonly static Dictionary<UILevel,FastList<PanelInfo>> creativityPanels = DictionaryPools<UILevel,FastList<PanelInfo>>.Get();
 
         //缓存一次性面板
-        private readonly static FastList<BasePanel> disposables = new FastList<BasePanel>();
+        private readonly static List<BasePanel> disposables = new List<BasePanel>();
 
+        //需要被销毁的面板
+        private readonly static List<PanelInfo> realeasePanels = new List<PanelInfo>();
+
+        const int UNLOAD_CACHESECOUND = 5 * 60;
+
+        const int DETECTION_INTERVAL = 60;
         //检查是否完成初始化
         private static bool isInit = false;
 
         public static bool Default { get; private set; } = false;
 
         public static string CanvasName { get; private set; }
+
+        class PanelInfo
+        {
+            public float cacheLoadTime;
+            public BasePanel panel;
+            public Type panelType;
+        }
         /// <summary>
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
         /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
@@ -111,11 +125,43 @@ namespace YukiFrameWork.UI
             for (int i = 0; i < (int)UILevel.Top; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
-                creativityPanels.Add(level, new FastList<BasePanel>());
+                creativityPanels.Add(level, new FastList<PanelInfo>());
             }
-
+            StartPanelCheck().Start().CancelWaitGameObjectDestroy(MonoHelper.I);
             UIManager.I.InitLevel();
-        }      
+        }
+
+        /// <summary>
+        /// 开始检查缓存面板是否需要释放
+        /// </summary>
+        /// <returns></returns>
+        private static IEnumerator StartPanelCheck()
+        {
+            while (true)
+            {
+                foreach (var key in creativityPanels.Keys)
+                {
+                    var value = creativityPanels[key];
+                    for (int i = 0; i < value.Count; i++)
+                    {
+                        var info = value[i];
+
+                        if (Time.time - info.cacheLoadTime >= UNLOAD_CACHESECOUND && !IsPanelActiveInternal(info.panelType,key))
+                        {
+                            realeasePanels.Add(info);
+                        }
+                    }
+                }
+
+                for(int i = 0;i < realeasePanels.Count;i++)
+                {
+                    creativityPanels[realeasePanels[i].panel.Level].Remove(realeasePanels[i]);
+                    realeasePanels[i].panel.gameObject.Destroy();
+                }
+                realeasePanels.Clear();
+                yield return CoroutineTool.WaitForSeconds(DETECTION_INTERVAL);
+            }
+        }
           
         public static T OpenPanel<T>(string name) where T : BasePanel
         {                     
@@ -139,17 +185,14 @@ namespace YukiFrameWork.UI
                 string.Format("没有正确加载出面板的GameObject！如果是模块默认加载则请检查资源名称以及检查是否已经初始化UIKit! name:{0}", name).LogInfo(Log.E);
                 return null;
             }
-            var panelObj = loader.Load<T>(name);
-          
-            var panelCore = panelObj.GetComponent<T>();
-
-            if (panelCore == null)
+            var panelObj = loader.Load<T>(name);                
+            if (panelObj == null)
             {
                 string.Format("没有正确加载出面板的Panel组件！请检查是否在该面板(GameObject)挂载了需要的脚本！name:{0}",name).LogInfo(Log.E);
                 return null;
             }
 
-            return panelCore;
+            return panelObj;
         }     
 
         public static void OpenPanelAsync<T>(string name,Action<T> onCompleted) where T : BasePanel
@@ -159,7 +202,11 @@ namespace YukiFrameWork.UI
 
             if (panelCore == null)
             {
-                loader.LoadAsync<T>(name, panel => onCompleted?.Invoke(OpenPanelExecute(panel)));
+                loader.LoadAsync<T>(name, panel => 
+                {
+                    uiMgr.AddPanelCore(panel);
+                    onCompleted?.Invoke(OpenPanelExecute(panel));
+                });
                 return;
             }
             onCompleted?.Invoke(OpenPanelExecute(panelCore));
@@ -183,7 +230,12 @@ namespace YukiFrameWork.UI
                 panel.OnInit();
 
                 if (panel.IsPanelCache)
-                    creativityPanels[panel.Level].Add(panel);
+                    creativityPanels[panel.Level].Add(new PanelInfo()
+                    {
+                        panel = panel,
+                        panelType = typeof(T),
+                        cacheLoadTime = Time.time
+                    });
                 else disposables.Add(panel);
             }
 
@@ -218,10 +270,26 @@ namespace YukiFrameWork.UI
                 }
             }
         }     
+
+        /// <summary>
+        /// 通过层级获取已经加载出来的面板(只对缓存面板生效)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="level"></param>
+        /// <returns></returns>
         public static T GetPanel<T>(UILevel level) where T : BasePanel
         {
+            return GetPanelInternal(typeof(T), level) as T;
+        }
+
+        private static BasePanel GetPanelInternal(Type type, UILevel level)
+        {
             creativityPanels.TryGetValue(level, out var list);
-            return list.Find(x => x.GetType().Equals(typeof(T))) as T;
+            var info = list.Find(x => x.panelType.Equals(type));
+            if (info == null) return null;
+            var panel = info.panel;
+            info.cacheLoadTime = Time.time;
+            return panel;
         }
 
         /// <summary>
@@ -233,6 +301,8 @@ namespace YukiFrameWork.UI
         public static T GetPanel<T>(string path) where T : BasePanel
         {
             T panel = null;
+            panel = disposables.Find(x => x.GetType().Equals(typeof(T))) as T;
+            if (panel != null) return panel;
             for (int i = 0; i < (int)UILevel.System; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
@@ -247,13 +317,18 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 判断面板是否处于激活状态
+        /// 判断面板是否处于激活状态(返回开启缓存的面板)
         /// </summary>
         /// <param name="level">这个面板所在的层级</param>
         /// <returns>如果面板从没被加载过或者是退出的状态则返回False,否则返回True</returns>
         public static bool IsPanelActive<T>(UILevel level) where T : BasePanel
         {
-            IPanel panel = GetPanel<T>(level);
+            return IsPanelActiveInternal(typeof(T), level);
+        }
+
+        internal static bool IsPanelActiveInternal(Type type, UILevel level)
+        {
+            IPanel panel = GetPanelInternal(type,level);
 
             if (panel == null) return false;
 
@@ -261,15 +336,20 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 判断面板是否是暂停的状态
+        /// 判断面板是否是暂停的状态(返回开启缓存的面板)
         /// </summary>     
         /// <param name="level">这面板所在的层级</param>
         /// <returns>如果面板不存在或者不是暂停的状态就返回False,否则返回True</returns>
         public static bool IsPanelPaused<T>(UILevel level) where T : BasePanel
         {
-            IPanel panel = GetPanel<T>(level);
-            
-            if(panel == null) return false;
+            return IsPanelActiveInternal(typeof(T), level);
+        }
+
+        internal static bool IsPanelInternal(Type type, UILevel level)
+        {
+            IPanel panel = GetPanelInternal(type,level);
+
+            if (panel == null) return false;
 
             return panel.IsPaused;
         }
@@ -289,20 +369,10 @@ namespace YukiFrameWork.UI
 
         public static void Release()
         {        
-            uiLevelPanelDicts.Clear();
-            foreach (var core in creativityPanels.Values)
-            {
-                foreach (var c in core)
-                {
-                    if (Default)
-                        AssetBundleManager.UnloadAsset(c.gameObject);
-                    else
-                        Object.Destroy(c.gameObject);
-                }
-
-                core.Clear();
-            }
+            uiLevelPanelDicts.Clear();           
             creativityPanels.Clear();
+            disposables.Clear();
+            realeasePanels.Clear();
             isInit = false;
             Default = false;
         }

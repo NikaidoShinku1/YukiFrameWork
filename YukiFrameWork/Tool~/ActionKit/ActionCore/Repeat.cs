@@ -48,9 +48,10 @@ namespace YukiFrameWork
             if (!IsInit) OnInit();
             if (ActionNode.OnExecute(delta))
             {
-                if (CurrentCount != 0)
+                if (CurrentCount > 0 || CurrentCount == -1)
                 {
-                    CurrentCount--;
+                    if (CurrentCount != -1)
+                        CurrentCount--;
                     ActionNode.OnInit();
                 }
                 else
@@ -74,7 +75,8 @@ namespace YukiFrameWork
 
         public override void OnInit()
         {
-            CurrentCount--;
+            if(CurrentCount != -1)
+                CurrentCount--;
             ActionNode.OnInit();
             IsInit = true;
             IsCompleted = false;

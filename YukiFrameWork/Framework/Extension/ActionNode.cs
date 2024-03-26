@@ -57,7 +57,7 @@ namespace YukiFrameWork
 
     public interface IActionNodeController
     {
-        IActionNodeController Start<T>(T component, Action callBack = null) where T : Component;
+        
     }
 
     public interface IActionUpdateNodeController : IActionNodeController
@@ -86,7 +86,46 @@ namespace YukiFrameWork
         IActionUpdateNode Register(Action<long> onEvent, Action OnError = null, Action OnFinish = null);
         IActionUpdateCondition Where(Func<bool> condition);
         IActionUpdateCondition First(Func<bool> condition = null);
-        IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition);
+        IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition);       
+        IActionUpdateCondition Delay(float time);        
+    }
+
+    public interface IMonoActionNode<T> : IMonoActionNode where T : Delegate
+    {
+        void Init(T action,Mono mono);
+    }
+
+    public interface IMonoActionNode
+    {
+        public enum Mono
+        {
+            OnApplicationFocus,
+            OnApplicationPause,
+            OnApplicationQuit,
+            OnGUI,
+            OnDrawGizmos
+        }
+    }  
+    public class MonoAction<T> : IMonoActionNode<T> where T : Delegate
+    {      
+        private static SimpleObjectPools<MonoAction<T>> simpleObjectPools
+            = new SimpleObjectPools<MonoAction<T>>(() => new MonoAction<T>(),null,10);
+
+        public T action { get; private set; }
+        public IMonoActionNode.Mono m { get; private set; }
+        public static MonoAction<T> Get(T action, IMonoActionNode.Mono m)
+        {
+            var mono = simpleObjectPools.Get();
+            mono.Init(action,m);
+            return mono;
+        }
+        public void Init(T action,IMonoActionNode.Mono m)
+        {
+            this.action = action;
+            this.m = m;
+        }
+
+        public static bool Release(MonoAction<T> action) => simpleObjectPools.Release(action);
     }
 
     public abstract class ActionNode : IActionNode
@@ -127,12 +166,15 @@ namespace YukiFrameWork
         public UpdateStatus UpdateStatus { get; private set; }
 
         protected long data;
+        private float current = 0;
+        public float maxTime { get; set; }
         protected Action<long> onEvent;
 
         protected Action onError;
         protected Action onFinish;
 
         public Func<bool> OnFinishCondition { get; set; }
+       
 
         public bool IsFirstExecute { get; set; }
 
@@ -159,6 +201,11 @@ namespace YukiFrameWork
         {
             try
             {
+                if (current < maxTime)
+                {
+                    current += delta;
+                    return false;
+                }
                 foreach (var action in actions)
                 {
                     IsPaused = !action.OnExecute(delta);
@@ -196,8 +243,7 @@ namespace YukiFrameWork
         public override void OnFinish()
         {
             IsInit = false;
-           
-            
+                     
             IsCompleted = true;
             data = 0;
             onEvent = null;

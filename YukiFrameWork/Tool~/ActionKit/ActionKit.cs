@@ -9,6 +9,7 @@
 ///======================================================
 
 using System;
+using System.Collections;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {           
@@ -45,8 +46,14 @@ namespace YukiFrameWork
             return YukiFrameWork.ExecuteFrame.Get(predicate, CallBack);
         }
 
-        [MethodAPI("循环执行")]
-        public static IRepeat Repeat(int count)
+        [MethodAPI("协程转ActionNode")]
+        public static IActionNode Coroutine(IEnumerator enumerator, Action callBack = null)
+        {
+            return enumerator.ToAction(callBack);
+        } 
+
+        [MethodAPI("循环执行,默认值-1，代表无限循环")]
+        public static IRepeat Repeat(int count = -1)
         {
             return YukiFrameWork.Repeat.Get(count);
         }
@@ -61,6 +68,32 @@ namespace YukiFrameWork
         public static IParallel Parallel()
         {
             return YukiFrameWork.Parallel.Get();
+        }
+
+        [MethodAPI("OnGUI")]
+        public static IMonoActionNode<Action> OnGUI(Action action)
+        {
+            return YukiFrameWork.MonoAction<Action>.Get(action,IMonoActionNode.Mono.OnGUI);
+        }
+        [MethodAPI("OnDrawGizmos")]
+        public static IMonoActionNode<Action> OnDrawGizmos(Action action)
+        {
+            return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnDrawGizmos);
+        }
+        [MethodAPI("OnApplicationFocus")]
+        public static IMonoActionNode<Action<bool>> OnApplicationFocus(Action<bool> action)
+        {
+            return YukiFrameWork.MonoAction<Action<bool>>.Get(action, IMonoActionNode.Mono.OnApplicationFocus);
+        }
+        [MethodAPI("OnApplicationPause")]
+        public static IMonoActionNode<Action<bool>> OnApplicationPause(Action<bool> action)
+        {
+            return YukiFrameWork.MonoAction<Action<bool>>.Get(action, IMonoActionNode.Mono.OnApplicationPause);
+        }
+        [MethodAPI("OnApplicationQuit")]
+        public static IMonoActionNode<Action> OnApplicationQuit(Action action)
+        {
+            return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnApplicationQuit);
         }
 
         [MethodAPI("增强Update方法")]
@@ -79,8 +112,7 @@ namespace YukiFrameWork
         public static IActionUpdateNode OnLateUpdate()
         {
             return YukiFrameWork.ActionUpdateNode.Get(UpdateStatus.OnLateUpdate);
-        }
-
+        }      
 
     }
 }

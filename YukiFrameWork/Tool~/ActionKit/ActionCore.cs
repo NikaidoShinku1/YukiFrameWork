@@ -59,6 +59,13 @@ namespace YukiFrameWork
             repeat.ActionNode = YukiFrameWork.CallBack<IParallel>.Get(parallel, parallelEvent);
             return repeat;
         }
+
+        public static IActionNode Coroutine(this IRepeat repeat, IEnumerator enumerator)
+        {
+            var node = ActionKit.Coroutine(enumerator);
+            repeat.ActionNode = node;
+            return repeat;
+        }
     }
 
     public static class ActionSequenceExtension
@@ -98,6 +105,12 @@ namespace YukiFrameWork
             sequence.AddSequence(CallBack<ISequence>.Get(newSequence, sequenceEvent));
             return sequence;
         }
+
+        public static ISequence Coroutine(this ISequence sequence, IEnumerator enumerator)
+        {
+            var node = ActionKit.Coroutine(enumerator);
+            return sequence.AddSequence(node);
+        }
     }
 
     public static class ParallelExtension
@@ -136,6 +149,12 @@ namespace YukiFrameWork
             var newParallel = YukiFrameWork.Parallel.Get();
             parallel.AddParallel(YukiFrameWork.CallBack<IParallel>.Get(newParallel, parallelEvent));
             return parallel;
+        }
+
+        public static IParallel Coroutine(this IParallel parallel, IEnumerator enumerator)
+        {
+            var node = ActionKit.Coroutine(enumerator);
+            return parallel.AddParallel(node);
         }
     }
 
@@ -338,10 +357,40 @@ namespace YukiFrameWork
 
         public IActionNodeController Start<T>(T component, Action callBack = null) where T : Component
         {
-            var uC = component.GetComponent<MonoUpdateExecute>();
-            uC = uC == null ? component.gameObject.AddComponent<MonoUpdateExecute>() : uC;
+            var uC = component.GetComponent<MonoExecute>();
+            uC = uC == null ? component.gameObject.AddComponent<MonoExecute>() : uC;
             uC.AddUpdate(UpdateNode,this);
             uC.PushFinishEvent(callBack);
+            return this;
+        }
+    }
+
+    public struct MonoActionController<TK> : IActionNodeController where TK : Delegate
+    {
+        public MonoAction<TK> mono;
+        public IActionNodeController Start<T>(T component, Action callBack = null) where T : Component
+        {
+            var uC = component.GetComponent<MonoExecute>();
+            uC = uC == null ? component.gameObject.AddComponent<MonoExecute>() : uC;         
+            uC.PushFinishEvent(callBack);
+            switch (mono.m)
+            {
+                case IMonoActionNode.Mono.OnApplicationFocus:
+                    uC.applicationFocus.RegisterEvent(mono.action as Action<bool>);
+                    break;
+                case IMonoActionNode.Mono.OnApplicationPause:
+                    uC.applicationPause.RegisterEvent(mono.action as Action<bool>);
+                    break;
+                case IMonoActionNode.Mono.OnApplicationQuit:
+                    uC.applicationQuit.RegisterEvent(mono.action as Action);
+                    break;
+                case IMonoActionNode.Mono.OnGUI:
+                    uC.onGUI.RegisterEvent(mono.action as Action);
+                    break;
+                case IMonoActionNode.Mono.OnDrawGizmos:
+                    uC.onDrawGizmos.RegisterEvent(mono.action as Action);
+                    break;              
+            }
             return this;
         }
     }
@@ -379,11 +428,25 @@ namespace YukiFrameWork
                 UpdateNode = action
             }.Start(MonoHelper.I,onFinish);
         }
+
+        public static IActionNodeController BindGameObject<T,K>(this IMonoActionNode<K> mono,T component,Action callBack = null) where T : Component where K : Delegate
+        {
+            return new MonoActionController<K>()
+            {
+                mono = (MonoAction<K>)mono
+            }.Start(component,callBack);
+        }
     }
 
     public struct ActionUpdateCondition : IActionUpdateCondition
     {
         public ActionUpdateNode Action { get; set; }
+
+        public IActionUpdateCondition Delay(float time)
+        {
+            Action.maxTime = time;
+            return this;
+        }
 
         public IActionUpdateCondition First(Func<bool> condition = null)
         {
@@ -400,9 +463,9 @@ namespace YukiFrameWork
 
         public IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition)
         {
-            Action.OnFinishCondition = onFinishCondition;
+            Action.OnFinishCondition += onFinishCondition;
             return this;
-        }
+        }  
 
         public IActionUpdateCondition Where(Func<bool> condition)
         {

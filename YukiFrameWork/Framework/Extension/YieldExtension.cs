@@ -22,8 +22,8 @@ namespace YukiFrameWork
         /// <param name="enumerator">迭代器</param>
         /// <param name="callBack">回调(在迭代器结束运行时启动)</param>
         /// <returns></returns>
-        public static IYieldExtension Start(this IEnumerator enumerator, Action callBack = null)
-            => YieldExtensionCore.Get(enumerator, callBack);      
+        public static IYieldExtension Start(this IEnumerator enumerator)
+            => YieldExtensionCore.Get(enumerator);      
 
         /// <summary>
         /// 等待当前拓展协程结束，执行回调
@@ -55,11 +55,10 @@ namespace YukiFrameWork
         void Cancel();
     }
 
+  
     public class YieldExtensionCore : IYieldExtension
     {
-        private IEnumerator enumerator;
-        private Action callBack;
-        
+        private IEnumerator enumerator;      
         private static readonly SimpleObjectPools<YieldExtensionCore> simpleObjectPools
             = new SimpleObjectPools<YieldExtensionCore>(() => new YieldExtensionCore(), null, 10);
   
@@ -68,26 +67,25 @@ namespace YukiFrameWork
         public bool IsRunning { get; private set; }
 
         private bool isRelease = true;
-        public static YieldExtensionCore Get(IEnumerator enumerator, Action callBack = null)
+        public static YieldExtensionCore Get(IEnumerator enumerator)
         {
             var core = simpleObjectPools.Get();
-            core.Init(enumerator, callBack);
+            core.Init(enumerator);
             return core;
         }
         public YieldExtensionCore() { }
-        public YieldExtensionCore(IEnumerator enumerator, Action callBack = null)
+        public YieldExtensionCore(IEnumerator enumerator)
         {
-            Init(enumerator, callBack);
+            Init(enumerator);
         }
 
         private WaitUntil WaitUntil;
 
         public CustomYieldInstruction Request => WaitUntil;
 
-        public void Init(IEnumerator enumerator, Action callBack)
+        public void Init(IEnumerator enumerator)
         {
-            this.enumerator = enumerator;
-            this.callBack = callBack;
+            this.enumerator = enumerator;           
             IsRunning = true;
             isRelease = false;
             WaitUntil = new WaitUntil(() => !IsRunning);
@@ -116,7 +114,7 @@ namespace YukiFrameWork
             }                          
         }
 
-        public IYieldExtension ExecuteAsync(Action callBack = null)
+        public IYieldExtension ExecuteAsync<T>(T callBack = null) where T : Delegate
         {
              return Execution(callBack).Start();
         }
@@ -125,18 +123,17 @@ namespace YukiFrameWork
         /// 等待当前拓展协程(异步)执行完毕,如果该执行没有启动或已经完成则直接跳过
         /// </summary>
         /// <returns></returns>
-        private IEnumerator Execution(Action callBack = null)
+        protected virtual IEnumerator Execution<T>(T callBack = null) where T : Delegate
         {
             yield return Request;
-            callBack?.Invoke();
+            (callBack as Action)?.Invoke();
         }
 
         public void Cancel()
         {
             if (isRelease) return;
             
-            IsRunning = false;
-            callBack?.Invoke();           
+            IsRunning = false;                
             simpleObjectPools.Release(this);
             isRelease = true;
         }
@@ -160,5 +157,112 @@ namespace YukiFrameWork
         {
             IsPause = false;
         }
-    }  
+    }
+
+    public static class CoroutineTool
+    {
+        struct WaitDefaultFrame : IEnumerator
+        {
+            public object Current => null;
+
+            public bool MoveNext() => false;
+           
+            public void Reset()
+            {
+                
+            }
+        }      
+        struct CustomWaitUntil : IEnumerator
+        {
+            private Func<bool> m_Predicate;
+
+            public CustomWaitUntil(Func<bool> m_Predicate)
+                => this.m_Predicate = m_Predicate;
+
+            public bool keepWaiting => !m_Predicate();
+            public object Current => null;
+
+            public bool MoveNext()
+            {
+                return !m_Predicate();
+            }
+
+            public void Reset()
+            {
+                
+            }
+        }      
+        struct CustomWaitWhile : IEnumerator
+        {
+            private Func<bool> m_Predicate;
+
+            public CustomWaitWhile(Func<bool> m_Predicate)
+                => this.m_Predicate = m_Predicate;
+
+            public bool keepWaiting => !m_Predicate();
+            public object Current => null;
+
+            public bool MoveNext()
+            {
+                return m_Predicate();
+            }
+
+            public void Reset()
+            {
+                
+            }
+        }
+
+        private static WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
+        private static WaitForFixedUpdate waitForFixedUpdate = new WaitForFixedUpdate();
+
+        public static WaitForFixedUpdate WaitForFixedUpdate()        
+            => waitForFixedUpdate;        
+        public static WaitForEndOfFrame WaitForEndOfFrame()
+            => waitForEndOfFrame;
+
+        public static IEnumerator WaitForSecondsRealtime(float time)
+        {
+            float timer = 0;
+            while (timer < time)
+            {
+                timer += Time.unscaledDeltaTime;                
+                yield return new WaitDefaultFrame();
+            }
+        }
+
+        public static IEnumerator WaitForSeconds(float time)
+        {
+            float timer = 0;
+            while (timer < time)
+            {
+                timer += Time.deltaTime;
+                yield return new WaitDefaultFrame();
+            }
+        }
+
+        public static IEnumerator WaitForFrames(int count = 1)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return WaitForFrame();
+            }
+        }
+
+        public static IEnumerator WaitForFrame()
+        {
+            yield return new WaitDefaultFrame();
+        }
+       
+        public static IEnumerator WaitUntil(Func<bool> m_Predicate)
+        {
+            yield return new CustomWaitUntil(m_Predicate);
+        }
+
+        public static IEnumerator WaitWhile(Func<bool> m_Predicate)
+        {
+            yield return new CustomWaitWhile(m_Predicate);
+        }
+
+    }
 }

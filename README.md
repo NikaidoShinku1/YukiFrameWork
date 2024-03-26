@@ -1,7 +1,7 @@
 # YukiFrameWork
 
 #### 介绍
-"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备类似Odin插件的一些编辑器自定义功能"
+"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)，具备类似Odin插件的一些编辑器自定义功能"
 
 #### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
@@ -63,6 +63,8 @@
 注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！
 
 #### 框架更新版本速览
+
+V1.10.1 框架新增协程性能工具CoroutineTool,场景管理工具SceneTool，UI模块新增对生成的面板自动化管理(超过五分钟没打开则销毁),ActionKit新增部分API
 
 V1.10.0 方法序列化特性MethodButton可以支持预览参数，修复状态机序列化数组导致异常的问题。
 

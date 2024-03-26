@@ -19,7 +19,6 @@ namespace YukiFrameWork.Audio
     public class AudioManager : SingletonMono<AudioManager>
     {   
         private AudioListener audioListener;
-        private WaitForSeconds seconds;
         public AudioPlayer MusicPlayer { get; private set; }
         public AudioPlayer VoicePlayer { get; private set; }
 
@@ -41,8 +40,7 @@ namespace YukiFrameWork.Audio
         private Dictionary<string,AudioCache> cacheLoaderPools = new Dictionary<string, AudioCache>();
         private List<AudioCache> releaseCache = new List<AudioCache>();
         public override void OnInit()
-        {
-            seconds = new WaitForSeconds(AudioKit.DETECTION_INTERVAL);
+        {            
             MusicPlayer = new AudioPlayer();
             VoicePlayer = new AudioPlayer();
             audioPools = new SimpleObjectPools<AudioPlayer>(() => new AudioPlayer(),10);
@@ -90,7 +88,7 @@ namespace YukiFrameWork.Audio
                     releaseCache[i].loader.UnLoad();
                 }
                 releaseCache.Clear();
-                yield return seconds;
+                yield return CoroutineTool.WaitForSeconds(AudioKit.DETECTION_INTERVAL);
             }
         }
 

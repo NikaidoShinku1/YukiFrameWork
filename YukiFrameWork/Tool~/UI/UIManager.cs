@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using UnityEngine.UI;
 using System.Reflection;
+using XFABManager;
 
 namespace YukiFrameWork.UI
 {
@@ -29,8 +30,7 @@ namespace YukiFrameWork.UI
                 throw new Exception("请在场景中添加画布！初始化失败:Not Canvas In Scene!");
             }
 
-            Canvas.Register(canvas => { }).UnRegisterWaitGameObjectDestroy(Canvas.Value,Release);
-            
+            MonoHelper.Destroy_AddListener(I.Release);          
             var eventSystem = Object.FindObjectOfType<EventSystem>();
             if (eventSystem == null)
             {
@@ -117,11 +117,19 @@ namespace YukiFrameWork.UI
             return panelCore.Find(x => x.GetType().Equals(typeof(T))) as T;
         }
 
-        public void Release()
+        public void Release(MonoHelper monoHelper = null)
         {
-            levelDicts.Clear();                       
-            panelCore.Clear();
+            levelDicts.Clear();
+            if (UIKit.Default)
+            {
+                foreach (var obj in panelCore)
+                {
+                    AssetBundleManager.UnloadAsset(obj);
+                }
+            }
+            panelCore.Clear();           
             UIKit.Release();
+            MonoHelper.Destroy_RemoveListener(Release);
         }
     }
 }

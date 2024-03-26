@@ -5,17 +5,23 @@ using UnityEngine;
 
 namespace YukiFrameWork
 {
-    public class MonoUpdateExecute : MonoBehaviour
+    public class MonoExecute : MonoBehaviour
     {
         private readonly List<IActionUpdateNode> actionUpdateNodes = new List<IActionUpdateNode>();
         private List<KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>> queueActionNodes = new List<KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>>();
         private readonly Dictionary<IActionUpdateNode, IActionUpdateNodeController> updateExecuteDict = new Dictionary<IActionUpdateNode, IActionUpdateNodeController>();
-
+        
         private readonly Stack<Action> onFinishEvents = new Stack<Action>();
         public void AddUpdate(IActionUpdateNode node, IActionUpdateNodeController controller)
         {
             queueActionNodes.Add(new KeyValuePair<IActionUpdateNode, IActionUpdateNodeController>(node, controller));
         }
+
+        public readonly EasyEvent<bool> applicationFocus = new EasyEvent<bool>();
+        public readonly EasyEvent<bool> applicationPause = new EasyEvent<bool>();
+        public readonly EasyEvent applicationQuit = new EasyEvent();
+        public readonly EasyEvent onGUI = new EasyEvent();
+        public readonly EasyEvent onDrawGizmos = new EasyEvent();
 
         public void PushFinishEvent(Action onFinish)
         {
@@ -93,6 +99,31 @@ namespace YukiFrameWork
             }
 
             actionUpdateNodes.Clear();
+        }
+
+        private void OnApplicationFocus(bool focus)
+        {
+            applicationFocus?.SendEvent(focus);
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            applicationPause?.SendEvent(pause);
+        }
+
+        private void OnApplicationQuit()
+        {
+            applicationQuit?.SendEvent();
+        }
+
+        private void OnGUI()
+        {
+            onGUI?.SendEvent();
+        }
+
+        private void OnDrawGizmos()
+        {
+            onDrawGizmos?.SendEvent();
         }
 
         private void OnDestroy()
