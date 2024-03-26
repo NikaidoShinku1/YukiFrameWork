@@ -42,7 +42,8 @@ namespace YukiFrameWork
         void UnRegisterEvent<T>(Enum eventEnum, Action<T> onEvent);
         void UnRegisterEvent<T>(string eventName, Action<T> onEvent);       
         void SendCommand<T>(T command) where T : ICommand;
-        TResult SendCommand<TResult>(ICommand<TResult> command);       
+        TResult SendCommand<TResult>(ICommand<TResult> command);
+        TResult SendQuery<TResult>(IQuery<TResult> query);
     }
 
     #region 层级规则
@@ -75,12 +76,17 @@ namespace YukiFrameWork
     {
         
     }
+
+    public interface IGetQuery : IGetArchitecture
+    {
+        
+    }
     #endregion
 
     #region Controller
     public interface IController :
         ISendCommand, IGetArchitecture, IGetModel, IGetUtility,
-        IGetRegisterEvent,IGetSystem
+        IGetRegisterEvent,IGetSystem,IGetQuery
     {
 
     }
@@ -109,17 +115,24 @@ namespace YukiFrameWork
 
     #region Command
     public interface ICommand : ISetArchitecture,ISendEvent,IGetRegisterEvent,IGetModel
-        ,IGetUtility,IGetSystem,ISendCommand,IGetArchitecture
+        ,IGetUtility,IGetSystem,ISendCommand,IGetArchitecture,IGetQuery
     {       
         void Execute();        
     }
 
     public interface ICommand<TResult> : ISetArchitecture, ISendEvent, IGetRegisterEvent, IGetModel
-        , IGetUtility, IGetSystem, ISendCommand, IGetArchitecture
+        , IGetUtility, IGetSystem, ISendCommand, IGetArchitecture,IGetQuery
     {
         TResult Execute();
     }
 
+    #endregion
+
+    #region Query
+    public interface IQuery<TResult> : IGetArchitecture, ISetArchitecture, IGetModel, IGetSystem, IGetQuery
+    {
+        TResult Seek();
+    }
     #endregion
     public interface IGetArchitecture
     {
@@ -263,11 +276,19 @@ namespace YukiFrameWork
         public void UnRegisterEvent<T>(Action<T> onEvent = null)
             => eventSystem.UnRegister(onEvent);
 
-        public virtual void SendCommand<T>(T command) where T : ICommand => ExecuteCommand(command);
+        public void SendCommand<T>(T command) where T : ICommand => ExecuteCommand(command);
 
-        public virtual TResult SendCommand<TResult>(ICommand<TResult> command) => ExecuteCommand(command);         
+        public TResult SendCommand<TResult>(ICommand<TResult> command) => ExecuteCommand(command);
 
-        protected void ExecuteCommand<T>(T command) where T : ICommand
+        public TResult SendQuery<TResult>(IQuery<TResult> query) => Query<TResult>(query);
+       
+        protected virtual TResult Query<TResult>(IQuery<TResult> query)
+        {
+            query.SetArchitecture(this);
+            return query.Seek();
+        }
+
+        protected virtual void ExecuteCommand<T>(T command) where T : ICommand
         {
             command.SetArchitecture(this);
             command.Execute();
@@ -974,7 +995,7 @@ namespace YukiFrameWork
     /// <summary>
     /// 命令中心拓展
     /// </summary>
-    public static class CommandCenterExtension
+    public static class CommandExtension
     {
         public static void SendCommand<T>(this ISendCommand center) where T : ICommand, new()
         {
@@ -986,6 +1007,24 @@ namespace YukiFrameWork
             => center.GetArchitecture().SendCommand<T>(command);
 
         public static TResult SendCommand<TResult>(this ISendCommand center, ICommand<TResult> command)
-            => center.GetArchitecture().SendCommand(command);     
+            => center.GetArchitecture().SendCommand(command);
+
+        public static TResult SendCommand<TCommand, TResult>(this ISendCommand center) where TCommand : ICommand<TResult>, new()
+        {
+            ICommand<TResult> command = new TCommand();
+            return center.GetArchitecture().SendCommand(command);
+        }
+    }
+
+    public static class QueryExtension
+    {
+        public static T Query<T>(this IGetQuery actor, IQuery<T> query)
+           => actor.GetArchitecture().SendQuery(query);
+
+        public static T Query<TQuery, T>(this IGetQuery actor) where TQuery : IQuery<T>,new()
+        {
+            IQuery<T> query = new TQuery();
+            return actor.GetArchitecture().SendQuery(query);
+        }
     }
 }

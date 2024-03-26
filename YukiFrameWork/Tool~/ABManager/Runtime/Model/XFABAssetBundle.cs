@@ -467,6 +467,9 @@ namespace XFABManager
                         {
                             // 判断类型是否符合
                             Type assetType = AssetBundleTools.GetAssetType(assetPath);
+
+                            if (assetType == null) continue;
+
                             if (assetType != type) continue; 
 
                             FileAssetPathCache.Add(AssetBundleTools.GetAssetNameWithType(fileName,assetType), assetPath);

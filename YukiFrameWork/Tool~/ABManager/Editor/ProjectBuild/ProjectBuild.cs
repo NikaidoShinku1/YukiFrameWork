@@ -606,7 +606,9 @@ namespace XFABManager
 
                 foreach (var asset in bundle_assets[item]) {
 
-                    Type type = AssetDatabase.GetMainAssetTypeAtPath(asset); 
+                    Type type = AssetDatabase.GetMainAssetTypeAtPath(asset);
+
+                    if (type == null) continue;
 
                     if (type_assets.ContainsKey(type))
                         type_assets[type].Add(asset);
@@ -688,7 +690,8 @@ namespace XFABManager
                 if (asset_paths.Length > 0)
                 { 
                     string assetBundleName = string.Format("{0}_{1}{2}", project.name.ToLower(), allAssetBundles[i].bundle_name, project.suffix);
-                    atlas.Add(assetBundleName, asset_paths);
+                    if(!atlas.ContainsKey(assetBundleName))
+                        atlas.Add(assetBundleName, asset_paths);
                 }
             }
 

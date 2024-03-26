@@ -30,6 +30,7 @@ namespace XFABManager
              
             if (asset_path.EndsWith(".asset")) {
                 System.Type type = AssetDatabase.GetMainAssetTypeAtPath(asset_path);
+                if (type == null) return false;
                 if (type.FullName.StartsWith("UnityEditor."))
                     return false;
             }
@@ -59,6 +60,8 @@ namespace XFABManager
         internal static System.Type GetAssetType(string asset_path) 
         {
             System.Type type = AssetDatabase.GetMainAssetTypeAtPath(asset_path);
+
+            if (type == null) return null;
 
             AssetImporter asset = AssetImporter.GetAtPath(asset_path);
 
@@ -101,7 +104,7 @@ namespace XFABManager
         }
 #endif 
         internal static string GetAssetNameWithType(string assetName, System.Type type) {
-            return string.Format("{0}_{1}", assetName, type.FullName);
+            return string.Format("{0}_{1}", assetName, type != null ? type.FullName : string.Empty);
         }
 
     }
