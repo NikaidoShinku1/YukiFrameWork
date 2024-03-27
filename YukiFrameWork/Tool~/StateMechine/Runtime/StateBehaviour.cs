@@ -30,7 +30,7 @@ namespace YukiFrameWork.States
             get
             {
                 if(_state == null)
-                    _state = StateManager.runTimeSubStatePair[layerName].stateBases.Find(x => x.name == name);
+                    _state = StateManager.runTimeSubStatePair[layerName].stateBases.Find(x => x.name == name);              
                 return _state;
             }
         }

@@ -225,6 +225,8 @@ namespace YukiFrameWork
             return core;
         }
         #endregion
+
+        #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
             T component = core.GetComponent<T>();
@@ -237,7 +239,40 @@ namespace YukiFrameWork
         }
 
         public static T GetOrAddComponent<T>(this Component core) where T : Component
-            => GetOrAddComponent<T>(core.gameObject); 
-            
+            => GetOrAddComponent<T>(core.gameObject);
+
+        public static T Find<T>(this Component core,string objName,bool includeInactive = false) where T : Component
+        {
+            return Find<T>(core.gameObject, objName,includeInactive);
+        }
+
+        public static T Find<T>(this GameObject core, string objName, bool includeInactive = false) where T : Component
+        {
+            return FindRoot<T>(core, objName, false,includeInactive);
+        }
+
+        public static T FindOrAdd<T>(this Component core, string objName, bool includeInactive = false) where T : Component
+        {
+            return FindOrAdd<T>(core.gameObject, objName, includeInactive);
+        }
+
+        public static T FindOrAdd<T>(this GameObject core, string objName, bool includeInactive = false) where T : Component
+        {
+            return FindRoot<T>(core, objName, false, includeInactive);
+        }
+
+        private static T FindRoot<T>(this GameObject core, string objName, bool isAddComponent, bool includeInactive = false) where T : Component
+        {
+            Transform[] transforms = core.GetComponentsInChildren<Transform>(includeInactive);
+
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                if (transforms[i].name.Equals(objName))
+                    return isAddComponent ? transforms[i].GetOrAddComponent<T>() : transforms[i].GetComponent<T>();
+            }
+
+            return null;
+        }
     }
+    #endregion
 }

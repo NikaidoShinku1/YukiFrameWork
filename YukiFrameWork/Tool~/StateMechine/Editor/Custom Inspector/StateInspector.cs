@@ -429,6 +429,7 @@ namespace YukiFrameWork.States
                                 StateDataBase stateDataBase = new StateDataBase()
                                 {
                                     typeName = typeName,
+                                    name = state.name,
                                     index = state.index,
                                     isActive = true,
                                     layerName = state.layerName

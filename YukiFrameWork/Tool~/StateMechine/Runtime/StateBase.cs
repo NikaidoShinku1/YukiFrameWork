@@ -355,6 +355,7 @@ namespace YukiFrameWork.States
     public class StateDataBase
     {
         public string typeName;
+        public string name;
         public int index;
         public bool isActive;
         public string layerName;
@@ -374,7 +375,7 @@ namespace YukiFrameWork.States
                     {
                         behaviour = System.Activator.CreateInstance(type) as StateBehaviour;
                         behaviour.index = index;
-                        behaviour.name = typeName;
+                        behaviour.name = name;
                         behaviour.layerName = layerName;
                     }
 

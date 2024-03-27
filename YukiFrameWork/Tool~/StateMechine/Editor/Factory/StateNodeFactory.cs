@@ -288,7 +288,10 @@ namespace YukiFrameWork.States
             }
 
             node.name = newName;
-
+            foreach (var item in node.dataBases)
+            {
+                item.name = newName;
+            }
             EditorUtility.SetDirty(stateMechine);
             AssetDatabase.SaveAssets();
         }

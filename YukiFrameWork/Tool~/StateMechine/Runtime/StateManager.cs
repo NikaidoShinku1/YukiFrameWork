@@ -74,7 +74,7 @@ namespace YukiFrameWork.States
         }     
         private void Start()
         {
-            if (initType == RuntimeInitType.Start) this.SendEvent(StateMechineSystem.StateInited, this);
+            if (initType == RuntimeInitType.Start) this.SendEvent(StateMechineSystem.StateInited, this);         
         }
 
         private void OnEnable()
