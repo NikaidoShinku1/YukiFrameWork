@@ -64,6 +64,8 @@
 
 #### 框架更新版本速览
 
+V1.10.3 状态机模块中状态类层级归属改为IController，现在也可以标记RuntimeInitializeOnArchitecture特性，优化细节
+
 V1.10.2 架构新增查询层Query，补充文档 
 
 V1.10.1 框架新增协程性能工具CoroutineTool,场景管理工具SceneTool，UI模块新增对生成的面板自动化管理(超过五分钟没打开则销毁),ActionKit新增部分API

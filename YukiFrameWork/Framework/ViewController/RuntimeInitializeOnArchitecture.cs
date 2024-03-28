@@ -13,7 +13,7 @@ using System;
 namespace YukiFrameWork
 {
     /// <summary>
-    /// 运行时自动初始化架构(继承ViewController时)
+    /// 运行时自动初始化架构(IController有效)
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class RuntimeInitializeOnArchitecture : Attribute

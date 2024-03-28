@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace YukiFrameWork.States
 {
-    public interface IState : IController
+    public interface IState
     {
         Transform transform { get; }             
 

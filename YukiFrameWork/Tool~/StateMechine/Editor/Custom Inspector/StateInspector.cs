@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Text;
@@ -11,6 +10,7 @@ using Object = UnityEngine.Object;
 using System.Linq;
 using System.Collections;
 #if UNITY_EDITOR
+using UnityEditor;
 namespace YukiFrameWork.States
 {
     [CustomEditor(typeof(StateInspectorHelper))]
@@ -24,7 +24,7 @@ namespace YukiFrameWork.States
         private List<Type> behaviourTypes = new List<Type>();
         private List<string> fieldName = new List<string>();  
         private bool isRecomposeScript = false;
-
+        private List<string> list = new List<string>();
         private void OnEnable()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;
@@ -37,6 +37,26 @@ namespace YukiFrameWork.States
                     continue;
                 Update_StateFieldInfo(type, state.dataBases[i]);
             }
+            try
+            {
+                LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+                var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));
+                if (types != null)
+                {
+                    foreach (var type in types)
+                        if (type.BaseType != null)
+                            foreach (var baseInterface in type.BaseType.GetInterfaces())
+                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()) && type.GetCustomAttribute<NoGenericArchitectureAttribute>() == null)
+                                    list.Add(type.Name);
+
+                    if (helper.StateMechine != null && string.IsNullOrEmpty(helper.StateMechine.architectureName))
+                    {
+                        helper.StateMechine.architectureName = list[0];
+                        helper.StateMechine.architectureIndex = 0;
+                    }
+                }              
+            }
+            catch { }
         }
 
         public override void OnInspectorGUI()
@@ -452,12 +472,19 @@ namespace YukiFrameWork.States
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("状态脚本名称:");
-                fileName = EditorGUILayout.TextField(fileName,GUILayout.Width(350));
+                fileName = EditorGUILayout.TextField(fileName,GUILayout.Width(350));               
                 EditorGUILayout.EndHorizontal();
-
+                if (list.Count > 0)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("架构选择");
+                    helper.StateMechine.architectureIndex = EditorGUILayout.Popup(helper.StateMechine.architectureIndex, list.ToArray(), GUILayout.Width(350));
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.Space();
                 if (GUILayout.Button("创建状态脚本"))
                 {
-                    CreateBehaviourScript();
+                    CreateBehaviourScript(helper.StateMechine.architectureIndex);
                 }
 
                 EditorGUILayout.Space();
@@ -472,7 +499,7 @@ namespace YukiFrameWork.States
         /// <summary>
         /// 创建脚本文件
         /// </summary>
-        private void CreateBehaviourScript()
+        private void CreateBehaviourScript(int selectIndex)
         {
             string regix = "^[a-zA-Z][a-zA-Z0-9_]*$";
             if (!Regex.Match(fileName, regix).Success)
@@ -496,20 +523,55 @@ namespace YukiFrameWork.States
             LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
             using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                TextAsset textAsset = Resources.Load<TextAsset>("StateBehaviourScripts");                       
+                StringBuilder builder = new StringBuilder();
+                builder.AppendLine("///=====================================================");
+                builder.AppendLine("/// - FileName:      " + fileName + ".cs");
+                builder.AppendLine("/// - NameSpace:     " + info.nameSpace);
+                builder.AppendLine("/// - Description:   框架状态类创建");
+                builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+                builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+                builder.AppendLine("/// -  All Rights Reserved.");
+                builder.AppendLine("///=====================================================");
 
-                if (textAsset == null)
-                {
-                    Debug.LogError("配置文件丢失请重新下载框架或自行配置！配置文件名称：" + "StateBehaviourScripts.txt");
-                    return;
-                }
+                builder.AppendLine("using YukiFrameWork.States;");
+                builder.AppendLine("using UnityEngine;");                
+                builder.AppendLine($"namespace {info.nameSpace}");
+                builder.AppendLine("{");
+                if (list.Count != 0)
+                    builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({list[selectIndex]}),true)]");
+                builder.AppendLine($"\tpublic class {fileName} : StateBehaviour");
+                builder.AppendLine("\t{");
+                builder.AppendLine("\t\tpublic override void OnInit()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnInit();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("\t\tpublic override void OnEnter()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnEnter();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("\t\tpublic override void OnUpdate()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnUpdate();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("\t\tpublic override void OnFixedUpdate()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnFixedUpdate();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("\t\tpublic override void OnLateUpdate()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnLateUpdate();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("\t\tpublic override void OnExit()");
+                builder.AppendLine("\t\t{");
+                builder.AppendLine("\t\t\tbase.OnExit();");
+                builder.AppendLine("\t\t}");
+                builder.AppendLine("");
+                builder.AppendLine("\t}");
 
-                string content = textAsset.text;
-                content = content.Replace("#SCRIPTNAME#", fileName);
-                content = content.Replace("YukiFrameWork.Project", info.nameSpace);
+                builder.AppendLine("}");              
+               
                 StreamWriter sw = new StreamWriter(fileStream, Encoding.UTF8);
-                sw.Write(content);
-
+                sw.Write(builder);
                 sw.Close();
                 fileStream.Close();
                 Selection.activeObject = StateInspectorHelper.Instance.StateMechine.GetComponentInParent<StateManager>();

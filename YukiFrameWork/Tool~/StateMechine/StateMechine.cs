@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Reflection;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -67,6 +67,10 @@ namespace YukiFrameWork.States
             };
         }
 #endif
+        [GUIGroup("数据"),Label("该状态机给状态类标记的名称"),RuntimeDisabledGroup,EditorDisabledGroup]
+        public string architectureName;
+        [GUIGroup("数据"), Label("该状态机给状态类标记的架构下标"), RuntimeDisabledGroup, EditorDisabledGroup]
+        public int architectureIndex;
         [GUIGroup("数据")]
         [Label("默认图层下所有的状态")]      
         public List<StateBase> states = new List<StateBase>();      

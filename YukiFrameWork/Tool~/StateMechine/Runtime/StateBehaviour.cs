@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using YukiFrameWork.Events;
 using YukiFrameWork.Extension;
 
 
 namespace YukiFrameWork.States
 {
-    public class StateBehaviour : IGetArchitecture,ISendEvent,ISendCommand,IGetRegisterEvent
+    public class StateBehaviour : IController
     {
+        private IArchitecture mArchitecture;
+        private readonly object _lock = new object();
+
         [HideField]
         public string name;
 
@@ -198,10 +202,30 @@ namespace YukiFrameWork.States
             => StateManager.GetInt(name);
 
         protected float GetFloat(string name)
-            => StateManager.GetFloat(name);           
+            => StateManager.GetFloat(name);
 
-        IArchitecture IGetArchitecture.GetArchitecture()      
-            => StateManager.GetArchitecture();
-        
+        #region Architecture
+        /// <summary>
+        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
+        /// </summary>
+        protected virtual IArchitecture RuntimeArchitecture
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (mArchitecture == null)
+                    {
+                        mArchitecture = ArchitectureConstructor.I.Enquene(this);                      
+                    }
+                    return mArchitecture;
+                }
+            }
+        }
+        IArchitecture IGetArchitecture.GetArchitecture()
+        {
+            return RuntimeArchitecture;
+        }
+        #endregion
     }
 }

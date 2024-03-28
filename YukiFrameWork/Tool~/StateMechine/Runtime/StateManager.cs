@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
+using YukiFrameWork.UI;
 
 namespace YukiFrameWork
 {
@@ -24,7 +26,7 @@ namespace YukiFrameWork
 }
 namespace YukiFrameWork.States
 {
-    public class StateManager : MonoBehaviour, IState,ISendEvent
+    public class StateManager : MonoBehaviour,IState
     {
         #region 字段    
         [Label("状态机初始化方式:")]
@@ -69,22 +71,90 @@ namespace YukiFrameWork.States
 
         #region 方法
         private void Awake()
-        {          
-            if (initType == RuntimeInitType.Awake) this.SendEvent(StateMechineSystem.StateInited, this);
+        {
+            if (initType == RuntimeInitType.Awake) Init();
         }     
         private void Start()
         {
-            if (initType == RuntimeInitType.Start) this.SendEvent(StateMechineSystem.StateInited, this);         
+            if (initType == RuntimeInitType.Start) Init();
+        }
+
+        private void Init()
+        {
+            if (stateMechine == null)
+            {
+                stateMechine = transform.GetComponentInChildren<StateMechine>();
+                if (stateMechine == null)
+                    return;
+            }
+
+            for (int i = 0; i < stateMechine.parameters.Count; i++)
+            {
+                if (ParametersDicts.ContainsKey(stateMechine.parameters[i].name))
+                {
+                    Debug.LogError("参数名称重复！" + stateMechine.parameters[i].name);
+                    continue;
+                }
+                ParametersDicts.Add(stateMechine.parameters[i].name, stateMechine.parameters[i]);
+            }
+            List<StateBase> list = ListPools<StateBase>.Get();
+            for (int i = 0; i < stateMechine.states.Count; i++)
+            {
+                if (stateMechine.states[i].name.Equals(StateConst.entryState) || stateMechine.states[i].index == -1)
+                    continue;
+                list.Add(stateMechine.states[i]);
+            }
+            runTimeSubStatePair = stateMechine.subStatesPair.ToDictionary(v => v.Key, v => v.Value);
+            runTimeSubStatePair.Add("BaseLayer", new SubStateData(list));
+
+            foreach (var item in stateMechine.transitions)
+            {
+                StateTransition stateTransition = new StateTransition(this, item, "BaseLayer");
+                transitions.Add(stateTransition);
+            }
+
+            subTransitions = stateMechine.subTransitions.ToDictionary(v => v.Key, v =>
+            {
+                List<StateTransition> transitions = new List<StateTransition>();
+
+                for (int i = 0; i < v.Value.Count; i++)
+                {
+                    transitions.Add(new StateTransition(this, v.Value[i], v.Key, true));
+                }
+
+                return transitions;
+            });
+            subTransitions.Add("BaseLayer", transitions);
+            foreach (var state in runTimeSubStatePair.Values)
+            {
+                foreach (var item in state.stateBases)
+                {
+                    item.OnInit(this);
+                }
+            }
+            if (deBugLog == DeBugLog.Open)
+            {
+                Debug.Log($"状态机归属： {gameObject.name},初始化完成！");
+            }
+
+            foreach (var item in runTimeSubStatePair["BaseLayer"].stateBases)
+            {
+                if (item.defaultState)
+                {
+                    OnChangeState(item);
+                    break;
+                }
+            }
         }
 
         private void OnEnable()
         {
-            this.SendEvent(StateMechineSystem.AddManager,this);
+            StateMechineSystem.Instance.AddStateManager(this);
         }
 
         private void OnDisable()
         {
-            this.SendEvent(StateMechineSystem.RemoveManager,this);
+            StateMechineSystem.Instance.RemoveStateManager(this);
         }  
 
         public bool GetBool(string name)
@@ -319,12 +389,7 @@ namespace YukiFrameWork.States
             }
 
             OnChangeState(stateBase, callBack, isBack);         
-        }    
-
-        public IArchitecture GetArchitecture()
-        {
-            return StateModule.Global;
-        }
+        }         
         #endregion
 
     }

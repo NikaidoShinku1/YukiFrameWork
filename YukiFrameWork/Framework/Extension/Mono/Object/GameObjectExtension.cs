@@ -251,6 +251,16 @@ namespace YukiFrameWork
             return FindRoot<T>(core, objName, false,includeInactive);
         }
 
+        public static Transform Find(this Component core, string objName, bool includeInactive = false) 
+        {
+            return Find(core.gameObject, objName, includeInactive);
+        }
+
+        public static Transform Find(this GameObject core, string objName, bool includeInactive = false) 
+        {
+            return FindRoot<Transform>(core, objName, false, includeInactive);
+        }
+
         public static T FindOrAdd<T>(this Component core, string objName, bool includeInactive = false) where T : Component
         {
             return FindOrAdd<T>(core.gameObject, objName, includeInactive);
@@ -258,6 +268,10 @@ namespace YukiFrameWork
 
         public static T FindOrAdd<T>(this GameObject core, string objName, bool includeInactive = false) where T : Component
         {
+            if (typeof(T) == typeof(Transform))
+            {
+                Debug.LogError("Transform is held by default and does not trigger additions");
+            }
             return FindRoot<T>(core, objName, false, includeInactive);
         }
 

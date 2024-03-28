@@ -47,7 +47,7 @@ namespace YukiFrameWork
                     Type type = types[i];
 
                     if (type.GetInterface("IArchitecture") == null) continue;
-
+                  
                     if (type.GetCustomAttribute<NoGenericArchitectureAttribute>() != null) continue;
 
                     I.GetOrAddArchitecture(type);
@@ -87,12 +87,12 @@ namespace YukiFrameWork
             globalDicts[type] = architecture;
         }
 
-        public IArchitecture Enquene<T>(T viewController) where T : ViewController
+        public IArchitecture Enquene<T>(T viewController) where T : IController
         {
             return ArchiteInlization(viewController);
         }    
 
-        private IArchitecture ArchiteInlization<T>(T viewController) where T : ViewController
+        private IArchitecture ArchiteInlization<T>(T viewController) where T : IController
         {
             Type type = viewController.GetType();                        
 
