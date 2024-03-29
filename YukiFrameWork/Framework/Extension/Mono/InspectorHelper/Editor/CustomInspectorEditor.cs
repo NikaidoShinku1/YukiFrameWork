@@ -470,8 +470,8 @@ namespace YukiFrameWork
                                 list.reorderableList.DoLayoutList();
                             methodData.args[i] = list.reorderableList.list;
                         }
-                        else if (parameter.ParameterType.GetCustomAttribute<SerializableAttribute>() != null && parameter.ParameterType.IsClass)
-                        {
+                        else if (parameter.ParameterType.GetCustomAttribute<SerializableAttribute>() != null && parameter.ParameterType.IsClass && parameter.ParameterType != typeof(string))
+                        {                         
                             EditorGUILayout.HelpBox("方法参数不支持对标记Serializable的类的序列化!", MessageType.Warning);
                         }
                         else if (parameter.ParameterType.IsSubclassOf(typeof(Enum)) || parameter.ParameterType.Equals(typeof(Enum)))
