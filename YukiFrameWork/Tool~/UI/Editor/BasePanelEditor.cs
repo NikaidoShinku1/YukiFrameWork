@@ -28,23 +28,7 @@ namespace YukiFrameWork.UI
                     panel.Data.ScriptName = target.name == "BasePanel" ? "BasePanelExample" : target.name;
             }
 
-        }
-
-       /* protected override void InitLayers()
-        {
-            base.InitLayers();
-            BasePanel panel = target as BasePanel;
-            if (panel == null) return;        
-            var uiBaseLayer = new UIBaseLayer(panel.Data, target.GetType());
-            uiBaseLayer.Save += panel.SaveData;
-            layers.Add(uiBaseLayer);
-            if (!target.GetType().Equals(typeof(BasePanel)))
-            {
-                var bind = new BindLayer(panel, typeof(BasePanel));
-                bind.GenericCallBack += GenericPartialScripts;
-                layers.Add(bind);
-            }
-        }*/
+        }     
         protected override void OnEnable()
         {
             base.OnEnable();

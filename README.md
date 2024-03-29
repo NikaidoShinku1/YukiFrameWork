@@ -64,6 +64,8 @@
 
 #### 框架更新版本速览
 
+V1.10.4 优化UIKit，架构新增程序集依赖初始化
+
 V1.10.3 状态机模块中状态类层级归属改为IController，现在也可以标记RuntimeInitializeOnArchitecture特性，优化细节
 
 V1.10.2 架构新增查询层Query，补充文档 

@@ -28,32 +28,49 @@ namespace YukiFrameWork
 
             lock (_object)
             {
-                Assembly assembly = null;
-                try
+                Loading(info.assembly);
+
+                foreach (var name in info.assemblies)
                 {
-                    assembly = Assembly.Load(info.assembly);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError("请检查是否输入正确的程序集定义!在编辑器左上方YukiFrameWork/LocalScriptsGenerator修改,本次运行不会预生成全局架构，将以首次调用而生成" + ex.Message);
-                }
-
-                if (assembly == null) return;
-
-                Type[] types = assembly.GetTypes();
-
-                for (int i = 0; i < types.Length; i++)
-                {
-                    Type type = types[i];
-
-                    if (type.GetInterface("IArchitecture") == null) continue;
-                  
-                    if (type.GetCustomAttribute<NoGenericArchitectureAttribute>() != null) continue;
-
-                    I.GetOrAddArchitecture(type);
-                    
+                    Loading(name, true);
                 }
             }          
+        }
+
+        private static void Loading(string name,bool depend = false)
+        {
+            Assembly assembly = null;
+            try
+            {
+                assembly = Assembly.Load(name);
+            }
+            catch (Exception ex)
+            {
+                string message = depend ? $"该程序集依赖不存在：assembly:{name}  将继续向下检索! " : "请检查是否输入正确的程序集定义!在编辑器左上方YukiFrameWork/LocalConfigGenerator修改,本次运行不会预生成全局架构，将以首次调用而生成! ";
+                Debug.LogError(message + ex.Message);
+            }
+
+            if (assembly == null) return;
+
+            Type[] types = assembly.GetTypes();
+
+            LoadingArchitecture(types);
+        }
+
+        private static void LoadingArchitecture(Type[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Type type = types[i];
+
+                if (type.GetInterface("IArchitecture") == null) continue;
+
+                if (type.GetCustomAttribute<NoGenericArchitectureAttribute>() != null) continue;
+
+                I.GetOrAddArchitecture(type);
+
+            }
+
         }
 #endif
         private ArchitectureConstructor() { }

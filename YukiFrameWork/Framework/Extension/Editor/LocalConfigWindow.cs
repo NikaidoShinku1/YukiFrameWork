@@ -55,9 +55,12 @@ namespace YukiFrameWork
         private SerializedProperty parentNameProperty;
         private SerializedObject serializedObject;
         private SerializedProperty assemblyProperty;
+        private SerializedProperty assembliesProperty;
+        private GUIContent defaultContent = new GUIContent();
         private void OnEnable()
         {
             Update_Info();
+            defaultContent = new GUIContent();
         }
 
         private void OnGUI()
@@ -136,8 +139,9 @@ namespace YukiFrameWork
             GUI.color = Color.red;
             GUILayout.Label("项目(架构)脚本所依赖的程序集定义(非必要不更改):");
             GUI.color = Color.white;
-            EditorGUILayout.PropertyField(assemblyProperty, new GUIContent());
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.PropertyField(assemblyProperty, defaultContent);
+            EditorGUILayout.EndHorizontal();           
+            EditorGUILayout.PropertyField(assembliesProperty, new GUIContent("程序集依赖项(有多个Assembly时可以使用):"));
             EditorGUI.EndDisabledGroup();
             EditorGUI.EndChangeCheck();
             serializedObject.ApplyModifiedProperties();
@@ -249,6 +253,7 @@ namespace YukiFrameWork
             parentProperty = serializedObject.FindProperty("IsParent");
             parentNameProperty = serializedObject.FindProperty("parentName");
             assemblyProperty = serializedObject.FindProperty("assembly");
+            assembliesProperty = serializedObject.FindProperty("assemblies");
         }
     }
 #endif  

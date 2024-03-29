@@ -39,6 +39,8 @@ namespace YukiFrameWork.UI
         //检查是否完成初始化
         private static bool isInit = false;
 
+        private static bool isLevelInited = false;
+
         public static bool Default { get; private set; } = false;
 
         public static string CanvasName { get; private set; }
@@ -116,6 +118,7 @@ namespace YukiFrameWork.UI
 
         private static void InitUILevel()
         {
+            if (isLevelInited) return;
             for (int i = 0; i < (int)UILevel.Top; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
@@ -129,6 +132,7 @@ namespace YukiFrameWork.UI
             }
             StartPanelCheck().Start().CancelWaitGameObjectDestroy(MonoHelper.I);
             UIManager.I.InitLevel();
+            isLevelInited = true;
         }
 
         /// <summary>
@@ -176,6 +180,23 @@ namespace YukiFrameWork.UI
             }
 
             return OpenPanelExecute(panelCore);
+        }
+
+        /// <summary>
+        /// 外部直接传入Prefab加载面板，没有对UIKit进行初始化时需要传递CanvasName参数，并且在后续要统一画布名称!
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="panel"></param>
+        /// <param name="canvasName"></param>
+        /// <returns></returns>
+        public static T OpenPanel<T>(T panel,string canvasName = "Canvas") where T : BasePanel
+        {
+            if (!isInit)
+            {
+                CanvasName = canvasName;
+                InitUILevel();
+            }    
+            return OpenPanelExecute(panel);
         }
 
         private static T CreatePanelCore<T>(string name) where T : BasePanel
@@ -374,6 +395,7 @@ namespace YukiFrameWork.UI
             disposables.Clear();
             realeasePanels.Clear();
             isInit = false;
+            isLevelInited = false;
             Default = false;
         }
     }
