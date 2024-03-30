@@ -360,6 +360,8 @@ namespace YukiFrameWork.States
         {
             var items = runTimeSubStatePair["BaseLayer"].stateBases;
 
+            if (runTimeSubStatePair["BaseLayer"].CurrentState?.index == index)
+                return;
             StateBase stateBase = items.Find(x => x.index == index);
             OnChangeState(stateBase,callBack,isBack);
         }
