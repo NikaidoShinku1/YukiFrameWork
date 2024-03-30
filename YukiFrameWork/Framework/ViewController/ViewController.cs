@@ -133,7 +133,7 @@ namespace YukiFrameWork
                     if (mArchitecture == null)
                     {
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);
-                        if(mArchitecture != null)
+                        if(mArchitecture != null && initialized == RuntimeInitialized.Automation)
                             RuntimeEventInitializationFactory.Initialization(this);
                     }
                     return mArchitecture;
