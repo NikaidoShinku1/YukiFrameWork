@@ -3,6 +3,8 @@ using UnityEngine;
 using System;
 using YukiFrameWork.Pools;
 using YukiFrameWork.Extension;
+using Sirenix.OdinInspector;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,12 +14,11 @@ namespace YukiFrameWork.IOC
     public class LifeTimeScope : MonoBehaviour,IDisposable
     {
         [SerializeField]
-        [HelperBox("是否打开列表添加GameObject自动注入")]
-        [BoolanPopup("关闭", "打开")]
+        [InfoBox("是否打开列表添加GameObject自动注入")]       
         protected bool IsAutoInjectObject = true;   
-        [ListDrawerSetting]
+        [ListDrawerSettings]
         [SerializeField] 
-        [EnableIf("IsAutoInjectObject")]  
+        [ShowIf("IsAutoInjectObject")]  
         protected List<GameObject> gameObjects = ListPools<GameObject>.Get();
 
         [HideInInspector]

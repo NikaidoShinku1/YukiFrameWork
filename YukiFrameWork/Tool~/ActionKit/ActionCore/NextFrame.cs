@@ -74,11 +74,7 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            while (frameCount > 0)
-            {
-                frameCount--;
-                yield return null;
-            }
+            yield return CoroutineTool.WaitForFrames(frameCount);
             callBack?.Invoke();
             OnFinish();
         }

@@ -82,8 +82,8 @@ namespace YukiFrameWork
                 if (!sequenes.Peek().IsInit)
                     sequenes.Peek().OnInit();
                 if (sequenes.Peek().OnExecute(Time.deltaTime))
-                    sequenes.Dequeue();
-                yield return null;
+                    sequenes.Dequeue().OnFinish();
+                yield return CoroutineTool.WaitForFrame();
             }
             OnFinish();
         }

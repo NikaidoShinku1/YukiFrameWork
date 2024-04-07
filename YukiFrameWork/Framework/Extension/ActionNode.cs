@@ -36,8 +36,8 @@ namespace YukiFrameWork
 
         void Cancel();
 
-        abstract IEnumerator ToCoroutine();
-    }
+        abstract IEnumerator ToCoroutine();      
+    }  
 
     public interface ISequence : IActionNode
     {
@@ -103,7 +103,8 @@ namespace YukiFrameWork
             OnApplicationPause,
             OnApplicationQuit,
             OnGUI,
-            OnDrawGizmos
+            OnDrawGizmos,
+            OnCanvasGroupChanged
         }
     }  
     public class MonoAction<T> : IMonoActionNode<T> where T : Delegate
@@ -150,12 +151,12 @@ namespace YukiFrameWork
         {
             actions.Enqueue(node);
             return this;
-        }
+        }    
 
         public void Cancel()
         {
             IsCompleted = true;
-        }
+        }      
     }
 
     public class ActionUpdateNode : ActionNode, IActionUpdateNode
@@ -262,7 +263,7 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return new WaitUntil(() => OnExecute(Time.deltaTime));
+            yield return CoroutineTool.WaitUntil(() => OnExecute(Time.deltaTime));
             OnFinish();
         }
 

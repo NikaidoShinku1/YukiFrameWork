@@ -85,13 +85,14 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            while (CurrentCount >= 0)
+            while (CurrentCount >= 0 || CurrentCount == -1)
             {
                 if (ActionNode.OnExecute(Time.deltaTime))
                 {
-                    if (CurrentCount != 0)
+                    if (CurrentCount != 0 || CurrentCount != -1)
                     {
-                        CurrentCount--;
+                        if(CurrentCount != -1)
+                            CurrentCount--;
                         ActionNode.OnInit();
                     }
                     else
@@ -100,7 +101,7 @@ namespace YukiFrameWork
                         break;
                     }
                 }
-                yield return null;
+                yield return CoroutineTool.WaitForFrame();
             }
             OnFinish();
         }

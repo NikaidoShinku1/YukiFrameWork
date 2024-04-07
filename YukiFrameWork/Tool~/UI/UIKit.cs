@@ -292,8 +292,11 @@ namespace YukiFrameWork.UI
             }
         }     
 
+        public static void ClosePanel(BasePanel panel)
+            => ClosePanel(panel.Level);
+
         /// <summary>
-        /// 通过层级获取已经加载出来的面板(只对缓存面板生效)
+        /// 通过层级获取已经加载出来的面板(优先返回缓存面板)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="level"></param>
@@ -303,18 +306,23 @@ namespace YukiFrameWork.UI
             return GetPanelInternal(typeof(T), level) as T;
         }
 
-        private static BasePanel GetPanelInternal(Type type, UILevel level)
+        internal static BasePanel GetPanelInternal(Type type, UILevel level)
         {
+            BasePanel panel = null;          
             creativityPanels.TryGetValue(level, out var list);
             var info = list.Find(x => x.panelType.Equals(type));
-            if (info == null) return null;
-            var panel = info.panel;
+            if (info == null) 
+            {
+                panel = disposables.Find(x => x.GetType().Equals(type) && x.Level.Equals(level));
+                return panel;              
+            }
+            panel = info.panel;
             info.cacheLoadTime = Time.time;
             return panel;
         }
 
         /// <summary>
-        /// 强行获取面板(面板如果在场景中不存在则会创建一个,并且会处于关闭状态)
+        /// 强行获取面板(面板如果在场景中不存在则会创建一个)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path"></param>
@@ -332,8 +340,7 @@ namespace YukiFrameWork.UI
                 if (panel != null)
                     return panel;
             }           
-            panel = OpenPanel<T>(path);
-            ClosePanel(panel.Level);
+            panel = OpenPanel<T>(path);           
             return panel;          
         }
 

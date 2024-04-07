@@ -67,7 +67,7 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return new WaitUntil(predicate);
+            yield return CoroutineTool.WaitUntil(predicate);
             callBack?.Invoke();
             OnFinish();
         }

@@ -110,8 +110,7 @@ namespace YukiFrameWork
             while ((IsRealTime ? Time.realtimeSinceStartup : Time.time) - currentTime < MaxTime)
             {
                 callTemp?.Invoke(IsConstranit ? (((IsRealTime ? Time.realtimeSinceStartup : Time.time) - currentTime) / MaxTime) : (IsRealTime ? Time.realtimeSinceStartup : Time.time) - currentTime);
-                yield return null;
-                yield return new WaitUntil(() => !IsPaused);
+                yield return CoroutineTool.WaitForFrame();             
             }
             callBack?.Invoke();
             OnFinish();

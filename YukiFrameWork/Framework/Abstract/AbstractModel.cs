@@ -18,6 +18,8 @@ namespace YukiFrameWork
     {
         public abstract void Init();
 
+        public virtual int Id { get; set; } = 0;
+
         #region 架构本体
         [NonSerialized]
         private IArchitecture architecture;        

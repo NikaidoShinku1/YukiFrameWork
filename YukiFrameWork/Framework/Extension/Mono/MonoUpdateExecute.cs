@@ -22,6 +22,7 @@ namespace YukiFrameWork
         public readonly EasyEvent applicationQuit = new EasyEvent();
         public readonly EasyEvent onGUI = new EasyEvent();
         public readonly EasyEvent onDrawGizmos = new EasyEvent();
+        public readonly EasyEvent onCanvasGroupChange = new EasyEvent();
 
         public void PushFinishEvent(Action onFinish)
         {
@@ -39,12 +40,8 @@ namespace YukiFrameWork
             {
                 foreach (var queueNode in queueActionNodes)
                 {
-                    if (updateExecuteDict.ContainsKey(queueNode.Key))
-                        updateExecuteDict[queueNode.Key] = queueNode.Value;
-                    else
-                        updateExecuteDict.Add(queueNode.Key, queueNode.Value);
+                    updateExecuteDict[queueNode.Key] = queueNode.Value;
                 }
-
                 queueActionNodes.Clear();
             }
 
@@ -114,6 +111,11 @@ namespace YukiFrameWork
         private void OnApplicationQuit()
         {
             applicationQuit?.SendEvent();
+        }
+
+        private void OnCanvasGroupChanged()
+        {
+            onCanvasGroupChange?.SendEvent();
         }
 
         private void OnGUI()

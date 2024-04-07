@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using Sirenix.OdinInspector;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
-using YukiFrameWork.UI;
 
 namespace YukiFrameWork
 {
@@ -17,9 +17,9 @@ namespace YukiFrameWork
 
     public enum DeBugLog
     {
-        [Label("开启")]   
+        [LabelText("开启")]   
         Open,
-        [Label("关闭")]  
+        [LabelText("关闭")]  
         Close      
     }
 
@@ -29,18 +29,18 @@ namespace YukiFrameWork.States
     public class StateManager : MonoBehaviour,IState
     {
         #region 字段    
-        [Label("状态机初始化方式:")]
-        [HelperBox("决定了状态机初始化的生命周期")]
+        [LabelText("状态机初始化方式:")]
+        [InfoBox("决定了状态机初始化的生命周期")]
         public RuntimeInitType initType;
 
-        [Label("状态机是否开启调试:")]
-        [HelperBox("开启后每次切换状态都会Debug一次")]
+        [LabelText("状态机是否开启调试:")]
+        [InfoBox("开启后每次切换状态都会Debug一次")]
         public DeBugLog deBugLog;
 
 #if UNITY_EDITOR
-        [EnableIf("IsMechineOrEmpty")]
+        [ShowIf("IsMechineOrEmpty")]
 #endif
-        [Label("状态机本体:")]
+        [LabelText("状态机本体:")]
         public StateMechine stateMechine;                   
 
         public Dictionary<string,StateParameterData> ParametersDicts => parametersDict;

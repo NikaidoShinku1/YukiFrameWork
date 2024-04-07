@@ -32,8 +32,7 @@ namespace YukiFrameWork
         private float pauseCurrentTime;
 
         private Action callBack;
-        private bool isRealTime = false;
-
+        private bool isRealTime = false;       
         public override bool IsPaused
         {
             get => base.IsPaused;
@@ -81,7 +80,7 @@ namespace YukiFrameWork
 
             if ((isRealTime ? Time.realtimeSinceStartup : Time.time) - (currentTime + pauseTime) > maxTime)
             {
-                callBack?.Invoke();
+                callBack?.Invoke();              
                 return true;
             }
             return false;
@@ -97,7 +96,7 @@ namespace YukiFrameWork
             pauseTime = 0;
             
             callBack = null;
-            currentTime = 0;
+            currentTime = 0;          
             simpleObjectPools.Release(this);
         }
 
@@ -111,11 +110,14 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return new WaitForSeconds(maxTime);
+            if (isRealTime)
+                yield return CoroutineTool.WaitForSecondsRealtime(maxTime);
+            else yield return CoroutineTool.WaitForSeconds(maxTime);
 
-            callBack?.Invoke();
+            callBack?.Invoke();            
             OnFinish();
-        }
+        }       
+
     }
 
 }

@@ -26,6 +26,11 @@ namespace YukiFrameWork
             return ActionKit.Sequence()
 				.CallBack(() =>MonoHelper.Start(e()))
 				.ExecuteFrame(() => end,callBack);
-		}	
+		}
+
+		public static YieldAwaitable ToSingleTask(this IActionNode action)
+		{
+			return action.ToCoroutine().ToSingleTask();
+        }
 	}
 }

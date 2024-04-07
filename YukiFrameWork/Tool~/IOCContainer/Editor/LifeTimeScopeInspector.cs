@@ -10,15 +10,15 @@
 ///======================================================
 
 using UnityEngine;
-using System;
 using UnityEditor;
 
 #if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork.IOC
 {
     [CustomEditor(typeof(LifeTimeScope),true)]
     [CanEditMultipleObjects]
-    public class LifeTimeScopeInspector : CustomInspectorEditor
+    public class LifeTimeScopeInspector : OdinEditor
     { 
         public override void OnInspectorGUI()
         {         

@@ -1,7 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
 
@@ -224,6 +223,27 @@ namespace YukiFrameWork
             SetLocalRotation(core.gameObject, quaternion);
             return core;
         }
+
+        public static T SetPosition2D<T>(this T core, Vector2 position) where T : Component
+        {
+            return SetPosition(core, position);
+        }
+
+        public static GameObject SetPosition2D(this GameObject core, Vector2 position)
+        {
+            return SetPosition(core, position);
+        }
+
+        public static T SetLocalPosition2D<T>(this T core, Vector2 position) where T : Component
+        {
+            return SetLocalPosition(core, position);
+        }
+
+        public static GameObject SetLocalPosition2D(this GameObject core, Vector2 position)
+        {
+            return SetLocalPosition(core, position);
+        }
+
         #endregion
 
         #region Component
@@ -287,6 +307,92 @@ namespace YukiFrameWork
 
             return null;
         }
+        #endregion
+        #region Action
+        public static Action ToSystemAction(this UnityEvent uEvent)
+        {
+            return () => uEvent?.Invoke();
+        }
+
+        public static Action<T> ToSystemAction<T>(this UnityEvent<T> uEvent)
+        {
+            return v => uEvent?.Invoke(v);
+        }
+
+        public static Action<T,K> ToSystemAction<T, K>(this UnityEvent<T, K> uEvent)
+        {
+            return (t,k) => uEvent?.Invoke(t,k);
+        }
+
+        public static Action<T, K, Q> ToSystemAction<T, K, Q>(this UnityEvent<T, K, Q> uEvent)
+        {
+            return (t,k,q) => uEvent?.Invoke(t,k,q);
+        }
+
+        public static Action<T, K, Q, R> ToSystemAction<T, K, Q, R>(this UnityEvent<T, K, Q, R> uEvent)
+        {
+            return (t, k, q,r) => uEvent?.Invoke(t, k, q,r);
+        }
+
+        public static UnityAction ToUnityAction(this Action uEvent)
+        {
+            return () => uEvent?.Invoke();
+        }
+
+        public static UnityAction<T> ToUnityAction<T>(this Action<T> uEvent)
+        {
+            return v => uEvent?.Invoke(v);
+        }
+
+        public static UnityAction<T, K> ToUnityAction<T, K>(this Action<T, K> uEvent)
+        {
+            return (t, k) => uEvent?.Invoke(t, k);
+        }
+
+        public static UnityAction<T, K, Q> ToUnityAction<T, K, Q>(this Action<T, K, Q> uEvent)
+        {
+            return (t, k, q) => uEvent?.Invoke(t, k, q);
+        }
+
+        public static UnityAction<T, K, Q, R> ToUnityAction<T, K, Q, R>(this Action<T, K, Q, R> uEvent)
+        {
+            return (t, k, q, r) => uEvent?.Invoke(t, k, q, r);
+        }
+
+        public static UnityEvent ToUnityEvent(this Action uEvent)
+        {
+            var u = new UnityEvent();
+            u.AddListener(() => uEvent?.Invoke());
+            return u;
+        }
+
+        public static UnityEvent<T> ToUnityEvent<T>(this Action<T> uEvent)
+        {
+            var u = new UnityEvent<T>();
+            u.AddListener(v => uEvent?.Invoke(v));
+            return u;
+        }
+
+        public static UnityEvent<T, K> ToUnityEvent<T, K>(this Action<T, K> uEvent)
+        {
+            var u = new UnityEvent<T,K>();
+            u.AddListener((v,k) => uEvent?.Invoke(v,k));
+            return u;
+        }
+
+        public static UnityEvent<T, K, Q> ToUnityEvent<T, K, Q>(this Action<T, K, Q> uEvent)
+        {
+            var u = new UnityEvent<T, K,Q>();
+            u.AddListener((v, k,q) => uEvent?.Invoke(v, k,q));
+            return u;
+        }
+
+        public static UnityEvent<T, K, Q, R> ToUnityEvent<T, K, Q, R>(this Action<T, K, Q, R> uEvent)
+        {
+            var u = new UnityEvent<T, K, Q,R>();
+            u.AddListener((v, k, q,r) => uEvent?.Invoke(v, k, q,r));
+            return u;
+        }
+        #endregion
     }
-    #endregion
 }

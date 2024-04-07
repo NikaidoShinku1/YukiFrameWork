@@ -12,8 +12,7 @@ namespace YukiFrameWork
     /// </summary>
     /// <typeparam name="T"></typeparam>  
     [DebuggerDisplay("Count = {Count}")]
-    [Serializable]
-    [CustomPropertySetting("_items")]
+    [Serializable]  
     public class FastList<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>,IBindableProperty<T>
     {
         public FastList()
@@ -943,8 +942,7 @@ namespace YukiFrameWork
         {
             easyEvent.UnRegisterAllEvent();
         }
-
-        
+       
         public T[] _items;
          
         [UnityEngine.HideInInspector]public int _size;

@@ -11,7 +11,7 @@
 using System.Collections.Generic;
 using System;
 using YukiFrameWork.Extension;
-using YukiFrameWork.Pools;
+using System.Linq;
 
 namespace YukiFrameWork
 {
@@ -28,10 +28,10 @@ namespace YukiFrameWork
         void UnRegisterModel<T>(T model = default) where T : class,IModel;      
         void UnRegisterSystem<T>(T view = default) where T : class,ISystem;
         void UnRegisterUtility<T>(T utility = default) where T : class,IUtility;
-        T GetModel<T>() where T : class, IModel;      
+        T GetModel<T>(int id = 0) where T : class, IModel;      
         T GetSystem<T>() where T : class, ISystem;
-        T GetUtility<T>() where T : class,IUtility;
-            
+        T GetUtility<T>() where T : class,IUtility;      
+        IEnumerable<T> GetModels<T>() where T : class, IModel;
         IUnRegister RegisterEvent<T>(string eventName, Action<T> onEvent);
         IUnRegister RegisterEvent<T>(Enum eventEnum, Action<T> onEvent);
         IUnRegister RegisterEvent<T>(Action<T> onEvent);
@@ -95,6 +95,7 @@ namespace YukiFrameWork
     #region Model
     public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture
     {               
+        int Id { get; set; }
         void Init();        
     }
     #endregion
@@ -146,10 +147,10 @@ namespace YukiFrameWork
 
     [ClassAPI("框架核心本体")]
     [GUIDancePath("YukiFrameWork")]
-    public abstract class Architecture<TCore> : IArchitecture,IDisposable where TCore : class,IArchitecture ,new()
+    public abstract partial class Architecture<TCore> : IArchitecture,IDisposable where TCore : class,IArchitecture ,new()
     {
         #region Data
-        private EasyContainer architectureContainer = new EasyContainer();
+        private EasyContainer easyContainer = new EasyContainer();
         private TypeEventSystem eventSystem = new TypeEventSystem();
         private EnumEventSystem enumEventSystem = new EnumEventSystem();
         private StringEventSystem stringEventSystem = new StringEventSystem();
@@ -164,7 +165,7 @@ namespace YukiFrameWork
 
         public virtual void OnDestroy()
         {
-            architectureContainer.Clear();
+            easyContainer.Clear();
             eventSystem.Clear();
             enumEventSystem.Clear();
             stringEventSystem.Clear();
@@ -194,58 +195,51 @@ namespace YukiFrameWork
 
         public void RegisterModel<T>(T model) where T : class, IModel
         {
-            if (Register(model))
-            {
-                model.SetArchitecture(this);
-                model.Init();
-            }
+            model.SetArchitecture(this);
+            Register(model);                      
+            model.Init();           
         }          
 
         public void RegisterSystem<T>(T system) where T : class,ISystem
         {
-            if (Register(system))
-            {
-                system.SetArchitecture(this);
-                system.Init();
-            }
+            system.SetArchitecture(this);
+            Register(system);                     
+            system.Init();
         }
 
         public void RegisterUtility<T>(T utility) where T : class, IUtility
             => Register(utility);
           
-        private bool Register<T>(T t) where T : class
+        private void Register<T>(T t) where T : class
         {
-            return architectureContainer.Register<T>(t);
-        }
-
-        private bool Contains<T>(T t = default) where T : class      
-            => architectureContainer.Contains(t.GetType());
+            easyContainer.Register<T>(t);            
+        }    
         
-        public T GetModel<T>() where T : class,IModel
-            => architectureContainer.Get<T>();
+        public T GetModel<T>(int id = 0) where T : class,IModel
+            => easyContainer.GetModel<T>(id);
 
         public T GetSystem<T>() where T : class,ISystem
-           => architectureContainer.Get<T>();
+           => easyContainer.Get<T>();
 
         public T GetUtility<T>() where T : class,IUtility
-            => architectureContainer.Get<T>();      
+            => easyContainer.Get<T>();
+
+        IEnumerable<T> IArchitecture.GetModels<T>()
+            => easyContainer.GetModels<T>();
 
         public void UnRegisterModel<T>(T model = default) where T : class,IModel
-        {
-            if (Contains(model))           
-                architectureContainer.Remove(model.GetType());            
+        {                 
+            easyContainer.RemoveModel(typeof(T),model.Id);            
         }      
 
         public void UnRegisterSystem<T>(T system = default) where T :class, ISystem
-        {
-            if (Contains(system))
-                architectureContainer.Remove(system.GetType());
+        {          
+            easyContainer.Remove(typeof(T));
         }
 
         public void UnRegisterUtility<T>(T utility = default) where T : class,IUtility
-        {
-            if(Contains(utility))
-                architectureContainer.Remove(utility.GetType());
+        {         
+            easyContainer.Remove(typeof(T));
         }
 
         void IDisposable.Dispose() => OnDestroy();
@@ -298,41 +292,83 @@ namespace YukiFrameWork
         {
             command.SetArchitecture(this);
             return command.Execute();         
-        }        
+        }
     }
 
     public sealed class EasyContainer
-    {
-        private Dictionary<Type, object> architectureContainer = new Dictionary<Type, object>();
+    {                      
+        private Dictionary<Type, Dictionary<int,IModel>> modelInstances = new Dictionary<Type, Dictionary<int,IModel>>();
 
-        public bool Register<T>(T obj)
+        private Dictionary<Type, object> mInstances = new Dictionary<Type, object>(); 
+      
+        public void Register<T>(T obj)
         {
-            if (Contains(typeof(T))) return false;
+            Type type = typeof(T);
+            if (obj is IModel model)
+            {
+                if (!modelInstances.ContainsKey(type))
+                    modelInstances.Add(type, new Dictionary<int, IModel>());
 
-            architectureContainer.Add(typeof(T), obj);
-            return true;
+                if (!modelInstances[type].ContainsKey(model.Id))
+                    modelInstances[type].Add(model.Id, model);
+                else modelInstances[type][model.Id] = model;
+            }
+            else
+            {
+                mInstances[type] = obj;
+            }           
         }
 
         public T Get<T>() where T : class 
         {
-            foreach (var m in architectureContainer.Values)
+            mInstances.TryGetValue(typeof(T), out var value);
+            return value as T;
+        }
+
+        public T GetModel<T>(int id) where T : class, IModel
+        {
+            if (modelInstances.TryGetValue(typeof(T), out var models))
             {
-                if (m is T t)
+                if (models.TryGetValue(id, out var model))
                 {
-                    return t;
+                    return model as T;
                 }
             }
             return null;
         }
 
-        public void Remove(Type type)
-        {
-            architectureContainer.Remove(type);
+        public IEnumerable<T> GetModels<T>() where T : IModel
+        {            
+            if (modelInstances.TryGetValue(typeof(T), out var value))
+            {
+                return value.Values.Where(x => typeof(T).IsInstanceOfType(x)).Cast<T>();
+            }
+            return null;
         }
 
-        public void Clear() => architectureContainer.Clear();
+        public void Remove(Type type)
+        {            
+            mInstances.Remove(type);
+        }
 
-        public bool Contains(Type type) => architectureContainer.ContainsKey(type);
+        public void RemoveModel(Type type,int id)
+        {
+            if (!modelInstances.ContainsKey(type)) return;
+
+            modelInstances[type].Remove(id);
+
+            if (modelInstances[type].Count == 0)
+            {
+                modelInstances.Remove(type);
+            }
+        }
+
+        public void Clear()
+        {
+            mInstances.Clear();
+            modelInstances.Clear();
+        }
+       
     }
 
     public class EnumEventSystem
@@ -944,8 +980,11 @@ namespace YukiFrameWork
     /// </summary>
     public static class ControllerExtension
     {           
-        public static T GetModel<T>(this IGetModel actor) where T : class, IModel
-            => actor.GetArchitecture().GetModel<T>();
+        public static T GetModel<T>(this IGetModel actor,int id = 0) where T : class, IModel
+            => actor.GetArchitecture().GetModel<T>(id);
+
+        public static T[] GetModels<T>(this IGetModel actor) where T : class, IModel
+            => actor.GetArchitecture().GetModels<T>().ToArray();
 
         public static T GetSystem<T>(this IGetSystem actor) where T : class, ISystem
             => actor.GetArchitecture().GetSystem<T>();
@@ -962,7 +1001,7 @@ namespace YukiFrameWork
     /// <summary>
     /// 事件系统拓展
     /// </summary>
-    public static class EventSystemExtension
+    public static partial class EventSystemExtension
     {
         public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent)
             => registerEvent.GetArchitecture().RegisterEvent(onEvent);
@@ -971,31 +1010,31 @@ namespace YukiFrameWork
             => registerEvent.GetArchitecture().RegisterEvent(eventName, onEvent);
 
         public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
-           => registerEvent.GetArchitecture().RegisterEvent(eventEnum, onEvent);
+            => registerEvent.GetArchitecture().RegisterEvent(eventEnum, onEvent);
 
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent = null)
             => registerEvent.GetArchitecture().UnRegisterEvent(onEvent);
 
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, string eventName, Action<T> onEvent)
-          => registerEvent.GetArchitecture().UnRegisterEvent(eventName, onEvent);
+            => registerEvent.GetArchitecture().UnRegisterEvent(eventName, onEvent);
 
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
-        => registerEvent.GetArchitecture().UnRegisterEvent(eventEnum, onEvent);
+            => registerEvent.GetArchitecture().UnRegisterEvent(eventEnum, onEvent);
 
         public static void SendEvent<T>(this ISendEvent SendEvent,T arg = default)
             => SendEvent.GetArchitecture().SendEvent(arg);
 
         public static void SendEvent<T>(this ISendEvent SendEvent,string eventName, T arg = default)
-           => SendEvent.GetArchitecture().SendEvent(eventName,arg);
+            => SendEvent.GetArchitecture().SendEvent(eventName,arg);
 
         public static void SendEvent<T>(this ISendEvent SendEvent, Enum eventEnum, T arg = default)
-         => SendEvent.GetArchitecture().SendEvent(eventEnum, arg);
+            => SendEvent.GetArchitecture().SendEvent(eventEnum, arg);
     }
 
     /// <summary>
     /// 命令中心拓展
     /// </summary>
-    public static class CommandExtension
+    public static partial class CommandExtension
     {
         public static void SendCommand<T>(this ISendCommand center) where T : ICommand, new()
         {

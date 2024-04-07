@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,7 @@ namespace YukiFrameWork.UI
 {
     [CustomEditor(typeof(BasePanel), true)]
     [CanEditMultipleObjects]
-    public class BasePanelEditor : CustomInspectorEditor
+    public class BasePanelEditor : OdinEditor
     {             
         private void Awake()
         {

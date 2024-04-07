@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,9 +17,7 @@ namespace YukiFrameWork
 
         public string assembly = "Assembly-CSharp";
 
-        public string[] assemblies = new string[0];
-        [ListDrawerSetting(true),Label("对组件中标记了ListDrawingSetting的数组/列表的折叠持久化保存")]
-        public YDictionary<string, YDictionary<string, bool>> elementFoldOutPairs = new YDictionary<string, YDictionary<string, bool>>();
+        public string[] assemblies = new string[0];      
         
     }
 }

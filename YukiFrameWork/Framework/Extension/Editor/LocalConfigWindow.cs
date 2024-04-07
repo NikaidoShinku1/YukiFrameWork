@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Sirenix.OdinInspector;
 using System.IO;
-using System.Linq;
 using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
+using Sirenix.OdinInspector.Editor;
 #endif
 using UnityEngine;
 using YukiFrameWork.Extension;
-
 namespace YukiFrameWork
 {
 #if UNITY_EDITOR
-    public class LocalConfigWindow : EditorWindow
+    public class LocalConfigWindow : OdinEditorWindow
     {
         [InitializeOnLoadMethod]
         public static void Init()
@@ -54,18 +51,34 @@ namespace YukiFrameWork
         private SerializedProperty parentProperty;
         private SerializedProperty parentNameProperty;
         private SerializedObject serializedObject;
-        private SerializedProperty assemblyProperty;
-        private SerializedProperty assembliesProperty;
+        private SerializedProperty assemblyProperty;      
         private GUIContent defaultContent = new GUIContent();
-        private void OnEnable()
+
+        [LabelText("程序集依赖项(有多个Assembly时可以使用):")]
+        [SerializeField]
+        private string[] assemblies;
+        protected override void OnEnable()
         {
+            base.OnEnable();
             Update_Info();
             defaultContent = new GUIContent();
+
+            OnAfterDeserialize();
         }
 
-        private void OnGUI()
+        protected override void OnAfterDeserialize()
         {
-            if (info == null) 
+            assemblies = info.assemblies;
+        }
+
+        protected override void OnBeforeSerialize()
+        {
+            info.assemblies = assemblies;
+        }
+
+        protected override void OnImGUI()
+        {
+            if (info == null)
             {
                 Update_Info();
                 return;
@@ -74,11 +87,11 @@ namespace YukiFrameWork
             EditorGUI.BeginChangeCheck();
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
             serializedObject.Update();
-            GenericScriptDataInfo.IsEN = EditorGUILayout.ToggleLeft("EN",GenericScriptDataInfo.IsEN,GUILayout.Width(50));
+            GenericScriptDataInfo.IsEN = EditorGUILayout.ToggleLeft("EN", GenericScriptDataInfo.IsEN, GUILayout.Width(50));
 
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(nameProperty, new GUIContent(GenericScriptDataInfo.Name), parentProperty.boolValue ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width -70));
+            EditorGUILayout.PropertyField(nameProperty, new GUIContent(GenericScriptDataInfo.Name), parentProperty.boolValue ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width - 70));
 
             if (info.IsParent)
             {
@@ -100,10 +113,10 @@ namespace YukiFrameWork
 
             var rect = EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(pathProperty, new GUIContent(GenericScriptDataInfo.Path));
-            DragObject(rect,out var dragPath);
+            DragObject(rect, out var dragPath);
             if (!string.IsNullOrEmpty(dragPath))
                 pathProperty.stringValue = dragPath;
-            if (GUILayout.Button("...",GUILayout.Width(30)))
+            if (GUILayout.Button("...", GUILayout.Width(30)))
             {
                 pathProperty.stringValue = string.Empty;
                 string path = EditorUtility.OpenFolderPanel("path", pathProperty.stringValue, "");
@@ -127,7 +140,7 @@ namespace YukiFrameWork
                     }
 
                 }
-                 serializedObject.ApplyModifiedProperties();
+                serializedObject.ApplyModifiedProperties();
                 GUIUtility.ExitGUI();
             }
             EditorGUILayout.EndHorizontal();
@@ -140,8 +153,8 @@ namespace YukiFrameWork
             GUILayout.Label("项目(架构)脚本所依赖的程序集定义(非必要不更改):");
             GUI.color = Color.white;
             EditorGUILayout.PropertyField(assemblyProperty, defaultContent);
-            EditorGUILayout.EndHorizontal();           
-            EditorGUILayout.PropertyField(assembliesProperty, new GUIContent("程序集依赖项(有多个Assembly时可以使用):"));
+            EditorGUILayout.EndHorizontal();                
+            base.OnImGUI();
             EditorGUI.EndDisabledGroup();
             EditorGUI.EndChangeCheck();
             serializedObject.ApplyModifiedProperties();
@@ -253,7 +266,6 @@ namespace YukiFrameWork
             parentProperty = serializedObject.FindProperty("IsParent");
             parentNameProperty = serializedObject.FindProperty("parentName");
             assemblyProperty = serializedObject.FindProperty("assembly");
-            assembliesProperty = serializedObject.FindProperty("assemblies");
         }
     }
 #endif  

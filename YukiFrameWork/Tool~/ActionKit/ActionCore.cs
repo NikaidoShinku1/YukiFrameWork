@@ -389,7 +389,10 @@ namespace YukiFrameWork
                     break;
                 case IMonoActionNode.Mono.OnDrawGizmos:
                     uC.onDrawGizmos.RegisterEvent(mono.action as Action);
-                    break;              
+                    break;
+                case IMonoActionNode.Mono.OnCanvasGroupChanged:
+                    uC.onCanvasGroupChange.RegisterEvent(mono.action as Action);
+                    break;
             }
             return this;
         }

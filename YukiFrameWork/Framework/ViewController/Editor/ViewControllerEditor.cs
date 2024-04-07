@@ -19,11 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork.Extension
 {
     [CustomEditor(typeof(ViewController), true)]
     [CanEditMultipleObjects]
-    public class ViewControllerEditor : CustomInspectorEditor
+    public class ViewControllerEditor : OdinEditor
     {
         private List<string> list = new List<string>();
         [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1000)]
@@ -102,8 +103,9 @@ namespace YukiFrameWork.Extension
 
         }
 
-        private void OnDisable()
-        { 
+        protected override  void OnDisable()
+        {
+            base.OnDisable();
             LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
             if (info == null) return;
 

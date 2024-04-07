@@ -53,16 +53,8 @@ namespace YukiFrameWork
             {
                 foreach (var queueNode in queueActionNodes)
                 {                  
-                    if (executeNodeDict.ContainsKey(queueNode.Key))
-                    {                      
-                        executeNodeDict[queueNode.Key] = queueNode.Value;
-                    }
-                    else
-                    {                       
-                        executeNodeDict.Add(queueNode.Key, queueNode.Value);
-                    }
+                    executeNodeDict[queueNode.Key] = queueNode.Value;
                 }
-
                 queueActionNodes.Clear();
             }
 

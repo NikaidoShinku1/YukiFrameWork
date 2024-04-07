@@ -1,12 +1,11 @@
 ﻿///=====================================================
 /// - FileName:      SceneTool.cs
 /// - NameSpace:     YukiFrameWork
-/// - Description:   通过本地的代码生成器创建的脚本
+/// - Description:   场景管理工具
 /// - Creation Time: 2024/3/26 13:13:06
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
 using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
@@ -68,7 +67,7 @@ namespace YukiFrameWork
         public static IYieldExtension LoadSceneAsyncWithAllowSceneActive(string sceneName,Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
 			var operation = SceneManager.LoadSceneAsync(sceneName, mode);			
-            return LoadSceneAsyncWithAllowSceneActive(operation,onCompleted).Start();
+            return LoadSceneAsyncWithAllowSceneActive(operation,onCompleted,loadingCallBack).Start();
         }
 
         /// <summary>
@@ -82,7 +81,7 @@ namespace YukiFrameWork
         public static IYieldExtension LoadSceneAsyncWithAllowSceneActive(int sceneIndex, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             var operation = SceneManager.LoadSceneAsync(sceneIndex);          
-            return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted).Start();
+            return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted,loadingCallBack).Start();
         }
 
         private static IEnumerator LoadSceneAsyncWithAllowSceneActive(AsyncOperation asyncOperation, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null)

@@ -22,6 +22,7 @@ namespace YukiFrameWork
         private static SimpleObjectPools<Parallel> simpleObjectPools
             = new SimpleObjectPools<Parallel>(() => new Parallel(),null,10);
 
+        private readonly List<IActionNode> realeaseParallel = new List<IActionNode>();
         public Parallel()
         {
             
@@ -54,11 +55,16 @@ namespace YukiFrameWork
                 {
                     if (!parallelConditions[i].IsInit)
                         parallelConditions[i].OnInit();
-                    if (parallelConditions[i].OnExecute(delta))
+                    if (parallelConditions[i].OnExecute(delta))              
+                        realeaseParallel.Add(parallelConditions[i]);                 
+                }
+                if (realeaseParallel.Count > 0)
+                {
+                    for (int i = 0; i < realeaseParallel.Count; i++)
                     {
-                        parallelConditions.RemoveAt(i);
-                        i--;
+                        parallelConditions.Remove(realeaseParallel[i]);
                     }
+                    realeaseParallel.Clear();
                 }
                 return false;
             }
@@ -91,9 +97,17 @@ namespace YukiFrameWork
                     if (!parallelConditions[i].IsInit)
                         parallelConditions[i].OnInit();
                     if (parallelConditions[i].OnExecute(Time.deltaTime))
-                        parallelConditions.RemoveAt(i);
+                        realeaseParallel.Add(parallelConditions[i]);
                 }
-                yield return null;
+                if (realeaseParallel.Count > 0)
+                {
+                    for (int i = 0; i < realeaseParallel.Count; i++)
+                    {
+                        parallelConditions.Remove(realeaseParallel[i]);
+                    }
+                    realeaseParallel.Clear();
+                }
+                yield return CoroutineTool.WaitForFrame();
             }
             OnFinish();
         }

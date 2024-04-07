@@ -96,6 +96,11 @@ namespace YukiFrameWork
             return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnApplicationQuit);
         }
 
+        public static IMonoActionNode<Action> OnCanvasGroupChanged(Action action)
+        {
+            return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnCanvasGroupChanged);
+        }
+
         [MethodAPI("增强Update方法")]
         public static IActionUpdateNode OnUpdate()
         {

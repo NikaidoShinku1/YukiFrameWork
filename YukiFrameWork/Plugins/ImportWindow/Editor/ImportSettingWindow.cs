@@ -65,7 +65,7 @@ namespace YukiFrameWork.Extension
         {
             ["ActionKit"] = packagePath + "/Tool~/ActionKit",
             ["Bezier"] = packagePath + "/Tool~/Bezier",
-            ["SaveSystem"] = packagePath + "/Tool~/SaveSystem",
+            ["SaveTool"] = packagePath + "/Tool~/SaveTool",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["ABManager"] = packagePath + "/Tool~/ABManager",
@@ -159,8 +159,8 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.BezierInfo
             , MessageType.Info, string.Format("{0}/Bezier", data.path), "Bezier", packagePath + "/Tool~/Bezier");
             
-            DrawBoxGUI(Color.white, ImportWindowInfo.SaveSystemInfo
-            , MessageType.Info, string.Format("{0}/SaveSystem", data.path), "SaveSystem", packagePath + "/Tool~/SaveSystem");
+            DrawBoxGUI(Color.white, ImportWindowInfo.SaveToolInfo
+            , MessageType.Info, string.Format("{0}/SaveTool", data.path), "SaveTool", packagePath + "/Tool~/SaveTool");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.StateMechineInfo
            , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");

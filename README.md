@@ -1,7 +1,7 @@
 # YukiFrameWork
 
 #### 介绍
-"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)，具备类似Odin插件的一些编辑器自定义功能"
+"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)，框架集成Odin、DoTween、UniRx、UniTask作为工具可以自由选择使用"
 
 #### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
@@ -20,13 +20,11 @@
 
 #### 框架支持工具
 
-- 框架编辑器工具:[InspectorTool](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/EditorTool.md)
-
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Serialization/序列化工具.md)
 
-- 框架存档系统:SaveSystem[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveSystem/存档系统.md)
+- 框架存档工具:SaveTool[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/存档系统.md)
 
 - IOC:LifeTimeScope[IOC介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md)
 
@@ -51,6 +49,15 @@
 - 强化数据绑定类:BindablePropery[强化数据模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md)
 
 - 贝塞尔曲线拓展模块:BezierUtility[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md)
+
+- 框架支持插件:[UniRx](https://github.com/neuecc/UniRx.git)
+
+- 框架支持插件:[UniTask](https://github.com/Cysharp/UniTask.git);
+
+- 框架支持插件:[DoTween](https://dotween.demigiant.com/);
+
+- 框架支持插件:[Odin](https://odininspector.com/);
+
 #### 安装教程
 下载压缩包或者fork项目
 ![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
@@ -64,6 +71,10 @@
 
 #### 框架更新版本速览
 
+V1.12.0 框架全面集成odin插件进行编辑器自定义，优化存档工具窗口的细节，优化贝塞尔曲线模块以及AudioInfo的编辑器显示效果!
+
+V1.11.0,框架新增协程转换，现在可以使用Async/Await的语法来进行对于协程的启动，ActionKit优化，新增部分API，修复场景工具丢失回调的问题，存档工具优化，现在可以自由选择存档路径!优化UIKit的获取面板的流程
+
 V1.10.4 优化UIKit，架构新增程序集依赖初始化
 
 V1.10.3 状态机模块中状态类层级归属改为IController，现在也可以标记RuntimeInitializeOnArchitecture特性，优化细节
@@ -72,7 +83,7 @@ V1.10.2 架构新增查询层Query，补充文档
 
 V1.10.1 框架新增协程性能工具CoroutineTool,场景管理工具SceneTool，UI模块新增对生成的面板自动化管理(超过五分钟没打开则销毁),ActionKit新增部分API
 
-V1.10.0 方法序列化特性MethodButton可以支持预览参数，修复状态机序列化数组导致异常的问题。
+V1.10.0 方法序列化特性Button可以支持预览参数，修复状态机序列化数组导致异常的问题。
 
 V1.9.9 声音管理模块优化，现在音频会被自动托管，使用加载器加载的音频超过五分钟处于未使用的状态会被自动卸载
 

@@ -23,7 +23,7 @@ namespace YukiFrameWork.Extension
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
 
-        public static string SaveSystemInfo => !IsEN ? "框架存档系统，可用于数据的保存以及持久化" : "Framework SaveSystem, which can be used for data preservation and persistence";
+        public static string SaveToolInfo => !IsEN ? "框架存档工具，可用于数据的保存以及持久化" : "Framework SaveTool, which can be used for data preservation and persistence";
 
         public static string StateMechineInfo => !IsEN ? "状态机模块,可以实现对于状态的管理等操作,或者基础动作游戏设计,编辑器可视化" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization";
 

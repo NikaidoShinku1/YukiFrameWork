@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -27,8 +28,11 @@ namespace YukiFrameWork.UI
         protected CanvasGroup canvasGroup;      
         [HideInInspector]
         public UICustomData Data;
-
-        [Label("面板层级"),SerializeField,RuntimeDisabledGroup]        
+#if UNITY_EDITOR
+        private bool isPlaying => ApplicationHelper.GetRuntimeOrEditor();
+        [HideIfGroup(nameof(isPlaying))]
+#endif
+        [LabelText("面板层级"),SerializeField]        
         protected UILevel mLevel = UILevel.Common;
 
         public UILevel Level
@@ -43,7 +47,7 @@ namespace YukiFrameWork.UI
             }
         }
       
-        [Label("面板是否缓存"),BoolanPopup("关闭缓存","开启缓存"),SerializeField,RuntimeDisabledGroup,HelperBox("如果关闭则每次开关面板都会进行销毁生成",Message.Warning)]
+        [LabelText("面板是否缓存"),SerializeField,HideIfGroup(nameof(isPlaying)),InfoBox("如果关闭则每次开关面板都会进行销毁生成")]
         protected bool isPanelCache = true;
 
         public bool IsPanelCache => isPanelCache;

@@ -20,8 +20,7 @@ namespace YukiFrameWork.Events
                     if (string.IsNullOrEmpty(center.name)) continue;
                     switch (eventCenter.registerType)
                     {
-                        case RegisterType.String:
-                            
+                        case RegisterType.String:                           
                             viewController.RegisterEvent<EventArgs>(center.name, args => center.mEvent?.Invoke(args));
                             break;
                         case RegisterType.Enum:

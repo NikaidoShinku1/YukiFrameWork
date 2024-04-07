@@ -152,7 +152,6 @@
 	- [DisableGroupIf]//使用方式与DisableIf相同，该特性判断参数是否被禁止修改,对于数组/列表
 
 	//注意：对于标记了Serializable特性的普通类的序列化，在其内部只有Label,GUIColor,RuntimeDisableGroup,EditorDisableGroup,PropertyRange可以使用。
-	//使用本框架的编辑器样式有一定的限制: 仅声明符protected可以被序列化，private不可，对于Serializable的类，无法使用
-
+	//使用本框架的编辑器样式有一定的限制: 仅声明符protected可以被序列化，private不可，对于Serializable的类，仅可使用Label,GUIColor等基本特性，在该类中如果需要将枚举字段显示的自定义生效，则需要标记EnumSerializeField特性，并且要在Label特性标记之后。
 
 

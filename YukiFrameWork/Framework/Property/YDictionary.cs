@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using YukiFrameWork.Extension;
+using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,8 +20,7 @@ using System.Linq;
 namespace YukiFrameWork
 {
     [Serializable]
-    [ClassAPI("可支持面板序列化的字典")]
-    [CustomPropertySetting("list")]
+    [ClassAPI("可支持面板序列化的字典")]    
     public class YDictionary
 	{
 #if UNITY_EDITOR
@@ -61,7 +61,7 @@ namespace YukiFrameWork
             }
         }      
         [SerializeField]       
-        [HelperBox("请注意在添加过程中不允许出现相同的键!",Message.Warning)]      
+        [InfoBox("请注意在添加过程中不允许出现相同的键!",infoMessageType:InfoMessageType.Warning)]      
         private List<Y_KeyValuePair> list = new List<Y_KeyValuePair>();
         private Dictionary<TKey, int> dictPosition = new Dictionary<TKey, int>();  
         public TValue this[TKey key]

@@ -10,10 +10,12 @@
 
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
+   
     public static class YieldExtension
     {
         /// <summary>
@@ -38,7 +40,48 @@ namespace YukiFrameWork
         {
             ((YieldExtensionCore)core).CancelWaitGameObjectDestroy(component);
             return core;
-        }  
+        }
+
+        public static YieldAwaitable ToSingleTask(this IYieldExtension extension)
+        {
+            if (!Application.isPlaying)
+            {
+                LogKit.Exception("async/await cannot be used in Editor!");
+            }
+            var awaitable = YieldAwaitable.GetAwaitable(extension);
+            extension.Request(() => YieldAwaitable.OnFinish(awaitable));
+            return awaitable;
+        }
+
+        public static YieldAwaitable ToSingleTask(this IEnumerator enumerator)
+        {
+            return ToSingleTask(enumerator.Start());
+        }
+
+        public static YieldAwaitable ToSingleTask<T>(this T instruction) where T : YieldInstruction
+        {
+            return e().ToSingleTask();
+            IEnumerator e()
+            {
+                yield return instruction;
+            }
+        }
+
+        public static IEnumerator ToCoroutine(this Task task)
+        {
+            return CoroutineTool.WaitUntil(() =>
+            {
+                return task.GetAwaiter().IsCompleted;
+            });
+        }
+
+        public static IEnumerator ToCoroutine<T>(this Task<T> task)
+        {
+            return CoroutineTool.WaitUntil(() =>
+            {
+                return task.GetAwaiter().IsCompleted;
+            });
+        }
     }
 
     /// <summary>
@@ -55,7 +98,6 @@ namespace YukiFrameWork
         void Cancel();
     }
 
-  
     public class YieldExtensionCore : IYieldExtension
     {
         private IEnumerator enumerator;      
@@ -69,6 +111,10 @@ namespace YukiFrameWork
         private bool isRelease = true;
         public static YieldExtensionCore Get(IEnumerator enumerator)
         {
+            if (!Application.isPlaying)
+            {
+                LogKit.Exception("IYieldExtension cannot be used in Editor!");
+            }
             var core = simpleObjectPools.Get();
             core.Init(enumerator);
             return core;
@@ -114,7 +160,7 @@ namespace YukiFrameWork
             }                          
         }
 
-        public IYieldExtension ExecuteAsync<T>(T callBack = null) where T : Delegate
+        public IYieldExtension ExecuteAsync(Action callBack = null)
         {
              return Execution(callBack).Start();
         }
@@ -123,10 +169,10 @@ namespace YukiFrameWork
         /// 等待当前拓展协程(异步)执行完毕,如果该执行没有启动或已经完成则直接跳过
         /// </summary>
         /// <returns></returns>
-        protected virtual IEnumerator Execution<T>(T callBack = null) where T : Delegate
+        protected virtual IEnumerator Execution(Action callBack = null)
         {
             yield return Request;
-            (callBack as Action)?.Invoke();
+            callBack?.Invoke();
         }
 
         public void Cancel()
@@ -262,6 +308,59 @@ namespace YukiFrameWork
         public static IEnumerator WaitWhile(Func<bool> m_Predicate)
         {
             yield return new CustomWaitWhile(m_Predicate);
+        }
+
+        public static YieldAwaitable WaitForSecondsToTask(float time)
+        {
+            return WaitForSeconds(time).ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitForSecondsRealtimeToTask(float time)
+        {
+            return WaitForSecondsRealtime(time).ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitForFrameToTask()
+        {
+            return WaitForFrame().ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitForFramesToTask(int count = 1)
+        {
+            return WaitForFrames(count).ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitUntilToTask(Func<bool> m_Predicate)
+        {
+            return WaitUntil(m_Predicate).ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitWhileToTask(Func<bool> m_Predicate)
+        {
+            return WaitWhile(m_Predicate).ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitForEndOfFrameToTask()
+        {
+            return waitForEndOfFrame.ToSingleTask();
+        }
+
+        public static YieldAwaitable WaitForFixedUpdateToTask()
+        {
+            return waitForFixedUpdate.ToSingleTask();
+        }
+
+        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldAwaitable awaitable, T component) where T : Component
+        {
+            if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
+            {
+                trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
+            }
+            trigger.PushFinishEvent(() => 
+            {
+                awaitable.Extension?.Cancel();
+            });
+            return awaitable;
         }
 
     }

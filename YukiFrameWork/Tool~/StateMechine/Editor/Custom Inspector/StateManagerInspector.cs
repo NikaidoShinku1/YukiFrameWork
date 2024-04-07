@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
-using YukiFrameWork.Extension;
-using System.Reflection;
+
+
 #if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 namespace YukiFrameWork.States
 {
     [CustomEditor(typeof(StateManager))] 
-    public class StateManagerInspector : CustomInspectorEditor
+    public class StateManagerInspector : OdinEditor
     {
         [MenuItem("GameObject/YukiFrameWork/Create State-Object")]
         private static void Created()
