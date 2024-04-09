@@ -322,16 +322,14 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 强行获取面板(面板如果在场景中不存在则会创建一个)
+        /// 强行获取面板(面板如果在场景中不存在则会创建一个,如果是缓存面板会先进行关闭)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path"></param>
         /// <returns></returns>
         public static T GetPanel<T>(string path) where T : BasePanel
         {
-            T panel = null;
-            panel = disposables.Find(x => x.GetType().Equals(typeof(T))) as T;
-            if (panel != null) return panel;
+            T panel;         
             for (int i = 0; i < (int)UILevel.System; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
@@ -340,7 +338,10 @@ namespace YukiFrameWork.UI
                 if (panel != null)
                     return panel;
             }           
-            panel = OpenPanel<T>(path);           
+            panel = OpenPanel<T>(path);
+            ///如果面板是缓存面板
+            if (panel.IsPanelCache)            
+                ClosePanel(panel);      
             return panel;          
         }
 
