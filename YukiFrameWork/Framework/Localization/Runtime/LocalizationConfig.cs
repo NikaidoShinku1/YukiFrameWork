@@ -46,7 +46,7 @@ namespace YukiFrameWork
             if (runtimeConfigs.TryGetValue(key, out var datas))
             {
                 if (datas.TryGetValue(language, out var item))
-                {
+                {                   
                     return item;
                 }
             }

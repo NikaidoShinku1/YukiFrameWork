@@ -11,15 +11,17 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using UnityEngine.Events;
+
 namespace YukiFrameWork
 {
     [Serializable]
     public class LocalizationComponentItem
-    {       
-        [LabelText("标识:")]
+    {
+        [LabelText("标识")]
         public string key;
-        [LabelText("设置的组件:")]
-        public Component component;
+
+        [LabelText("设置的组件:")]    
+        public MaskableGraphic component;
 
         [LabelText("事件接收器")]
         public bool eventReceiver;
@@ -37,7 +39,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 组件解析器
         /// </summary>
-        private Action<Component, ILocalizationData> resolver;
+        private Action<MaskableGraphic, ILocalizationData> resolver;
      
         private void OnEnable()
         {            
@@ -51,7 +53,7 @@ namespace YukiFrameWork
         }
 
         private void OnDestroy()
-        {
+        {            
             LocalizationKit.UnRegisterLanguageEvent(Update_Component);
         }
 
@@ -68,15 +70,15 @@ namespace YukiFrameWork
         {
             foreach (var item in items)
             {
-                var data = LocalizationKit.GetContent(item.key,language);
+                var data = LocalizationKit.GetContent(item.key,language);               
                 if (data == null)
                     continue;                
                 if (resolver != null)
-                {
+                {                   
                     resolver.Invoke(item.component, data);
                 }
                 else
-                {
+                {                 
                     if (item.component is Text text)
                     {
                         text.text = data.Content;

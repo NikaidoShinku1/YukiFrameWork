@@ -68,7 +68,7 @@ namespace YukiFrameWork
             I.Update_Language.SendEvent(LanguageType);
         }       
         public override void OnInit()
-        {
+        {            
             if (Isinited) return;      
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
 
