@@ -439,6 +439,14 @@ namespace YukiFrameWork
                 mono = (MonoAction<K>)mono
             }.Start(component,callBack);
         }
+
+        public static IActionNodeController BindGlobal<K>(this IMonoActionNode<K> mono,Action callBack = null) where K : Delegate
+        {
+            return new MonoActionController<K>()
+            {
+                mono = (MonoAction<K>)mono
+            }.Start(MonoHelper.I, callBack);
+        }
     }
 
     public struct ActionUpdateCondition : IActionUpdateCondition

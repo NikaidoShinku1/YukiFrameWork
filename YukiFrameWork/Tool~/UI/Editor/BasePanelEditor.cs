@@ -25,7 +25,7 @@ namespace YukiFrameWork.UI
             {
                 panel.Data.OnLoading = false;
                 string path = panel.Data.ScriptPath + @"/" + panel.Data.ScriptName + ".cs";
-                if(!Update_ScriptGenericScriptDataInfo(path, panel))
+                if(!Update_ScriptFrameWorkConfigData(path, panel))
                     panel.Data.ScriptName = target.name == "BasePanel" ? "BasePanelExample" : target.name;
             }
 
@@ -43,13 +43,13 @@ namespace YukiFrameWork.UI
             {
                 panel.Data.OnLoading = false;
                 string path = panel.Data.ScriptPath + @"/" + panel.Data.ScriptName + ".cs";
-                Update_ScriptGenericScriptDataInfo(path, panel);
+                Update_ScriptFrameWorkConfigData(path, panel);
                 AssetDatabase.Refresh();
             }
 
             if (panel.GetType() == typeof(BasePanel))
             {
-                var genericInfo = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+                var genericInfo = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
                 panel.Data.ScriptNamespace = genericInfo != null ? genericInfo.nameSpace + ".UI" : "YukiFrameWork.Example.UI";
             }
 
@@ -108,10 +108,10 @@ namespace YukiFrameWork.UI
             style.fontStyle = FontStyle.Bold;
             EditorGUI.BeginChangeCheck();
             GUILayout.BeginHorizontal();
-            GUILayout.Label(GenericScriptDataInfo.TitleTip, style);
+            GUILayout.Label(FrameWorkConfigData.TitleTip, style);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
             GUILayout.Label("EN");
-            GenericScriptDataInfo.IsEN = EditorGUILayout.Toggle(GenericScriptDataInfo.IsEN);
+            FrameWorkConfigData.IsEN = EditorGUILayout.Toggle(FrameWorkConfigData.IsEN);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
 
@@ -119,7 +119,7 @@ namespace YukiFrameWork.UI
             EditorGUI.BeginDisabledGroup(CodeManager.IsPlaying);
             EditorGUILayout.BeginHorizontal();
             var Data = panel.Data;
-            GUILayout.Label(GenericScriptDataInfo.Email, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Email, GUILayout.Width(200));
             Data.CreateEmail = EditorGUILayout.TextField(Data.CreateEmail);
             EditorGUILayout.EndHorizontal();
 
@@ -129,7 +129,7 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.NameSpace, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.NameSpace, GUILayout.Width(200));
             Data.ScriptNamespace = EditorGUILayout.TextField(Data.ScriptNamespace);
             EditorGUILayout.EndHorizontal();
 
@@ -137,7 +137,7 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.Name, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Name, GUILayout.Width(200));
             Data.ScriptName = EditorGUILayout.TextField(Data.ScriptName);
             EditorGUILayout.EndHorizontal();
 
@@ -145,7 +145,7 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.Path, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Path, GUILayout.Width(200));
             GUILayout.TextField(Data.ScriptPath);
             CodeManager.SelectFolder(Data);
             EditorGUILayout.EndHorizontal();
@@ -218,7 +218,7 @@ namespace YukiFrameWork.UI
             }
         }
 
-        private bool Update_ScriptGenericScriptDataInfo(string path, BasePanel panel)
+        private bool Update_ScriptFrameWorkConfigData(string path, BasePanel panel)
         {
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
             if (monoScript == null) return false;

@@ -14,10 +14,10 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 namespace YukiFrameWork
-{
-	public class LocalSaveToolWindow : OdinEditorWindow
+{   
+    public class LocalSaveToolWindow : OdinEditorWindow
 	{
-		private LocalSaveToolConfig config;
+		private SaveToolConfig config;
 		[MenuItem("YukiFrameWork/SaveTool",false,-2)]
 		public static void OpenWindow()
 		{
@@ -44,7 +44,7 @@ namespace YukiFrameWork
 
         protected override void OnAfterDeserialize()
         {
-            Update_Config();
+            Update_Config();           
             saveFolderName = config.saveFolderName;
 			saveFolder = config.saveFolder;
 			infos = config.infos;
@@ -54,10 +54,25 @@ namespace YukiFrameWork
         protected override void OnBeforeSerialize()
         {
             Update_Config();
-			config.saveFolder = saveFolder;
+            switch (folderType)
+            {
+                case FolderType.persistentDataPath:
+                    saveFolder = Application.persistentDataPath;
+                    break;
+                case FolderType.dataPath:
+                    saveFolder = Application.dataPath;
+                    break;
+                case FolderType.streamingAssetsPath:
+                    saveFolder = Application.streamingAssetsPath;
+                    break;
+                case FolderType.temporaryCachePath:
+                    saveFolder = Application.temporaryCachePath;
+                    break;
+            }
+            config.saveFolder = saveFolder;
 			config.infos = infos;
-			config.folderType = folderType;
-            config.saveFolderName = saveFolderName;
+			config.folderType = folderType;			
+			config.saveFolderName = saveFolderName;
         }
         private void OnInspectorUpdate()
         {
@@ -77,11 +92,11 @@ namespace YukiFrameWork
         {
 			if (config == null)
 			{
-				config = Resources.Load<LocalSaveToolConfig>(nameof(LocalSaveToolConfig));
+				config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
 				if (config == null)
 				{
 					CreateSaveConfig();
-					config = Resources.Load<LocalSaveToolConfig>(nameof(LocalSaveToolConfig));
+					config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
 				}
             }				
         }
@@ -90,11 +105,11 @@ namespace YukiFrameWork
         [InitializeOnLoadMethod]
 		static void CreateSaveConfig()
 		{
-			var config = Resources.Load<LocalSaveToolConfig>(nameof(LocalSaveToolConfig));
+			var config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
 
 			if (config == null)
 			{
-				config = ScriptableObject.CreateInstance<LocalSaveToolConfig>();
+				config = ScriptableObject.CreateInstance<SaveToolConfig>();
 
 				string path = "Assets/Resources";
 				if (!Directory.Exists(path))
@@ -103,7 +118,7 @@ namespace YukiFrameWork
 					AssetDatabase.Refresh();
 				}
 
-				AssetDatabase.CreateAsset(config, path + "/" + nameof(LocalSaveToolConfig) + ".asset");
+				AssetDatabase.CreateAsset(config, path + "/" + nameof(SaveToolConfig) + ".asset");
 				AssetDatabase.Refresh();
 				EditorUtility.SetDirty(config);
 				AssetDatabase.SaveAssets();

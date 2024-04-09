@@ -35,7 +35,7 @@ namespace YukiFrameWork.Extension
 
         public static string AudioInfo => !IsEN ? "AudioKit声音管理条件,可以对声音进行集成式管理(导入AudioKit模块之前必须导入框架资源管理工具ABManager!)" : "AudioKit sound management conditions for integrated sound management (you must import framework resource management tool ABManager before importing AudioKit modules!) ";
 
-        public static string KnapsackInfo => !IsEN ? "背包系统,基础通用式背包系统,编辑器一键生成预制体,可自由拓展(导入背包系统之前必须导入框架资源管理工具ABManager!)" : "Knapsack system, basic universal backpack system, editor one-click generation of prefabricated, can be freely expanded (before importing the backpack system must import the framework resource management tool ABManager!)";
+        public static string KnapsackInfo => !IsEN ? "(暂时禁止使用，将于未来重构)背包系统,基础通用式背包系统,编辑器一键生成预制体,可自由拓展(导入背包系统之前必须导入框架资源管理工具ABManager!)" : "(Temporarily prohibited, will be reconstructed in the future)Knapsack system, basic universal backpack system, editor one-click generation of prefabricated, can be freely expanded (before importing the backpack system must import the framework resource management tool ABManager!)";
 
         public static string DoTweenInfo => !IsEN ? "插件集成：DoTween,一个用于Unity的快速、高效、完全类型安全的面向对象动画引擎" : "Plugin Integration: DoTween, a fast, efficient, fully type-safe object-oriented animation engine for Unity";
 

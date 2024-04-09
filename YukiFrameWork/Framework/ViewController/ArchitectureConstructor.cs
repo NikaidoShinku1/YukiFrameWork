@@ -24,7 +24,7 @@ namespace YukiFrameWork
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void InitArchitecture()
         {
-            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
 
             lock (_object)
             {

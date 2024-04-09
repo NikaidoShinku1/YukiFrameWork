@@ -2254,7 +2254,7 @@
         </member>
         <member name="P:Sirenix.OdinInspector.InfoBoxAttribute.Icon">
             <summary>
-            The icon to be displayed next to the InfoMessageType.
+            The icon to be displayed next to the message.
             </summary>
         </member>
         <member name="F:Sirenix.OdinInspector.InfoBoxAttribute.IconColor">
@@ -2280,7 +2280,7 @@
             Displays an info box above the property.
             </summary>
             <param name="message">The message for the message box. Supports referencing a member string field, property or method by using $.</param>
-            <param name="icon">The icon to be displayed next to the InfoMessageType.</param>
+            <param name="icon">The icon to be displayed next to the message.</param>
             <param name="visibleIfMemberName">Name of member bool to show or hide the message box.</param>
         </member>
         <member name="T:Sirenix.OdinInspector.InlineButtonAttribute">
@@ -2522,13 +2522,13 @@
              <code>
              public MyComponent : MonoBehaviour
              {
-            		[LabelTextText("1")]
+            		[LabelText("1")]
             		public int MyInt1;
             
-            		[LabelTextText("2")]
+            		[LabelText("2")]
             		public int MyInt2;
             
-            		[LabelTextText("3")]
+            		[LabelText("3")]
             		public int MyInt3;
              }
              </code>
@@ -2598,7 +2598,7 @@
             <code>
             public MyComponent : MonoBehaviour
             {
-            	[LabelTextWidth("3")]
+            	[LabelWidth("3")]
             	public int MyInt3;
             }
             </code>
@@ -4860,12 +4860,12 @@
             [Serializable]
             public class SomeType
             {
-                [LabelTextWidth(30)]
+                [LabelWidth(30)]
                 [TableColumnWidth(130, false)]
                 [VerticalGroup("Combined")]
                 public string A;
             
-                [LabelTextWidth(30)]
+                [LabelWidth(30)]
                 [VerticalGroup("Combined")]
                 public string B;
             
@@ -5593,7 +5593,7 @@
         </member>
         <member name="F:Sirenix.OdinInspector.ValidateInputAttribute.MessageType">
             <summary>
-            The type of the InfoMessageType.
+            The type of the message.
             </summary>
         </member>
         <member name="F:Sirenix.OdinInspector.ValidateInputAttribute.IncludeChildren">
@@ -5612,7 +5612,7 @@
             </summary>
             <param name="condition">A resolved string that should evaluate to a boolean value, and which should validate the input. Note that in expressions, the $value named parameter, and in methods, a parameter named value, can be used to get the validated value instead of referring to the value by its containing member. This makes it easier to reuse validation strings.</param>
             <param name="defaultMessage">Default message for invalid values.</param>
-            <param name="messageType">Type of the InfoMessageType.</param>
+            <param name="messageType">Type of the message.</param>
         </member>
         <member name="M:Sirenix.OdinInspector.ValidateInputAttribute.#ctor(System.String,System.String,Sirenix.OdinInspector.InfoMessageType,System.Boolean)">
             <summary>

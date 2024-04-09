@@ -75,7 +75,7 @@ namespace YukiFrameWork.Extension
             ["DoTween"] = packagePath + "/Tool~/DoTween",
             ["UniRx"] = packagePath + "/Tool~/UniRx",
             ["UniTask"] = packagePath + "/Tool~/UniTask",         
-        };
+        };             
 
         void LoadData()
         {
@@ -177,9 +177,10 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.AudioInfo
            , MessageType.Info, string.Format("{0}/Audio", data.path), "Audio", packagePath + "/Tool~/Audio");
 
+            GUI.enabled = false;
             DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
-            , MessageType.Info, string.Format("{0}/Knapsack", data.path), "Knapsack", packagePath + "/Tool~/Knapsack");
-
+            , MessageType.Error, string.Format("{0}/Knapsack", data.path), "Knapsack", packagePath + "/Tool~/Knapsack");
+            GUI.enabled = true;
             DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
                 , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
 

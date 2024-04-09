@@ -23,7 +23,7 @@
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.ActionResolvers.ActionResolver.ErrorMessage">
             <summary>
-            The current error message that the resolver has, or null if there is no error InfoMessageType. This is a shortcut for writing "resolver.Context.ErrorMessage".
+            The current error message that the resolver has, or null if there is no error message. This is a shortcut for writing "resolver.Context.ErrorMessage".
             </summary>
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.ActionResolvers.ActionResolver.HasError">
@@ -10479,7 +10479,7 @@
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.ValueResolvers.ValueResolver.ErrorMessage">
             <summary>
-            The current error message that the resolver has, or null if there is no error InfoMessageType. This is a shortcut for writing "resolver.Context.ErrorMessage".
+            The current error message that the resolver has, or null if there is no error message. This is a shortcut for writing "resolver.Context.ErrorMessage".
             </summary>
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.ValueResolvers.ValueResolver.HasError">

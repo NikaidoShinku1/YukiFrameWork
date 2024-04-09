@@ -6,7 +6,7 @@ using UnityEngine;
 namespace YukiFrameWork.Extension
 {
     [Serializable]
-    public class GenericScriptDataInfo
+    public class FrameWorkConfigData
     {
         public static bool IsEN
         {
@@ -40,10 +40,21 @@ namespace YukiFrameWork.Extension
 
         public static string AutoInfo => !IsEN ? "创建时架构自动化:" : "Architecture Automation at Creation time:";
 
-        public static string AssemblyInfo => !IsEN ? "架构是否存在于自定义程序集:" : "Does the schema exist in the custom assembly:";
+        public static string AssemblyInfo => !IsEN ? "项目(架构)脚本所依赖的程序集定义(非必要不更改):" : "Assembly definitions that scripts depend on:";
+
+        public static string AssemblyDependInfo => !IsEN ? "程序集依赖项(有多个Assembly时可以使用):" : "Assembly dependencies (you can use them if you have multiple assemblies):";
 
         public static string BindExtensionInfo => !IsEN ? "字段绑定拓展:" : "Field binding extension:";
 
         public static string DragObjectInfo => !IsEN ? "将对象拖入这个区间:" : "Drag the object into this interval:";
+
+        public static string RuntimeLocalization => !IsEN ? "本地化配置" : "Runtime localization configuration";
+
+        public static string RuntimeDepandAssembly => !IsEN ? "绑定程序集设置" : "Bind Assembly Settings";
+
+        public static string GenericScriptInfo => !IsEN ? "脚本生成器" : "Script Generator";
+
+        public static string LocalizationInfo => !IsEN ? "添加本地化语言支持:" : "Add localized language support:";
+
     }
 }

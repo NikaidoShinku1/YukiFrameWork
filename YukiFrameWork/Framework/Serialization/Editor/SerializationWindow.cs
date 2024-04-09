@@ -58,6 +58,7 @@ namespace YukiFrameWork.Extension
                 AssetDatabase.OpenAsset(excel);
             }
             EditorGUILayout.Space(20);
+            GUILayout.Label("除Excel转换插件外，框架内部自行实现了C#类转Json、Xml、Bytes功能!");
             var rect = EditorGUILayout.BeginVertical("LODBlackBox", GUILayout.Height(150),GUILayout.Width(position.width));
             Event e = Event.current;
             DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
@@ -66,7 +67,7 @@ namespace YukiFrameWork.Extension
                 fontSize = 14
             };
 
-            style.normal.textColor = Color.yellow;
+            style.normal.textColor = Color.yellow;          
             GUILayout.Label("将脚本拖入这块区域(如果拖了多个脚本则只按照第一个脚本处理)", style) ;
             EditorGUILayout.EndVertical();
             if (rect.Contains(e.mousePosition) && e.type == EventType.DragPerform)

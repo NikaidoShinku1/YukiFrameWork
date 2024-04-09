@@ -1,5 +1,5 @@
 ﻿///=====================================================
-/// - FileName:      LocalSaveToolConfig.cs
+/// - FileName:      SaveToolConfig.cs
 /// - NameSpace:     YukiFrameWork
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/4/2 11:18:57
@@ -10,6 +10,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using Newtonsoft.Json;
 
 namespace YukiFrameWork
 {
@@ -25,14 +26,13 @@ namespace YukiFrameWork
         temporaryCachePath,           
         [LabelText("自定义存档路径")]
         custom
-    }
-    [CreateAssetMenu(fileName = "SaveConfig",menuName = " Yuki/Config")]
-	public class LocalSaveToolConfig : ScriptableObject
+    }  
+	public class SaveToolConfig : ScriptableObject
     {
         [LabelText("文件夹名称:")]
         public string saveFolderName = "SaveData";
 
-        [HideInInspector, LabelText("保存的文件路径:")]
+        [HideInInspector,LabelText("保存的文件路径:")]
         public string saveFolder;
 
         public string saveDirPath => saveFolder + @"/" + saveFolderName;
@@ -75,7 +75,7 @@ namespace YukiFrameWork
         }
 
         [SerializeField, LabelText("存档时间")]
-       // [JsonProperty]
+        //[JsonProperty]
         private string lastDateTimeString;
         public SaveInfo(int saveID, DateTime dateTime)
         {

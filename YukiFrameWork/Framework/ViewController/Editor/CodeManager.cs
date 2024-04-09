@@ -25,7 +25,7 @@ namespace YukiFrameWork
 
             if (!File.Exists(scriptFilePath))
             {
-                if (GUILayout.Button(GenericScriptDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
                 {
                     StringBuilder builder = new StringBuilder();
                     builder.AppendLine("///=====================================================");
@@ -52,7 +52,7 @@ namespace YukiFrameWork
                     builder.AppendLine("}");
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {
-                        Debug.LogError((GenericScriptDataInfo.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
+                        Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                         return;
                     }
 
@@ -64,7 +64,7 @@ namespace YukiFrameWork
 
                     if (File.Exists(scriptFilePath))
                     {
-                        Debug.LogError((GenericScriptDataInfo.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
+                        Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
                         return;
                     }
 
@@ -89,7 +89,7 @@ namespace YukiFrameWork
             {
                 GUILayout.BeginVertical();
                 MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptFilePath);
-                if (GUILayout.Button(GenericScriptDataInfo.SelectScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.SelectScriptBtn, GUILayout.Height(30)))
                 {
                     Selection.activeObject = monoScript;
                 }
@@ -97,14 +97,14 @@ namespace YukiFrameWork
                 MonoScript partial = AssetDatabase.LoadAssetAtPath<MonoScript>(partialPath);
 
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button(GenericScriptDataInfo.OpenScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.OpenScriptBtn, GUILayout.Height(30)))
                 {
                     EditorApplication.delayCall += () => AssetDatabase.OpenAsset(monoScript);
                 }
 
                 if (partial != null)
                 {
-                    if (GUILayout.Button(GenericScriptDataInfo.OpenPartialScriptBtn, GUILayout.Height(30)))
+                    if (GUILayout.Button(FrameWorkConfigData.OpenPartialScriptBtn, GUILayout.Height(30)))
                     {
                         EditorApplication.delayCall += () => AssetDatabase.OpenAsset(partial);
                     }
@@ -121,7 +121,7 @@ namespace YukiFrameWork
 
             if (!File.Exists(scriptFilePath))
             {
-                if (GUILayout.Button(GenericScriptDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
                 {
                     StringBuilder builder = new StringBuilder();
                     builder.AppendLine("///=====================================================");
@@ -167,7 +167,7 @@ namespace YukiFrameWork
                     builder.AppendLine("}");
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {
-                        Debug.LogError((GenericScriptDataInfo.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
+                        Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                         return;
                     }
 
@@ -179,7 +179,7 @@ namespace YukiFrameWork
 
                     if (File.Exists(scriptFilePath))
                     {
-                        Debug.LogError((GenericScriptDataInfo.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
+                        Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
                         return;
                     }
 
@@ -205,7 +205,7 @@ namespace YukiFrameWork
             {
                 GUILayout.BeginVertical();
                 MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptFilePath);
-                if (GUILayout.Button(GenericScriptDataInfo.SelectScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.SelectScriptBtn, GUILayout.Height(30)))
                 {
                     Selection.activeObject = monoScript;
                 }
@@ -213,14 +213,14 @@ namespace YukiFrameWork
                 MonoScript partial = AssetDatabase.LoadAssetAtPath<MonoScript>(partialPath);
 
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button(GenericScriptDataInfo.OpenScriptBtn, GUILayout.Height(30)))
+                if (GUILayout.Button(FrameWorkConfigData.OpenScriptBtn, GUILayout.Height(30)))
                 {
                     AssetDatabase.OpenAsset(monoScript);
                 }
 
                 if (partial != null)
                 {
-                    if (GUILayout.Button(GenericScriptDataInfo.OpenPartialScriptBtn, GUILayout.Height(30)))
+                    if (GUILayout.Button(FrameWorkConfigData.OpenPartialScriptBtn, GUILayout.Height(30)))
                     {
                         AssetDatabase.OpenAsset(partial);
                     }
@@ -275,11 +275,11 @@ namespace YukiFrameWork
         {       
             EditorGUI.BeginDisabledGroup(IsPlaying);
             EditorGUILayout.Space(20);
-            GUILayout.Label(GenericScriptDataInfo.BindExtensionInfo, "PreviewPackageInUse");
+            GUILayout.Label(FrameWorkConfigData.BindExtensionInfo, "PreviewPackageInUse");
 
 
             var rect = EditorGUILayout.BeginVertical("FrameBox", GUILayout.Height(100 + info.GetSerializeFields().Count() * 20));
-            GUILayout.Label(GenericScriptDataInfo.DragObjectInfo);
+            GUILayout.Label(FrameWorkConfigData.DragObjectInfo);
             foreach (var data in info.GetSerializeFields())
             {
                 EditorGUILayout.BeginHorizontal();

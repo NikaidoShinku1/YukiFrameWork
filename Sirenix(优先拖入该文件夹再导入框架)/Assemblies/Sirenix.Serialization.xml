@@ -5552,13 +5552,13 @@
             <summary>
             Initializes a new instance of the <see cref="!:SerializationException"/> class.
             </summary>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
         </member>
         <member name="M:Sirenix.Serialization.SerializationAbortException.#ctor(System.String,System.Exception)">
             <summary>
             Initializes a new instance of the <see cref="!:SerializationException"/> class.
             </summary>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
             <param name="innerException">The inner exception.</param>
         </member>
         <member name="T:Sirenix.Serialization.SerializationConfig">

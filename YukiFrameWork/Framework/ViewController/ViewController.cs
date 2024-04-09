@@ -103,7 +103,7 @@ namespace YukiFrameWork
         #endregion 
     }
 
-    public partial class ViewController : MonoBehaviour, IController
+    public partial class ViewController : Sirenix.OdinInspector.SerializedMonoBehaviour, IController
     {
         private object _object = new object();
         private IArchitecture mArchitecture;

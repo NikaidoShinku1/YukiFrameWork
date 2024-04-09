@@ -6236,7 +6236,7 @@
             <remarks>
             Also triggers a warning during validation checks done by <see cref="!:OdinInspectorValidationChecker"/>
             </remarks>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
         <member name="M:Sirenix.Utilities.Editor.SirenixEditorGUI.DrawThickHorizontalSeperator(UnityEngine.Rect)">
@@ -6276,37 +6276,37 @@
             <remarks>
             Also triggers an error during validation checks done by <see cref="!:OdinInspectorValidationChecker"/>
             </remarks>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
         <member name="M:Sirenix.Utilities.Editor.SirenixEditorGUI.InfoMessageBox(System.String,System.Boolean)">
             <summary>
             Draws a info message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
         <member name="M:Sirenix.Utilities.Editor.SirenixEditorGUI.MessageBox(System.String,System.Boolean)">
             <summary>
             Draws a message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
+            <param name="message">The message.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
         <member name="M:Sirenix.Utilities.Editor.SirenixEditorGUI.MessageBox(System.String,UnityEditor.MessageType,System.Boolean)">
             <summary>
             Draws a message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
-            <param name="messageType">Type of the InfoMessageType.</param>
+            <param name="message">The message.</param>
+            <param name="messageType">Type of the message.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
         <member name="M:Sirenix.Utilities.Editor.SirenixEditorGUI.MessageBox(System.String,UnityEditor.MessageType,UnityEngine.GUIStyle,System.Boolean)">
             <summary>
             Draws a message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
-            <param name="messageType">Type of the InfoMessageType.</param>
+            <param name="message">The message.</param>
+            <param name="messageType">Type of the message.</param>
             <param name="style">The style.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
@@ -6314,8 +6314,8 @@
             <summary>
             Draws a message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
-            <param name="messageType">Type of the InfoMessageType.</param>
+            <param name="message">The message.</param>
+            <param name="messageType">Type of the message.</param>
             <param name="style">The style.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>
@@ -6323,8 +6323,8 @@
             <summary>
             Draws a message box.
             </summary>
-            <param name="message">The InfoMessageType.</param>
-            <param name="messageType">Type of the InfoMessageType.</param>
+            <param name="message">The message.</param>
+            <param name="messageType">Type of the message.</param>
             <param name="messageBoxStyle">The style of the message box.</param>
             <param name="wide">If set to <c>true</c> the message box will be wide.</param>
         </member>

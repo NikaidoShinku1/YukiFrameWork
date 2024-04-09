@@ -11,15 +11,15 @@ namespace YukiFrameWork
 {
 #if UNITY_EDITOR
     public class LocalConfigWindow : OdinEditorWindow
-    {
+    {        
         [InitializeOnLoadMethod]
         public static void Init()
         {
-            var info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            var info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
 
             if (info == null)
             {
-                info = ScriptableObject.CreateInstance<LocalConfigInfo>();
+                info = ScriptableObject.CreateInstance<FrameworkConfigInfo>();
 
                 string infoPath = "Assets/Resources";
                 if (!Directory.Exists(infoPath))
@@ -28,23 +28,23 @@ namespace YukiFrameWork
                     AssetDatabase.Refresh();
                 }
 
-                AssetDatabase.CreateAsset(info, infoPath + "/LocalConfigInfo.asset");
+                AssetDatabase.CreateAsset(info, infoPath + "/FrameworkConfigInfo.asset");
                 AssetDatabase.Refresh();
                 EditorUtility.SetDirty(info);
                 AssetDatabase.SaveAssets();
-            }
+            }           
         }
 
-        [MenuItem("YukiFrameWork/Local Config Generator")]
+        [MenuItem("YukiFrameWork/LocalConfiguration")]
         private static void OpenWindow()
         {
             var window = GetWindow<LocalConfigWindow>();
 
-            window.titleContent = new GUIContent("框架本地生成器");
+            window.titleContent = new GUIContent("框架本地配置");
             window.Show();
         }
 
-        private LocalConfigInfo info;
+        private FrameworkConfigInfo info;
         private SerializedProperty nameProperty;
         private SerializedProperty namesPaceProperty;
         private SerializedProperty pathProperty;
@@ -53,29 +53,54 @@ namespace YukiFrameWork
         private SerializedObject serializedObject;
         private SerializedProperty assemblyProperty;      
         private GUIContent defaultContent = new GUIContent();
-
-        [LabelText("程序集依赖项(有多个Assembly时可以使用):")]
+        private GUIStyle boxStyle;
+        private int selectIndex = 0;
+        [LabelText("Depend:"),ShowIf(nameof(selectIndex),2)]
         [SerializeField]
         private string[] assemblies;
-        protected override void OnEnable()
+
+        [DictionaryDrawerSettings(KeyLabel = "配置的唯一标识",ValueLabel = "配置文件")]       
+        [SerializeField,LabelText("Configs:"),ShowIf(nameof(selectIndex),1)]
+        private LocalizationConfigBase configBases;
+
+
+        [InfoBox("运行时默认语言必须在配置中存在!",InfoMessageType.Warning)]
+        [LabelText("运行时默认语言:"),ShowIf(nameof(selectIndex),1),PropertySpace(10)]
+        public Language DefaultLanguage;       
+        protected override void OnEnable() 
         {
             base.OnEnable();
             Update_Info();
             defaultContent = new GUIContent();
-
             OnAfterDeserialize();
+            selectIndex = PlayerPrefs.GetInt("LocalConfigWindowSelectIndex");
         }
 
         protected override void OnAfterDeserialize()
         {
             assemblies = info.assemblies;
+            configBases = info.configBases;
+            DefaultLanguage = info.DefaultLanguage;           
         }
 
         protected override void OnBeforeSerialize()
         {
             info.assemblies = assemblies;
+            info.configBases = configBases;
+            info.DefaultLanguage = DefaultLanguage;       
+        }
+        private string[] ArrayInfo
+        {
+            get => new string[] { FrameWorkConfigData.GenericScriptInfo, FrameWorkConfigData.RuntimeLocalization,FrameWorkConfigData.RuntimeDepandAssembly};
         }
 
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            OnBeforeSerialize();
+            PlayerPrefs.SetInt("LocalConfigWindowSelectIndex", selectIndex);
+
+        }
         protected override void OnImGUI()
         {
             if (info == null)
@@ -83,15 +108,58 @@ namespace YukiFrameWork
                 Update_Info();
                 return;
             }
+            EditorGUILayout.Space(5);
+            selectIndex = GUILayout.Toolbar(selectIndex,ArrayInfo);         
+            EditorGUILayout.Space(5);
+            serializedObject.Update();
             GUILayout.BeginVertical("OL box NoExpand");
             EditorGUI.BeginChangeCheck();
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            serializedObject.Update();
-            GenericScriptDataInfo.IsEN = EditorGUILayout.ToggleLeft("EN", GenericScriptDataInfo.IsEN, GUILayout.Width(50));
+            FrameWorkConfigData.IsEN = EditorGUILayout.ToggleLeft("EN", FrameWorkConfigData.IsEN, GUILayout.Width(50));
+            if (selectIndex == 0)
+            {
+                DrawScriptGenericWindow();
+            }
+            else if (selectIndex == 1)
+            {
+                DrawLocalizationWindow();
+            }
+            else if(selectIndex == 2)
+            {
+                DrawAssemblyBindSettingWindow();             
+            }
+            base.OnImGUI();
+            EditorGUILayout.EndVertical();
+            EditorGUI.EndDisabledGroup();
+            EditorGUI.EndChangeCheck();
 
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawLocalizationWindow()
+        {
+            GUILayout.Label(FrameWorkConfigData.LocalizationInfo);
+        }
+
+        private void DrawAssemblyBindSettingWindow()
+        {
+            EditorGUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            GUI.color = Color.red;
+            GUILayout.Label(FrameWorkConfigData.AssemblyInfo);
+            GUI.color = Color.white;
+            EditorGUILayout.PropertyField(assemblyProperty, defaultContent);
+            EditorGUILayout.EndHorizontal();
+            boxStyle ??= new GUIStyle(GUI.skin.box);
+            boxStyle.normal.textColor = Color.white;
+            GUILayout.Label(FrameWorkConfigData.AssemblyDependInfo, boxStyle, GUILayout.Width(position.width));
+        }
+
+        private void DrawScriptGenericWindow()
+        {         
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(nameProperty, new GUIContent(GenericScriptDataInfo.Name), parentProperty.boolValue ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width - 70));
+            EditorGUILayout.PropertyField(nameProperty, new GUIContent(FrameWorkConfigData.Name), parentProperty.boolValue ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width - 70));
 
             if (info.IsParent)
             {
@@ -101,18 +169,18 @@ namespace YukiFrameWork
             else parentNameProperty.stringValue = "MonoBehaviour";
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(GenericScriptDataInfo.IsEN ? "Inherit" : "继承");
+            GUILayout.Label(FrameWorkConfigData.IsEN ? "Inherit" : "继承");
             parentProperty.boolValue = EditorGUILayout.Toggle(parentProperty.boolValue);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(namesPaceProperty, new GUIContent(GenericScriptDataInfo.NameSpace));
+            EditorGUILayout.PropertyField(namesPaceProperty, new GUIContent(FrameWorkConfigData.NameSpace));
 
             EditorGUILayout.Space();
 
             var rect = EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(pathProperty, new GUIContent(GenericScriptDataInfo.Path));
+            EditorGUILayout.PropertyField(pathProperty, new GUIContent(FrameWorkConfigData.Path));
             DragObject(rect, out var dragPath);
             if (!string.IsNullOrEmpty(dragPath))
                 pathProperty.stringValue = dragPath;
@@ -143,21 +211,11 @@ namespace YukiFrameWork
                 serializedObject.ApplyModifiedProperties();
                 GUIUtility.ExitGUI();
             }
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();           
             EditorGUILayout.Space();
-            Generic();
-            EditorGUILayout.Space(10);
-            EditorGUILayout.BeginHorizontal(GUI.skin.box);
-            GUI.color = Color.red;
-            GUILayout.Label("项目(架构)脚本所依赖的程序集定义(非必要不更改):");
-            GUI.color = Color.white;
-            EditorGUILayout.PropertyField(assemblyProperty, defaultContent);
-            EditorGUILayout.EndHorizontal();                
-            base.OnImGUI();
+            Generic();            
             EditorGUI.EndDisabledGroup();
             EditorGUI.EndChangeCheck();
-            serializedObject.ApplyModifiedProperties();
         }
 
         private void DragObject(Rect rect,out string path)
@@ -182,11 +240,11 @@ namespace YukiFrameWork
 
         private void Generic()
         {
-            if (GUILayout.Button(GenericScriptDataInfo.GenerateScriptBtn, GUILayout.Height(30)))
+            if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
             {
                 if (string.IsNullOrEmpty(pathProperty.stringValue))
                 {
-                    Debug.LogError((GenericScriptDataInfo.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
+                    Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                     return;
                 }
                 StringBuilder builder = new StringBuilder();
@@ -219,7 +277,7 @@ namespace YukiFrameWork
                 string scriptFilePath = pathProperty.stringValue + @"/" + nameProperty.stringValue + ".cs";
                 if (File.Exists(scriptFilePath))
                 {
-                    Debug.LogError((GenericScriptDataInfo.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
+                    Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
                     return;
                 }
 
@@ -240,11 +298,11 @@ namespace YukiFrameWork
         }
         private void Update_Info()
         {
-            info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
 
             if (info == null)
             {
-                info = ScriptableObject.CreateInstance<LocalConfigInfo>();
+                info = ScriptableObject.CreateInstance<FrameworkConfigInfo>();
                 
                 string infoPath = "Assets/Resources";
                 if (!Directory.Exists(infoPath))
@@ -253,7 +311,7 @@ namespace YukiFrameWork
                     AssetDatabase.Refresh();
                 }
 
-                AssetDatabase.CreateAsset(info, infoPath + "/LocalConfigInfo.asset");                
+                AssetDatabase.CreateAsset(info, infoPath + "/FrameworkConfigInfo.asset");                
                 AssetDatabase.Refresh();
                 EditorUtility.SetDirty(info);
                 AssetDatabase.SaveAssets();

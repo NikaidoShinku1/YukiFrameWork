@@ -39,7 +39,7 @@ namespace YukiFrameWork.States
             }
             try
             {
-                LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+                FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
                 var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));
                 if (types != null)
                 {
@@ -520,7 +520,7 @@ namespace YukiFrameWork.States
                 fileName += i;
                 targetPath = filePath + fileName + ".cs";
             }
-            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
             using (FileStream fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 StringBuilder builder = new StringBuilder();

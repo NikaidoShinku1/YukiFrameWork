@@ -21,7 +21,7 @@ namespace YukiFrameWork
 {
     public static class SaveTool
     {             
-        private static LocalSaveToolConfig saveConfig;       
+        private static SaveToolConfig saveConfig;       
         private static string saveDirPath => saveConfig.saveDirPath;
         private static bool isInited = false;
         private static Dictionary<int, Dictionary<string, object>> cacheDict = new Dictionary<int, Dictionary<string, object>>();
@@ -29,7 +29,7 @@ namespace YukiFrameWork
         public static void Init()
         {           
             if (isInited) return;
-            saveConfig = Resources.Load<LocalSaveToolConfig>(nameof(LocalSaveToolConfig));            
+            saveConfig = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));            
             Debug.Log($"存档系统初始化完成,存档保存的路径----：{saveDirPath}");
             CheckAndCreateFolder();           
             isInited = true;

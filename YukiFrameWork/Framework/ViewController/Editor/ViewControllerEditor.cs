@@ -20,13 +20,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.OdinInspector;
 namespace YukiFrameWork.Extension
 {
     [CustomEditor(typeof(ViewController), true)]
     [CanEditMultipleObjects]
     public class ViewControllerEditor : OdinEditor
     {
-        private List<string> list = new List<string>();
+        private List<string> list = new List<string>();       
         [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1000)]
         private static void CreateViewController()
         {           
@@ -60,7 +61,7 @@ namespace YukiFrameWork.Extension
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";          
             if (controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
             {             
-                if(!Update_ScriptGenericScriptDataInfo(scriptFilePath, controller))
+                if(!Update_ScriptFrameWorkConfigData(scriptFilePath, controller))
                     controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);                    
             }
         }
@@ -76,9 +77,9 @@ namespace YukiFrameWork.Extension
             if (controller.Data.OnLoading)
             {
                 controller.Data.OnLoading = false;
-                Update_ScriptGenericScriptDataInfo(scriptFilePath, controller);            
+                Update_ScriptFrameWorkConfigData(scriptFilePath, controller);            
             }             
-            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
             controller.Data.ScriptNamespace = !info ? controller.Data.ScriptNamespace : info.nameSpace;
             
             if(controller.Data.IsPartialLoading)           
@@ -106,7 +107,7 @@ namespace YukiFrameWork.Extension
         protected override  void OnDisable()
         {
             base.OnDisable();
-            LocalConfigInfo info = Resources.Load<LocalConfigInfo>("LocalConfigInfo");
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
             if (info == null) return;
 
             ViewController controller = target as ViewController;
@@ -162,10 +163,10 @@ namespace YukiFrameWork.Extension
             style.fontStyle = FontStyle.Bold;
             GUILayout.BeginHorizontal();
             EditorGUI.BeginChangeCheck();
-            GUILayout.Label(GenericScriptDataInfo.TitleTip, style);
+            GUILayout.Label(FrameWorkConfigData.TitleTip, style);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
             GUILayout.Label("EN");
-            GenericScriptDataInfo.IsEN = EditorGUILayout.Toggle(GenericScriptDataInfo.IsEN);
+            FrameWorkConfigData.IsEN = EditorGUILayout.Toggle(FrameWorkConfigData.IsEN);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
 
@@ -174,7 +175,7 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.BeginHorizontal();
             var Data = controller.Data;
-            GUILayout.Label(GenericScriptDataInfo.Email, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Email, GUILayout.Width(200));
             Data.CreateEmail = EditorGUILayout.TextField(Data.CreateEmail);
             EditorGUILayout.EndHorizontal();
 
@@ -184,7 +185,7 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.NameSpace, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.NameSpace, GUILayout.Width(200));
             Data.ScriptNamespace = EditorGUILayout.TextField(Data.ScriptNamespace);
             EditorGUILayout.EndHorizontal();
 
@@ -192,7 +193,7 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.Name, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Name, GUILayout.Width(200));
             Data.ScriptName = EditorGUILayout.TextField(Data.ScriptName);
             EditorGUILayout.EndHorizontal();
 
@@ -200,7 +201,7 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.BeginHorizontal();
 
-            GUILayout.Label(GenericScriptDataInfo.Path, GUILayout.Width(200));
+            GUILayout.Label(FrameWorkConfigData.Path, GUILayout.Width(200));
             GUILayout.TextField(Data.ScriptPath);
             CodeManager.SelectFolder(Data);
             EditorGUILayout.EndHorizontal();
@@ -210,7 +211,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.BeginHorizontal();
 
             EditorGUI.BeginDisabledGroup(!target.GetType().Equals(typeof(ViewController)));
-            GUILayout.Label(GenericScriptDataInfo.AutoInfo, GUILayout.Width(GenericScriptDataInfo.IsEN ? 300 : 200));
+            GUILayout.Label(FrameWorkConfigData.AutoInfo, GUILayout.Width(FrameWorkConfigData.IsEN ? 300 : 200));
             Data.IsAutoMation = EditorGUILayout.Toggle(Data.IsAutoMation, GUILayout.Width(50));
             EditorGUILayout.EndHorizontal();
             if (Data.IsAutoMation)
@@ -240,7 +241,7 @@ namespace YukiFrameWork.Extension
         private void SelectArchitecture(CustomData Data)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Width(300));
-            EditorGUILayout.LabelField(GenericScriptDataInfo.IsEN ? "Select Architecture:" : "架构选择:", GUILayout.Width(120));
+            EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Select Architecture:" : "架构选择:", GUILayout.Width(120));
             Data.AutoArchitectureIndex = EditorGUILayout.Popup(Data.AutoArchitectureIndex, list.ToArray());
             EditorGUILayout.EndHorizontal();
         }
@@ -249,7 +250,7 @@ namespace YukiFrameWork.Extension
         {
             RuntimeEventCenter center = controller.GetComponent<RuntimeEventCenter>();
             EditorGUI.BeginDisabledGroup(center);           
-            if (GUILayout.Button(GenericScriptDataInfo.AddEventInfo, GUILayout.Height(30)))
+            if (GUILayout.Button(FrameWorkConfigData.AddEventInfo, GUILayout.Height(30)))
             {
                 Undo.AddComponent<RuntimeEventCenter>(controller.gameObject);
             }
@@ -264,10 +265,10 @@ namespace YukiFrameWork.Extension
                 switch (controller.initialized)
                 {
                     case RuntimeInitialized.Automation:
-                        GUILayout.Label(GenericScriptDataInfo.EventAudioMationInfo);
+                        GUILayout.Label(FrameWorkConfigData.EventAudioMationInfo);
                         break;
                     case RuntimeInitialized.Awake:
-                        GUILayout.Label(GenericScriptDataInfo.EventAwakeInfo);
+                        GUILayout.Label(FrameWorkConfigData.EventAwakeInfo);
                         break;                 
                 }
             }
@@ -326,7 +327,7 @@ namespace YukiFrameWork.Extension
             }
         }
 
-        private bool Update_ScriptGenericScriptDataInfo(string path,ViewController controller)
+        private bool Update_ScriptFrameWorkConfigData(string path,ViewController controller)
         {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
             if(monoScript == null) return false;

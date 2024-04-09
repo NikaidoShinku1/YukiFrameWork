@@ -23,13 +23,13 @@ namespace YukiFrameWork.UI
     }
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
-    public class BasePanel : MonoBehaviour,ISerializedFieldInfo,IPanel
+    public class BasePanel : Sirenix.OdinInspector.SerializedMonoBehaviour,ISerializedFieldInfo,IPanel
     {      
         protected CanvasGroup canvasGroup;      
         [HideInInspector]
         public UICustomData Data;
-#if UNITY_EDITOR
         private bool isPlaying => ApplicationHelper.GetRuntimeOrEditor();
+#if UNITY_EDITOR
         [HideIfGroup(nameof(isPlaying))]
 #endif
         [LabelText("面板层级"),SerializeField]        
@@ -46,8 +46,10 @@ namespace YukiFrameWork.UI
                 mLevel = value; 
             }
         }
-      
-        [LabelText("面板是否缓存"),SerializeField,HideIfGroup(nameof(isPlaying)),InfoBox("如果关闭则每次开关面板都会进行销毁生成")]
+#if UNITY_EDITOR
+        [HideIfGroup(nameof(isPlaying))]
+#endif
+        [LabelText("面板是否缓存"),SerializeField,InfoBox("如果关闭则每次开关面板都会进行销毁生成")]
         protected bool isPanelCache = true;
 
         public bool IsPanelCache => isPanelCache;

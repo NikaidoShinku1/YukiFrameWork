@@ -1,7 +1,23 @@
 # YukiFrameWork
 
 #### 介绍
-"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)，框架集成Odin、DoTween、UniRx、UniTask作为工具可以自由选择使用"
+"YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块。本地化配置管理、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)，框架集成Odin、DoTween、UniRx、UniTask作为工具可以自由选择使用"
+
+#### 安装教程
+
+特殊标记: 下载压缩包或者fork项目(V1.13.0更新后会出现如大量报错，请按照安装教程说明将Sirenix文件夹整个复制到Assets项目中)
+
+![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
+
+将Sirenix文件夹整个复制到项目Assets文件夹下，在完成这一步之后再进行导入框架的操作！
+
+在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
+![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading2.png)
+
+框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
+![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
+
+注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！必须要按照教程说明进行框架安装!
 
 #### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
@@ -19,6 +35,8 @@
 [Command介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/10.Command.md)
 
 #### 框架支持工具
+
+- 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md)
 
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
@@ -58,18 +76,9 @@
 
 - 框架支持插件:[Odin](https://odininspector.com/);
 
-#### 安装教程
-下载压缩包或者fork项目
-![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
-解压后在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
-![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading2.png)
-
-框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
-![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
-
-注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！
-
 #### 框架更新版本速览
+
+V1.13.0 框架变更导入方式!具体查看该官网下的安装教程安装即可，新增框架本地化配置，优化细节。
 
 V1.12.0 框架全面集成odin插件进行编辑器自定义，优化存档工具窗口的细节，优化贝塞尔曲线模块以及AudioInfo的编辑器显示效果!
 
