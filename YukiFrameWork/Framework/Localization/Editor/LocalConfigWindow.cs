@@ -51,7 +51,7 @@ namespace YukiFrameWork
         private SerializedProperty parentProperty;
         private SerializedProperty parentNameProperty;
         private SerializedObject serializedObject;
-        private SerializedProperty assemblyProperty;      
+        private SerializedProperty assemblyProperty;
         private GUIContent defaultContent = new GUIContent();
         private GUIStyle boxStyle;
         private int selectIndex = 0;
@@ -63,10 +63,15 @@ namespace YukiFrameWork
         [SerializeField,LabelText("Configs:"),ShowIf(nameof(selectIndex),1)]
         private LocalizationConfigBase configBases;
 
+        [SerializeField, LabelText("运行时的默认语言设置:"), InfoBox("默认语言可以被动态修改!"), PropertySpace(10),ShowIf(nameof(selectIndex),1)]
+        private Language defaultLanguage;
 
-        [InfoBox("运行时默认语言必须在配置中存在!",InfoMessageType.Warning)]
-        [LabelText("运行时默认语言:"),ShowIf(nameof(selectIndex),1),PropertySpace(10)]
-        public Language DefaultLanguage;       
+        [InfoBox("可以添加多个配置项(如果有多个配置的情况下)"), PropertySpace(5), ShowIf(nameof(configIsNullOrError))]
+        [LabelText("子配置项"), SerializeField]
+        private YDictionary<int, LocalizationConfigBase> dependConfigBase = new YDictionary<int, LocalizationConfigBase>();
+
+        private bool configIsNullOrError => configBases != null && selectIndex == 1;      
+        
         protected override void OnEnable() 
         {
             base.OnEnable();
@@ -74,20 +79,24 @@ namespace YukiFrameWork
             defaultContent = new GUIContent();
             OnAfterDeserialize();
             selectIndex = PlayerPrefs.GetInt("LocalConfigWindowSelectIndex");
+            wantsMouseEnterLeaveWindow = true;
+            wantsMouseMove = true;
         }
 
         protected override void OnAfterDeserialize()
         {
             assemblies = info.assemblies;
             configBases = info.configBases;
-            DefaultLanguage = info.DefaultLanguage;           
+            dependConfigBase = info.dependConfigs;
+            defaultLanguage = info.defaultLanguage;
         }
 
         protected override void OnBeforeSerialize()
         {
             info.assemblies = assemblies;
             info.configBases = configBases;
-            info.DefaultLanguage = DefaultLanguage;       
+            info.dependConfigs = dependConfigBase;
+            info.defaultLanguage = defaultLanguage;
         }
         private string[] ArrayInfo
         {
@@ -100,6 +109,14 @@ namespace YukiFrameWork
             OnBeforeSerialize();
             PlayerPrefs.SetInt("LocalConfigWindowSelectIndex", selectIndex);
 
+        }    
+
+        private void OnInspectorUpdate()
+        {
+            if (Application.isPlaying)
+            {
+                OnAfterDeserialize();
+            }
         }
         protected override void OnImGUI()
         {
@@ -323,7 +340,7 @@ namespace YukiFrameWork
             pathProperty = serializedObject.FindProperty("genericPath");
             parentProperty = serializedObject.FindProperty("IsParent");
             parentNameProperty = serializedObject.FindProperty("parentName");
-            assemblyProperty = serializedObject.FindProperty("assembly");
+            assemblyProperty = serializedObject.FindProperty("assembly");          
         }
     }
 #endif  

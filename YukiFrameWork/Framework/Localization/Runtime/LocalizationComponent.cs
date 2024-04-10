@@ -36,6 +36,12 @@ namespace YukiFrameWork
         [SerializeField] 
         private LocalizationComponentItem[] items;
 
+        [SerializeField,LabelText("是否使用子配置项(关闭则默认使用全局的配置项)")]
+        private bool isdependConfig = false;
+
+        [LabelText("子配置项的ID"),ShowIf(nameof(isdependConfig)), SerializeField]
+        private int configID;
+
         /// <summary>
         /// 组件解析器
         /// </summary>
@@ -61,7 +67,7 @@ namespace YukiFrameWork
         /// 初始化解析器,用于自定义组件的赋值
         /// </summary>
         /// <param name="resolver"></param>
-        public void InitResolver(Action<Component, ILocalizationData> resolver)
+        public void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver)
         {
             this.resolver = resolver;
         }
@@ -70,7 +76,11 @@ namespace YukiFrameWork
         {
             foreach (var item in items)
             {
-                var data = LocalizationKit.GetContent(item.key,language);               
+                ILocalizationData data = null;
+                if (!isdependConfig)
+                    data = LocalizationKit.GetContent(item.key, language);
+                else
+                    data = LocalizationKit.GetContentFromDepend(configID, item.key, language);
                 if (data == null)
                     continue;                
                 if (resolver != null)

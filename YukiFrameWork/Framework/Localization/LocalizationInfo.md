@@ -19,7 +19,7 @@
 
 图中的参数Key:对应要应用的标识,ValidateLanguage:精灵被应用的语言，Languages数组对应后续同步应用的语言
 
-打开YukiFrameWork/LocalConfiguration选择本地化配置窗口将配置拖入，设置初始时的默认语言
+打开YukiFrameWork/LocalConfiguration选择本地化配置窗口将配置拖入，设置初始时的默认语言,在持有全局配置时，可以继续添加多个配置在子配置项内，如果有需要的话
 ![输入图片说明](Texture/5.png)
 
 使用示例代码：
@@ -123,9 +123,10 @@ static LocalizationKit API:
     - void UnRegisterLanguageEvent(Action<Language> action) //注销修改语言时触发的回调
     - void OnLanguageValueChanged()//调用回调
     - ILocalizationData GetContent(string key, Language language)//根据语言以及标识得到本地数据
+    - ILocalizationData GetContentFromDepend(int id, string key, Language language);//根据id得到子配置项，然后根据语言以及标识得到本地数据
 
 
-对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,如图所示:
+对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,一个Component只能使用一个配置，如果需要使用的是子配置则打开子配置按钮，输入对应id即可,如图所示:
 ![输入图片说明](Texture/6.png)
 
 在同一标识下，如果需要有多个组件，可以打开图中的事件接收器，如下所示：
@@ -159,5 +160,10 @@ public class LocalizationTest : MonoBehaviour
     }
 }
 ```
+
+Component API:
+
+    ///初始化解析器，可以自行传入解析器来完成同步的回调
+    - void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver);
 
 

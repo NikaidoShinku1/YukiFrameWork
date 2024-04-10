@@ -13,23 +13,26 @@ using Newtonsoft.Json;
 using YukiFrameWork.Extension;
 using System.Collections.Generic;
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using System.Linq;
 namespace YukiFrameWork
 {
     public abstract class LocalizationConfigBase : ScriptableObject
     {
+        protected const string groupName = "本地设置:";       
+
         public abstract ILocalizationData GetLocalizationData(Language language,string key);
 
         public abstract void Init();       
     }
   
     public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase where LocalizationData : ILocalizationData
-    {        
-        private const string groupName = "本地设置:";
+    {                     
         [LabelText("打开配置表导入:"),BoxGroup(groupName)]
         [JsonIgnore]
-        public bool openLoadMode;
+        public bool openLoadMode;      
        
         //[DictionaryDrawerSettings(KeyLabel = "标识", ValueLabel = "配置信息"), BoxGroup(groupName)]       
         [LabelText("本地数据配置:"),BoxGroup(groupName)]

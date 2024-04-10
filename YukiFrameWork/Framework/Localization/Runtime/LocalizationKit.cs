@@ -8,6 +8,8 @@
 ///=====================================================
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 namespace YukiFrameWork
 {
     /// <summary>
@@ -17,6 +19,14 @@ namespace YukiFrameWork
 	{
         private LocalizationKit() { }
         private static LocalizationConfigBase localizationConfig;
+
+        private static Dictionary<int,LocalizationConfigBase> dependConfigs = new Dictionary<int, LocalizationConfigBase>();
+
+        /// <summary>
+        /// 得到框架的配置文件
+        /// </summary>
+        private FrameworkConfigInfo framework;
+
         private static bool Isinited = false;
         /// <summary>
         /// 注册语言改变时的事件
@@ -34,6 +44,7 @@ namespace YukiFrameWork
             {              
                 if (I.languageType != value)
                 {
+                    I.framework.defaultLanguage = value;
                     I.languageType = value;
                     OnLanguageValueChanged();
                 }
@@ -81,13 +92,24 @@ namespace YukiFrameWork
             {
                 throw new Exception("请在左上角打开YukiFrameWork/LocalConfiguration的本地化配置检查是否添加了Config!");
             }
+            framework = info;
             Isinited = true;
-            localizationConfig = info.configBases;           
-
+            localizationConfig = info.configBases;
+            dependConfigs = info.dependConfigs.ToDictionary(key => key.Key,value => value.Value);
             ///初始化时自动调用一次         
             localizationConfig.Init();
-            ///如果默认是一样的，那么触发一次事件          
-            LanguageType = info.DefaultLanguage;           
+
+            foreach (var key in dependConfigs.Keys)
+            {
+                LocalizationConfigBase depend = dependConfigs[key];
+                if (depend == null)
+                {
+                    Debug.LogWarning("该id对应的配置不存在，请检查! id---- " + key);
+                    continue;
+                }
+                depend.Init();
+            }                                      
+            languageType = info.defaultLanguage;        
         } 
         
 
@@ -100,8 +122,31 @@ namespace YukiFrameWork
         {
             return I.GetContentByKey(key,language);
         }
+
+        public static ILocalizationData GetContentFromDepend(int id, string key, Language language)
+        {
+            return I.GetContentByKeyFromDepend(id, key, language);
+        }
+
+        internal ILocalizationData GetContentByKeyFromDepend(int id, string key, Language language)
+        {
+            if (!Isinited)
+            {
+                throw new Exception("没有对LocalizationKit进行初始化!请调用一次LocalizationKit.Init()方法!");
+            }
+
+            if (!dependConfigs.TryGetValue(id, out var config))
+            {
+                Debug.LogError("依赖的配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加，ID--- " + id);
+                return default;
+            }
+
+            ILocalizationData data = config.GetLocalizationData(language, key);
+
+            return data;
+        }
         
-        private ILocalizationData GetContentByKey(string key,Language language)
+        internal ILocalizationData GetContentByKey(string key,Language language)
         {
             if (!Isinited)
             {
@@ -109,11 +154,20 @@ namespace YukiFrameWork
             }
             if (localizationConfig == null)
             {
-                Debug.LogError("配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration");
+                Debug.LogError("配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加");
                 return default;
             }
             ILocalizationData data = localizationConfig.GetLocalizationData(language, key);           
             return data;
-        }       
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            Resources.UnloadAsset(framework);
+            framework = null;
+            dependConfigs.Clear();
+            localizationConfig = null;
+        }
     }
 }

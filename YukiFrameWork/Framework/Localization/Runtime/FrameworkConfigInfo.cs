@@ -1,27 +1,28 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork
 {
     public class FrameworkConfigInfo : ScriptableObject
     {
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string scriptName;
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string nameSpace = "YukiFrameWork.Example";
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string genericPath = "Assets/Scripts";
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public bool IsParent;
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string parentName = "MonoBehaviour";
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string assembly = "Assembly-CSharp";
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public string[] assemblies = new string[0];
-        [ReadOnly]
+        [ReadOnly, SerializeField]
         public LocalizationConfigBase configBases;
-        [ReadOnly]
-        public Language DefaultLanguage;
+        [ReadOnly, SerializeField]
+        public YDictionary<int, LocalizationConfigBase> dependConfigs = new YDictionary<int, LocalizationConfigBase>();
+        [ReadOnly, SerializeField]
+        public Language defaultLanguage;
     }
 }
