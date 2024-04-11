@@ -3,41 +3,54 @@
 使用如下:
 
 在项目Assets文件夹下右键新建配置表：
+
 ![输入图片说明](Texture/1.png)
 
 配置表预览如下:
+
 ![输入图片说明](Texture/2.png)
 
 在本地数据配置处点击加号添加数据
 示例如下：
+
 ![输入图片说明](Texture/3.png)
 
 可以在下方将已经配置好的数据导出Json或者Xml，也支持拖入Json/Xml文件转换为配置
 
 在标识设置好之后，每个语言都可以设置自己的文本跟精灵，对于精灵的设置，如果有多个语言应用同一个精灵，可以在下方一键应用:
+
 ![输入图片说明](Texture/4.png)
 
 图中的参数Key:对应要应用的标识,ValidateLanguage:精灵被应用的语言，Languages数组对应后续同步应用的语言
 
 打开YukiFrameWork/LocalConfiguration选择本地化配置窗口将配置拖入，设置初始时的默认语言,在持有全局配置时，可以继续添加多个配置在子配置项内，如果有需要的话
+
 ![输入图片说明](Texture/5.png)
 
 对于本地化的配置，支持Excel配表的功能，本地化通过另外的逻辑进行Excel转Json的逻辑。所以Excel格式较为特殊，模板如下:
+
 ![输入图片说明](Texture/8.png)
 
 第一行的第一个格子必须是Key，后面则是框架目前支持的所有语言。
+
 根据项目情况而定，例如只需要中英文切换两个语言，那么后面第一行只需要填SimplifiedChinese以及English即可(名称要与框架Language枚举的标识相同!)
+
 第二行全部统一为string即可
+
 第三行可有可无，作为表格的注释存在，如果第三行直接开始配置而不是注释，那么表头标识就要设置为2(默认是3)
+
 从后面开始就是我们的配置了，Key对应的是我们语言的唯一标识，后面的都是各个语言的翻译。
 
 配置好之后，查阅框架SerializationTool文档进行Excel转Json的操作即可
+
 [序列化工具文档跳转](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/序列化工具.md)
 
 示例的Excel模板转换的Json文件如下:
+
 ![输入图片说明](Texture/9.png)
 
 将Json文件拖入这个位置:
+
 ![输入图片说明](Texture/10.png)
 
 直接点击导入，即可同步当前的配置到config的字典中！
