@@ -40,7 +40,7 @@
 
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
-- 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Serialization/序列化工具.md)
+- 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/序列化工具.md)
 
 - 框架存档工具:SaveTool[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/存档系统.md)
 
@@ -77,6 +77,8 @@
 - 框架支持插件:[Odin](https://odininspector.com/);
 
 #### 框架更新版本速览
+
+V1.13.4 框架支持更加优雅适用的Excel转Json工具，新增文档补充，LocalizationKit套件现在也支持Excel配表
 
 V1.13.3 本地化配置支持对运行时最后选择的语言保存，添加子配置项，现在可以添加多个配置
 

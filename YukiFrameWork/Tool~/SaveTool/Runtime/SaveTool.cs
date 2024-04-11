@@ -287,13 +287,13 @@ namespace YukiFrameWork
             switch (serialization)
             {
                 case SerializationType.Json:
-                    info = AssemblyHelper.SerializedObject(saveObject);
+                    info = SerializationTool.SerializedObject(saveObject);
                     break;
                 case SerializationType.Xml:
-                    info = AssemblyHelper.XmlSerializedObject(saveObject);
+                    info = SerializationTool.XmlSerializedObject(saveObject);
                     break;
                 case SerializationType.Bytes:
-                    info = Encoding.UTF8.GetString(AssemblyHelper.ByteSerializedObject(saveObject));
+                    info = Encoding.UTF8.GetString(SerializationTool.ByteSerializedObject(saveObject));
                     break;              
             }
 
@@ -548,14 +548,14 @@ namespace YukiFrameWork
                 switch (type)
                 {
                     case SerializationType.Json:
-                        obj = AssemblyHelper.DeserializedObject<T>(info);
+                        obj = SerializationTool.DeserializedObject<T>(info);
                         break;
                     case SerializationType.Xml:
-                        obj = AssemblyHelper.XmlDeserializedObject<T>(info);
+                        obj = SerializationTool.XmlDeserializedObject<T>(info);
                         break;
                     case SerializationType.Bytes:
                         byte[] bytes = Encoding.UTF8.GetBytes(info);
-                        obj = AssemblyHelper.ByteDeserializedObject<T>(bytes);
+                        obj = SerializationTool.ByteDeserializedObject<T>(bytes);
                         break;                
                 }
             }

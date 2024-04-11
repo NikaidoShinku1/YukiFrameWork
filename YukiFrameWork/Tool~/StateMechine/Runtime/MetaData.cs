@@ -199,7 +199,7 @@ namespace YukiFrameWork.States
                         }
                         return list;
                     }
-                    else return AssemblyHelper.DeserializedObject(data, Type);
+                    else return SerializationTool.DeserializedObject(data, Type);
                 case TypeCode.Array:
                     if (itemType == typeof(Object) | itemType.IsSubclassOf(typeof(Object)))
                     {
@@ -211,7 +211,7 @@ namespace YukiFrameWork.States
                         }
                         return list;
                     }
-                    else return AssemblyHelper.DeserializedObject(data, Type);
+                    else return SerializationTool.DeserializedObject(data, Type);
             }
             return null;
         }
@@ -268,7 +268,7 @@ namespace YukiFrameWork.States
                         for (int i = 0; i < list.Count; i++)
                             Values.Add(list[i] as Object);
                     }
-                    else data = AssemblyHelper.SerializedObject(value,Newtonsoft.Json.Formatting.None,new Newtonsoft.Json.JsonSerializerSettings()
+                    else data = SerializationTool.SerializedObject(value,Newtonsoft.Json.Formatting.None,new Newtonsoft.Json.JsonSerializerSettings()
                     {
                         ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
                         PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects

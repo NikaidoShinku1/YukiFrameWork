@@ -24,7 +24,7 @@ namespace YukiFrameWork
             }
 			
             return ActionKit.Sequence()
-				.CallBack(() =>MonoHelper.Start(e()))
+				.CallBack(() => MonoHelper.Start(e()))
 				.ExecuteFrame(() => end,callBack);
 		}
 

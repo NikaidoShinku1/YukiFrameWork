@@ -91,7 +91,7 @@ namespace YukiFrameWork
                 {                 
                     if (item.component is Text text)
                     {
-                        text.text = data.Content;
+                        text.text = data.Context;
                     }
                     else if (item.component is Image image)
                     {
@@ -100,7 +100,7 @@ namespace YukiFrameWork
                 }
                 if (item.eventReceiver)
                 {
-                    item.stringReceiver?.Invoke(data.Content);
+                    item.stringReceiver?.Invoke(data.Context);
                     item.spriteReceiver?.Invoke(data.Sprite);
                 }
             }

@@ -60,12 +60,12 @@ namespace YukiFrameWork.Knapsack
                     textAsset = Resources.Load<TextAsset>(configData.ProjectPath);
                     break;               
             }
-            Info[] datas = AssemblyHelper.DeserializedObject<Info[]>(textAsset.text);
-            object[] values = AssemblyHelper.DeserializedObject<object[]>(textAsset.text);
+            Info[] datas = SerializationTool.DeserializedObject<Info[]>(textAsset.text);
+            object[] values = SerializationTool.DeserializedObject<object[]>(textAsset.text);
             for (int i = 0; i < datas.Length; i++)
             {
                 Type type = AssemblyHelper.GetType(datas[i].TypeName);
-                ItemData data = AssemblyHelper.DeserializedObject(values[i].ToString(), type) as ItemData;               
+                ItemData data = SerializationTool.DeserializedObject(values[i].ToString(), type) as ItemData;               
                 AddItem(data);
             }          
             IsInited = true;

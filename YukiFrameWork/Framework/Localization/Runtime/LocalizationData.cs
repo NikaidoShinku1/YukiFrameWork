@@ -21,7 +21,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 文本内容
         /// </summary>
-		string Content { get; set; }
+		string Context { get; set; }
         /// <summary>
         /// 精灵(图片)
         /// </summary>
@@ -33,7 +33,7 @@ namespace YukiFrameWork
     {              
         [field: MultiLineProperty,JsonProperty]
         [field: SerializeField]
-        public string Content { get; set ; }             
+        public string Context { get; set ; }             
         
         [JsonIgnore]
         [field: PreviewField(50)]

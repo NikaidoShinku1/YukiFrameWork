@@ -1,4 +1,4 @@
-///=====================================================
+﻿///=====================================================
 /// - FileName:      AssemblyHelper.cs
 /// - NameSpace:     YukiFrameWork.Project
 /// - Created:       Yuki
@@ -20,7 +20,7 @@ using System.Text;
 
 namespace YukiFrameWork.Extension
 {
-    public class AssemblyHelper
+    public class AssemblyHelper 
     {
         private static Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
     
@@ -116,21 +116,23 @@ namespace YukiFrameWork.Extension
         {           
             return assembly?.GetTypes();
         }
-
+        #region Obsolete Serialization Function
+        [Obsolete("The recommended DeserializedObject is the deserializeDobject of the SerializationTool class")]
         public static T DeserializedObject<T>(string value)
-            => JsonConvert.DeserializeObject<T>(value);
+            => SerializationTool.DeserializedObject<T>(value);
 
-
+        [Obsolete("The recommended DeserializedObject is the deserializeDobject of the SerializationTool class")]
         public static object DeserializedObject(string value, Type type)
             => JsonConvert.DeserializeObject(value,type);
 
+        [Obsolete("The recommended SerializedObject is the serializeDobject of the SerializationTool class")]
         public static string SerializedObject(object value, Newtonsoft.Json.Formatting formatting = Newtonsoft.Json.Formatting.Indented, JsonSerializerSettings settings = null)
         {
             if (settings == null)
                 return JsonConvert.SerializeObject(value, formatting);
             else return JsonConvert.SerializeObject(value, formatting, settings);
         }
-
+        [Obsolete("The recommended XmlSerializedObject is the xmlserializeDobject of the SerializationTool class")]
         public static string XmlSerializedObject(object value,XmlWriterSettings settings = default)
         {            
             XmlSerializer xmlSerializer = new XmlSerializer(value.GetType());
@@ -149,12 +151,12 @@ namespace YukiFrameWork.Extension
                 return writer.ToString();
             }
         }
-
+        [Obsolete("The recommended XmlDeserializedObject is the xmldeserializeDobject of the SerializationTool class")]
         public static T XmlDeserializedObject<T>(string value)
         {
             return (T)XmlDeserializedObject(value, typeof(T));
         }
-
+        [Obsolete("The recommended XmlDeserializedObject is the xmldeserializeDobject of the SerializationTool class")]
         public static object XmlDeserializedObject(string value, Type type)
         {
             object obj = null;
@@ -167,18 +169,19 @@ namespace YukiFrameWork.Extension
 
             return obj;
         }
-
+        [Obsolete("The recommended ByteDeserializedObject is the bytedeserializeDobject of the SerializationTool class")]
         public static byte[] ByteSerializedObject(object value)
         {
             return Encoding.UTF8.GetBytes(SerializedObject(value));           
-        }       
-
+        }
+        [Obsolete("The recommended BytesDeserializedObject is the bytesdeserializeDobject of the SerializationTool class")]
         public static object ByteDeserializedObject(byte[] value,Type type)
         {
             return DeserializedObject(Encoding.UTF8.GetString(value), type);          
         }
-
+        [Obsolete("The recommended BytesDeserializedObject is the bytesdeserializeDobject of the SerializationTool class")]
         public static T ByteDeserializedObject<T>(byte[] value)
             => (T)ByteDeserializedObject(value, typeof(T));
+        #endregion
     }
 }
