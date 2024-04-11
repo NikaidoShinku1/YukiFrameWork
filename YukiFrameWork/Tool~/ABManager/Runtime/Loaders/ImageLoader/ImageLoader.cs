@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI; 
@@ -72,6 +73,22 @@ namespace XFABManager
             }
         }
 
+        /// <summary>
+        /// 是否是主资源
+        /// </summary>
+        public bool IsSubAsset { get;internal set; }
+
+        /// <summary>
+        /// 主资源名称
+        /// </summary>
+        public string MainAssetName { get; internal set; }
+
+        /// <summary>
+        /// 子资源名称
+        /// </summary>
+        public string SubAssetName { get; internal set; }
+
+
         public override bool Equals(object obj)
         {
             ImageModel other = (ImageModel)obj; 
@@ -102,6 +119,23 @@ namespace XFABManager
              
             return true;
         }
+
+        public void Initialize() 
+        {
+            IsSubAsset = type == ImageLoaderType.AssetBundle && assetName.Contains("/");
+              
+            if (IsSubAsset)
+            {
+                string[] strs = assetName.Split('/');
+                MainAssetName = strs[0];
+                SubAssetName = strs[1];
+            }
+            else {
+                MainAssetName = string.Empty;
+                SubAssetName = string.Empty;
+            }
+        }
+
 
     }
 
@@ -221,6 +255,7 @@ namespace XFABManager
                 ImageModel model = ImageModel;
                 model.type = value;
                 ImageModel = model;
+                ImageModel.Initialize();
             }
 
             get {
@@ -256,7 +291,7 @@ namespace XFABManager
             {
                 ImageModel model = ImageModel;
                 model.projectName = value;
-                ImageModel = model;
+                ImageModel = model; 
             }
 
             get
@@ -276,6 +311,7 @@ namespace XFABManager
                 ImageModel model = ImageModel;
                 model.assetName = value;
                 ImageModel = model;
+                ImageModel.Initialize();
             }
 
             get
@@ -364,7 +400,13 @@ namespace XFABManager
             }
         }
 #endif
-         
+
+        private void Awake() 
+        {
+            imageModel.Initialize();
+        }
+
+
         private void OnEnable()
         { 
             RefreshImage();

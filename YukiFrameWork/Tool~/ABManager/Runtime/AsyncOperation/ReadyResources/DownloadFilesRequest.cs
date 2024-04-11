@@ -37,6 +37,9 @@ namespace XFABManager
     public class DownloadFilesRequest : CustomAsyncOperation<DownloadFilesRequest>
     {
 
+        #region 字段
+
+         
         /// <summary>
         /// 等待下载的文件集合
         /// </summary>
@@ -51,6 +54,38 @@ namespace XFABManager
         /// 需要下载的所有文件的集合
         /// </summary>
         private List<DownloadObjectInfo> downloadObjects = null;
+
+
+        /// <summary>
+        /// 需要下载的文件的大小
+        /// </summary>
+        private Dictionary<string, long> download_file_length = new Dictionary<string, long>();
+
+        /// <summary>
+        /// 某一秒的所有下载文件的请求
+        /// </summary>
+        private Dictionary<long, List<DownloadFileRequest>> number_of_downloaded_file_request_per_second = new Dictionary<long, List<DownloadFileRequest>>();
+
+        private List<long> temp_list = new List<long>();
+
+
+
+        private long all_download_size;
+        /// <summary>
+        /// 当某个文件下载完成时触发
+        /// </summary>
+        public System.Action<DownloadObjectInfo> onFileDownloadCompleted;
+
+        internal Coroutine runing_coroutine;
+
+        private ExecuteMultipleAsyncOperation<DownloadFileRequest> multiple_download_operation;
+
+        private List<DownloadFileRequest> downloadFiles = new List<DownloadFileRequest>();
+
+        #endregion
+
+
+        #region 属性
 
         /// <summary>
         /// 下载速度，单位:字节/秒
@@ -97,36 +132,39 @@ namespace XFABManager
                         all_download_size += download_file_length[item.url];
                 }
 
-                return all_download_size + downloading_size;
+                long size = all_download_size + DownloadingSize;
+                return size;
             }
 
         }
 
-        /// <summary>
-        /// 需要下载的文件的大小
-        /// </summary>
-        private Dictionary<string, long> download_file_length = new Dictionary<string, long>();
+        private long DownloadingSize
+        {
+            get {
+                long downloading_size = 0;
+
+                if (multiple_download_operation != null) 
+                {
+                    foreach (var item in multiple_download_operation.InExecutionAsyncOperations)
+                    {
+                        downloading_size += item.DownloadedSize;
+                    }
+                }
+                 
+                return downloading_size;
+            }
+        }
 
         /// <summary>
-        /// 某一秒的所有下载文件的请求
+        /// 所有需要下载的文件总大小，单位:字节 
         /// </summary>
-        private Dictionary<long, List<DownloadFileRequest>> number_of_downloaded_file_request_per_second = new Dictionary<long, List<DownloadFileRequest>>();
+        public long AllSize { get; private set; }
 
-        private List<long> temp_list = new List<long>();
+        #endregion
 
-        /// <summary>
-        /// 正在下载中的请求，已下载的大小
-        /// </summary>
-        private long downloading_size;
 
-        private long all_download_size;
-        /// <summary>
-        /// 当某个文件下载完成时触发
-        /// </summary>
-        public System.Action<DownloadObjectInfo> onFileDownloadCompleted;
-
-        internal Coroutine runing_coroutine;
-
+        #region 方法
+         
         private DownloadFilesRequest(List<DownloadObjectInfo> downloadObjects)
         {
             this.downloadObjects = downloadObjects;
@@ -135,19 +173,7 @@ namespace XFABManager
 
             //ResetWaitDownloadObjects();
         }
-
-
-        /// <summary>
-        /// 所有需要下载的文件总大小，单位:字节 
-        /// </summary>
-        public long AllSize { get; private set; }
-
-        #region 文件下载
-
-        private List<DownloadFileRequest> downloadFiles = new List<DownloadFileRequest>();
-
-        #endregion
-
+         
         /// <summary>
         /// 重置等待下载的文件集合
         /// </summary>
@@ -220,8 +246,6 @@ namespace XFABManager
                 yield break;
             }
 
-            //Debug.Log("AllSize请求成功! 耗时:" + (Time.time - time));
-
             AllSize = 0;
             foreach (var item in downloadObjects)
             {
@@ -229,7 +253,6 @@ namespace XFABManager
                 if (download_file_length.ContainsKey(item.url))
                 {
                     AllSize += download_file_length[item.url];
-                    //Debug.LogFormat("url:{0} size:{1}",item.url, download_file_length[item.url]);
                 }
             }
 
@@ -237,7 +260,7 @@ namespace XFABManager
             ResetWaitDownloadObjects();
             downloadedObjects.Clear();
 
-            ExecuteMultipleAsyncOperation<DownloadFileRequest> multiple_download_operation = new ExecuteMultipleAsyncOperation<DownloadFileRequest>(10);
+            multiple_download_operation = new ExecuteMultipleAsyncOperation<DownloadFileRequest>(10);
 
             while (waitDownloadObjects.Count > 0 || !multiple_download_operation.IsDone())
             {
@@ -251,7 +274,7 @@ namespace XFABManager
                     download.AddCompleteEvent((request) =>
                     {
                         if (string.IsNullOrEmpty(download.error))
-                        {
+                        {  
                             // 文件下载完成
                             downloadedObjects.Add(info);
                             onFileDownloadCompleted?.Invoke(info);
@@ -263,12 +286,11 @@ namespace XFABManager
                     downloadFiles.Add(download);
                     multiple_download_operation.Add(download);
                 }
-
-                downloading_size = 0; 
+                 
 
                 foreach (var download_file in multiple_download_operation.InExecutionAsyncOperations)
                 { 
-                    downloading_size += download_file.DownloadedSize;
+
                     long cur_time = DateTimeTools.DateTimeToTimestamp(DateTime.Now, false);
                     if (number_of_downloaded_file_request_per_second.ContainsKey(cur_time))
                     {
@@ -294,19 +316,17 @@ namespace XFABManager
                     temp_list.Clear();
                 }
 
-                try
-                {
+                if (AllSize != 0) 
+                {                    
                     // 先转成float(不会溢出)再相除
                     float p = DownloadedSize * 1.0f / AllSize; // 如果AllSize等于0 会抛异常
+                    // 获取所有文件的大小的步骤 占比 0.1
                     p = 0.1f + p * 0.9f;
                     // 防止进度后退(如果下载一个文件，下载了一部分，但是后面失败了，这个时候已下载的字节就会减少，所以进度也会变小)
                     if (progress < p) progress = p;
-                }
-                catch (System.Exception)
-                {
-                    progress = 0;
-                }
-
+                }else 
+                    progress = 0.0f;
+                 
                 yield return null;
 
                 if (!string.IsNullOrEmpty(multiple_download_operation.Error())) break; // 有文件下载失败
@@ -343,8 +363,7 @@ namespace XFABManager
             downloadFiles.runing_coroutine = CoroutineStarter.Start(downloadFiles.Download());
             return downloadFiles;
         }
-
-
+         
         /// <summary>
         /// 中断下载
         /// </summary>
@@ -366,14 +385,15 @@ namespace XFABManager
                 Completed("request abort!");
             }
         }
-
-
+         
         protected override void OnCompleted()
         {
             base.OnCompleted();
             number_of_downloaded_file_request_per_second.Clear(); // 清空数据
             downloadFiles.Clear(); 
         }
+
+        #endregion
     }
 
 }

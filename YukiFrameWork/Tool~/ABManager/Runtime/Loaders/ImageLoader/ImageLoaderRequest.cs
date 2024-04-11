@@ -50,22 +50,43 @@ namespace XFABManager
 
                 if (imageModel.load_type == ImageLoadType.ASync)
                 {
-                    LoadAssetRequest texture_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Texture2D>(imageModel.projectName, imageModel.assetName);
-                    while (texture_request != null && !texture_request.isDone)
+                    if (imageModel.IsSubAsset)
                     {
-                        yield return null;
-                        onProgressChange?.Invoke(texture_request.progress);
-                    } 
-                    LoadAssetRequest sprite_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
-                    yield return sprite_request;
+                        LoadSubAssetRequest sprite_request = AssetBundleManager.LoadSubAssetAsync<Sprite>(imageModel.projectName, imageModel.MainAssetName, imageModel.SubAssetName);
+                        yield return sprite_request;
 
-                    texture = texture_request?.asset as Texture2D;
-                    sprite = sprite_request?.asset as Sprite;
+                        texture = null;
+                        sprite = sprite_request?.asset as Sprite;
+                    }
+                    else 
+                    {                         
+                        LoadAssetRequest texture_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Texture2D>(imageModel.projectName, imageModel.assetName);
+                        while (texture_request != null && !texture_request.isDone)
+                        {
+                            yield return null;
+                            onProgressChange?.Invoke(texture_request.progress);
+                        } 
+                        LoadAssetRequest sprite_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
+                        yield return sprite_request;
+
+                        texture = texture_request?.asset as Texture2D;
+                        sprite = sprite_request?.asset as Sprite;
+                    }
+
                 }
                 else 
                 {
-                    texture = AssetBundleManager.LoadAssetWithoutTips<Texture2D>(imageModel.projectName,imageModel.assetName);
-                    sprite = AssetBundleManager.LoadAssetWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
+                    if (imageModel.IsSubAsset)
+                    {
+                        texture = null;
+                        sprite = AssetBundleManager.LoadSubAssetWithoutTip<Sprite>(imageModel.projectName, imageModel.MainAssetName, imageModel.SubAssetName);
+                    }
+                    else 
+                    {                    
+                        texture = AssetBundleManager.LoadAssetWithoutTips<Texture2D>(imageModel.projectName,imageModel.assetName);
+                        sprite = AssetBundleManager.LoadAssetWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
+                    }
+
                 }
 
 

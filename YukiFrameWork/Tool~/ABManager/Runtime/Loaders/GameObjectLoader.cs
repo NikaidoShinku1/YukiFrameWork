@@ -307,7 +307,7 @@ namespace XFABManager {
 
         public void UnLoad(GameObject obj) 
         {
-            if (obj == null) return;
+            if (obj == null || obj.IsDestroy()) return;
             int hash = obj.GetHashCode();
             if (!allObjs.ContainsKey(hash)) return;
 

@@ -19,6 +19,43 @@ using UnityEngine.SceneManagement;
 namespace XFABManager
 {
 
+    internal class SubObjects 
+    {
+        public Dictionary<string,UnityEngine.Object> objects = new Dictionary<string,UnityEngine.Object>();
+
+        public void Add(UnityEngine.Object[] objs) 
+        { 
+            foreach (var item in objs)
+            {
+                if (objects.ContainsKey(item.name))
+                    objects[item.name] = item;
+                else 
+                    objects.Add(item.name, item);
+            }
+        }
+
+        public void Clear() 
+        {
+            objects.Clear();
+        }
+         
+
+        public UnityEngine.Object Get(string name, Type type) 
+        {
+            if(objects.ContainsKey(name) && objects[name].GetType() == type) 
+                return objects[name];
+            return null;
+        }
+
+        public bool Contains(string name, Type type) 
+        {
+            if (objects.ContainsKey(name) && objects[name].GetType() == type)
+                return true; 
+            return false;
+        }
+
+    }
+
     public class AssetBundleManager
     {
 
@@ -55,6 +92,12 @@ namespace XFABManager
         /// </summary>
         private static Dictionary<string, Dictionary<string, Dictionary<int,object>>> bundle_assets = new Dictionary<string, Dictionary<string, Dictionary<int, object>>>();
 
+        /// <summary>
+        /// 当前的bundle 对应加载了哪些子资源
+        /// </summary>
+        internal static Dictionary<string, Dictionary<string, Dictionary<string, SubObjects>>> bundle_sub_assets = new Dictionary<string, Dictionary<string, Dictionary<string, SubObjects>>>();
+
+
         internal static IServerFilePath ServerFilePath { get;private set; }
 
         private static AssetBundle dependenceBundle = null;
@@ -88,6 +131,8 @@ namespace XFABManager
         private static Dictionary<string,UnityEngine.Object> EditorAssets = new Dictionary<string, UnityEngine.Object>();
         // 缓存 LoadAllAssetsAtPath
         private static Dictionary<string, UnityEngine.Object[]> EditorAllAssets = new Dictionary<string, UnityEngine.Object[]>();
+        // 缓存从 Assetdatabase 加载子资源
+        private static Dictionary<string, UnityEngine.Object> EditorSubAssets = new Dictionary<string, UnityEngine.Object>();
 
 #endif
 
@@ -550,9 +595,11 @@ namespace XFABManager
         /// <param name="bundleName">AssetBundle名 </param>
         internal static void UnLoadAssetBundleInternal(string projectName, string bundleName)
         {
-            if (!IsLoadedAssetBundle(projectName, bundleName)) return; 
+            if (!IsLoadedAssetBundle(projectName, bundleName))
+                return; 
 
-            if (!assetBundles.ContainsKey(projectName) || !assetBundles[projectName].ContainsKey(bundleName)) return; 
+            if (!assetBundles.ContainsKey(projectName) || !assetBundles[projectName].ContainsKey(bundleName))
+                return; 
 
             if (depnecnce_deleted_bundles.ContainsKey(assetBundles[projectName][bundleName].GetHashCode()))
                 depnecnce_deleted_bundles.Remove(assetBundles[projectName][bundleName].GetHashCode());
@@ -560,6 +607,14 @@ namespace XFABManager
             assetBundles[projectName][bundleName].Unload(true);
             assetBundles[projectName].Remove(bundleName);
 
+
+            // 清空子资源 
+            if (bundle_sub_assets.ContainsKey(projectName) && bundle_sub_assets[projectName].ContainsKey(bundleName)) 
+            {
+                foreach (var item in bundle_sub_assets[projectName][bundleName].Values)
+                    item.Clear();
+                bundle_sub_assets[projectName][bundleName].Clear();
+            }
 
             // 查询到依赖的AssetBundle
             string[] dependences = GetAssetBundleDependences(projectName, bundleName);
@@ -960,7 +1015,110 @@ namespace XFABManager
         }
 
         /// <summary>
-        /// 加载资源及子资源
+        /// 加载子资源
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="projectName">资源模块名称</param>
+        /// <param name="mainAssetName">主资源名称</param>
+        /// <param name="subAssetName">子资源名称</param>
+        /// <returns></returns>
+        public static T LoadSubAsset<T>(string projectName, string mainAssetName, string subAssetName)where T : UnityEngine.Object
+        { 
+            return LoadSubAsset(projectName,mainAssetName,subAssetName,typeof(T)) as T;
+        }
+
+        /// <summary>
+        /// 加载子资源
+        /// </summary>
+        /// <param name="projectName">资源模块名称</param>
+        /// <param name="mainAssetName">主资源名称</param>
+        /// <param name="subAssetName">子资源名称</param>
+        /// <param name="type">类型</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static UnityEngine.Object LoadSubAsset(string projectName, string mainAssetName, string subAssetName, Type type) {
+
+            if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            {
+                if (LoaderTips.AllLoaderTips[type].IsThrowException)
+                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+                else
+                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            }
+
+            string bundle_name = GetBundleName(projectName, mainAssetName, type);
+            if (string.IsNullOrEmpty(bundle_name)) 
+                return null; 
+            return LoadSubAssetInternal(projectName,bundle_name,mainAssetName,subAssetName, type);
+        }
+
+        internal static T LoadSubAssetWithoutTip<T>(string projectName, string mainAssetName, string subAssetName) where T : UnityEngine.Object
+        {
+            return LoadSubAssetWithoutTip(projectName, mainAssetName, subAssetName, typeof(T)) as T;
+        }
+
+        internal static UnityEngine.Object LoadSubAssetWithoutTip(string projectName, string mainAssetName, string subAssetName, Type type)
+        {
+            string bundle_name = GetBundleName(projectName, mainAssetName, type);
+            if (string.IsNullOrEmpty(bundle_name))
+                return null;
+            return LoadSubAssetInternal(projectName, bundle_name, mainAssetName, subAssetName, type);
+        }
+
+        /// <summary>
+        /// 异步加载子资源
+        /// </summary>
+        /// <typeparam name="T">类型</typeparam>
+        /// <param name="projectName">资源模块名称</param>
+        /// <param name="mainAssetName">主资源名称</param>
+        /// <param name="subAssetName">子资源名称</param>
+        /// <returns></returns>
+        public static LoadSubAssetRequest LoadSubAssetAsync<T>(string projectName, string mainAssetName, string subAssetName)where T : UnityEngine.Object
+        {
+            return LoadSubAssetAsync(projectName, mainAssetName, subAssetName, typeof(T));
+        }
+
+        /// <summary>
+        /// 异步加载子资源
+        /// </summary>
+        /// <param name="projectName">资源模块名称</param>
+        /// <param name="mainAssetName">主资源名称</param>
+        /// <param name="subAssetName">子资源名称</param>
+        /// <param name="type">类型</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static LoadSubAssetRequest LoadSubAssetAsync(string projectName, string mainAssetName, string subAssetName, Type type) {
+            if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            {
+                if (LoaderTips.AllLoaderTips[type].IsThrowException)
+                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+                else
+                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            }
+
+            string bundle_name = GetBundleName(projectName, mainAssetName, type);
+            if (string.IsNullOrEmpty(bundle_name)) 
+                return null; 
+            return LoadSubAssetAsyncInternal(projectName, bundle_name,mainAssetName,subAssetName, type);
+        }
+
+
+        public static LoadSubAssetRequest LoadSubAssetAsyncWithoutTip<T>(string projectName, string mainAssetName, string subAssetName) where T : UnityEngine.Object
+        {
+            return LoadSubAssetAsyncWithoutTip(projectName, mainAssetName, subAssetName, typeof(T));
+        }
+
+        public static LoadSubAssetRequest LoadSubAssetAsyncWithoutTip(string projectName, string mainAssetName, string subAssetName, Type type)
+        { 
+            string bundle_name = GetBundleName(projectName, mainAssetName, type);
+            if (string.IsNullOrEmpty(bundle_name))
+                return null;
+            return LoadSubAssetAsyncInternal(projectName, bundle_name, mainAssetName, subAssetName, type);
+        }
+
+
+        /// <summary>
+        /// 加载资源及所有子资源
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="projectName"></param>
@@ -975,6 +1133,14 @@ namespace XFABManager
             }
             return LoadAssetWithSubAssetsInternal<T>(projectName, bundle_name, assetName);
         }
+        
+        /// <summary>
+        /// 加载资源及所有子资源
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <param name="assetName"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static UnityEngine.Object[] LoadAssetWithSubAssets(string projectName , string assetName, Type type)
         {
             string bundle_name = GetBundleName(projectName, assetName, type);
@@ -986,7 +1152,7 @@ namespace XFABManager
         }
 
         /// <summary>
-        /// 异步加载子资源
+        /// 异步加载资源及所有子资源
         /// </summary>
         public static LoadAssetsRequest LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) where T : UnityEngine.Object
         {
@@ -998,7 +1164,7 @@ namespace XFABManager
             return LoadAssetWithSubAssetsAsyncInternal<T>(projectName, bundle_name, assetName);
         }
         /// <summary>
-        /// 异步加载子资源
+        /// 异步加载资源及所有子资源
         /// </summary>
         public static LoadAssetsRequest LoadAssetWithSubAssetsAsync(string projectName, string assetName, Type type)
         {
@@ -1102,6 +1268,82 @@ namespace XFABManager
             return request;
         }
 
+        internal static T LoadSubAssetInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName)where T : UnityEngine.Object
+        {
+            return LoadSubAssetInternal(projectName, bundleName, mainAssetName, subAssetName, typeof(T)) as T;
+        }
+
+        internal static UnityEngine.Object LoadSubAssetInternal(string projectName, string bundleName, string mainAssetName, string subAssetName, Type type)
+        {
+
+            if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(bundleName) || string.IsNullOrEmpty(mainAssetName))
+            {
+                return null;
+            }
+
+#if UNITY_EDITOR
+            if (GetProfile(projectName).loadMode == LoadMode.Assets)
+            {
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
+                string asset_path = bundle.GetAssetPathByFileName(mainAssetName, type);
+
+                string key = string.Format("{0}/{1}",asset_path,subAssetName);
+
+                if( EditorSubAssets.ContainsKey(key))
+                    return EditorSubAssets[key];
+
+                UnityEngine.Object[] objs = LoadAllAssetFromEditor(asset_path);
+
+                foreach (var item in objs)
+                {
+                    key = string.Format("{0}/{1}", asset_path, item.name);
+                    if (EditorSubAssets.ContainsKey(key)) continue;
+                    EditorSubAssets.Add(key, item);
+                }
+
+                key = string.Format("{0}/{1}", asset_path, subAssetName); 
+                if (EditorSubAssets.ContainsKey(key))
+                    return EditorSubAssets[key];
+
+                return null;
+            }
+#endif
+            if (bundle_sub_assets.ContainsKey(projectName) &&
+               bundle_sub_assets[projectName].ContainsKey(bundleName) &&
+               bundle_sub_assets[projectName][bundleName].ContainsKey(mainAssetName) &&
+               bundle_sub_assets[projectName][bundleName][mainAssetName].Contains(subAssetName, type)) 
+            {
+                return bundle_sub_assets[projectName][bundleName][mainAssetName].Get(subAssetName, type);
+            }
+
+            string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
+            AssetBundle assetBundle = LoadAssetBundle(projectName, bundle_name);
+
+            if (assetBundle != null)
+            {
+                UnityEngine.Object[] assets = assetBundle.LoadAssetWithSubAssets(mainAssetName, type);
+                AddSubAssets(projectName, bundleName,mainAssetName, assets);
+
+                UnityEngine.Object asset = bundle_sub_assets[projectName][bundleName][mainAssetName].Get(subAssetName, type);
+                AddAssetCache(projectName, bundleName, asset);
+                return asset;
+            }
+
+            return null;
+        }
+
+        internal static LoadSubAssetRequest LoadSubAssetAsyncInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName )
+        {
+            return LoadSubAssetAsyncInternal(projectName,bundleName,mainAssetName,subAssetName,typeof(T));
+        }
+
+        internal static LoadSubAssetRequest LoadSubAssetAsyncInternal(string projectName, string bundleName, string mainAssetName, string subAssetName,Type type) 
+        {
+            LoadSubAssetRequest request = new LoadSubAssetRequest();
+            CoroutineStarter.Start(request.LoadSubAssetAsync(projectName, bundleName, mainAssetName,subAssetName, type));
+            return request; 
+        }
+
         // 加载子资源 
         internal static T[] LoadAssetWithSubAssetsInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         { 
@@ -1122,7 +1364,8 @@ namespace XFABManager
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
                 XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
-                return bundle != null ? ArrayCast(LoadAllAssetFromEditor(bundle.GetAssetPathByFileName(assetName,type)), type) : null;
+                string asset_path = bundle.GetAssetPathByFileName(assetName, type);
+                return bundle != null ? ArrayCast(LoadAllAssetFromEditor(asset_path), type) : null;
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
@@ -1354,6 +1597,20 @@ namespace XFABManager
         internal static void AddAssetCache(string projectName, string bundleName, UnityEngine.Object[] assets) {
             foreach (var asset in assets)
                 AddAssetCache(projectName, bundleName, asset);
+        }
+
+        internal static void AddSubAssets(string projectName, string bundleName, string mainAssetName, UnityEngine.Object[] assets) {
+            
+            if (!bundle_sub_assets.ContainsKey(projectName))
+                bundle_sub_assets.Add(projectName, new Dictionary<string, Dictionary<string, SubObjects>>());
+
+            if (!bundle_sub_assets[projectName].ContainsKey(bundleName))
+                bundle_sub_assets[projectName].Add(bundleName, new Dictionary<string, SubObjects>());
+
+            if (!bundle_sub_assets[projectName][bundleName].ContainsKey(mainAssetName))
+                bundle_sub_assets[projectName][bundleName].Add(mainAssetName,new SubObjects());
+
+            bundle_sub_assets[projectName][bundleName][mainAssetName].Add(assets);
         }
 
         [Obsolete("该方法已过时,请使用UnloadAsset(object asset)!代替!",true)]
