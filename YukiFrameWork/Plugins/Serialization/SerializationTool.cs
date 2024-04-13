@@ -193,14 +193,9 @@ namespace YukiFrameWork.Extension
                 streamWriter.Close();
                 stream.Close();
             }
-#if UNITY_EDITOR
             AssetDatabase.Refresh();
-#endif
             return true;
-
-
         }
-    }
 #endif
-
+    }
 }

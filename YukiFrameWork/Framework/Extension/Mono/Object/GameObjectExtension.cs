@@ -54,6 +54,42 @@ namespace YukiFrameWork
             return component;
         }
 
+        public static T[] Show<T>(this T[] components) where T : Component
+        {
+            for (int i = 0; i < components.Length; i++)
+            {
+                components[i].Show();
+            }
+            return components;
+        }
+
+        public static GameObject[] Show(this GameObject[] gameObjects)
+        {
+            for (int i = 0; i < gameObjects.Length; i++)
+            {
+                gameObjects[i].Show();
+            }
+            return gameObjects;
+        }
+
+        public static T[] Hide<T>(this T[] components) where T : Component
+        {
+            for (int i = 0; i < components.Length; i++)
+            {
+                components[i].Hide();
+            }
+            return components;
+        }
+
+        public static GameObject[] Hide(this GameObject[] gameObjects)
+        {
+            for (int i = 0; i < gameObjects.Length; i++)
+            {
+                gameObjects[i].Hide();
+            }
+            return gameObjects;
+        }
+
         #endregion
 
         #region LifeCycle

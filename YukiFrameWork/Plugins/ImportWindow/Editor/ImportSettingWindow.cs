@@ -41,7 +41,17 @@ namespace YukiFrameWork.Extension
             public string path;
             public int develop = 0;
             public bool isEN;
-        } 
+        }
+        private static Data customData;
+        public static Data GetData()
+        {
+            if (customData == null)
+            {
+                TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);
+                customData = JsonUtility.FromJson<Data>(text.text);              
+            }
+            return customData;
+        }
 
         [MenuItem("YukiFrameWork/Import Window",false,-1000)]
         static void ShowWindow()
@@ -68,6 +78,7 @@ namespace YukiFrameWork.Extension
             ["SaveTool"] = packagePath + "/Tool~/SaveTool",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
+            ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
             ["ABManager"] = packagePath + "/Tool~/ABManager",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
@@ -85,8 +96,7 @@ namespace YukiFrameWork.Extension
 
             TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(packagePath + "/package.json");
 
-            versionData = SerializationTool.DeserializedObject<VersionData>(versionText.text); 
-           
+            versionData = SerializationTool.DeserializedObject<VersionData>(versionText.text);            
             
         }
 
@@ -119,6 +129,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(ImportWindowInfo.ImportPath, data.path);
+#if UNITY_2021_1_OR_NEWER
             if (GUILayout.Button(ImportWindowInfo.SelectPath, GUILayout.Width(80)))
             {
                 var importPath = EditorUtility.OpenFolderPanel("选择导入路径", "", "");
@@ -128,7 +139,7 @@ namespace YukiFrameWork.Extension
                 bool add = false;
                 for (int i = 0; i < paths.Length; i++)
                 {
-                    if (paths[i].Equals("Assets"))
+                    if (paths[i].Equals("Assets")) 
                         add = true;
                     if (add)
                     {
@@ -147,6 +158,7 @@ namespace YukiFrameWork.Extension
                 data.path = completedPath;
                 SaveData();
             }
+#endif
             EditorGUILayout.EndHorizontal();           
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
@@ -164,6 +176,9 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.white, ImportWindowInfo.StateMechineInfo
            , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
+            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit");         
 
             DrawBoxGUI(Color.white, ImportWindowInfo.IOCInfo
             , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", packagePath + "/Tool~/IOCContainer");
@@ -210,7 +225,7 @@ namespace YukiFrameWork.Extension
                 foreach (var key in moduleInfo.Keys)
                 {
                     string path = string.Format("{0}/", data.path);                 
-                    if (Directory.Exists(path + key))
+                    if (Directory.Exists(path + key)) 
                     {
                         Directory.Delete(path + key,true);
                         Import(moduleInfo[key],key);
@@ -233,9 +248,12 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-            OpenUrl("Gitee", versionData.author.url);
-            OpenUrl("作者邮箱:"+versionData.author.email, string.Empty);
-            OpenUrl("框架版本:" + versionData.version,string.Empty);
+            if (versionData != null)
+            {
+                OpenUrl("Gitee", versionData.author.url);
+                OpenUrl("作者邮箱:" + versionData.author.email, string.Empty);
+                OpenUrl("框架版本:" + versionData.version, string.Empty);
+            }
             EditorGUILayout.EndHorizontal();
         }
 

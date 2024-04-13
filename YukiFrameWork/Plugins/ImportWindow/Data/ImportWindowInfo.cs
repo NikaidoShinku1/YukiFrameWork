@@ -29,6 +29,8 @@ namespace YukiFrameWork.Extension
 
         public static string IOCInfo => !IsEN ? "IOC容器,可以完整实现控制反转的结构思想,DI注入等操作" : "IOC container can realize the structure idea of inversion of control,DI injection and other operations";
 
+        public static string DiaLogInfo => !IsEN ? "对话系统，具有完整编辑器拓展可支持本地化配置的对话系统。可用于视觉小说等需要对话的项目" : "Dialog system, a dialog system with a full editor extension to support localized configuration. It can be used for projects that require dialogue, such as visual novels";
+
         public static string ABManagerInfo => !IsEN ? "ABManager,框架资源管理模块,提供AssetBundle的可视化管理功能,集成卸载、资源热更新、下载、释放等功能(原作者：弦小风,导入后可查看更多信息!)" : "\"ABManager, framework resource management module, provides visual management functions of AssetBundle, integrating uninstall, resource hot update, download, release and other functions (original author: XianXiaofeng, you can see more information after import!)";
 
         public static string UIInfo => !IsEN ? "UI框架,可分层式对UI统一管理(导入UI模块之前必须导入框架资源管理工具ABManager!)" : "UI framework, can be hierarchical UI unified management (UI module must be imported before the framework resource management tool ABManager!) ";

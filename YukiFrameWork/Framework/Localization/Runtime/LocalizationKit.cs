@@ -87,17 +87,13 @@ namespace YukiFrameWork
             {
                 Debug.LogError("框架本体配置丢失!请检查Resources文件夹下是否生成了FrameworkConfigInfo");
                 return;
-            }
-            if (info.configBases == null)
-            {
-                throw new Exception("请在左上角打开YukiFrameWork/LocalConfiguration的本地化配置检查是否添加了Config!");
-            }
+            }        
             framework = info;
             Isinited = true;
             localizationConfig = info.configBases;
             dependConfigs = info.dependConfigs.ToDictionary(key => key.Key,value => value.Value);
             ///初始化时自动调用一次         
-            localizationConfig.Init();
+            localizationConfig?.Init();
 
             foreach (var key in dependConfigs.Keys)
             {
@@ -147,15 +143,14 @@ namespace YukiFrameWork
         }
         
         internal ILocalizationData GetContentByKey(string key,Language language)
-        {
+        {            
+            if (localizationConfig == null)
+            {
+                throw new Exception("配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加");              
+            }
             if (!Isinited)
             {
                 throw new Exception("没有对LocalizationKit进行初始化!请调用一次LocalizationKit.Init()方法!");
-            }
-            if (localizationConfig == null)
-            {
-                Debug.LogError("配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加");
-                return default;
             }
             ILocalizationData data = localizationConfig.GetLocalizationData(language, key);           
             return data;

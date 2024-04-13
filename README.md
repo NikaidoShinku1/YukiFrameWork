@@ -38,6 +38,8 @@
 
 - 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md)
 
+- 框架对话系统:[DiaLogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md);
+
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/序列化工具.md)
@@ -77,6 +79,8 @@
 - 框架支持插件:[Odin](https://odininspector.com/);
 
 #### 框架更新版本速览
+
+V1.13.5 框架支持可以进行本地化配置的对话系统
 
 V1.13.4 框架支持更加优雅适用的Excel转Json工具，新增文档补充，LocalizationKit套件现在也支持Excel配表
 

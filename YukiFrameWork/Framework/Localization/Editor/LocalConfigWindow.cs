@@ -66,11 +66,9 @@ namespace YukiFrameWork
         [SerializeField, LabelText("运行时的默认语言设置:"), InfoBox("默认语言可以被动态修改!"), PropertySpace(10),ShowIf(nameof(selectIndex),1)]
         private Language defaultLanguage;
 
-        [InfoBox("可以添加多个配置项(如果有多个配置的情况下)"), PropertySpace(5), ShowIf(nameof(configIsNullOrError))]
+        [InfoBox("可以添加多个配置项(如果有多个配置的情况下)"), PropertySpace(5)]
         [LabelText("子配置项"), SerializeField]
-        private YDictionary<int, LocalizationConfigBase> dependConfigBase = new YDictionary<int, LocalizationConfigBase>();
-
-        private bool configIsNullOrError => configBases != null && selectIndex == 1;      
+        private YDictionary<int, LocalizationConfigBase> dependConfigBase = new YDictionary<int, LocalizationConfigBase>();       
         
         protected override void OnEnable() 
         {
