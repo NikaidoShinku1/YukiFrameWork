@@ -67,6 +67,7 @@ namespace YukiFrameWork.DiaLog
             Node currentNode = nodes.Find(x => x.NodeIndex == nodeIndex);
             if (currentNode == null)
                 throw new System.Exception("当前下标无法查找到节点 Index:" + nodeIndex);
+            runningNode?.OnStop();
             currentNode.state = NodeState.Running;
             runningNode = currentNode;
             runningNode.OnStart();

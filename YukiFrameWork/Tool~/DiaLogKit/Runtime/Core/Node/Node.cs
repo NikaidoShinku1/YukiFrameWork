@@ -42,7 +42,7 @@ namespace YukiFrameWork.DiaLog
         [HideInInspector, JsonIgnore] public Vector2 position;
         [TextArea][LabelText("介绍/注释")] public string description;
 
-        [SerializeField,LabelText("文本配置"),DictionaryDrawerSettings(KeyLabel = "语言",ValueLabel = "数据配置")]
+        [SerializeField,DictionaryDrawerSettings(KeyLabel = "语言",ValueLabel = "数据配置")]
         public YDictionary<Language, NodeData> nodeDatas = new YDictionary<Language, NodeData>();
 
         public string DialogueContent()

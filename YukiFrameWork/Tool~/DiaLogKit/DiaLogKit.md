@@ -46,7 +46,7 @@ public class CustomDiaLogController : DiaLogController
 
 拖入对应的Image组件，Text组件作为该控制器中，输出文本/名称以及精灵到UI。
 
-对于条件组件集合，有三个参数，设置条件触发的按钮，成功判断的下标，以及输出文本的MaskableGraphic组件(可适配Text、TextMeshProUGUI)
+对于条件组件集合，有三个参数，设置条件触发的按钮，成功判断的下标，以及输出文本的事件回调
 
 如果树中具备分支节点，可以在条件集合中添加对应数量的组件。而后代码实现如下:
 
@@ -55,7 +55,7 @@ using YukiFrameWork.DiaLog;
 using YukiFrameWork;
 public class CustomDiaLogController : DiaLogController
 {
-    ///如果需要使用条件组件集合，这个是必须重写的方法，他会在推进过程中得到类型为分支节点的节点，以及所有的条件组件集合
+    ///如果需要使用条件组件集合，这个是可以重写的方法,框架内部已经实现了一套条件逻辑，可以导入框架查看示例包，他会在推进过程中得到类型为分支节点的节点，以及所有的条件组件集合
     protected override void CompositeSetting(BranchDialogue branch, CompositeItem[] composites)
     {
         ///自行对逻辑的需求实现
@@ -66,10 +66,13 @@ public class CustomDiaLogController : DiaLogController
 BranchDialogue API:
 
     ///设置分支节点应该成功推进的节点下标
-    - void SetOptionSuccessed(int index);
+    - void SetOptionSuccessed(Func<int> indexEvent);
 
     ///得到对应下标条件的文本(与控制器标记的当前的语言匹配)
     - string GetOptionText(int index)；
+
+    ///设置分支节点应该成功推进的节点下标
+    - void SetOptionSuccessed(CompositeItem[] composites,System.Action moveNext)
 
 
 DiaLogController API:
@@ -87,7 +90,7 @@ DiaLogController API:
     - void UpdateDiaLogComponent(string dialog,Sprite sprite,string name)；
 
     ///设置树在运行时进行复位初始化的操作，可用于直接回档或跳转到哪一个节点，从该处继续
-    - void OnTreeRunningInitialization(Language language,int nodeIndex, System.Action<string, Sprite, string> callBack);
+    - void OnTreeRunningInitialization(Language language,int nodeIndex);
 
 
 

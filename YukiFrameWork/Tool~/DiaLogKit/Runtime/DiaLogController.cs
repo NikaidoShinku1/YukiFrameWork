@@ -9,10 +9,35 @@
 using Sirenix.OdinInspector;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 namespace YukiFrameWork.DiaLog
 {
-	public abstract class DiaLogController : ViewController
+    [Serializable]
+    public class CompositeItem
+    {
+        [LabelText("可能设置的条件对应的按钮:")]
+        public Button compositeButton;
+
+        [LabelText("设置判断成功的对应下标:")]
+        public int compositeIndex;     
+
+		[LabelText("可以接收条件文本信息更新的回调")]
+		public UnityEvent<string> CompositeLabelChanged;
+
+        public CompositeItem Show()
+        {
+            compositeButton.Show();          
+            return this;
+        }
+
+        public CompositeItem Hide()
+        {
+            compositeButton.Hide();
+            return this;
+        }
+    }
+    public abstract class DiaLogController : ViewController
 	{
 		enum LoadType
 		{
@@ -20,41 +45,14 @@ namespace YukiFrameWork.DiaLog
 			Inspector,
 			[LabelText("通过事件代码加载NodeTree")]
 			Loading
-		}
-
-		[Serializable]
-		protected class CompositeItem
-		{
-            [LabelText("可能设置的条件对应的按钮:")]
-            public Button compositeButton;
-
-			[LabelText("设置判断成功的对应下标:")]
-			public int compositeIndex;
-
-			[LabelText("与按钮UI对应的文本组件")]
-			public MaskableGraphic compositeText;
-
-			public CompositeItem Show()
-			{
-				compositeButton.Show();
-				compositeText.Show();
-				return this;
-			}
-
-			public CompositeItem Hide()
-			{
-				compositeText.Hide();
-				compositeButton.Hide();
-				return this;
-			}
-		}
+		}	
 		[LabelText("对话树:")]
 		[SerializeField,ShowIf(nameof(loadType),LoadType.Inspector)]
 		private NodeTree nodeTree;
 
 		public NodeTree NodeTree => nodeTree;
 
-		[SerializeField,LabelText("对话树的获得方式:")]
+		[SerializeField,LabelText("对话树的加载方式:")]
 		private LoadType loadType = LoadType.Inspector;
 
 		[SerializeField,LabelText("应用同步的语言"),DisableIf(nameof(IsSyncLanguage))]
@@ -86,7 +84,7 @@ namespace YukiFrameWork.DiaLog
 
         protected override void Awake()
         {
-            base.Awake();
+            base.Awake();			
 			if (IsSyncLanguage)
 			{
 				LocalizationKit.RegisterLanguageEvent(language => 
@@ -100,6 +98,10 @@ namespace YukiFrameWork.DiaLog
 			}
 			try
 			{
+				if (nodeTree == null)
+				{
+					throw new Exception("对话树不存在或者还没有添加！如果打算代码动态添加请检查加载模式是否修改");
+				}
 				if (loadType == LoadType.Loading)
 					this.RegisterEvent<NodeTree>(eventName, tree =>
 					{
@@ -114,10 +116,24 @@ namespace YukiFrameWork.DiaLog
                 }
 			}
 			catch { }
-			foreach (var item in composites)
-			{
-				item.Hide();
-			}
+
+			CompositesHide();
+        }
+
+		private void CompositesHide()
+		{
+            foreach (var item in composites)
+            {
+                item.Hide();
+            }
+        }
+
+		private void CompositesShow()
+		{
+            foreach (var item in composites)
+            {
+                item.Show();
+            }
         }
 
         /// <summary>
@@ -125,20 +141,28 @@ namespace YukiFrameWork.DiaLog
         /// </summary>
         /// <param name="currentNode">需要回档的节点</param>
         /// <param name="callBack">更新的回调</param>
-        protected void OnTreeRunningInitialization(Language language,int nodeIndex, System.Action<string, Sprite, string> callBack)
+        protected void OnTreeRunningInitialization(Language language,int nodeIndex)
 		{
-			nodeTree.OnTreeRunningInitialization(language, nodeIndex, callBack);
+			nodeTree.OnTreeRunningInitialization(language, nodeIndex, UpdateDiaLogComponent);
+			MoveNext();
         }
 
         /// <summary>
-        /// 如果需要按钮作为分支的逻辑判断则必须实现该方法
+        /// 如果需要自定义按钮作为分支的逻辑判断则重写实现该方法
         /// </summary>
         /// <param name="branch">分支节点</param>
         /// <param name="buttons">所有的Button按钮(外部添加)</param>
-        protected virtual void CompositeSetting(BranchDialogue branch, CompositeItem[] composites) { }	
+        protected virtual void CompositeSetting(BranchDialogue branch, CompositeItem[] composites) 
+		{
+			branch.SetOptionSuccessed(composites,() => 
+			{
+				MoveToNext();
+				CompositesHide();
+			});
+		}	
 
 		/// <summary>
-		/// 设置更
+		/// 设置更新对话UI组件
 		/// </summary>
 		/// <param name="dialog"></param>
 		/// <param name="sprite"></param>
@@ -163,11 +187,20 @@ namespace YukiFrameWork.DiaLog
             if (nodeTree.MoveNext())
 			{
 				nodeTree.UpdateNode(language,UpdateDiaLogComponent);
-				if(nodeTree.runningNode is BranchDialogue branch)
-					CompositeSetting(branch,composites);
-				NodeStart(nodeTree.runningNode);
+				MoveNext();
 			}
 		}
+
+		private void MoveNext()
+		{
+			CompositesHide();
+			if (nodeTree.runningNode is BranchDialogue branch)
+			{
+				CompositesShow();
+                CompositeSetting(branch, composites);
+            }
+            NodeStart(nodeTree.runningNode);
+        }
 
 		/// <summary>
 		/// 每次推进的时候都会执行这个方法
