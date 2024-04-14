@@ -93,6 +93,7 @@ namespace YukiFrameWork
         bool IsPause { get;}
         bool IsRunning { get; }    
         CustomYieldInstruction Request { get; }
+        Coroutine Root { get; }
         void OnPause();
         void OnResume();
         void Cancel();
@@ -125,6 +126,8 @@ namespace YukiFrameWork
             Init(enumerator);
         }
 
+        private Action queueEvent;
+
         private WaitUntil WaitUntil;
 
         public CustomYieldInstruction Request => WaitUntil;
@@ -135,8 +138,11 @@ namespace YukiFrameWork
             IsRunning = true;
             isRelease = false;
             WaitUntil = new WaitUntil(() => !IsRunning);
-            MonoHelper.Start(ExecuteAsync());       
+            Root = MonoHelper.Start(ExecuteAsync());       
         }
+
+        public Coroutine Root { get; private set; }
+
         private IEnumerator ExecuteAsync()
         {
             while (IsRunning)
@@ -162,26 +168,19 @@ namespace YukiFrameWork
 
         public IYieldExtension ExecuteAsync(Action callBack = null)
         {
-             return Execution(callBack).Start();
-        }
-
-        /// <summary>
-        /// 等待当前拓展协程(异步)执行完毕,如果该执行没有启动或已经完成则直接跳过
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IEnumerator Execution(Action callBack = null)
-        {
-            yield return Request;
-            callBack?.Invoke();
-        }
+            queueEvent += callBack;
+            return this;
+        }     
 
         public void Cancel()
         {
             if (isRelease) return;
-            
+            queueEvent?.Invoke();
+            queueEvent = null;
             IsRunning = false;                
             simpleObjectPools.Release(this);
             isRelease = true;
+            Root = null;
         }
 
         public void CancelWaitGameObjectDestroy<TComponent>(TComponent component) where TComponent : Component
@@ -191,7 +190,13 @@ namespace YukiFrameWork
                 trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
             }
 
-            trigger.PushFinishEvent(Cancel);
+            trigger.PushFinishEvent(() => 
+            {
+                if (isRelease) return;
+                if (Root == null) return;
+                MonoHelper.Stop(Root);
+
+            });
         }       
 
         public void OnPause()
@@ -308,60 +313,50 @@ namespace YukiFrameWork
         public static IEnumerator WaitWhile(Func<bool> m_Predicate)
         {
             yield return new CustomWaitWhile(m_Predicate);
-        }
-
-        public static YieldAwaitable WaitForSecondsToTask(float time)
-        {
-            return WaitForSeconds(time).ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitForSecondsRealtimeToTask(float time)
-        {
-            return WaitForSecondsRealtime(time).ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitForFrameToTask()
-        {
-            return WaitForFrame().ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitForFramesToTask(int count = 1)
-        {
-            return WaitForFrames(count).ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitUntilToTask(Func<bool> m_Predicate)
-        {
-            return WaitUntil(m_Predicate).ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitWhileToTask(Func<bool> m_Predicate)
-        {
-            return WaitWhile(m_Predicate).ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitForEndOfFrameToTask()
-        {
-            return waitForEndOfFrame.ToSingleTask();
-        }
-
-        public static YieldAwaitable WaitForFixedUpdateToTask()
-        {
-            return waitForFixedUpdate.ToSingleTask();
-        }
-
+        }   
+        /// <summary>
+        /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="awaitable"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldAwaitable awaitable, T component) where T : Component
         {
-            if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
+            if (component != null || component.ToString() != "null")
             {
-                trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
+                if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
+                {
+                    trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
+                }
+                trigger.PushFinishEvent(() =>
+                {
+                    if (awaitable?.Extension != null)
+                    {
+                        Canceling(awaitable, awaitable.Extension);
+                    }
+                });
             }
-            trigger.PushFinishEvent(() => 
+            else
             {
-                awaitable.Extension?.Cancel();
-            });
+                if (awaitable?.Extension != null)
+                {
+                    Canceling(awaitable, awaitable.Extension);
+                }
+            }
             return awaitable;
         }
 
+        private static void Canceling(YieldAwaitable awaitable,IYieldExtension extension)
+        {
+            if (extension.Root != null && extension.IsRunning)
+                MonoHelper.Stop(awaitable.Extension.Root);
+        }
+
+        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this IEnumerator enumerator, T component) where T : Component
+            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);
+
+        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
+            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);       
     }
 }

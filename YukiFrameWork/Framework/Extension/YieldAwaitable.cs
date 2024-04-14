@@ -7,7 +7,9 @@
 /// -  All Rights Reserved.
 ///=====================================================
 using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
@@ -28,7 +30,7 @@ namespace YukiFrameWork
 
         public event Action _continuation;
         public void OnCompleted(Action continuation)
-        {         
+        {           
             this._continuation = continuation;
         }
 
@@ -37,7 +39,7 @@ namespace YukiFrameWork
         public void GetResult() { }
 
         public YieldAwaitable GetAwaiter()
-        {
+        {           
             return this;
         }
 
@@ -48,7 +50,6 @@ namespace YukiFrameWork
             return awaitable;
         }
 
-
         public static void OnFinish(YieldAwaitable awaitable)
         {
             awaitable.IsCompleted = true;
@@ -57,6 +58,29 @@ namespace YukiFrameWork
             awaitable.IsCompleted = false;
             awaitable.Extension = null;
             awaitablePools.Release(awaitable);
+        }
+    }
+
+    public static class YieldAwaitableExtension
+    {
+        public static YieldAwaitable GetAwaiter<T>(this T t) where T : CustomYieldInstruction
+        {
+            return t.ToSingleTask();
+        }
+
+        public static YieldAwaitable GetAwaiter(this YieldInstruction t)
+        {
+            return t.ToSingleTask();
+        }
+
+        public static YieldAwaitable GetAwaiter(this IEnumerator t)
+        {
+            return t.ToSingleTask();
+        }
+
+        public static YieldAwaitable GetAwaiter(this IYieldExtension t)
+        {
+            return t.ToSingleTask();
         }
     }
 }

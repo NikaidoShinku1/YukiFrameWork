@@ -51,8 +51,7 @@ namespace YukiFrameWork
                 loadingCallBack?.Invoke(progress);
                 LoadingScene?.Invoke(progress);               
                 yield return CoroutineTool.WaitForFrame();
-            }
-
+            }          
             LoadSceneSucceed?.Invoke();
         }
 

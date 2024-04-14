@@ -88,6 +88,12 @@ namespace YukiFrameWork
            saveFolder = EditorUtility.OpenFolderPanel("定位到指定文件夹", string.Empty, string.Empty);
         }
 
+        [Button("打开文件夹"), BoxGroup("默认路径设置"),HideIf(nameof(IsCustom))]
+        private void CheckMouseToPosition2()
+        {
+            System.Diagnostics.Process.Start("explorer.exe",saveFolder.Replace("/","\\"));
+        }
+
         private void Update_Config()
         {
 			if (config == null)

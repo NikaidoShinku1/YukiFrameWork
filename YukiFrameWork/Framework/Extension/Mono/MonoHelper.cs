@@ -172,11 +172,13 @@ namespace YukiFrameWork
 
         public static Coroutine Start(IEnumerator enumerator)
         {
+            if (I == null || I.ToString() == "null") return null;
             return I.StartCoroutine(enumerator);
         }
         public static void Stop(Coroutine coroutine)
         {
-            I.StopCoroutine(coroutine);
+            if(I != null || I.ToString() != "null")
+                I.StopCoroutine(coroutine);
         }
 
         private void Update()

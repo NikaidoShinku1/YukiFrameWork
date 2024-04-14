@@ -25,7 +25,7 @@ namespace YukiFrameWork
         private static string saveDirPath => saveConfig.saveDirPath;
         private static bool isInited = false;
         private static Dictionary<int, Dictionary<string, object>> cacheDict = new Dictionary<int, Dictionary<string, object>>();
-        [RuntimeInitializeOnLoadMethod]        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]        
         public static void Init()
         {           
             if (isInited) return;
