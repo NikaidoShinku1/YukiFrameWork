@@ -32,5 +32,10 @@ namespace YukiFrameWork
 		{
 			return action.ToCoroutine().ToSingleTask();
         }
+
+		public static YieldAwaitable GetAwaiter(this IActionNode action)
+		{
+			return action.ToSingleTask();
+		}
 	}
 }
