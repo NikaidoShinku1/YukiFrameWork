@@ -58,7 +58,9 @@ namespace XFABManager
 
                 if (fieldInfo != null)
                 {
-                    if (fieldInfo.GetValue(component).GetType() == typeof(Sprite))
+                    object obj = fieldInfo.GetValue(component); 
+
+                    if (fieldInfo.FieldType == typeof(Sprite))
                     {
                         fieldInfo.SetValue(component, imageData != null ? imageData.sprite : null);
                     }
@@ -81,7 +83,7 @@ namespace XFABManager
                 propertyInfo = type.GetProperty(loader.target_component_fields_name);
                 if (propertyInfo != null)
                 {  
-                    if (propertyInfo.GetValue(component).GetType() == typeof(Sprite))
+                    if (propertyInfo.PropertyType == typeof(Sprite))
                     {
                         propertyInfo.SetValue(component, imageData != null ? imageData.sprite : null);
                     }

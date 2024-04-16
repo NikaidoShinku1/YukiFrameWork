@@ -2,17 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
+using System.Linq; 
 using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
+using UnityEditor.SceneManagement; 
 #endif
 
-using UnityEngine;
-using UnityEngine.Networking;
+using UnityEngine; 
 using UnityEngine.SceneManagement;
 //using UnityEngine.SceneManagement;
 
@@ -1313,7 +1311,9 @@ namespace XFABManager
                bundle_sub_assets[projectName][bundleName].ContainsKey(mainAssetName) &&
                bundle_sub_assets[projectName][bundleName][mainAssetName].Contains(subAssetName, type)) 
             {
-                return bundle_sub_assets[projectName][bundleName][mainAssetName].Get(subAssetName, type);
+                UnityEngine.Object obj = bundle_sub_assets[projectName][bundleName][mainAssetName].Get(subAssetName, type);
+                AddAssetCache(projectName, bundleName, obj); // 记录缓存
+                return obj;
             }
 
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);

@@ -41,6 +41,7 @@ namespace XFABManager
                 AssetBundleManager.bundle_sub_assets[projectName][bundleName][mainAssetName].Contains(subAssetName, type))
             {
                 asset = AssetBundleManager.bundle_sub_assets[projectName][bundleName][mainAssetName].Get(subAssetName, type);
+                AssetBundleManager.AddAssetCache(projectName, bundleName, asset);
                 Completed();
                 yield break;
             }
