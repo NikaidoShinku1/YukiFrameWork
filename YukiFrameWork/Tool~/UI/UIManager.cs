@@ -13,9 +13,7 @@ namespace YukiFrameWork.UI
     public class UIManager : Singleton<UIManager>
     {
         private UIManager() { }
-        public BindableProperty<Canvas> Canvas { get; private set; }
-
-        public EventSystem DefaultEventSystem { get; private set; }
+        public Canvas Canvas { get; private set; }
 
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
@@ -23,27 +21,29 @@ namespace YukiFrameWork.UI
 
         public override void OnInit()
         {
-            Canvas = new BindableProperty<Canvas>(GameObject.Find(UIKit.CanvasName).GetComponent<Canvas>());          
+            Canvas = Object.FindObjectOfType<Canvas>();
+            if(Canvas == null || !Canvas.name.Equals("UIRoot"))
+                Canvas = Resources.Load<Canvas>("UIRoot").Instantiate();          
           
-            if (Canvas.Value == null)
+            if (Canvas == null)
             {
-                throw new Exception("请在场景中添加画布！初始化失败:Not Canvas In Scene!");
+                throw new Exception("UIRoot丢失，请重新导入UI模块!");
             }
 
-            MonoHelper.Destroy_AddListener(I.Release);          
+            MonoHelper.Destroy_AddListener(I.Release);
             var eventSystem = Object.FindObjectOfType<EventSystem>();
+
             if (eventSystem == null)
             {
-                eventSystem = new GameObject(typeof(EventSystem).Name).AddComponent<EventSystem>();
-                eventSystem.gameObject.AddComponent<StandaloneInputModule>();
+                eventSystem = new GameObject(nameof(EventSystem)).AddComponent<EventSystem>();
+                eventSystem.GetOrAddComponent<StandaloneInputModule>();
             }
 
-            DefaultEventSystem = eventSystem;
+            eventSystem.SetParent(Canvas.transform);
                       
             "UIKit Initialization Succeeded!".LogInfo(_ => 
-            {
-                eventSystem.transform.SetParent(Canvas.Value.transform);
-                Object.DontDestroyOnLoad(Canvas.Value.gameObject);
+            {              
+                Object.DontDestroyOnLoad(Canvas.gameObject);
             });          
         }
 
@@ -54,7 +54,7 @@ namespace YukiFrameWork.UI
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
 
                 RectTransform transform = new GameObject(level.ToString()).AddComponent<RectTransform>();
-                transform.SetRectTransformInfo(Canvas.Value);
+                transform.SetRectTransformInfo(Canvas);
                 var image = transform.gameObject.AddComponent<Image>();
                 image.color = new Color(image.color.r, image.color.g, image.color.b, 0);                
                 image.raycastTarget = false;

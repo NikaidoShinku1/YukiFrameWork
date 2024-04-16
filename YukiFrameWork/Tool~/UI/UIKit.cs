@@ -15,6 +15,7 @@ using YukiFrameWork.Pools;
 using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Linq;
 namespace YukiFrameWork.UI
 {
     public class UIKit
@@ -41,9 +42,7 @@ namespace YukiFrameWork.UI
 
         private static bool isLevelInited = false;
 
-        public static bool Default { get; private set; } = false;
-
-        public static string CanvasName { get; private set; }
+        public static bool Default { get; private set; } = false;      
 
         class PanelInfo
         {
@@ -55,18 +54,14 @@ namespace YukiFrameWork.UI
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
         /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
         /// </summary>
-        /// <param name="projectName"></param>
-        /// <param name="canvasNameOrPath">画布所在场景的默认Canvas的名称</param>
-        public static bool Init(string projectName,string canvasName= "Canvas")
+        /// <param name="projectName"></param>      
+        public static bool Init(string projectName)
         {
             if (isInit)
-            {
-                CheckCanvasAndEventSystem();
+            {              
                 "UI模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
-            }
-            CanvasName = canvasName;
-            InitUILevel();
+            }                     
             loader = new ABManagerUILoader(projectName);
             Default = true;
             isInit = true;
@@ -74,48 +69,22 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// UI模块初始化方法,传入自定义的UI加载模块,设定画布如果有自设名称则需要修改CanvasPath
+        /// UI模块初始化方法,传入自定义的UI加载模块
         /// </summary>
-        /// <param name="loader">自定义加载器</param>
-        /// <param name="canvasPath">画布所在场景的默认Canvas的名称</param>        
-        public static bool Init(IUIConfigLoader loader,string canvasName = "Canvas")
+        /// <param name="loader">自定义加载器</param>         
+        public static bool Init(IUIConfigLoader loader)
         {
             if (isInit)
-            {
-                CheckCanvasAndEventSystem();
+            {              
                 "UI模块已经完成初始化，无需再次调用!".LogInfo();
                 return false;
-            }
-            CanvasName = canvasName;
-            InitUILevel();
+            }                   
             UIKit.loader = loader;
             isInit = true;
             Default = false;
             return isInit;
         }
-
-        /// <summary>
-        /// 检查场景是否多出了一样的画布以及EventSystem是否唯一
-        /// </summary>
-        private static void CheckCanvasAndEventSystem()
-        {         
-            foreach (var canvas in Object.FindObjectsOfType<Canvas>())
-            {                             
-                if (!canvas.Equals(UIManager.I.Canvas.Value) && canvas.gameObject.name.Equals(CanvasName))
-                {
-                    Object.Destroy(canvas.gameObject);
-                }
-            }
-
-            foreach (var eventSystem in Object.FindObjectsOfType<EventSystem>())
-            {
-                if (!eventSystem.Equals(UIManager.I.DefaultEventSystem))
-                {
-                    Object.Destroy(eventSystem.gameObject);
-                }
-            }
-        }
-
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitUILevel()
         {
             if (isLevelInited) return;
@@ -183,19 +152,13 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 外部直接传入Prefab加载面板，没有对UIKit进行初始化时需要传递CanvasName参数，并且在后续要统一画布名称!
+        /// 外部直接传入Prefab加载面板
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="panel"></param>
-        /// <param name="canvasName"></param>
+        /// <param name="panel"></param>      
         /// <returns></returns>
-        public static T OpenPanel<T>(T panel,string canvasName = "Canvas") where T : BasePanel
-        {
-            if (!isInit)
-            {
-                CanvasName = canvasName;
-                InitUILevel();
-            }    
+        public static T OpenPanel<T>(T panel) where T : BasePanel
+        {          
             return OpenPanelExecute(panel);
         }
 
@@ -269,31 +232,58 @@ namespace YukiFrameWork.UI
             return panel;
         }
 
-        public static void ClosePanel(UILevel level = UILevel.Common)
+        public static void ClosePanel(string name,UILevel level = UILevel.Common)
         {
             if (uiLevelPanelDicts.TryGetValue(level, out var stack))
             {
+                ///如果层级内存在已经打开的面板
                 if (stack.Count > 0)
                 {
-                    IPanel pop = stack.Pop();
-                    pop.Exit();
-
-                    if (!pop.IsPanelCache)
+                    ///先得到置顶的面板
+                    BasePanel panel = stack.Peek();
+                    IPanel pop = null;
+                    //面板名字如果跟传进来的匹配
+                    if (panel.name.Equals(name))
                     {
-                        disposables.Remove(pop as BasePanel);
-                        Object.Destroy(pop.gameObject);
+                        //弹出顶层
+                        pop = stack.Pop();
+                        pop.Exit();
+
+                        DisposableInternal(pop as BasePanel);
+                        if (stack.Count > 0)
+                        {
+                            IPanel peek = stack.Peek();
+                            peek.Resume();
+                        }
                     }
-                }
-                if (stack.Count > 0)
-                {
-                    IPanel peek = stack.Peek();
-                    peek.Resume();
-                }
+                    else
+                    {
+                        //否则的话查找层级内有的面板退出
+                        pop = stack.FirstOrDefault(x => x.name.Equals(name));
+                        if (pop == null) return;
+                        pop.Exit();
+                        DisposableInternal(pop as BasePanel);
+                    }
+                }               
             }
-        }     
+        }
+
+        private static void DisposableInternal(BasePanel panel)
+        {
+            if (!panel.IsPanelCache)
+            {
+                disposables.Remove(panel);
+                Object.Destroy(panel.gameObject);
+            }
+        }
+
+        public static void ClosePanel<T>(UILevel level = UILevel.Common) where T : BasePanel 
+        {
+            ClosePanel(typeof(T).Name, level);
+        }
 
         public static void ClosePanel(BasePanel panel)
-            => ClosePanel(panel.Level);
+            => ClosePanel(panel.name,panel.Level);
 
         /// <summary>
         /// 通过层级获取已经加载出来的面板(优先返回缓存面板)
