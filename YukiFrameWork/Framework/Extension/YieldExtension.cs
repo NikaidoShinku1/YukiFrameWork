@@ -322,7 +322,7 @@ namespace YukiFrameWork
         /// <param name="component"></param>
         /// <returns></returns>
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldAwaitable awaitable, T component) where T : Component
-        {
+        {        
             if (component != null || component.ToString() != "null")
             {
                 if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
