@@ -26,9 +26,10 @@ namespace YukiFrameWork.Extension
     [CustomEditor(typeof(ViewController), true)]
     [CanEditMultipleObjects]
     public class ViewControllerEditor : OdinEditor
-    {
+    {        
         private List<string> list = new List<string>();       
         [MenuItem("GameObject/YukiFrameWork/Create ViewController",false,-1000)]
+        [MenuItem("YukiFrameWork/创建ViewController %Q")]
         private static void CreateViewController()
         {           
             GameObject gameObject = Selection.activeGameObject;
@@ -126,15 +127,14 @@ namespace YukiFrameWork.Extension
             ISerializedFieldInfo serialized = controller;
             foreach (FieldInfo fieldInfo in fieldInfos)
             {
-                SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
-
-                if (data == null) continue;
-                if (data.type == null) continue;             
-                if (!data.type.IsSubclassOf(typeof(Component)))
+                SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));                
+                if (data == null) continue;               
+                if (data.target == null) continue;
+                if (!fieldInfo.FieldType.IsSubclassOf(typeof(Component)))
                     fieldInfo.SetValue(target, data.target);
                 else
                 {
-                    Component component = data.GetComponent();                 
+                    Component component = data.GetComponent(fieldInfo.FieldType);                 
                     fieldInfo.SetValue(target, component);
                 }
             }
@@ -235,6 +235,7 @@ namespace YukiFrameWork.Extension
             if (!target.GetType().Equals(typeof(ViewController)))
             {
                 CodeManager.BindInspector(controller,controller, GenericPartialScripts);
+                EditorGUILayout.Space();
                 AddEventCenter(controller);
             }
         }
@@ -278,8 +279,7 @@ namespace YukiFrameWork.Extension
         {
             ViewController controller = target as ViewController;
             if (controller == null) return;
-            StringBuilder builder = new StringBuilder();
-
+           
             string examplePath = controller.Data.ScriptPath + "/" + controller.Data.ScriptName + ".Example.cs";
             bool intited = File.Exists(examplePath);
             FileMode fileMode = intited ? FileMode.Open : FileMode.Create;
@@ -288,37 +288,30 @@ namespace YukiFrameWork.Extension
                 File.WriteAllText(examplePath,string.Empty);
                 AssetDatabase.Refresh();
             }
-            builder.AppendLine("///=====================================================");
-            builder.AppendLine("///这是由代码工具生成的代码文件,请勿手动改动此文件!");
-            builder.AppendLine("///如果在代码里命名空间进行了变动,请在编辑器设置也对命名空间作出相同修改!");
-            builder.AppendLine("///=====================================================");
+            CodeCore codeCore = new CodeCore();
+            codeCore.Descripton("///=====================================================");
+            codeCore.Descripton("///这是由代码工具生成的代码文件,请勿手动改动此文件!");
+            codeCore.Descripton("///如果在代码里命名空间进行了变动,请在编辑器设置也对命名空间作出相同修改!");
+            codeCore.Descripton("///=====================================================");
 
-            builder.AppendLine("using YukiFrameWork;");
-            builder.AppendLine("using UnityEngine;");
-            builder.AppendLine("using System;");
-            builder.AppendLine();
-
-            builder.AppendLine($"namespace {controller.Data.ScriptNamespace}");
-            builder.AppendLine("{");
-
-            builder.AppendLine($"\tpublic partial class {controller.Data.ScriptName}");
-            builder.AppendLine("\t{");
+            CodeWriter codeWriter = new CodeWriter();
             ISerializedFieldInfo serialized = controller as ISerializedFieldInfo;
             foreach (var info in serialized.GetSerializeFields())
             {
-                builder.AppendLine($"\t\t[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
+                codeWriter.CustomCode($"[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
             }
-            builder.AppendLine("\t}");
-
-            builder.AppendLine("}");
-
-
+            codeCore
+                .Using("YukiFrameWork")
+                .Using("UnityEngine")
+                .Using("System")
+                .EmptyLine()
+                .CodeSetting(controller.Data.ScriptNamespace, controller.Data.ScriptName, string.Empty, codeWriter, false, true);
 
             using (FileStream stream = new FileStream(examplePath, fileMode, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 StreamWriter streamWriter = new StreamWriter(stream,Encoding.UTF8);
 
-                streamWriter.Write(builder);
+                streamWriter.Write(codeCore.builder);
 
                 streamWriter.Close();
                 stream.Close();

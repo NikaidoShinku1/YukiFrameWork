@@ -234,14 +234,14 @@ namespace XFABManager
                 ImageData = null;
 
                 imageModel = value;
-
+                  
 #if UNITY_EDITOR
                 if (Application.isPlaying)
                     // 刷新
-                    RefreshImage();
+                    Refresh();
 #else 
                 // 刷新
-                RefreshImage();
+                Refresh();
 #endif
             }
         }
@@ -254,8 +254,8 @@ namespace XFABManager
             set {
                 ImageModel model = ImageModel;
                 model.type = value;
+                model.Initialize();
                 ImageModel = model;
-                ImageModel.Initialize();
             }
 
             get {
@@ -310,8 +310,8 @@ namespace XFABManager
             {
                 ImageModel model = ImageModel;
                 model.assetName = value;
+                model.Initialize();
                 ImageModel = model;
-                ImageModel.Initialize();
             }
 
             get
@@ -409,7 +409,7 @@ namespace XFABManager
 
         private void OnEnable()
         { 
-            RefreshImage();
+            Refresh();
         }
 
         private void OnDisable()
@@ -421,13 +421,17 @@ namespace XFABManager
                 OnLoadCompleted?.Invoke(false, "加载中游戏物体被隐藏或销毁导致中断!"); 
         }
 
-        private void RefreshImage() {
+        /// <summary>
+        /// 刷新 (如果加载图片失败,可调用此方法重新加载)
+        /// </summary>
+        public void Refresh() {
 
             if (imageModel.type == ImageLoaderType.Local || imageModel.type == ImageLoaderType.Network)
                 if (string.IsNullOrEmpty(imageModel.path)) return;
 
             if (imageModel.type == ImageLoaderType.AssetBundle )
-                if (string.IsNullOrEmpty(imageModel.projectName) && string.IsNullOrEmpty(imageModel.assetName)) return;
+                if (string.IsNullOrEmpty(imageModel.projectName) || string.IsNullOrEmpty(imageModel.assetName)) 
+                    return;
 
             if (!gameObject.activeInHierarchy) return;
 
@@ -442,7 +446,7 @@ namespace XFABManager
             request_image?.Abort(); 
 
             OnStartLoad?.Invoke();
-
+              
             request_image = ImageLoaderManager.LoadImage(imageModel,this.GetHashCode());
 
             request_image.onProgressChange -= OnProgressChange;
@@ -453,6 +457,21 @@ namespace XFABManager
                 request_image.AddCompleteEvent(OnRefreshFinsh); 
 
             isLoading = true; // 正在加载中...
+        }
+
+        /// <summary>
+        /// 清空当前显示的图片
+        /// </summary>
+        public void Clear() 
+        {
+            if (allComponentAdapter.ContainsKey(targetComponentType))
+            {
+                allComponentAdapter[targetComponentType].SetValue(this, null);
+                allComponentAdapter[targetComponentType].SetColor(this, Color.white);
+            }
+
+            AssetName = string.Empty;
+            Path = string.Empty;
         }
 
         private void OnRefreshFinsh(ImageLoaderRequest request_image)

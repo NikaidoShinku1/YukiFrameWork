@@ -128,6 +128,16 @@ namespace YukiFrameWork
             }
         }
 
+        public static implicit operator YDictionary<TKey, TValue>(Dictionary<TKey,TValue> dictionary)
+        {
+            return dictionary.ToYDictionary();
+        }
+
+        public static implicit operator Dictionary<TKey, TValue>(YDictionary<TKey, TValue> yDictionary)
+        {
+            return yDictionary.ToDictionary();
+        }
+        
         private KeyValuePair<TKey,TValue> ToKeyValuePair(Y_KeyValuePair pair)
         {
             return new KeyValuePair<TKey, TValue>(pair._key,pair._value);
@@ -195,5 +205,30 @@ namespace YukiFrameWork
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
        
+    }
+
+    public static class YDictionaryExtension
+    {
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this YDictionary<TKey, TValue> y)
+        {
+            Dictionary<TKey, TValue> newDict = new Dictionary<TKey, TValue>();
+            foreach (var key in y.Keys)
+            {
+                var value = y[key];
+                newDict[key] = value;
+            }
+            return newDict;
+        }
+
+        public static YDictionary<TKey, TValue> ToYDictionary<TKey, TValue>(this Dictionary<TKey, TValue> y)
+        {
+            YDictionary<TKey, TValue> newDict = new YDictionary<TKey, TValue>();
+            foreach (var key in y.Keys)
+            {
+                var value = y[key];
+                newDict[key] = value;
+            }
+            return newDict;
+        }
     }
 }

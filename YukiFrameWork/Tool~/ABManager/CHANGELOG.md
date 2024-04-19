@@ -1,3 +1,7 @@
+## version 1.11.4 更新内容
+
+1. 优化 ImageLoader , 添加 Refresh 和 Clear 方法!
+
 ## version 1.11.3 更新内容
 
 1. 优化 ImageLoader 的 Other 的设置方式! 

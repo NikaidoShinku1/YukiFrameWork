@@ -62,8 +62,6 @@ namespace YukiFrameWork
         public string Name => target.name;
         public string fieldName;
 
-        public Type type => fieldLevelIndex > Components.Count - 1 || fieldLevelIndex < 0 ? null : AssemblyHelper.GetType(Components[fieldTypeIndex]);
-
         public SerializeFieldData(Object target)
         {
             mComponents = new List<string>();
@@ -74,14 +72,14 @@ namespace YukiFrameWork
 
         public T GetComponent<T>() where T : Component
         {
-            return GetComponent() as T;
+            return GetComponent(typeof(T)) as T;
         }
 
-        public Component GetComponent()
+        public Component GetComponent(Type fieldType)
         {
-            if (type == null || gameObject == null) return null;
+            if (gameObject == null) return null;
 
-            return gameObject.GetComponent(type);
+            return gameObject.GetComponent(fieldType);
         }
 
 

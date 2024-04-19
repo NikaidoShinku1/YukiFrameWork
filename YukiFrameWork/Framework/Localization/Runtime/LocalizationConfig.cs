@@ -12,9 +12,6 @@ using Sirenix.OdinInspector;
 using Newtonsoft.Json;
 using YukiFrameWork.Extension;
 using System.Collections.Generic;
-using System.Reflection;
-#if UNITY_EDITOR
-#endif
 using System.Linq;
 namespace YukiFrameWork
 {
@@ -25,14 +22,6 @@ namespace YukiFrameWork
         public abstract ILocalizationData GetLocalizationData(Language language,string key);
 
         public abstract void Init();
-
-#if UNITY_EDITOR
-        protected enum LoadMode
-        {
-            Json = 0,
-            Xml,           
-        }
-#endif
     }
   
     public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase where LocalizationData : ILocalizationData,new()
@@ -73,6 +62,7 @@ namespace YukiFrameWork
                 ,v => v.Value));          
         }
 #if UNITY_EDITOR      
+      
         [Button("一键应用精灵修改(传入标识，被修改的精灵，应用选择的精灵)"),BoxGroup(groupName), PropertySpace(10)]
         void SetAllSprite(string key,Language validateLanguage, Language[] languages)
         {
@@ -116,9 +106,10 @@ namespace YukiFrameWork
             {
                 Debug.LogError("没有这个标识的数据 Key---" + key);
             }
-        }       
+        }
+       
         [PropertySpace(10),Button("将本地数据导出配置表"), BoxGroup(groupName)]
-        void Re_ImportFileInInspector(string fileName = "LocalizationConfigs",string assetPath = "Assets/Localization",LoadMode mode = LoadMode.Json)
+        void Re_ImportFileInInspector(string fileName = "LocalizationConfigs",string assetPath = "Assets/Localization")
         {
             if (config.Count == 0)
             {
@@ -126,83 +117,69 @@ namespace YukiFrameWork
                 return;
             }
 
-            LocalizationModel[] models = new LocalizationModel[config.Keys.Count];
+            YDictionary<Language, List<LocalizationModel>> mModels = new YDictionary<Language, List<LocalizationModel>>();
+
+            for (Language i = 0; i < Language.Vietnamese; i++)
+            {
+                mModels[i] = new List<LocalizationModel>();
+            }
 
             string[] keys = config.Keys.ToArray();
 
-            for (int i = 0; i < models.Length; i++)
-            {
-                models[i] = new LocalizationModel()
-                {
-                    Key = keys[i]
-                };
-
+            for (int i = 0; i < keys.Length; i++)
+            {             
                 for (Language j = 0; j < Language.Vietnamese; j++)
                 {
                     if (config[keys[i]].TryGetValue(j, out LocalizationData data))
                     {
-                        models[i].SetValue(j.ToString(),data.Context);
+                        mModels[j].Add(new LocalizationModel()
+                        {
+                            Key = keys[i],
+                            Context = data.Context
+                        });
                     }
                 }
-            }
-
-            switch (mode)
-            {
-                case LoadMode.Json:
-                    SerializationTool.SerializedObject(models).CreateFileStream(assetPath,fileName,".json");
-                    break;
-                case LoadMode.Xml:
-                    SerializationTool.XmlSerializedObject(models).CreateFileStream(assetPath, fileName, ".xml");
-                    break;             
-            }
-
-        }
-        [LabelText("配置表类型选择"), ShowIf(nameof(openLoadMode)),BoxGroup("配置设置")]
-        [SerializeField]LoadMode mode;        
+            }            
+            SerializationTool.SerializedObject(mModels).CreateFileStream(assetPath, fileName, ".json");     
+        }      
         [LabelText("传入配置文件"), ShowIf(nameof(openLoadMode)),BoxGroup("配置设置")]
         [SerializeField]TextAsset textAsset;
         [LabelText("导入前清空原本的数据"),ShowIf(nameof(openLoadMode)), BoxGroup("配置设置"),SerializeField]
-        bool isClearConfig = true;
-        [Button("配置表导入", ButtonHeight = 30), PropertySpace(10), ShowIf(nameof(openLoadMode)), BoxGroup("配置设置")]
+        bool isClearConfig = true;     
+        [Button("Json配置表导入", ButtonHeight = 30), PropertySpace(10), ShowIf(nameof(openLoadMode)), BoxGroup("配置设置")]
         void Import()
         {
-            LocalizationModel[] models = null;
+            YDictionary<Language, LocalizationModel[]> modelDicts = null;
 
             if (textAsset == null)
             {
                 Debug.LogError("配置文件为空，请拖拽添加! textAsset is null");
                 return;
             }
-
-            if (mode == LoadMode.Json)
-                models = SerializationTool.DeserializedObject<LocalizationModel[]>(textAsset.text);
-
-            else
-                models = SerializationTool.XmlDeserializedObject<LocalizationModel[]>(textAsset.text);
-
+            
+            modelDicts = SerializationTool.DeserializedObject<YDictionary<Language, LocalizationModel[]>>(textAsset.text);
+           
             if (isClearConfig)
                 config.Clear();
 
-            foreach (var model in models)
+            foreach (var model in modelDicts)
             {
-                if (!config.TryGetValue(model.Key, out var dict))
-                {
-                    dict = new YDictionary<Language, LocalizationData>();
-                    config[model.Key] = dict;
-                }
-                for (Language i = 0; i < Language.Vietnamese; i++)
-                {
-                    PropertyInfo info = typeof(LocalizationModel).GetProperty(i.ToString());
-                    if (info == null) continue;
+                Language language = model.Key;
+                LocalizationModel[] ms = model.Value;
 
-                    string context = info.GetValue(model)?.ToString();
-                    if (string.IsNullOrEmpty(context))
-                        continue;
-
-                    dict[i] = new LocalizationData()
+                foreach (var m in ms)
+                {
+                    if (!config.TryGetValue(m.Key, out var dict))
                     {
-                        Context = context
+                        dict = new YDictionary<Language, LocalizationData>();
+                        config[m.Key] = dict;
+                    }
+
+                    dict[language] = new LocalizationData()
+                    {
+                        Context = m.Context
                     };
+
                 }
             }
 

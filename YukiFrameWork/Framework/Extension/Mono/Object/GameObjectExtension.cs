@@ -28,6 +28,14 @@ namespace YukiFrameWork
             => Object.Instantiate(obj, parent, instanitateInWorldSpace);
         #endregion
 
+        #region Core
+        public static T Core<T>(this T core,Action<T> coreEvent)
+        {
+            coreEvent?.Invoke(core);
+            return core;
+        }
+        #endregion
+
         #region Show And Hide
 
         public static GameObject Show(this GameObject core)
@@ -205,7 +213,7 @@ namespace YukiFrameWork
 
         public static GameObject SetParent(this GameObject core, Transform parent)
         {
-            core.transform.parent = parent;
+            core.transform.SetParent(parent);
             return core;
         }
 
@@ -221,7 +229,7 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static GameObject ResetPosition(this GameObject core)
+        public static GameObject ResetIdentity(this GameObject core)
         {
             core.transform.position = Vector3.zero;
             core.transform.localScale = Vector3.one;
@@ -229,11 +237,86 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static T ResetPosition<T>(this T core) where T : Component
+        public static T ResetIdentity<T>(this T core) where T : Component
         {
-            ResetPosition(core.gameObject);
+            ResetIdentity(core.gameObject);
             return core;
         }
+
+        public static GameObject ResetLocalIdentity(this GameObject core)
+        {
+            core.transform.localPosition = Vector3.zero;
+            core.transform.localScale = Vector3.one;
+            core.transform.localRotation = Quaternion.identity;
+            return core;
+        }
+
+        public static T ResetLocalIdentity<T>(this T core) where T : Component
+        {
+            ResetLocalIdentity(core.gameObject);
+            return core;
+        }
+
+        public static T SetLocalPositionIdentity<T>(this T core) where T : Component
+        {
+            SetLocalPositionIdentity(core.gameObject);
+            return core;
+        }
+
+        public static GameObject SetLocalPositionIdentity(this GameObject core)
+        {
+            core.transform.localPosition = Vector3.zero;
+            return core;
+        }
+
+        public static T SetPositionIdentity<T>(this T core) where T : Component
+        {
+            SetPositionIdentity(core.gameObject);
+            return core;
+        }
+
+        public static GameObject SetPositionIdentity(this GameObject core)
+        {
+            core.transform.position = Vector3.zero;
+            return core;
+        }
+
+        public static T SetLocalRotationIdentity<T>(this T core) where T : Component
+        {
+            SetLocalRotationIdentity(core.gameObject);
+            return core;
+        }
+
+        public static GameObject SetLocalRotationIdentity(this GameObject core)
+        {
+            core.transform.localRotation = Quaternion.identity;
+            return core;
+        }
+
+        public static T SetRotationIdentity<T>(this T core) where T : Component
+        {
+            SetRotationIdentity(core.gameObject);
+            return core;
+        }
+
+        public static GameObject SetRotationIdentity(this GameObject core)
+        {
+            core.transform.rotation = Quaternion.identity;
+            return core;
+        }      
+
+        public static T SetLocalScaleIdentity<T>(this T core) where T : Component
+        {
+            SetLocalScaleIdentity(core.gameObject);
+            return core;
+        }
+
+        public static GameObject SetLocalScaleIdentity(this GameObject core)
+        {
+            core.transform.localScale = Vector3.one;
+            return core;
+        }
+
 
         public static GameObject SetRotation(this GameObject core, Quaternion quaternion)
         {
@@ -326,7 +409,7 @@ namespace YukiFrameWork
         {
             if (typeof(T) == typeof(Transform))
             {
-                Debug.LogError("Transform is held by default and does not trigger additions");
+                Debug.LogWarning("Transform is held by default and does not trigger additions");
             }
             return FindRoot<T>(core, objName, false, includeInactive);
         }
@@ -344,6 +427,7 @@ namespace YukiFrameWork
             return null;
         }
         #endregion
+
         #region Action
         public static Action ToSystemAction(this UnityEvent uEvent)
         {

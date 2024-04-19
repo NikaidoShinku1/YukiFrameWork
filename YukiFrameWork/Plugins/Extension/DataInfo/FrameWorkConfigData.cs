@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace YukiFrameWork.Extension
@@ -55,6 +58,14 @@ namespace YukiFrameWork.Extension
         public static string GenericScriptInfo => !IsEN ? "脚本生成器" : "Script Generator";
 
         public static string LocalizationInfo => !IsEN ? "添加本地化语言支持:" : "Add localized language support:";
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void BindIniter()
+        {
+            PlayerPrefs.SetInt("BindFoldOut", 1);
+        }
+#endif
 
     }
 }

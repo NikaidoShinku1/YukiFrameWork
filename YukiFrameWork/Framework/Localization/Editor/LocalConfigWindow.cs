@@ -83,6 +83,7 @@ namespace YukiFrameWork
 
         protected override void OnAfterDeserialize()
         {
+            if (info == null) return;
             assemblies = info.assemblies;
             configBases = info.configBases;
             dependConfigBase = info.dependConfigs;

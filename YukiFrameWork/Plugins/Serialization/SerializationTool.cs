@@ -166,6 +166,11 @@ namespace YukiFrameWork.Extension
         /// <returns></returns>
         public static bool CreateFileStream(this string node,string filePath,string fileName,string suffix)
         {
+            return CreateFileStream(new StringBuilder(node), filePath, fileName, suffix);
+        }
+
+        public static bool CreateFileStream(this StringBuilder node, string filePath, string fileName, string suffix)
+        {
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);

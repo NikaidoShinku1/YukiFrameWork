@@ -6,19 +6,87 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
 using YukiFrameWork.Extension;
 using System.Linq;
+using System.Collections.Generic;
+
 #if UNITY_EDITOR
 using UnityEditor;
 namespace YukiFrameWork
 {
-	public static class CodeManager
-	{
+
+    public class CodeWriter
+    {
+        public List<string> codes = new List<string>();
+        public CodeWriter CustomCode(string code)
+        {
+            codes.Add(code);
+            return this;
+        }
+    }
+
+    public class CodeCore
+    {
+        public StringBuilder builder = new StringBuilder();
+        public CodeCore Descripton(string fileName,string nameSpace,string description,string dateTime)
+        {
+            builder.AppendLine("///=====================================================");
+            builder.AppendLine("/// - FileName:      " + fileName + ".cs");
+            builder.AppendLine("/// - NameSpace:     " + nameSpace);
+            builder.AppendLine("/// - Description:   " + description);
+            builder.AppendLine("/// - Creation Time: " + dateTime);
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  All Rights Reserved.");
+            builder.AppendLine("///=====================================================");
+            return this;
+        }
+
+        public CodeCore Descripton(string description)
+        {
+            builder.AppendLine(description);          
+            return this;
+        }
+
+        public CodeCore Using(string us)
+        {
+            builder.AppendLine($"using {us};");
+            return this; 
+        }
+
+        public CodeCore EmptyLine()
+        {
+            builder.AppendLine();
+            return this;
+        }
+
+        public CodeCore CodeSetting(string nameSpace, string className, string parentClassName,CodeWriter writer, bool isStatic = false,bool isPartial = false, params string[] interfaceNames)
+        {
+            builder.AppendLine($"namespace {nameSpace}");
+            builder.AppendLine("{");                     
+            builder.AppendLine($"\tpublic {(isStatic?"static" + " ": string.Empty)}{(isPartial? "partial" + " ": string.Empty)}class {className}{(string.IsNullOrEmpty(parentClassName)?string.Empty:$" : {parentClassName}")}");
+            builder.AppendLine("\t{");
+            if (writer == null)
+            {
+                builder.AppendLine("");
+            }
+            else
+            {
+                foreach (var info in writer.codes)
+                {
+                    builder.AppendLine($"\t\t{info}");
+                }
+            }
+            builder.AppendLine("\t}");
+            builder.AppendLine("}");
+            return this;
+        }
+    }
+    public static class CodeManager
+	{           
         public static void GenericControllerScripts(CustomData Data)
         {
             string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
@@ -27,7 +95,7 @@ namespace YukiFrameWork
             {
                 if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
                 {
-                    StringBuilder builder = new StringBuilder();
+                    StringBuilder builder = new StringBuilder();                 
                     builder.AppendLine("///=====================================================");
                     builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
                     builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
@@ -275,76 +343,82 @@ namespace YukiFrameWork
         {       
             EditorGUI.BeginDisabledGroup(IsPlaying);
             EditorGUILayout.Space(20);
+            var value = PlayerPrefs.GetInt("BindFoldOut") == 1;
+            EditorGUILayout.BeginHorizontal();          
+            PlayerPrefs.SetInt("BindFoldOut",EditorGUILayout.Foldout(PlayerPrefs.GetInt("BindFoldOut") == 1,string.Empty) ? 1 : 0);
             GUILayout.Label(FrameWorkConfigData.BindExtensionInfo, "PreviewPackageInUse");
-
-
-            var rect = EditorGUILayout.BeginVertical("FrameBox", GUILayout.Height(100 + info.GetSerializeFields().Count() * 20));
-            GUILayout.Label(FrameWorkConfigData.DragObjectInfo);
-            foreach (var data in info.GetSerializeFields())
+            EditorGUILayout.EndHorizontal();
+            if (value)
             {
-                EditorGUILayout.BeginHorizontal();
-                string fieldName = EditorGUILayout.TextField(data.fieldName);
-
-                if (data.fieldName != fieldName)
+                var rect = EditorGUILayout.BeginVertical("FrameBox", GUILayout.Height(100 + info.GetSerializeFields().Count() * 20));
+                GUILayout.Label(FrameWorkConfigData.DragObjectInfo);
+                foreach (var data in info.GetSerializeFields())
                 {
-                    Undo.RecordObject(target, "Change Data");
-                    data.fieldName = fieldName;
+                    EditorGUILayout.BeginHorizontal();
+                    string fieldName = EditorGUILayout.TextField(data.fieldName);
 
-                    SaveData(target);
+                    if (data.fieldName != fieldName)
+                    {
+                        Undo.RecordObject(target, "Change Data");
+                        data.fieldName = fieldName;
+
+                        SaveData(target);
+                    }
+
+                    int levelIndex = EditorGUILayout.Popup(data.fieldLevelIndex, data.fieldLevel);
+
+                    if (data.fieldLevelIndex != levelIndex)
+                    {
+                        Undo.RecordObject(target, "Change Level");
+                        data.fieldLevelIndex = levelIndex;
+                        SaveData(target);
+                    }
+
+                    int typeIndex = EditorGUILayout.Popup(data.fieldTypeIndex, data.Components?.ToArray());
+
+                    if (typeIndex != data.fieldTypeIndex)
+                    {
+                        Undo.RecordObject(target, "Change TypeIndex");
+                        data.fieldTypeIndex = typeIndex;
+                        SaveData(target);
+                    }
+
+                    var obj = EditorGUILayout.ObjectField(data.target, typeof(UnityEngine.Object), true);
+
+                    if (data.target != obj)
+                    {
+                        Undo.RecordObject(target, "Change Object");
+                        data.target = obj;
+                        SaveData(target);
+                    }
+
+                    if (GUILayout.Button("", "ToggleMixed"))
+                    {
+                        Undo.RecordObject(target, "Remove Data");
+                        info.RemoveFieldData(data);
+
+                        SaveData(target);
+                        break;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+
                 }
 
-                int levelIndex = EditorGUILayout.Popup(data.fieldLevelIndex, data.fieldLevel);
+                DragObject(rect, target, info);
 
-                if (data.fieldLevelIndex != levelIndex)
+                GUILayout.FlexibleSpace();
+                if (info.GetSerializeFields().Count() > 0 && GUILayout.Button("生成代码", GUILayout.Height(25)))
                 {
-                    Undo.RecordObject(target, "Change Level");
-                    data.fieldLevelIndex = levelIndex;
-                    SaveData(target);
+                    GenericCallBack?.Invoke();
                 }
 
-                int typeIndex = EditorGUILayout.Popup(data.fieldTypeIndex, data.Components?.ToArray());
-
-                if (typeIndex != data.fieldTypeIndex)
-                {
-                    Undo.RecordObject(target, "Change TypeIndex");
-                    data.fieldTypeIndex = typeIndex;
-                    SaveData(target);
-                }
-
-                var obj = EditorGUILayout.ObjectField(data.target, typeof(UnityEngine.Object), true);
-
-                if (data.target != obj)
-                {
-                    Undo.RecordObject(target, "Change Object");
-                    data.target = obj;
-                    SaveData(target);
-                }
-
-                if (GUILayout.Button("", "ToggleMixed"))
-                {
-                    Undo.RecordObject(target, "Remove Data");
-                    info.RemoveFieldData(data);
-
-                    SaveData(target);
-                    break;
-                }
-
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                /* if (!target.GetType().Equals(targetType))
+                 {
+                     BindEventCallBack?.Invoke();
+                 }*/
             }
-
-            DragObject(rect,target,info);
-
-            GUILayout.FlexibleSpace();
-            if (info.GetSerializeFields().Count() > 0 && GUILayout.Button("生成代码", GUILayout.Height(25)))
-            {
-                GenericCallBack?.Invoke();
-            }
-
-            EditorGUILayout.EndVertical();
-            /* if (!target.GetType().Equals(targetType))
-             {
-                 BindEventCallBack?.Invoke();
-             }*/
             EditorGUI.EndDisabledGroup();
         }
 

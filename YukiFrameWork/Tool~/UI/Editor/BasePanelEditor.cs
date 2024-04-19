@@ -71,13 +71,13 @@ namespace YukiFrameWork.UI
                 SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));
 
                 if (data == null) continue;
-                if (data.type == null) continue;
+                if (data.target == null) continue;
 
-                if (!data.type.IsSubclassOf(typeof(Component)))
+                if (!fieldInfo.FieldType.IsSubclassOf(typeof(Component)))
                     fieldInfo.SetValue(target, data.target);
                 else
                 {
-                    Component component = data.GetComponent();
+                    Component component = data.GetComponent(fieldInfo.FieldType);
                     fieldInfo.SetValue(target, component);
                 }
             }
