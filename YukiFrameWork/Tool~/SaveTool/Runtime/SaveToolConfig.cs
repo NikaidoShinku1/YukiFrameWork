@@ -10,7 +10,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-using Newtonsoft.Json;
 
 namespace YukiFrameWork
 {
@@ -29,26 +28,36 @@ namespace YukiFrameWork
     }  
 	public class SaveToolConfig : ScriptableObject
     {
-        [LabelText("文件夹名称:")]
+        [LabelText("文件夹名称:"), BoxGroup("文件路径设置")]
         public string saveFolderName = "SaveData";
 
-        [HideInInspector,LabelText("保存的文件路径:")]
+        [LabelText("保存的文件路径:"), BoxGroup("文件路径设置"), ShowIf(nameof(IsCustom))]
         public string saveFolder;
 
-        public string saveDirPath => saveFolder + @"/" + saveFolderName;
-        [HideInInspector]
-        [LabelText("文件夹方式选择:"),SerializeField]
-        public FolderType folderType = FolderType.persistentDataPath;     
+        public string saveDirPath => saveFolder + @"/" + saveFolderName;    
+        [LabelText("文件夹方式选择:"),SerializeField, BoxGroup("文件路径设置")]
+        public FolderType folderType = FolderType.persistentDataPath;   
+       
+        [LabelText("当前存档的id:")]       
+        public int currentID => infos.Count;
 
-        [HideInInspector]
-        public bool saveInfoFoldOut; 
-     
-        [LabelText("当前所有的存档信息:"),ReadOnly]
+        private bool IsCustom => folderType == FolderType.custom;
+        [Button("定位到指定文件夹"), BoxGroup("文件路径设置"), ShowIf(nameof(IsCustom))]
+        private void CheckMouseToPosition()
+        {
+#if UNITY_EDITOR
+            saveFolder = UnityEditor.EditorUtility.OpenFolderPanel("定位到指定文件夹", string.Empty, string.Empty);
+#endif
+        }
+
+        [Button("打开文件夹"), BoxGroup("文件路径设置"), HideIf(nameof(IsCustom))]
+        private void CheckMouseToPosition2()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", saveFolder.Replace("/", "\\"));
+        }
+
+        [LabelText("当前所有的存档信息:"),BoxGroup]
         public List<SaveInfo> infos = new List<SaveInfo>();
-
-        [LabelText("当前存档的id:")]
-        [HideInInspector]
-        public int currentID => infos.Count;       
     }
 
 

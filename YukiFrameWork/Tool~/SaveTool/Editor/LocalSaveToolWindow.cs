@@ -18,6 +18,7 @@ namespace YukiFrameWork
     public class LocalSaveToolWindow : OdinEditorWindow
 	{
 		private SaveToolConfig config;
+		private OdinEditor editor;
 		[MenuItem("YukiFrameWork/SaveTool",false,-2)]
 		public static void OpenWindow()
 		{
@@ -26,75 +27,42 @@ namespace YukiFrameWork
 			window.titleContent = new GUIContent("存档配置窗口");			
 			
 		}	
-
-		[BoxGroup,LabelText("文件夹名称:")]
-		public string saveFolderName;
-        [BoxGroup, LabelText("文件夹方式选择:")]
-        public FolderType folderType;
-		private bool IsCustom => folderType == FolderType.custom;
-        [BoxGroup("文件路径设置"), LabelText("保存的文件路径:"), ShowIf(nameof(IsCustom))]
-        public string saveFolder;   
-
-        [BoxGroup, LabelText("当前所有的存档信息:")]
-        public List<SaveInfo> infos = new List<SaveInfo>();
         protected override void OnEnable()
         {
-			OnAfterDeserialize();
-        }
-
-        protected override void OnAfterDeserialize()
-        {
-            Update_Config();           
-            saveFolderName = config.saveFolderName;
-			saveFolder = config.saveFolder;
-			infos = config.infos;
-			folderType = config.folderType;
-        }
-
-        protected override void OnBeforeSerialize()
-        {
             Update_Config();
-            switch (folderType)
-            {
-                case FolderType.persistentDataPath:
-                    saveFolder = Application.persistentDataPath;
-                    break;
-                case FolderType.dataPath:
-                    saveFolder = Application.dataPath;
-                    break;
-                case FolderType.streamingAssetsPath:
-                    saveFolder = Application.streamingAssetsPath;
-                    break;
-                case FolderType.temporaryCachePath:
-                    saveFolder = Application.temporaryCachePath;
-                    break;
-            }
-            config.saveFolder = saveFolder;
-			config.infos = infos;
-			config.folderType = folderType;			
-			config.saveFolderName = saveFolderName;
-        }
+			editor = OdinEditor.CreateEditor(config, typeof(OdinEditor)) as OdinEditor;
+            base.OnEnable();	
+        }    
+
         private void OnInspectorUpdate()
         {
             Repaint();
         }
         protected override void OnImGUI()
         {
+			editor.DrawDefaultInspector();
+            var folderType = config.folderType;
+            switch (folderType)
+            {
+                case FolderType.persistentDataPath:
+                    config.saveFolder = Application.persistentDataPath;
+                    break;
+                case FolderType.dataPath:
+                    config.saveFolder = Application.dataPath;
+                    break;
+                case FolderType.streamingAssetsPath:
+                    config.saveFolder = Application.streamingAssetsPath;
+                    break;
+                case FolderType.temporaryCachePath:
+                    config.saveFolder = Application.temporaryCachePath;
+                    break;
+            }
             base.OnImGUI();          
         }
-		[Button("定位到指定文件夹"), BoxGroup("文件路径设置"),ShowIf(nameof(IsCustom))]
-        private void CheckMouseToPosition()
-		{
-           saveFolder = EditorUtility.OpenFolderPanel("定位到指定文件夹", string.Empty, string.Empty);
-        }
-
-        [Button("打开文件夹"), BoxGroup("默认路径设置"),HideIf(nameof(IsCustom))]
-        private void CheckMouseToPosition2()
-        {
-            System.Diagnostics.Process.Start("explorer.exe",saveFolder.Replace("/","\\"));
-        }
+		
 
         private void Update_Config()
+      
         {
 			if (config == null)
 			{

@@ -357,6 +357,6 @@ namespace YukiFrameWork
             => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);
 
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
-            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);       
+            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);  
     }
 }

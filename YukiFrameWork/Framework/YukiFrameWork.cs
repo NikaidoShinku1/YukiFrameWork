@@ -954,27 +954,6 @@ namespace YukiFrameWork
         }
     }
 
-
-    public static class BindablePropertyOrEventExtension
-    {
-
-        /// <summary>
-        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
-        /// </summary>
-        /// <param name="gameObject">GameObject</param>
-        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component,Action onFinish = null) where Component : UnityEngine.Component
-        {
-            if (!component.TryGetComponent(out OnGameObjectTrigger objectSend))
-            {
-                objectSend = component.gameObject.AddComponent<OnGameObjectTrigger>();
-            }
-            objectSend.AddUnRegister(property);
-
-            objectSend.PushFinishEvent(onFinish);
-
-        }
-    }
-
     /// <summary>
     /// 控制器拓展
     /// </summary>

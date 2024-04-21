@@ -121,6 +121,42 @@ namespace YukiFrameWork
             Object.DontDestroyOnLoad(core);
             return core;
         }
+
+        public static T DestroyChildren<T>(this T core) where T : Component
+        {
+            DestroyChildren(core.gameObject);
+            return core;
+        }
+
+        public static GameObject DestroyChildren(this GameObject core)
+        {           
+            var childCount = core.transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                var item = core.transform.GetChild(i);
+                item.gameObject.Destroy();
+                    
+            }
+            return core;
+        }
+
+        public static T DestroyChildrenWithCondition<T>(this T component,Func<Transform,bool> condition) where T : Component
+        {
+            DestroyChildrenWithCondition(component.gameObject, condition);
+            return component;
+        }
+
+        public static GameObject DestroyChildrenWithCondition(this GameObject core,Func<Transform,bool> condition) 
+        {
+            var childCount = core.transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                var item = core.transform.GetChild(i);
+                if(condition.Invoke(item))
+                    item.gameObject.Destroy();                  
+            }
+            return core;
+        }
         #endregion
 
         #region Info
@@ -514,5 +550,34 @@ namespace YukiFrameWork
             return u;
         }
         #endregion
+    }
+
+    public static class BindablePropertyOrEventExtension
+    {
+
+        /// <summary>
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action onFinish = null) where Component : UnityEngine.Component
+        {
+            UnRegisterWaitGameObjectDestroy(property, component.gameObject, onFinish);
+        }
+
+        /// <summary>
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitGameObjectDestroy(this IUnRegister property, UnityEngine.GameObject gameObject, Action onFinish = null)
+        {
+            if (!gameObject.TryGetComponent(out OnGameObjectTrigger objectSend))
+            {
+                objectSend = gameObject.AddComponent<OnGameObjectTrigger>();
+            }
+            objectSend.AddUnRegister(property);
+
+            objectSend.PushFinishEvent(onFinish);
+
+        }
     }
 }

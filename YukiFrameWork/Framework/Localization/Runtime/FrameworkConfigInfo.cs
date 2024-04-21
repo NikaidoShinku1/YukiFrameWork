@@ -4,25 +4,27 @@ namespace YukiFrameWork
 {
     public class FrameworkConfigInfo : ScriptableObject
     {
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public string scriptName;
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public string nameSpace = "YukiFrameWork.Example";
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public string genericPath = "Assets/Scripts";
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public bool IsParent;
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public string parentName = "MonoBehaviour";
-        [ReadOnly, SerializeField]
+        [HideInInspector]
         public string assembly = "Assembly-CSharp";
-        [ReadOnly, SerializeField]
+        [ShowIf(nameof(SelectIndex),2)]
         public string[] assemblies = new string[0];
-        [ReadOnly, SerializeField]
+        [SerializeField,LabelText("Local Config:"), ShowIf(nameof(SelectIndex), 1)]
         public LocalizationConfigBase configBases;
-        [ReadOnly, SerializeField]
-        public YDictionary<int, LocalizationConfigBase> dependConfigs = new YDictionary<int, LocalizationConfigBase>();
-        [ReadOnly, SerializeField]
+        [LabelText("运行时的默认语言:"), PropertySpace(6), ShowIf(nameof(SelectIndex), 1)]
         public Language defaultLanguage;
+        [LabelText("子配置项"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
+        public YDictionary<int, LocalizationConfigBase> dependConfigs = new YDictionary<int, LocalizationConfigBase>();   
+        [HideInInspector]
+        public int SelectIndex = 0;
     }
 }

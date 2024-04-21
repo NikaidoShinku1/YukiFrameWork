@@ -14,7 +14,7 @@ namespace YukiFrameWork
     {        
         [InitializeOnLoadMethod]
         public static void Init()
-        {
+        {       
             var info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
 
             if (info == null)
@@ -54,49 +54,17 @@ namespace YukiFrameWork
         private SerializedProperty assemblyProperty;
         private GUIContent defaultContent = new GUIContent();
         private GUIStyle boxStyle;
-        private int selectIndex = 0;
-        [LabelText("Depend:"),ShowIf(nameof(selectIndex),2)]
-        [SerializeField]
-        private string[] assemblies;
 
-        [DictionaryDrawerSettings(KeyLabel = "配置的唯一标识",ValueLabel = "配置文件")]       
-        [SerializeField,LabelText("Configs:"),ShowIf(nameof(selectIndex),1)]
-        private LocalizationConfigBase configBases;
-
-        [SerializeField, LabelText("运行时的默认语言设置:"), InfoBox("默认语言可以被动态修改!"), PropertySpace(10),ShowIf(nameof(selectIndex),1)]
-        private Language defaultLanguage;
-
-        [InfoBox("可以添加多个配置项(如果有多个配置的情况下)"), PropertySpace(5),ShowIf(nameof(selectIndex),1)]
-        [LabelText("子配置项"), SerializeField]
-        private YDictionary<int, LocalizationConfigBase> dependConfigBase = new YDictionary<int, LocalizationConfigBase>();       
-        
-        protected override void OnEnable() 
+        private OdinEditor editor;
+        protected override void OnEnable()
         {
-            base.OnEnable();
             Update_Info();
-            defaultContent = new GUIContent();
-            OnAfterDeserialize();
-            selectIndex = PlayerPrefs.GetInt("LocalConfigWindowSelectIndex");
+            editor = OdinEditor.CreateEditor(info,typeof(OdinEditor)) as OdinEditor;
+            base.OnEnable();        
+            defaultContent = new GUIContent();                    
             wantsMouseEnterLeaveWindow = true;
             wantsMouseMove = true;
-        }
-
-        protected override void OnAfterDeserialize()
-        {
-            if (info == null) return;
-            assemblies = info.assemblies;
-            configBases = info.configBases;
-            dependConfigBase = info.dependConfigs;
-            defaultLanguage = info.defaultLanguage;
-        }
-
-        protected override void OnBeforeSerialize()
-        {
-            info.assemblies = assemblies;
-            info.configBases = configBases;
-            info.dependConfigs = dependConfigBase;
-            info.defaultLanguage = defaultLanguage;
-        }
+        }           
         private string[] ArrayInfo
         {
             get => new string[] { FrameWorkConfigData.GenericScriptInfo, FrameWorkConfigData.RuntimeLocalization,FrameWorkConfigData.RuntimeDepandAssembly};
@@ -105,18 +73,8 @@ namespace YukiFrameWork
         protected override void OnDisable()
         {
             base.OnDisable();
-            OnBeforeSerialize();
-            PlayerPrefs.SetInt("LocalConfigWindowSelectIndex", selectIndex);
-
-        }    
-
-        private void OnInspectorUpdate()
-        {
-            if (Application.isPlaying)
-            {
-                OnAfterDeserialize();
-            }
-        }
+            OnBeforeSerialize();       
+        }      
         protected override void OnImGUI()
         {
             if (info == null)
@@ -125,22 +83,22 @@ namespace YukiFrameWork
                 return;
             }
             EditorGUILayout.Space(5);
-            selectIndex = GUILayout.Toolbar(selectIndex,ArrayInfo);         
+            info.SelectIndex = GUILayout.Toolbar(info.SelectIndex,ArrayInfo);         
             EditorGUILayout.Space(5);
             serializedObject.Update();
             GUILayout.BeginVertical("OL box NoExpand");
             EditorGUI.BeginChangeCheck();
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
             FrameWorkConfigData.IsEN = EditorGUILayout.ToggleLeft("EN", FrameWorkConfigData.IsEN, GUILayout.Width(50));
-            if (selectIndex == 0)
+            if (info.SelectIndex == 0)
             {
                 DrawScriptGenericWindow();
             }
-            else if (selectIndex == 1)
+            else if (info.SelectIndex == 1)
             {
                 DrawLocalizationWindow();
             }
-            else if(selectIndex == 2)
+            else if(info.SelectIndex == 2)
             {
                 DrawAssemblyBindSettingWindow();             
             }
@@ -154,7 +112,8 @@ namespace YukiFrameWork
 
         private void DrawLocalizationWindow()
         {
-            GUILayout.Label(FrameWorkConfigData.LocalizationInfo);
+            GUILayout.Label(FrameWorkConfigData.LocalizationInfo);       
+            editor.DrawDefaultInspector();
         }
 
         private void DrawAssemblyBindSettingWindow()
@@ -169,6 +128,7 @@ namespace YukiFrameWork
             boxStyle ??= new GUIStyle(GUI.skin.box);
             boxStyle.normal.textColor = Color.white;
             GUILayout.Label(FrameWorkConfigData.AssemblyDependInfo, boxStyle, GUILayout.Width(position.width));
+            editor.DrawDefaultInspector();
         }
 
         private void DrawScriptGenericWindow()
@@ -339,7 +299,17 @@ namespace YukiFrameWork
             pathProperty = serializedObject.FindProperty("genericPath");
             parentProperty = serializedObject.FindProperty("IsParent");
             parentNameProperty = serializedObject.FindProperty("parentName");
-            assemblyProperty = serializedObject.FindProperty("assembly");          
+            assemblyProperty = serializedObject.FindProperty("assembly");         
+        }
+    }
+
+    public static class UnityEngineSavingExtension
+    {
+        public static void Save<T>(this T core) where T : UnityEngine.Object
+        {
+            AssetDatabase.SaveAssets();
+            EditorUtility.SetDirty(core);
+            AssetDatabase.Refresh();
         }
     }
 #endif  

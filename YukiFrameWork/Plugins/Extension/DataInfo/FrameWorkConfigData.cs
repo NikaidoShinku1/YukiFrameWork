@@ -59,6 +59,11 @@ namespace YukiFrameWork.Extension
 
         public static string LocalizationInfo => !IsEN ? "添加本地化语言支持:" : "Add localized language support:";
 
+        public static string DefaultHelperInfo => !IsEN ? "默认语言可以被动态修改!" : "The default language can be changed dynamically!";
+        public static string RuntimeLocalLanguageInfo => !IsEN ? "运行时的默认语言设置:" : "Default language Settings at runtime:";
+        public static string AddDependLocalConfigInfo => !IsEN ? "可以添加多个子配置项(如果有多个配置的情况下)" : "Multiple sub-configuration items can be added (if there are multiple configurations)";
+        public static string DependInfo => !IsEN ? "子配置项" : "DependConfig";
+
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         static void BindIniter()

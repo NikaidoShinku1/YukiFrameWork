@@ -13,7 +13,7 @@ using System.Linq;
 namespace YukiFrameWork
 {
     /// <summary>
-    /// 框架运行时本地化管理器，初始化会在所有对象的Awake周期之后，Start触发之前触发
+    /// 框架运行时本地化管理器
     /// </summary>
     public class LocalizationKit : Singleton<LocalizationKit>
 	{

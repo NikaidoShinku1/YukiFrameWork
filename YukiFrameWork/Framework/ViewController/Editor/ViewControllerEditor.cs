@@ -199,11 +199,13 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.BeginHorizontal();
-
+            var rect = EditorGUILayout.BeginHorizontal();           
             GUILayout.Label(FrameWorkConfigData.Path, GUILayout.Width(200));
             GUILayout.TextField(Data.ScriptPath);
             CodeManager.SelectFolder(Data);
+            DragObject(rect, out string path);
+            if (!string.IsNullOrEmpty(path))
+                Data.ScriptPath = path;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();
@@ -237,6 +239,26 @@ namespace YukiFrameWork.Extension
                 CodeManager.BindInspector(controller,controller, GenericPartialScripts);
                 EditorGUILayout.Space();
                 AddEventCenter(controller);
+            }
+        }
+
+        private void DragObject(Rect rect, out string path)
+        {
+            Event e = Event.current;
+            path = string.Empty;
+            if (rect.Contains(e.mousePosition))
+            {
+                DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
+
+                if (e.type == EventType.DragPerform)
+                {
+                    var assets = DragAndDrop.objectReferences;
+                    if (assets[0].GetType().Equals(typeof(DefaultAsset)))
+                    {
+                        path = AssetDatabase.GetAssetPath(assets[0]);
+                    }
+                    e.Use();
+                }
             }
         }
         private void SelectArchitecture(CustomData Data)

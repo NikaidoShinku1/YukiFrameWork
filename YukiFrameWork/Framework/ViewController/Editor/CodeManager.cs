@@ -63,11 +63,11 @@ namespace YukiFrameWork
             return this;
         }
 
-        public CodeCore CodeSetting(string nameSpace, string className, string parentClassName,CodeWriter writer, bool isStatic = false,bool isPartial = false, params string[] interfaceNames)
+        public CodeCore CodeSetting(string nameSpace, string className, string parentClassName,CodeWriter writer, bool isStatic = false,bool isPartial = false,bool isEnum = false)
         {
             builder.AppendLine($"namespace {nameSpace}");
             builder.AppendLine("{");                     
-            builder.AppendLine($"\tpublic {(isStatic?"static" + " ": string.Empty)}{(isPartial? "partial" + " ": string.Empty)}class {className}{(string.IsNullOrEmpty(parentClassName)?string.Empty:$" : {parentClassName}")}");
+            builder.AppendLine($"\tpublic {(isStatic?"static" + " ": string.Empty)}{(isPartial? "partial" + " ": string.Empty)}{(isEnum?"enum":"class")} {className}{(string.IsNullOrEmpty(parentClassName)?string.Empty:$" : {parentClassName}")}");
             builder.AppendLine("\t{");
             if (writer == null)
             {
