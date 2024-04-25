@@ -29,9 +29,9 @@ namespace YukiFrameWork.Audio
         public override bool Release(IAudioLoader obj)
         {
             obj.UnLoad();
-            if (tQueue.Count < maxSize)
+            if (cacheQueue.Count < maxSize)
             {
-                tQueue.Enqueue(obj);
+                cacheQueue.Enqueue(obj);
                 return true;
             }
             return false;

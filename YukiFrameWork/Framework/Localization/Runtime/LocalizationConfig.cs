@@ -120,7 +120,7 @@ namespace YukiFrameWork
 
             YDictionary<Language, List<LocalizationModel>> mModels = new YDictionary<Language, List<LocalizationModel>>();
 
-            for (Language i = 0; i < Language.Vietnamese; i++)
+            for (Language i = 0; i <= Language.Vietnamese; i++)
             {
                 mModels[i] = new List<LocalizationModel>();
             }
@@ -129,7 +129,7 @@ namespace YukiFrameWork
 
             for (int i = 0; i < keys.Length; i++)
             {             
-                for (Language j = 0; j < Language.Vietnamese; j++)
+                for (Language j = 0; j <= Language.Vietnamese; j++)
                 {
                     if (config[keys[i]].TryGetValue(j, out LocalizationData data))
                     {

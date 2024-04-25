@@ -5,12 +5,14 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.EventSystems;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.UI
 {
     public interface IPanel
     {
+        void OnInit();
         void Enter();
         void Resume();
         void Pause();
@@ -20,35 +22,46 @@ namespace YukiFrameWork.UI
         bool IsActive { get; }
         bool IsPanelCache { get; }
         GameObject gameObject { get; }
+
+        UILevel Level { get; }
+        PanelOpenType OpenType { get; }
+
+        void SetLevel(UILevel level);     
     }
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
     public class BasePanel : Sirenix.OdinInspector.SerializedMonoBehaviour,ISerializedFieldInfo,IPanel
     {      
-        protected CanvasGroup canvasGroup;      
+        protected CanvasGroup canvasGroup;
+        protected new RectTransform transform;
         [HideInInspector]
         public UICustomData Data;
+
         private bool isPlaying => ApplicationHelper.GetRuntimeOrEditor();
-#if UNITY_EDITOR
-        [HideIfGroup(nameof(isPlaying))]
-#endif
+
+        private bool IsBase => this.GetType() == typeof(BasePanel);
+
+        [DisableIf(nameof(isPlaying)),HideIf(nameof(IsBase))]
         [LabelText("面板层级"),SerializeField]        
         protected UILevel mLevel = UILevel.Common;
 
+        [SerializeField, DisableIf(nameof(isPlaying)),LabelText("面板的生成模式"), HideIf(nameof(IsBase))]
+        [InfoBox("决定了面板能否同时打开多个")]
+        protected PanelOpenType openType = PanelOpenType.Single;
+
+        public PanelOpenType OpenType => openType;
         public UILevel Level
         {
             get
             {              
                 return mLevel;
-            }
-            set
-            {
-                mLevel = value; 
-            }
+            }     
+        }       
+        void IPanel.SetLevel(UILevel level)
+        {          
+            mLevel = level;
         }
-#if UNITY_EDITOR
-        [HideIfGroup(nameof(isPlaying))]
-#endif
+        [HideIfGroup(nameof(isPlaying)), DisableIf(nameof(IsBase))]
         [LabelText("面板是否缓存"),SerializeField,InfoBox("如果关闭则每次开关面板都会进行销毁生成")]
         protected bool isPanelCache = true;
 
@@ -58,15 +71,34 @@ namespace YukiFrameWork.UI
 
         public bool IsActive { get; private set; }
 
+        [SerializeField,LabelText("是否让面板可拖拽"),HideIf(nameof(IsBase))]
+        protected bool IsPanelDrag = false;
+   
         protected virtual void Awake()
-        {            
-            canvasGroup = GetComponent<CanvasGroup>();
+        {
+            transform = base.transform as RectTransform;
+            canvasGroup = GetComponent<CanvasGroup>();         
+            this.BindDragEvent(DefaultDragEvent).UnRegisterWaitGameObjectDestroy(this);
+        }
+
+        private void DefaultDragEvent(PointerEventData eventData)
+        {
+            if (!IsPanelDrag) return;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, null, out var localPosition);          
+            float width = UIManager.I.transform.rect.width;
+            float height = UIManager.I.transform.rect.height;          
+            float tempWidth = width / 2 - transform.rect.width / 4;
+            float tempHeight = height / 2 - transform.rect.height / 2;
+            localPosition.x = Mathf.Clamp(localPosition.x, -tempWidth, tempWidth);
+            localPosition.y = Mathf.Clamp(localPosition.y, -tempHeight, tempHeight);
+            transform.localPosition = localPosition;
         }
         #region UI面板生命周期      
         [MethodAPI("面板初始化")]
         public virtual void OnInit()
         {
-
+            
         }
 
         [MethodAPI("面板打开(进入)")]
@@ -93,6 +125,12 @@ namespace YukiFrameWork.UI
            
         }
 
+        /// <summary>
+        /// 把自己关闭
+        /// </summary>
+        protected void CloseSelf()
+            => UIKit.ClosePanel(this);      
+
         #region IPanel
         void IPanel.Enter()
         {
@@ -100,7 +138,7 @@ namespace YukiFrameWork.UI
                 canvasGroup = GetComponent<CanvasGroup>();
 
             canvasGroup.alpha = 1;
-            canvasGroup.blocksRaycasts = true;
+            canvasGroup.blocksRaycasts = true;       
             OnEnter();
             IsActive = true;
             IsPaused = false;
@@ -128,8 +166,8 @@ namespace YukiFrameWork.UI
             canvasGroup.blocksRaycasts = false;
             OnExit();
             IsActive = false;
-            IsPaused = false;           
-        }
+            IsPaused = false;            
+        }     
         #endregion
 
         #endregion

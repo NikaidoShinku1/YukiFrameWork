@@ -42,11 +42,12 @@ namespace YukiFrameWork.Pools
 
         public override bool Release(T obj)
         {
+            if (obj == null) return false;
             recycleMethod?.Invoke(obj);
 
-            if (tQueue.Count < maxSize)
+            if (cacheQueue.Count < maxSize)
             {
-                tQueue.Enqueue(obj);
+                cacheQueue.Enqueue(obj);
                 return true;
             }
             return false;

@@ -22,12 +22,12 @@ namespace YukiFrameWork.UI
         public ABManagerUILoader(string projectName)
             => this.projectName = projectName;
 
-        public T Load<T>(string name) where T : BasePanel
+        public T Load<T>(string name) where T : IPanel
         {
             return AssetBundleManager.LoadAsset<GameObject>(projectName,name).GetComponent<T>();
         }
 
-        public void LoadAsync<T>(string name, Action<T> onCompleted) where T : BasePanel
+        public void LoadAsync<T>(string name, Action<T> onCompleted) where T : IPanel
         {
             AssetBundleManager.LoadAssetAsync<GameObject>(projectName, name).AddCompleteEvent(request =>
             {

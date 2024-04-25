@@ -37,9 +37,9 @@ namespace YukiFrameWork.Pools
     /// <typeparam name="T">类型</typeparam>
     public abstract class AbstarctPools<T> : IPools<T>
     {
-        protected readonly Queue<T> tQueue = new Queue<T>();
+        protected readonly Queue<T> cacheQueue = new Queue<T>();
 
-        protected int maxSize;
+        protected int maxSize = 10;
 
         protected IFectoryPool<T> fectoryPool;
 
@@ -52,24 +52,24 @@ namespace YukiFrameWork.Pools
             => fectoryPool = new CustomSimpleObjectPools<T>(resetMethod);
 
         public virtual T Get()
-            => tQueue.Count == 0 || tQueue.Count == maxSize ? fectoryPool.Create() : tQueue.Dequeue();
+            => cacheQueue.Count == 0 || cacheQueue.Count == maxSize ? fectoryPool.Create() : cacheQueue.Dequeue();
 
         public bool Contains(T t)
-            => tQueue.Contains(t);        
+            => cacheQueue.Contains(t);        
 
         public abstract bool Release(T obj);
 
         public void Clear(Action<T> clearMethod = null)
         {
-            foreach (var item in tQueue)
+            foreach (var item in cacheQueue)
             {
                 clearMethod?.Invoke(item);
             }
 
-            tQueue.Clear();
+            cacheQueue.Clear();
         }
 
-        public int Count => tQueue.Count;
+        public int Count => cacheQueue.Count;
     }   
 
     public static class ListPoolsExtension

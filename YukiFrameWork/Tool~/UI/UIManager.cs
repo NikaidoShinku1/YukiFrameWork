@@ -7,6 +7,7 @@ using YukiFrameWork.Pools;
 using UnityEngine.UI;
 using System.Reflection;
 using XFABManager;
+using System.Linq;
 
 namespace YukiFrameWork.UI
 {
@@ -14,21 +15,27 @@ namespace YukiFrameWork.UI
     {
         private UIManager() { }
         public Canvas Canvas { get; private set; }
+        public RectTransform transform => Canvas.transform as RectTransform;
+        public CanvasScaler CanvasScaler { get; private set; }
+        public GraphicRaycaster GraphicRaycaster { get; private set; }
 
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
-        private List<BasePanel> panelCore = new List<BasePanel>();     
+        private Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();     
 
         public override void OnInit()
         {
-            Canvas = Object.FindObjectOfType<Canvas>();
-            if(Canvas == null || !Canvas.name.Equals("UIRoot"))
+            Canvas = Object.FindObjectsOfType<Canvas>().FirstOrDefault(x => x.name.Equals("UIRoot"));
+            if(Canvas == null)
                 Canvas = Resources.Load<Canvas>("UIRoot").Instantiate();          
           
             if (Canvas == null)
             {
                 throw new Exception("UIRoot丢失，请重新导入UI模块!");
             }
+
+            CanvasScaler = Canvas.GetComponent<CanvasScaler>();
+            GraphicRaycaster = Canvas.GetComponent<GraphicRaycaster>();
 
             MonoHelper.Destroy_AddListener(I.Release);
             var eventSystem = Object.FindObjectOfType<EventSystem>();
@@ -44,12 +51,39 @@ namespace YukiFrameWork.UI
             "UIKit Initialization Succeeded!".LogInfo(_ => 
             {              
                 Object.DontDestroyOnLoad(Canvas.gameObject);
-            });          
+            });
+
+            UpdateScreenAspect();
+            ScreenTool.OnScreenChanged.RegisterEvent(UpdateScreenAspect);
+        }
+        int currentWidth;
+        int currentHeight;
+        public void UpdateScreenAspect()
+        {
+            if (Screen.width == currentWidth || Screen.height == currentHeight)
+                return;
+
+            // 计算出比例
+            float aspect = (float)Screen.width / Screen.height;
+            float inverse_lerp;
+            if (IsLandscape())
+                inverse_lerp = Mathf.InverseLerp(1.33f, 1.77f, aspect); // 12:9 ~ 16:9  
+            else
+                inverse_lerp = Mathf.InverseLerp(9.0f / 16, 9.0f / 12, aspect); // 
+
+            CanvasScaler.matchWidthOrHeight = inverse_lerp;
+
+            currentWidth = Screen.width;
+            currentHeight = Screen.height;
         }
 
+        private bool IsLandscape()
+        {
+            return Screen.width > Screen.height;
+        }
         public void InitLevel()
         {
-            for (int i = 0; i < (int)UILevel.Top; i++)
+            for (int i = 0; i < (int)UILevel.Top + 1; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
 
@@ -68,9 +102,9 @@ namespace YukiFrameWork.UI
             return transform;
         }
 
-        public void AddPanelCore(BasePanel panel)
+        public void AddPanelCore(IPanel panel)
         {
-            panelCore.Add(panel);           
+            panelCore[panel.GetType()] = panel;         
         }
 
         public void SetPanelFieldAndProperty(BasePanel panel)
@@ -112,10 +146,14 @@ namespace YukiFrameWork.UI
             return null;
         }
 
-        public T GetPanelCore<T>() where T : BasePanel
+        public T GetPanelCore<T>() where T : class, IPanel
         {
-            return panelCore.Find(x => x.GetType().Equals(typeof(T))) as T;
+            panelCore.TryGetValue(typeof(T),out var value);
+            return (T)value;
         }
+
+        public IPanel GetPanelCore(string name)
+            => panelCore.FirstOrDefault(x => x.Value.gameObject.name == name).Value;
 
         public void Release(MonoHelper monoHelper = null)
         {
@@ -127,7 +165,8 @@ namespace YukiFrameWork.UI
                     AssetBundleManager.UnloadAsset(obj);
                 }
             }
-            panelCore.Clear();           
+            panelCore.Clear();
+            ScreenTool.OnScreenChanged.UnRegister(UpdateScreenAspect);
             UIKit.Release();
             MonoHelper.Destroy_RemoveListener(Release);
         }

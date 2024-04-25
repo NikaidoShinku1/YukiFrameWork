@@ -27,28 +27,29 @@ namespace YukiFrameWork
     {
         public static bool LogEnabled { get; set; } = true;
 
-        internal static ILogger customlogger => Debug.unityLogger;       
+        internal static ILogger customlogger => Debug.unityLogger;
 
+       // [System.Diagnostics.Conditional("YukiDebug")]
         public static void I(object message)
         {
             if (!LogEnabled) return;
 
             customlogger.Log(LogType.Log,message);
         }
-
+        //[System.Diagnostics.Conditional("YukiDebug")]
         public static void W(object message)
         {
             if (!LogEnabled) return;
             customlogger.Log(LogType.Warning,message);
         }
-
+        //[System.Diagnostics.Conditional("YukiDebug")]
         public static void E(object message)
         {
             if (!LogEnabled) return;
 
             customlogger.Log(LogType.Error, message);
         }
-
+        //[System.Diagnostics.Conditional("YukiDebug")]
         public static void D(object message)
         {
             if (!LogEnabled) return;
@@ -70,7 +71,7 @@ namespace YukiFrameWork
         {
             return LogInfo(core, null, log);
         }
-
+        
         public static ILoggerExtension LogInfo<T>(this T core,Action<T> LogCall, Log log = Log.I)
         {
             switch (log)

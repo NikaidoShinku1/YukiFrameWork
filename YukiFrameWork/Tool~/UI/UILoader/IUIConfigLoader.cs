@@ -11,13 +11,14 @@
 
 using UnityEngine;
 using System;
+using YukiFrameWork.Audio;
 
 namespace YukiFrameWork.UI
 {
     public interface IUIConfigLoader
-    {      
-        T Load<T>(string name) where T : BasePanel;
+    {             
+        T Load<T>(string name) where T : IPanel;
 
-        void LoadAsync<T>(string name,Action<T> onCompleted) where T : BasePanel;
+        void LoadAsync<T>(string name,Action<T> onCompleted) where T : IPanel;
     }
 }

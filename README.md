@@ -80,6 +80,8 @@
 
 #### 框架更新版本速览
 
+V1.14.0 UIKit全面升级，新增面板的叠加选择，可动态的切换面板层级，详情查看UIKIt工具文档，框架新增分辨率拓展工具ScreenTool类可使用，PoolKit新增全局可用的对象池
+
 V1.13.10 修复存档系统以及框架本地配置中无法持久化的问题
 
 V1.13.9 优化本地化Excel配表的方式，优化ViewController字段绑定功能，ViewController的创建新增快捷键Ctrl+Q创建，优化框架序列化字典YDictionary。同步更新ABManager
