@@ -1,3 +1,8 @@
+## version 1.11.6 更新内容
+
+1. 优化 AssetBundle 文件名称，防止不同模块出现相同名称AssetBundle的文件!
+2. 优化Sprites文件打包名称映射!
+
 ## version 1.11.4 更新内容
 
 1. 优化 ImageLoader , 添加 Refresh 和 Clear 方法!

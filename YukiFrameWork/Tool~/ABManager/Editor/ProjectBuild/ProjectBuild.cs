@@ -71,7 +71,7 @@ namespace XFABManager
             foreach (var bundleName in dependent_bundles.Keys)
             {
                 AssetBundleBuild build = new AssetBundleBuild();
-                build.assetBundleName = string.Format("{0}{1}", bundleName, project.suffix);
+                build.assetBundleName = string.Format("{0}_{1}{2}", project.name.ToLower(),bundleName, project.suffix);
                 build.assetNames = dependent_bundles[bundleName].ToArray();
                 bundles.Add(build);
             }
@@ -115,6 +115,14 @@ namespace XFABManager
             // 在打包之前先对目录已有的ab包做一个清理
             CleanOutputPath(bundles, out_path,project.suffix);
 
+            // 保证所有的bundle名称都是小写 防止列表记录的名称 和 文件不一致的情况
+            for (int i = 0; i < bundles.Count; i++) 
+            {
+                AssetBundleBuild item = bundles[i];
+                item.assetBundleName = item.assetBundleName.ToLower();
+                bundles[i] = item;
+            } 
+
             var buildManifest = BuildPipeline.BuildAssetBundles(out_path, bundles.ToArray(), buildAssetBundleOptions,buildTarget);
 
             if (buildManifest == null)
@@ -122,6 +130,8 @@ namespace XFABManager
                 Debug.LogError("Error in build");
                 return;
             }
+
+
             AssetDatabase.Refresh();
 
             ProjectBuildInfo buildInfo = new ProjectBuildInfo();

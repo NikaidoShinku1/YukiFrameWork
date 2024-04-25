@@ -2,6 +2,7 @@
 #if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -272,14 +273,13 @@ namespace XFABManager
                             // 判断类型
                             if (AssetBundleTools.GetAssetType(asset_path) == typeof(Sprite))
                             {
-                                // 如果是sprite类型 有可能有多张  都要加进来
-                                UnityEngine.Object[] objs = AssetDatabase.LoadAllAssetsAtPath(asset_path);
-                                foreach (UnityEngine.Object obj in objs)
-                                {
-                                    asset_name_with_type = AssetBundleTools.GetAssetNameWithType(obj.name, obj.GetType());
-                                    if (!asset_bundle_name_mapping_with_type.ContainsKey(asset_name_with_type))
-                                        asset_bundle_name_mapping_with_type.Add(asset_name_with_type, AssetBundleNameMapping[asset_path]);
-                                }
+                                // 如果是sprite类型 有可能有多张  都要加进来 
+                                string assetName = Path.GetFileNameWithoutExtension(asset_path);
+
+                                asset_name_with_type = AssetBundleTools.GetAssetNameWithType(assetName, typeof(Texture2D));
+                                if (!asset_bundle_name_mapping_with_type.ContainsKey(asset_name_with_type))
+                                    asset_bundle_name_mapping_with_type.Add(asset_name_with_type, AssetBundleNameMapping[asset_path]);
+
                             }
                         }
                         else
@@ -357,13 +357,11 @@ namespace XFABManager
                             if (AssetBundleTools.GetAssetType(asset_path) == typeof(Sprite))
                             {
                                 // 如果是sprite类型 有可能有多张  都要加进来
-                                UnityEngine.Object[] objs = AssetDatabase.LoadAllAssetsAtPath(asset_path);
-                                foreach (UnityEngine.Object obj in objs)
-                                {
-                                    asset_name_with_type = AssetBundleTools.GetAssetNameWithType(obj.name, obj.GetType());
-                                    if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name_with_type))
-                                        asset_bundle_name_mapping_with_type_editor_load.Add(asset_name_with_type, AssetBundleNameMappingEditorLoad[asset_path]);
-                                }
+                                string assetName = Path.GetFileNameWithoutExtension(asset_path);
+
+                                asset_name_with_type = AssetBundleTools.GetAssetNameWithType(assetName, typeof(Texture2D));
+                                if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name_with_type))
+                                    asset_bundle_name_mapping_with_type_editor_load.Add(asset_name_with_type, AssetBundleNameMappingEditorLoad[asset_path]);
                             }
                         }
                         else
