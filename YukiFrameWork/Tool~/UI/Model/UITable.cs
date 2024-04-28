@@ -264,7 +264,14 @@ namespace YukiFrameWork.UI
         {
             for (int i = 0; i < panels.Count; i++)
             {
-                panels[i].Exit();
+                panels[i].Exit();                
+            }
+            for (int i = 0; i < panels.Count; i++)
+            {
+                if (!panels[i].IsPanelCache)
+                {
+                    panels[i].gameObject.Destroy();
+                }
             }
             panels.Clear();
         }
@@ -341,6 +348,8 @@ namespace YukiFrameWork.UI
                 {
                     info.panel.Exit();
                     list.Remove(info.panel);
+                    if (!info.panel.IsPanelCache)
+                        info.panel.gameObject.Destroy();
                 }
                 else
                 {

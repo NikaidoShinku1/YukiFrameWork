@@ -61,7 +61,7 @@ namespace YukiFrameWork.UI
         {          
             mLevel = level;
         }
-        [HideIfGroup(nameof(isPlaying)), DisableIf(nameof(IsBase))]
+        [DisableIf(nameof(isPlaying)), HideIf(nameof(IsBase))]
         [LabelText("面板是否缓存"),SerializeField,InfoBox("如果关闭则每次开关面板都会进行销毁生成")]
         protected bool isPanelCache = true;
 

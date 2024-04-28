@@ -323,9 +323,7 @@ namespace YukiFrameWork.UI
             info.level = panel.Level;
             info.panelType = panel.GetType();
             info.panel = panel;
-            Table.PopPanel(info);
-            if (!panel.IsPanelCache)
-                Object.Destroy(panel.gameObject);
+            Table.PopPanel(info);         
         }        
 
         /// <summary>

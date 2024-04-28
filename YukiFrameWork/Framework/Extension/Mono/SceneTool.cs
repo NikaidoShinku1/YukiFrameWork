@@ -29,16 +29,16 @@ namespace YukiFrameWork
 		public static void LoadScene(int sceneIndex, LoadSceneParameters sceneParameters)
 			=> SceneManager.LoadScene(sceneIndex, sceneParameters);
 
-		public static IYieldExtension LoadSceneAsync(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+		public static IEnumerator LoadSceneAsync(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
 		{
             var operation = SceneManager.LoadSceneAsync(sceneName, mode);
-            return LoadSceneAsync(operation, loadingCallBack).Start();
+            return LoadSceneAsync(operation, loadingCallBack);
         }
 
-        public static IYieldExtension LoadSceneAsync(int sceneIndex, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public static IEnumerator LoadSceneAsync(int sceneIndex, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             var operation = SceneManager.LoadSceneAsync(sceneIndex, mode);
-            return LoadSceneAsync(operation, loadingCallBack).Start();              
+            return LoadSceneAsync(operation, loadingCallBack);              
         }
 
         private static IEnumerator LoadSceneAsync(AsyncOperation asyncOperation, Action<float> loadingCallBack = null)
@@ -63,10 +63,10 @@ namespace YukiFrameWork
         /// <param name="loadingCallBack">加载的进度</param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        public static IYieldExtension LoadSceneAsyncWithAllowSceneActive(string sceneName,Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public static IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName,Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
 			var operation = SceneManager.LoadSceneAsync(sceneName, mode);			
-            return LoadSceneAsyncWithAllowSceneActive(operation,onCompleted,loadingCallBack).Start();
+            return LoadSceneAsyncWithAllowSceneActive(operation,onCompleted,loadingCallBack);
         }
 
         /// <summary>
@@ -77,10 +77,10 @@ namespace YukiFrameWork
         /// <param name="loadingCallBack">加载的进度</param>
         /// <param name="mode"></param>
         /// <returns></returns>
-        public static IYieldExtension LoadSceneAsyncWithAllowSceneActive(int sceneIndex, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public static IEnumerator LoadSceneAsyncWithAllowSceneActive(int sceneIndex, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             var operation = SceneManager.LoadSceneAsync(sceneIndex);          
-            return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted,loadingCallBack).Start();
+            return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted,loadingCallBack);
         }
 
         private static IEnumerator LoadSceneAsyncWithAllowSceneActive(AsyncOperation asyncOperation, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null)
