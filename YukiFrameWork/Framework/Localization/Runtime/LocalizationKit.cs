@@ -17,10 +17,8 @@ namespace YukiFrameWork
     /// </summary>
     public class LocalizationKit : Singleton<LocalizationKit>
 	{
-        private LocalizationKit() { }
-        private static LocalizationConfigBase localizationConfig;
-
-        private static Dictionary<int,LocalizationConfigBase> dependConfigs = new Dictionary<int, LocalizationConfigBase>();
+        private LocalizationKit() { }      
+        private static Dictionary<string,LocalizationConfigBase> dependConfigs = new Dictionary<string, LocalizationConfigBase>();
 
         /// <summary>
         /// 得到框架的配置文件
@@ -90,10 +88,8 @@ namespace YukiFrameWork
             }        
             framework = info;
             Isinited = true;
-            localizationConfig = info.configBases;
+            
             dependConfigs = info.dependConfigs.ToDictionary(key => key.Key,value => value.Value);
-            ///初始化时自动调用一次         
-            localizationConfig?.Init();
 
             foreach (var key in dependConfigs.Keys)
             {
@@ -106,34 +102,28 @@ namespace YukiFrameWork
                 depend.Init();
             }                                      
             languageType = info.defaultLanguage;        
-        } 
-        
+        }            
 
-        /// <summary>
-        /// 得到本地数据信息
-        /// </summary>
-        /// <param name="key">文本标识</param>      
-        /// <returns></returns>
-        public static ILocalizationData GetContent(string key, Language language)
+        public static ILocalizationData GetContent(string configKey,string key, Language language)
         {
-            return I.GetContentByKey(key,language);
+            return I.GetContentByKey(configKey, key, language);
         }
 
-        public static ILocalizationData GetContentFromDepend(int id, string key, Language language)
+        public static ILocalizationData GetContent(string configKey, string key)
         {
-            return I.GetContentByKeyFromDepend(id, key, language);
+            return I.GetContentByKey(configKey, key, LanguageType);
         }
 
-        internal ILocalizationData GetContentByKeyFromDepend(int id, string key, Language language)
+        internal ILocalizationData GetContentByKey(string configKey,string key, Language language)
         {
             if (!Isinited)
             {
                 throw new Exception("没有对LocalizationKit进行初始化!请调用一次LocalizationKit.Init()方法!");
             }
 
-            if (!dependConfigs.TryGetValue(id, out var config))
+            if (!dependConfigs.TryGetValue(configKey, out var config))
             {
-                Debug.LogError("依赖的配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加，ID--- " + id);
+                Debug.LogError("依赖的配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加，configKey--- " + configKey);
                 return default;
             }
 
@@ -141,28 +131,14 @@ namespace YukiFrameWork
 
             return data;
         }
-        
-        internal ILocalizationData GetContentByKey(string key,Language language)
-        {            
-            if (localizationConfig == null)
-            {
-                throw new Exception("配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加");              
-            }
-            if (!Isinited)
-            {
-                throw new Exception("没有对LocalizationKit进行初始化!请调用一次LocalizationKit.Init()方法!");
-            }
-            ILocalizationData data = localizationConfig.GetLocalizationData(language, key);           
-            return data;
-        }
+         
 
         public override void OnDestroy()
         {
             base.OnDestroy();
             Resources.UnloadAsset(framework);
             framework = null;
-            dependConfigs.Clear();
-            localizationConfig = null;
+            dependConfigs.Clear();          
         }
     }
 }

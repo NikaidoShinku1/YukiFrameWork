@@ -13,6 +13,10 @@ using Newtonsoft.Json;
 using YukiFrameWork.Extension;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.U2D;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace YukiFrameWork
 {
     public abstract class LocalizationConfigBase : ScriptableObject
@@ -22,6 +26,8 @@ namespace YukiFrameWork
         public abstract ILocalizationData GetLocalizationData(Language language,string key);
 
         public abstract void Init();
+
+        public abstract string[] ConfigKeys { get; }     
     }
   
     public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase where LocalizationData : ILocalizationData,new()
@@ -62,8 +68,10 @@ namespace YukiFrameWork
                 .ToDictionary(k => k.Key
                 ,v => v.Value));          
         }
-#if UNITY_EDITOR      
-      
+
+        public override string[] ConfigKeys => config.Keys.ToArray();
+#if UNITY_EDITOR
+
         [Button("一键应用精灵修改(传入标识，被修改的精灵，应用选择的精灵)"),BoxGroup(groupName), PropertySpace(10)]
         void SetAllSprite(string key,Language validateLanguage, Language[] languages)
         {
@@ -146,7 +154,9 @@ namespace YukiFrameWork
         [LabelText("传入配置文件"), ShowIf(nameof(openLoadMode)),BoxGroup("配置设置")]
         [SerializeField]TextAsset textAsset;
         [LabelText("导入前清空原本的数据"),ShowIf(nameof(openLoadMode)), BoxGroup("配置设置"),SerializeField]
-        bool isClearConfig = true;     
+        bool isClearConfig = true;
+
+        [InfoBox("注意:LocalizationModel中具有Sprite以及SpriteAtlas分别代表图集以及精灵的路径属性，在配置表中配置好路径后，导入配置表会自动设置好精灵(路径应从Assets开始,也必须持有后缀例如.asset)")]  
         [Button("Json配置表导入", ButtonHeight = 30), PropertySpace(10), ShowIf(nameof(openLoadMode)), BoxGroup("配置设置")]
         void Import()
         {
@@ -178,13 +188,15 @@ namespace YukiFrameWork
 
                     dict[language] = new LocalizationData()
                     {
-                        Context = m.Context
-                    };
-
+                        Context = m.Context,                       
+                    };               
+                    dict[language].Sprite = string.IsNullOrEmpty(m.SpriteAtlas)
+                                ? AssetDatabase.LoadAssetAtPath<Sprite>(m.Sprite)
+                                : AssetDatabase.LoadAssetAtPath<SpriteAtlas>(m.SpriteAtlas).GetSprite(m.Sprite);
                 }
             }
 
-        }       
+        }     
 #endif
     }
     [CreateAssetMenu(fileName = "LocalizationConfig", menuName = "YukiFrameWork/LocalizationConfig")]

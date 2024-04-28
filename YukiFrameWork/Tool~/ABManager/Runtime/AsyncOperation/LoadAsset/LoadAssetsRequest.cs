@@ -6,6 +6,26 @@ using UnityEngine;
 
 namespace XFABManager {
 
+    public class LoadAssetsRequest<T> : LoadAssetsRequest where T : UnityEngine.Object
+    {
+        private T[] m_Assets;
+        public new T[] assets
+        {
+            get
+            {
+                if (m_Assets == null)
+                {
+                    m_Assets = new T[base.assets.Length];
+                    for (int i = 0; i < m_Assets.Length; i++)
+                    {
+                        m_Assets[i] = base.assets[i] as T;
+                    }
+                }
+
+                return m_Assets;
+            }
+        }
+    }
     public class LoadAssetsRequest : CustomAsyncOperation<LoadAssetsRequest>
     {
 

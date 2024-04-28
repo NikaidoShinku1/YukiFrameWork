@@ -6,10 +6,8 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
 using UnityEngine;
-using System;
-using XFABManager;
+using System.Collections;
 namespace YukiFrameWork.Audio
 {
     public class PlaySoundRequest : CustomYieldInstruction
@@ -28,6 +26,21 @@ namespace YukiFrameWork.Audio
         internal void OnCompleted(AudioPlayer player)
         {
             this.Player = player;   
+        }
+    }
+
+    public static class PlaySoundRequestExtension
+    {
+        public static YieldAwaitable<AudioPlayer> GetAwaiter(this PlaySoundRequest request)
+        {
+            var awaiter = new YieldAwaitable<AudioPlayer>();
+            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return request;
+                awaiter.Complete(null, request.Player);
+            }
+            return awaiter;
         }
     }
 }

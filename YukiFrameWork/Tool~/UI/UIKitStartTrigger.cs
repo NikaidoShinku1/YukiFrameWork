@@ -79,16 +79,14 @@ namespace YukiFrameWork.UI
 			{
 				case LoadType.XFABManager:
 					{
-						var request = AssetBundleManager.LoadAssetAsync<GameObject>(projectName, panelName);
-						request.AddCompleteEvent(v => rootPanel = (BasePanel)(v.asset as GameObject).GetComponent(panelType));
-						await request.CancelWaitGameObjectDestroy(this);
+						var request = await AssetBundleManager.LoadAssetAsync<GameObject>(projectName, panelName).CancelWaitGameObjectDestroy(this);
+						rootPanel = (BasePanel)request.GetComponent(panelType);						
 					}
 					break;
 				case LoadType.Resources:
-					{
-						var request = Resources.LoadAsync(panelPath, panelType);
-						await request.CancelWaitGameObjectDestroy(this);
-						rootPanel = request.asset as BasePanel;
+					{						
+						var asset = await Resources.LoadAsync(panelPath, panelType).CancelWaitGameObjectDestroy(this);						
+						rootPanel = asset as BasePanel;
 					}
 					break;
 			}

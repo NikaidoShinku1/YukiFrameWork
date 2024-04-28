@@ -115,6 +115,39 @@ namespace YukiFrameWork
             GUILayout.Label(FrameWorkConfigData.LocalizationInfo);       
             editor.DrawDefaultInspector();
         }
+        private int selectIndex => info.SelectIndex;
+        [Button("为配置生成代码"),ShowIf(nameof(selectIndex),1)]
+        [InfoBox("生成的代码为配置的标识,类名为Localization,请注意:配置标识跟配置内对应文本的标识不能出现一致的情况，否则会出问题")]
+        void GenericCode(string codePath = "Assets/Scripts/YukiFrameWork/Code")
+        {
+            if (info == null) return;
+
+            if (info.dependConfigs.Count == 0)
+            {
+                Debug.LogWarning("没有添加配置无法生成代码");
+                return;
+            }           
+            CodeCore codeCore = new CodeCore();
+            CodeWriter codeWriter = new CodeWriter();
+            foreach (var value in info.dependConfigs)
+            {
+                string configKey = value.Key;
+                codeWriter.CustomCode($"public static string ConfigKey_{configKey} = \"{configKey}\";");
+                LocalizationConfigBase localizationConfig = value.Value;
+                foreach (var key in localizationConfig.ConfigKeys)
+                {
+                    codeWriter.CustomCode($"public static string Key_{key} = \"{key}\";");
+                }
+            }
+            codeCore.Descripton("LocalizationKit", namesPaceProperty.stringValue, "这是本地化套件生成的用于快速调用标识的类，用于标记所有的标识", System.DateTime.Now.ToString());
+            codeCore.Using("UnityEngine")
+            .Using("System")
+            .Using(namesPaceProperty.stringValue)
+            .EmptyLine()
+            .CodeSetting(namesPaceProperty.stringValue, "Localization", string.Empty, codeWriter, false, false, false)
+            .builder.CreateFileStream(codePath, "Localization", ".cs");
+            
+        }
 
         private void DrawAssemblyBindSettingWindow()
         {

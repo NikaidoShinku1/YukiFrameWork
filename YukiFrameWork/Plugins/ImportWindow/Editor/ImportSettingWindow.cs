@@ -82,7 +82,7 @@ namespace YukiFrameWork.Extension
             ["ABManager"] = packagePath + "/Tool~/ABManager",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
-            ["Knapsack"] = packagePath + "/Tool~/Knapsack",
+            ["ItemKit"] = packagePath + "/Tool~/ItemKit",
             ["DoTween"] = packagePath + "/Tool~/DoTween",
             ["UniRx"] = packagePath + "/Tool~/UniRx",
             ["UniTask"] = packagePath + "/Tool~/UniTask",         
@@ -191,11 +191,10 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.white, ImportWindowInfo.AudioInfo
            , MessageType.Info, string.Format("{0}/Audio", data.path), "Audio", packagePath + "/Tool~/Audio");
-
-            GUI.enabled = false;
+            
             DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
-            , MessageType.Error, string.Format("{0}/Knapsack", data.path), "Knapsack", packagePath + "/Tool~/Knapsack");
-            GUI.enabled = true;
+            , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", packagePath + "/Tool~/ItemKit");
+
             DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
                 , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
 

@@ -17,13 +17,11 @@ namespace YukiFrameWork
         [HideInInspector]
         public string assembly = "Assembly-CSharp";
         [ShowIf(nameof(SelectIndex),2)]
-        public string[] assemblies = new string[0];
-        [SerializeField,LabelText("Local Config:"), ShowIf(nameof(SelectIndex), 1)]
-        public LocalizationConfigBase configBases;
+        public string[] assemblies = new string[0];      
         [LabelText("运行时的默认语言:"), PropertySpace(6), ShowIf(nameof(SelectIndex), 1)]
         public Language defaultLanguage;
-        [LabelText("子配置项"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
-        public YDictionary<int, LocalizationConfigBase> dependConfigs = new YDictionary<int, LocalizationConfigBase>();   
+        [LabelText("本地配置"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
+        public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();   
         [HideInInspector]
         public int SelectIndex = 0;
     }

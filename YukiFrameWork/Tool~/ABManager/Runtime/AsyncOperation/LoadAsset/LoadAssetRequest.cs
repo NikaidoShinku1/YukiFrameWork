@@ -5,15 +5,19 @@ using UnityEngine;
 
 namespace XFABManager
 {
-
-    public class LoadAssetRequest : CustomAsyncOperation<LoadAssetRequest>
+    public class LoadAssetRequest<T> : LoadAssetRequest where T : UnityEngine.Object
     {
-
+        public new T asset
+        {
+            get => base.asset as T;
+        }
+    }
+    public class LoadAssetRequest : CustomAsyncOperation<LoadAssetRequest>
+    {       
         public UnityEngine.Object asset
         {
             get; protected set;
         }
-
 
         internal IEnumerator LoadAssetAsync(string projectName, string bundleName, string assetName, Type type )
         {
@@ -49,8 +53,7 @@ namespace XFABManager
                 Completed(string.Format("加载AssetBundle:{0}/{1}出错:{2}", projectName, bundle_name, requestBundle.error));
                 yield break;
             }
-            AssetBundleRequest requestAsset = requestBundle.assetBundle.LoadAssetAsync(assetName, type);
-            //yield return requestAsset;
+            AssetBundleRequest requestAsset = requestBundle.assetBundle.LoadAssetAsync(assetName, type);          
 
             while (!requestAsset.isDone)
             {

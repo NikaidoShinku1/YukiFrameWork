@@ -5,6 +5,10 @@ using XFABManager;
 
 namespace XFABManager
 {
+    public class LoadSubAssetRequest<T> : LoadSubAssetRequest where T : UnityEngine.Object
+    {
+        public new T asset => base.asset as T;
+    }
     public class LoadSubAssetRequest : CustomAsyncOperation<LoadSubAssetRequest>
     {
         // Fix编码

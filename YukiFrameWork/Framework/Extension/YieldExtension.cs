@@ -10,7 +10,11 @@
 
 using System;
 using System.Collections;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading;
 using UnityEngine;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
@@ -42,44 +46,31 @@ namespace YukiFrameWork
             return core;
         }
 
+        [Obsolete("新版本框架不再需要自行调用ToSIngleTask转换异步")]
         public static YieldAwaitable ToSingleTask(this IYieldExtension extension)
         {
-            if (!Application.isPlaying)
-            {
-                LogKit.Exception("async/await cannot be used in Editor!");
-            }
-            var awaitable = YieldAwaitable.GetAwaitable(extension);
-            extension.Request(() => YieldAwaitable.OnFinish(awaitable));
-            return awaitable;
+            return extension.GetAwaiter();
         }
 
+        [Obsolete("新版本框架不再需要自行调用ToSIngleTask转换异步")]
         public static YieldAwaitable ToSingleTask(this IEnumerator enumerator)
         {
-            return ToSingleTask(enumerator.Start());
-        }
+            return enumerator.GetAwaiter();
+        }          
 
-        public static YieldAwaitable ToSingleTask<T>(this T instruction) where T : YieldInstruction
-        {
-            return e().ToSingleTask();
-            IEnumerator e()
-            {
-                yield return instruction;
-            }
-        }
-
-        public static IEnumerator ToCoroutine(this Task task)
+        public static IEnumerator ToCoroutine(this YieldAwaitable task)
         {
             return CoroutineTool.WaitUntil(() =>
             {
-                return task.GetAwaiter().IsCompleted;
+                return task.IsCompleted;
             });
         }
 
-        public static IEnumerator ToCoroutine<T>(this Task<T> task)
+        public static IEnumerator ToCoroutine<T>(this YieldAwaitable<T> task)
         {
             return CoroutineTool.WaitUntil(() =>
             {
-                return task.GetAwaiter().IsCompleted;
+                return task.IsCompleted;
             });
         }
     }
@@ -97,6 +88,26 @@ namespace YukiFrameWork
         void OnPause();
         void OnResume();
         void Cancel();
+    }
+
+    public static class SyncContext
+    {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void Install()
+        {
+            UnitySynchronizationContext = SynchronizationContext.Current;
+            UnityThreadId = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        public static int UnityThreadId
+        {
+            get; private set;
+        }
+
+        public static SynchronizationContext UnitySynchronizationContext
+        {
+            get; private set;
+        }
     }
 
     public class YieldExtensionCore : IYieldExtension
@@ -322,7 +333,19 @@ namespace YukiFrameWork
         /// <param name="component"></param>
         /// <returns></returns>
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldAwaitable awaitable, T component) where T : Component
-        {        
+        {
+            return CancelWaitGameObjectDestroy(awaitable, component);
+        }
+
+        /// <summary>
+        /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="awaitable"></param>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public static K CancelWaitGameObjectDestroy<T,K>(this K awaitable, T component) where T : Component where K : ICoroutineCompletion
+        {
             if (component != null || component.ToString() != "null")
             {
                 if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
@@ -331,32 +354,153 @@ namespace YukiFrameWork
                 }
                 trigger.PushFinishEvent(() =>
                 {
-                    if (awaitable?.Extension != null)
+                    if (awaitable?.Coroutine != null)
                     {
-                        Canceling(awaitable, awaitable.Extension);
+                        MonoHelper.Stop(awaitable.Coroutine);
                     }
                 });
             }
             else
             {
-                if (awaitable?.Extension != null)
+                if (awaitable?.Coroutine != null)
                 {
-                    Canceling(awaitable, awaitable.Extension);
+                    MonoHelper.Stop(awaitable.Coroutine);
                 }
             }
             return awaitable;
         }
 
-        private static void Canceling(YieldAwaitable awaitable,IYieldExtension extension)
-        {
-            if (extension.Root != null && extension.IsRunning)
-                MonoHelper.Stop(awaitable.Extension.Root);
-        }
-
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this IEnumerator enumerator, T component) where T : Component
-            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);
+            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
         public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
-            => CancelWaitGameObjectDestroy(enumerator.ToSingleTask(), component);  
+            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+
+        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this ResourceRequest enumerator, T component) where T : Component
+            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+
+        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this AssetBundleRequest enumerator, T component) where T : Component
+            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+
+        public static YieldAwaitable<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this AssetBundleCreateRequest enumerator, T component) where T : Component
+           => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+
+        public static YieldAwaitable<AsyncOperation> CancelWaitGameObjectDestroy<T>(this AsyncOperation enumerator, T component) where T : Component
+           => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+    }
+
+    public struct CoroutineRunner<T>
+    {
+        readonly YieldAwaitable<T> _awaiter;
+        readonly Stack<IEnumerator> _processStack;
+
+        public CoroutineRunner(
+            IEnumerator coroutine, YieldAwaitable<T> awaiter)
+        {
+            _processStack = new Stack<IEnumerator>();
+            _processStack.Push(coroutine);
+            _awaiter = awaiter;
+        }
+
+        public IEnumerator Run()
+        {
+            while (true)
+            {
+                var topWorker = _processStack.Peek();
+
+                bool isDone;
+
+                try
+                {
+                    isDone = !topWorker.MoveNext();                 
+                }
+                catch (Exception e)
+                {                 
+                    var objectTrace = GenerateObjectTrace(_processStack);
+
+                    if (objectTrace.Any())
+                    {
+                        _awaiter.Complete(
+                             new Exception(
+                                GenerateObjectTraceMessage(objectTrace), e), default(T));
+                    }
+                    else
+                    {
+                        _awaiter.Complete(e,default(T));
+                    }
+
+                    yield break;
+                }
+
+                if (isDone)
+                {
+                    _processStack.Pop();
+
+                    if (_processStack.Count == 0)
+                    {
+                        _awaiter.Complete(null,(T)topWorker.Current);
+                        yield break;
+                    }
+                }
+                
+                if (topWorker.Current is IEnumerator)
+                {
+                    _processStack.Push((IEnumerator)topWorker.Current);
+                }
+                else
+                {                  
+                    yield return topWorker.Current;
+                }
+            }
+        }
+        string GenerateObjectTraceMessage(List<Type> objTrace)
+        {
+            var result = new StringBuilder();
+
+            foreach (var objType in objTrace)
+            {
+                if (result.Length != 0)
+                {
+                    result.Append(" -> ");
+                }
+
+                result.Append(objType.ToString());
+            }
+
+            result.AppendLine();
+            return "Unity Coroutine Object Trace: " + result.ToString();
+        }
+
+        static List<Type> GenerateObjectTrace(IEnumerable<IEnumerator> enumerators)
+        {
+            var objTrace = new List<Type>();
+
+            foreach (var enumerator in enumerators)
+            {               
+                var field = enumerator.GetType().GetField("$this", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+
+                if (field == null)
+                {
+                    continue;
+                }
+
+                var obj = field.GetValue(enumerator);
+
+                if (obj == null)
+                {
+                    continue;
+                }
+
+                var objType = obj.GetType();
+
+                if (!objTrace.Any() || objType != objTrace.Last())
+                {
+                    objTrace.Add(objType);
+                }
+            }
+
+            objTrace.Reverse();
+            return objTrace;
+        }
     }
 }

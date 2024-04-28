@@ -779,7 +779,7 @@ namespace XFABManager
         /// 异步加载子资源
         /// </summary>
         [System.Obsolete("该方法已经过时,将会在未来的版本中移除,请使用AssetBundleManager.LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) 代替!")]
-        public static LoadAssetsRequest LoadAssetWithSubAssetsAsync<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
+        public static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsync<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name))
@@ -837,7 +837,7 @@ namespace XFABManager
         /// <summary>
         /// 异步加载某个类型的所有资源
         /// </summary>
-        public static LoadAssetsRequest LoadAllAssetsAsync<T>(string projectName, string bundleName) where T : UnityEngine.Object
+        public static LoadAssetsRequest<T> LoadAllAssetsAsync<T>(string projectName, string bundleName) where T : UnityEngine.Object
         {
             return LoadAllAssetsAsyncInternal<T>(projectName,bundleName);
         }
@@ -955,7 +955,7 @@ namespace XFABManager
         /// <param name="assetName"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static LoadAssetRequest LoadAssetAsync<T>(string projectName, string assetName) where T : UnityEngine.Object
+        public static LoadAssetRequest<T> LoadAssetAsync<T>(string projectName, string assetName) where T : UnityEngine.Object
         {
 
             if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T))) {
@@ -1071,21 +1071,33 @@ namespace XFABManager
         /// <param name="mainAssetName">主资源名称</param>
         /// <param name="subAssetName">子资源名称</param>
         /// <returns></returns>
-        public static LoadSubAssetRequest LoadSubAssetAsync<T>(string projectName, string mainAssetName, string subAssetName)where T : UnityEngine.Object
+        public static LoadSubAssetRequest<T> LoadSubAssetAsync<T>(string projectName, string mainAssetName, string subAssetName) where T : UnityEngine.Object
         {
-            return LoadSubAssetAsync(projectName, mainAssetName, subAssetName, typeof(T));
+            if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T)))
+            {
+                if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
+                    throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
+                else
+                    Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
+            }
+
+            string bundle_name = GetBundleName(projectName, mainAssetName, typeof(T));
+            if (string.IsNullOrEmpty(bundle_name))
+                return null;
+            return LoadSubAssetAsyncInternal<T>(projectName, bundle_name, mainAssetName, subAssetName);
         }
 
-        /// <summary>
-        /// 异步加载子资源
-        /// </summary>
-        /// <param name="projectName">资源模块名称</param>
-        /// <param name="mainAssetName">主资源名称</param>
-        /// <param name="subAssetName">子资源名称</param>
-        /// <param name="type">类型</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static LoadSubAssetRequest LoadSubAssetAsync(string projectName, string mainAssetName, string subAssetName, Type type) {
+            /// <summary>
+            /// 异步加载子资源
+            /// </summary>
+            /// <param name="projectName">资源模块名称</param>
+            /// <param name="mainAssetName">主资源名称</param>
+            /// <param name="subAssetName">子资源名称</param>
+            /// <param name="type">类型</param>
+            /// <returns></returns>
+            /// <exception cref="Exception"></exception>
+            public static LoadSubAssetRequest LoadSubAssetAsync(string projectName, string mainAssetName, string subAssetName,Type type) 
+        {
             if (LoaderTips.AllLoaderTips.ContainsKey(type))
             {
                 if (LoaderTips.AllLoaderTips[type].IsThrowException)
@@ -1097,7 +1109,7 @@ namespace XFABManager
             string bundle_name = GetBundleName(projectName, mainAssetName, type);
             if (string.IsNullOrEmpty(bundle_name)) 
                 return null; 
-            return LoadSubAssetAsyncInternal(projectName, bundle_name,mainAssetName,subAssetName, type);
+            return LoadSubAssetAsyncInternal(projectName, bundle_name,mainAssetName,subAssetName,type);
         }
 
 
@@ -1152,7 +1164,7 @@ namespace XFABManager
         /// <summary>
         /// 异步加载资源及所有子资源
         /// </summary>
-        public static LoadAssetsRequest LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) where T : UnityEngine.Object
+        public static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) where T : UnityEngine.Object
         {
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name)) { 
@@ -1252,9 +1264,9 @@ namespace XFABManager
         }
 
         // 异步加载资源 
-        internal static LoadAssetRequest LoadAssetAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
+        internal static LoadAssetRequest<T> LoadAssetAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
-            LoadAssetRequest request = new LoadAssetRequest();
+            LoadAssetRequest<T> request = new LoadAssetRequest<T>();
             //CoroutineStarter.Start(request.LoadAssetAsync<T>(projectName, bundleName, assetName)); 
             CoroutineStarter.Start(request.LoadAssetAsync(projectName, bundleName, assetName, typeof(T))); 
             return request;
@@ -1332,9 +1344,11 @@ namespace XFABManager
             return null;
         }
 
-        internal static LoadSubAssetRequest LoadSubAssetAsyncInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName )
+        internal static LoadSubAssetRequest<T> LoadSubAssetAsyncInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName ) where T : UnityEngine.Object
         {
-            return LoadSubAssetAsyncInternal(projectName,bundleName,mainAssetName,subAssetName,typeof(T));
+            LoadSubAssetRequest<T> request = new LoadSubAssetRequest<T>();
+            CoroutineStarter.Start(request.LoadSubAssetAsync(projectName, bundleName, mainAssetName, subAssetName, typeof(T)));
+            return request;
         }
 
         internal static LoadSubAssetRequest LoadSubAssetAsyncInternal(string projectName, string bundleName, string mainAssetName, string subAssetName,Type type) 
@@ -1384,9 +1398,9 @@ namespace XFABManager
         /// <summary>
         /// 异步加载子资源
         /// </summary>
-        internal static LoadAssetsRequest LoadAssetWithSubAssetsAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
+        internal static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
-            LoadAssetsRequest request = new LoadAssetsRequest();
+            LoadAssetsRequest<T> request = new LoadAssetsRequest<T>();
             //CoroutineStarter.Start(request.LoadAssetWithSubAssetsAsync<T>(projectName, bundleName, assetName));
             CoroutineStarter.Start(request.LoadAssetWithSubAssetsAsync(projectName, bundleName, assetName, typeof(T)));
             return request;
@@ -1487,9 +1501,9 @@ namespace XFABManager
         /// <summary>
         /// 异步加载某个类型的所有资源
         /// </summary>
-        internal static LoadAssetsRequest LoadAllAssetsAsyncInternal<T>(string projectName, string bundleName) where T : UnityEngine.Object
+        internal static LoadAssetsRequest<T> LoadAllAssetsAsyncInternal<T>(string projectName, string bundleName) where T : UnityEngine.Object
         {
-            LoadAssetsRequest request = new LoadAssetsRequest();
+            LoadAssetsRequest<T> request = new LoadAssetsRequest<T>();
             //CoroutineStarter.Start(request.LoadAllAssetsAsync<T>(projectName, bundleName));
             CoroutineStarter.Start(request.LoadAllAssetsAsync(projectName, bundleName, typeof(T)));
             return request;

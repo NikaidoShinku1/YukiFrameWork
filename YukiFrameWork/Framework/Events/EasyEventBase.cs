@@ -16,6 +16,6 @@ namespace YukiFrameWork
         protected T OnEasyEvent;
         public abstract IUnRegister RegisterEvent(T onEvent);
         public abstract void UnRegister(T onEvent);
-        public void UnRegisterAllEvent() => OnEasyEvent = null;
+        public void UnRegisterAllEvent() => OnEasyEvent = null;  
     }
 }

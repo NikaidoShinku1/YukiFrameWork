@@ -34,13 +34,10 @@ namespace YukiFrameWork
 	public class LocalizationComponent : MonoBehaviour
 	{
         [SerializeField] 
-        private LocalizationComponentItem[] items;
+        private LocalizationComponentItem[] items;       
 
-        [SerializeField,LabelText("是否使用子配置项(关闭则默认使用全局的配置项)")]
-        private bool isdependConfig = false;
-
-        [LabelText("子配置项的ID"),ShowIf(nameof(isdependConfig)), SerializeField]
-        private int configID;
+        [LabelText("配置项的标识"), SerializeField]
+        private string configKey;
 
         /// <summary>
         /// 组件解析器
@@ -76,11 +73,8 @@ namespace YukiFrameWork
         {
             foreach (var item in items)
             {
-                ILocalizationData data = null;
-                if (!isdependConfig)
-                    data = LocalizationKit.GetContent(item.key, language);
-                else
-                    data = LocalizationKit.GetContentFromDepend(configID, item.key, language);
+                ILocalizationData data = LocalizationKit.GetContent(configKey,item.key, language);
+                                 
                 if (data == null)
                     continue;                
                 if (resolver != null)

@@ -6,9 +6,9 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
+
 using UnityEngine;
-using System;
+using System.Collections;
 namespace YukiFrameWork.UI
 {
     public class UILoadAssetRequest : CustomYieldInstruction
@@ -23,5 +23,20 @@ namespace YukiFrameWork.UI
             this.Panel = panel as BasePanel;
             return this;
         }          
+    }
+
+    public static class UILoadAssetRequestExtension
+    {
+        public static YieldAwaitable<BasePanel> GetAwaiter(this UILoadAssetRequest request)
+        {
+            var awaiter = new YieldAwaitable<BasePanel>();
+            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return request;
+                awaiter.Complete(null, request.Panel);
+            }
+            return awaiter;
+        }
     }
 }

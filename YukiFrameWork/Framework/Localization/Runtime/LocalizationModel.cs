@@ -18,6 +18,10 @@ namespace YukiFrameWork
         [field:SerializeField,LabelText("标识")]
 		public string Key { get; set; }
 		[field:SerializeField,LabelText("文本内容")]
-        public string Context { get; set; }      
+        public string Context { get; set; }
+        [field:SerializeField,LabelText("精灵所在的图集")]
+        public string SpriteAtlas { get; set; }
+        [field: SerializeField, LabelText("精灵的路径/名称")]
+		public string Sprite { get; set; }
     }
 }

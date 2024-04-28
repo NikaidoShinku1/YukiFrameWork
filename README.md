@@ -42,6 +42,8 @@
 
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
+- 框架背包系统:[ItemKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.背包系统(通用).md)
+
 - 框架序列化工具:SerializationTool[工具介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/序列化工具.md)
 
 - 框架存档工具:SaveTool[存档系统介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/存档系统.md)
@@ -79,6 +81,8 @@
 - 框架支持插件:[Odin](https://odininspector.com/);
 
 #### 框架更新版本速览
+
+V1.15.0 框架对于异步流拓展优化，背包系统重做，新增XFABManager的异步拓展，改变本地化的储存配置，统一API，部分细节优化。
 
 V1.14.0 UIKit全面升级，新增面板的叠加选择，可动态的切换面板层级，详情查看UIKIt工具文档，框架新增分辨率拓展工具ScreenTool类可使用，PoolKit新增全局可用的对象池
 
