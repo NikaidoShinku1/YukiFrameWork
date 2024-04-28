@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.WSA;
@@ -192,3 +193,4 @@ public class OrganizeResourcesPanel : EditorWindow
 
 
 }
+#endif

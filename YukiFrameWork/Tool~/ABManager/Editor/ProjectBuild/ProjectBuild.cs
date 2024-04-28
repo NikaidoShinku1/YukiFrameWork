@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine; 
 
@@ -771,4 +772,4 @@ namespace XFABManager
     }
 
 }
-
+#endif

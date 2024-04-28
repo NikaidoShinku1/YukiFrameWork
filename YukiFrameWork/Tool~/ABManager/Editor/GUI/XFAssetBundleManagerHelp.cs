@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿#if UNITY_EDITOR
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -95,4 +96,4 @@ namespace XFABManager
     }
 
 }
-
+#endif
