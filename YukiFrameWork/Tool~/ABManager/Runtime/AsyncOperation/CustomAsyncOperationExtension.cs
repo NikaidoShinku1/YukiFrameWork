@@ -14,10 +14,10 @@ namespace YukiFrameWork
 {
 	public static class CustomAsyncOperationExtension
 	{
-		public static YieldAwaitable<UnityEngine.Object> GetAwaiter(this LoadAssetRequest asyncOperation)
+		public static YieldTask<UnityEngine.Object> GetAwaiter(this LoadAssetRequest asyncOperation)
 		{
-            var awaiter = new YieldAwaitable<UnityEngine.Object>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter,MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<UnityEngine.Object>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter,MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -26,16 +26,16 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadAssetRequest asyncOperation,T component)
+        public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadAssetRequest asyncOperation,T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
-        public static YieldAwaitable<T> GetAwaiter<T>(this LoadAssetRequest<T> asyncOperation) where T : UnityEngine.Object
+        public static YieldTask<T> GetAwaiter<T>(this LoadAssetRequest<T> asyncOperation) where T : UnityEngine.Object
         {
-            var awaiter = new YieldAwaitable<T>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<T>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -44,16 +44,16 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<K> CancelWaitGameObjectDestroy<T,K>(this LoadAssetRequest<K> asyncOperation, T component)
+        public static YieldTask<K> CancelWaitGameObjectDestroy<T,K>(this LoadAssetRequest<K> asyncOperation, T component)
             where T : Component where K : UnityEngine.Object
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
-        public static YieldAwaitable<UnityEngine.Object> GetAwaiter(this LoadSubAssetRequest asyncOperation)
+        public static YieldTask<UnityEngine.Object> GetAwaiter(this LoadSubAssetRequest asyncOperation)
         {
-            var awaiter = new YieldAwaitable<UnityEngine.Object>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<UnityEngine.Object>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -62,16 +62,16 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadSubAssetRequest asyncOperation, T component)
+        public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadSubAssetRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
-        public static YieldAwaitable<UnityEngine.Object[]> GetAwaiter(this LoadAssetsRequest asyncOperation)
+        public static YieldTask<UnityEngine.Object[]> GetAwaiter(this LoadAssetsRequest asyncOperation)
         {
-            var awaiter = new YieldAwaitable<UnityEngine.Object[]>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<UnityEngine.Object[]>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;             
@@ -80,17 +80,17 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<UnityEngine.Object[]> CancelWaitGameObjectDestroy<T>(this LoadAssetsRequest asyncOperation, T component)
+        public static YieldTask<UnityEngine.Object[]> CancelWaitGameObjectDestroy<T>(this LoadAssetsRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
 
-        public static YieldAwaitable<T[]> GetAwaiter<T>(this LoadAssetsRequest<T> asyncOperation) where T : UnityEngine.Object
+        public static YieldTask<T[]> GetAwaiter<T>(this LoadAssetsRequest<T> asyncOperation) where T : UnityEngine.Object
         {
-            var awaiter = new YieldAwaitable<T[]>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<T[]>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -99,16 +99,16 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<K[]> CancelWaitGameObjectDestroy<T,K>(this LoadAssetsRequest<K> asyncOperation, T component)
+        public static YieldTask<K[]> CancelWaitGameObjectDestroy<T,K>(this LoadAssetsRequest<K> asyncOperation, T component)
             where T : Component where K : UnityEngine.Object
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
-        public static YieldAwaitable<GameObject> GetAwaiter(this GameObjectLoadRequest asyncOperation)
+        public static YieldTask<GameObject> GetAwaiter(this GameObjectLoadRequest asyncOperation)
         {
-            var awaiter = new YieldAwaitable<GameObject>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<GameObject>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -117,16 +117,16 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<UnityEngine.GameObject> CancelWaitGameObjectDestroy<T>(this GameObjectLoadRequest asyncOperation, T component)
+        public static YieldTask<UnityEngine.GameObject> CancelWaitGameObjectDestroy<T>(this GameObjectLoadRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
 
-        public static YieldAwaitable<AssetBundle> GetAwaiter(this LoadAssetBundleRequest asyncOperation)
+        public static YieldTask<AssetBundle> GetAwaiter(this LoadAssetBundleRequest asyncOperation)
         {
-            var awaiter = new YieldAwaitable<AssetBundle>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<AssetBundle>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
@@ -135,7 +135,7 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        public static YieldAwaitable<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this LoadAssetBundleRequest asyncOperation, T component)
+        public static YieldTask<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this LoadAssetBundleRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);

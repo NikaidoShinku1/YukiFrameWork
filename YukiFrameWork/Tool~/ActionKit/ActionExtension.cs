@@ -27,7 +27,7 @@ namespace YukiFrameWork
 				.CallBack(() => MonoHelper.Start(e()))
 				.ExecuteFrame(() => end,callBack);
 		}	
-		public static YieldAwaitable GetAwaiter(this IActionNode action)
+		public static YieldTask GetAwaiter(this IActionNode action)
 		{			
 			return action.ToCoroutine().GetAwaiter();
 		}

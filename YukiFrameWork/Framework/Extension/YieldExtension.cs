@@ -47,18 +47,18 @@ namespace YukiFrameWork
         }
 
         [Obsolete("新版本框架不再需要自行调用ToSIngleTask转换异步")]
-        public static YieldAwaitable ToSingleTask(this IYieldExtension extension)
+        public static YieldTask ToSingleTask(this IYieldExtension extension)
         {
             return extension.GetAwaiter();
         }
 
         [Obsolete("新版本框架不再需要自行调用ToSIngleTask转换异步")]
-        public static YieldAwaitable ToSingleTask(this IEnumerator enumerator)
+        public static YieldTask ToSingleTask(this IEnumerator enumerator)
         {
             return enumerator.GetAwaiter();
         }          
 
-        public static IEnumerator ToCoroutine(this YieldAwaitable task)
+        public static IEnumerator ToCoroutine(this YieldTask task)
         {
             return CoroutineTool.WaitUntil(() =>
             {
@@ -66,7 +66,7 @@ namespace YukiFrameWork
             });
         }
 
-        public static IEnumerator ToCoroutine<T>(this YieldAwaitable<T> task)
+        public static IEnumerator ToCoroutine<T>(this YieldTask<T> task)
         {
             return CoroutineTool.WaitUntil(() =>
             {
@@ -324,18 +324,7 @@ namespace YukiFrameWork
         public static IEnumerator WaitWhile(Func<bool> m_Predicate)
         {
             yield return new CustomWaitWhile(m_Predicate);
-        }   
-        /// <summary>
-        /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="awaitable"></param>
-        /// <param name="component"></param>
-        /// <returns></returns>
-        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldAwaitable awaitable, T component) where T : Component
-        {
-            return CancelWaitGameObjectDestroy(awaitable, component);
-        }
+        }     
 
         /// <summary>
         /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
@@ -344,7 +333,8 @@ namespace YukiFrameWork
         /// <param name="awaitable"></param>
         /// <param name="component"></param>
         /// <returns></returns>
-        public static K CancelWaitGameObjectDestroy<T,K>(this K awaitable, T component) where T : Component where K : ICoroutineCompletion
+        public static CoroutineCompletion CancelWaitGameObjectDestroy<T,CoroutineCompletion>(this CoroutineCompletion awaitable, T component) 
+            where T : Component where CoroutineCompletion : ICoroutineCompletion
         {
             if (component != null || component.ToString() != "null")
             {
@@ -370,32 +360,32 @@ namespace YukiFrameWork
             return awaitable;
         }
 
-        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this IEnumerator enumerator, T component) where T : Component
+        public static YieldTask CancelWaitGameObjectDestroy<T>(this IEnumerator enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
-        public static YieldAwaitable CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
+        public static YieldTask CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
-        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this ResourceRequest enumerator, T component) where T : Component
+        public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this ResourceRequest enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
-        public static YieldAwaitable<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this AssetBundleRequest enumerator, T component) where T : Component
+        public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this AssetBundleRequest enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
-        public static YieldAwaitable<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this AssetBundleCreateRequest enumerator, T component) where T : Component
+        public static YieldTask<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this AssetBundleCreateRequest enumerator, T component) where T : Component
            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
 
-        public static YieldAwaitable<AsyncOperation> CancelWaitGameObjectDestroy<T>(this AsyncOperation enumerator, T component) where T : Component
+        public static YieldTask<AsyncOperation> CancelWaitGameObjectDestroy<T>(this AsyncOperation enumerator, T component) where T : Component
            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
     }
 
     public struct CoroutineRunner<T>
     {
-        readonly YieldAwaitable<T> _awaiter;
+        readonly YieldTask<T> _awaiter;
         readonly Stack<IEnumerator> _processStack;
 
         public CoroutineRunner(
-            IEnumerator coroutine, YieldAwaitable<T> awaiter)
+            IEnumerator coroutine, YieldTask<T> awaiter)
         {
             _processStack = new Stack<IEnumerator>();
             _processStack.Push(coroutine);

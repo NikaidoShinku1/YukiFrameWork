@@ -1,43 +1,45 @@
 ﻿///=====================================================
-/// - FileName:      YieldAwaitable.cs
+/// - FileName:      YieldTask.cs
 /// - NameSpace:     YukiFrameWork
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/4/4 1:50:17
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 using YukiFrameWork.Extension;
-using YukiFrameWork.Pools;
+using UnityEngine.Networking;
 namespace YukiFrameWork
 {
 
-    public interface ICoroutineCompletion : INotifyCompletion
+    public interface ICoroutineCompletion : ICriticalNotifyCompletion
     {
         public Coroutine Coroutine { get;internal set; }
     }
     /// <summary>
     /// 协程专属等待器
     /// </summary>
-    [GUIDancePath("YukiFramework/YieldAwaitable")]
+    [GUIDancePath("YukiFramework/YieldTask")]
     [ClassAPI("协程专属等待器")]
-    public class YieldAwaitable : ICoroutineCompletion
+    [AsyncMethodBuilder(typeof(YieldBuilder))]
+    public class YieldTask : ICoroutineCompletion
     {
         private bool _isDone;
         private System.Exception exception;
         private Action _continuation;
         public bool IsCompleted => _isDone;
         Coroutine ICoroutineCompletion.Coroutine { get; set; }
-        
+
+        void INotifyCompletion.OnCompleted(Action continuation)
+        {
+            ((ICriticalNotifyCompletion)this).UnsafeOnCompleted(continuation);
+        }
         public void Complete(Exception e)
         {
             this.Assert(!_isDone);
@@ -47,19 +49,29 @@ namespace YukiFrameWork
 
             if (_continuation != null)
             {
-                YieldAwaitableExtension.RunOnUnityScheduler(_continuation);
+                YieldTaskExtension.RunOnUnityScheduler(_continuation);
             }
         }
-
-        void INotifyCompletion.OnCompleted(Action continuation)
+        void ICriticalNotifyCompletion.UnsafeOnCompleted(Action continuation)
         {
             this.Assert(_continuation == null);
             this.Assert(!_isDone);
 
             _continuation = continuation;
+        }  
+
+        public void SetException(Exception e)
+        {           
+            _isDone = true;
+            exception = e;                     
         }
 
-        public YieldAwaitable GetAwaiter() => this;
+        public void SetResult()
+        {           
+            Complete(null);
+        }
+
+        public YieldTask GetAwaiter() => this;
 
         public void GetResult() 
         {
@@ -76,7 +88,8 @@ namespace YukiFrameWork
     /// 有返回值的协程等待器
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class YieldAwaitable<T> : INotifyCompletion,ICoroutineCompletion
+    [AsyncMethodBuilder(typeof(YieldBuilder<>))]
+    public class YieldTask<T> : INotifyCompletion,ICoroutineCompletion
     {
         private bool _isDone;
         private System.Exception exception;
@@ -94,12 +107,16 @@ namespace YukiFrameWork
             }
             return result;
         }
-        void INotifyCompletion.OnCompleted(Action continuation)
+        void ICriticalNotifyCompletion.UnsafeOnCompleted(Action continuation)
         {
             this.Assert(_continuation == null);
             this.Assert(!_isDone);
 
-            this._continuation = continuation;
+            _continuation = continuation;
+        }
+        void INotifyCompletion.OnCompleted(Action continuation)
+        {
+            ((ICriticalNotifyCompletion)this).UnsafeOnCompleted(continuation);
         }
 
         public void Complete(Exception e,T result)
@@ -112,15 +129,27 @@ namespace YukiFrameWork
 
             if (_continuation != null)
             {
-                YieldAwaitableExtension.RunOnUnityScheduler(_continuation);
+                YieldTaskExtension.RunOnUnityScheduler(_continuation);
             }
         }
 
-        public YieldAwaitable<T> GetAwaiter()
+        public YieldTask<T> GetAwaiter()
             => this;
+
+        public void SetException(Exception e,T t)
+        {
+            _isDone = true;
+            exception = e;
+            this.result = t;
+        }
+
+        public void SetResult(T t)
+        {
+            Complete(null,t);
+        }
     }
 
-    public static class YieldAwaitableExtension
+    public static class YieldTaskExtension
     {      
         public static void Assert(this INotifyCompletion notifyCompletion,bool condition)
         {
@@ -146,79 +175,84 @@ namespace YukiFrameWork
             }
         }
 
-        public static YieldAwaitable GetAwaiter<T>(this T instruction) where T : YieldInstruction
+        public static YieldTask GetAwaiter<T>(this T instruction) where T : YieldInstruction
         {
             return GetAwaiterReturnVoid(instruction);
         }  
 
-        public static YieldAwaitable GetAwaiter(this IYieldExtension instruction)
+        public static YieldTask GetAwaiter(this IYieldExtension instruction)
         {
             return GetAwaiterReturnVoid(instruction.Request);
         }
 
-        public static YieldAwaitable GetAwaiter(this WaitForSecondsRealtime instruction)
+        public static YieldTask GetAwaiter(this WaitForSecondsRealtime instruction)
         {
             return GetAwaiterReturnVoid(instruction);
         }
 
-        public static YieldAwaitable GetAwaiter(this WaitUntil instruction)
+        public static YieldTask GetAwaiter(this WaitUntil instruction)
         {            
             return GetAwaiterReturnVoid(instruction);
         }
 
-        public static YieldAwaitable GetAwaiter(this WaitWhile instruction)
+        public static YieldTask GetAwaiter(this WaitWhile instruction)
         {
             return GetAwaiterReturnVoid(instruction);
         }
         
-        public static YieldAwaitable<AsyncOperation> GetAwaiter(this AsyncOperation instruction)
+        public static YieldTask<AsyncOperation> GetAwaiter(this AsyncOperation instruction)
         {
             return GetAwaiterReturnSelf(instruction);
         }
 
-        public static YieldAwaitable<UnityEngine.Object> GetAwaiter(this ResourceRequest instruction)
+        public static YieldTask<UnityEngine.Object> GetAwaiter(this ResourceRequest instruction)
         {
             return GetAwaiterReturnByResourcesRequest(instruction);
         }
 
-        // Return itself so you can do things like (await new WWW(url)).bytes
-        public static YieldAwaitable<WWW> GetAwaiter(this WWW instruction)
+        [Obsolete]
+        public static YieldTask<WWW> GetAwaiter(this WWW instruction)
         {
             return GetAwaiterReturnSelf(instruction);
         }
-        
-        public static YieldAwaitable<AssetBundle> GetAwaiter(this AssetBundleCreateRequest instruction)
+
+        public static YieldTask<UnityWebRequest> GetAwaiter(this UnityWebRequest instruction)
+        {
+            return GetAwaiterReturnSelf(instruction);
+        }
+
+        public static YieldTask<AssetBundle> GetAwaiter(this AssetBundleCreateRequest instruction)
         {
             return GetAwaiterReturnByAssetBundleCreateRequest(instruction);
         }
 
-        public static YieldAwaitable<UnityEngine.Object> GetAwaiter(this AssetBundleRequest instruction)
+        public static YieldTask<UnityEngine.Object> GetAwaiter(this AssetBundleRequest instruction)
         {
             return GetAwaiterReturnByAssetBundleRequest(instruction);
         }
 
-        public static YieldAwaitable<T> GetAwaiter<T>(this IEnumerator<T> coroutine)
+        public static YieldTask<T> GetAwaiter<T>(this IEnumerator<T> coroutine)
         {
-            var awaiter = new YieldAwaitable<T>();
+            var awaiter = new YieldTask<T>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(new CoroutineRunner<T>(coroutine, awaiter).Run()));
             return awaiter;
         }
 
-        public static YieldAwaitable<T> GetAwaiter<K,T>(this K coroutine) where K : IEnumerator
+        public static YieldTask<T> GetAwaiter<K,T>(this K coroutine) where K : IEnumerator
         {
-            var awaiter = new YieldAwaitable<T>();
+            var awaiter = new YieldTask<T>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(new CoroutineRunner<T>(coroutine, awaiter).Run()));
             return awaiter;
         }
 
-        public static YieldAwaitable GetAwaiter(this IEnumerator coroutine)
+        public static YieldTask GetAwaiter(this IEnumerator coroutine)
         {
             return GetAwaiterReturnVoid(coroutine);
         }
 
-        static YieldAwaitable GetAwaiterReturnVoid(object instruction)
+        static YieldTask GetAwaiterReturnVoid(object instruction)
         {
-            var awaiter = new YieldAwaitable();
+            var awaiter = new YieldTask();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
@@ -228,9 +262,9 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        static YieldAwaitable<T> GetAwaiterReturnSelf<T>(T instruction)
+        static YieldTask<T> GetAwaiterReturnSelf<T>(T instruction)
         {
-            var awaiter = new YieldAwaitable<T>();
+            var awaiter = new YieldTask<T>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(NextVoid()));          
             IEnumerator NextVoid()
             {
@@ -240,9 +274,9 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        static YieldAwaitable<UnityEngine.Object> GetAwaiterReturnByAssetBundleRequest(AssetBundleRequest instruction)
+        static YieldTask<UnityEngine.Object> GetAwaiterReturnByAssetBundleRequest(AssetBundleRequest instruction)
         {
-            var awaiter = new YieldAwaitable<UnityEngine.Object>();
+            var awaiter = new YieldTask<UnityEngine.Object>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
@@ -252,9 +286,9 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        static YieldAwaitable<UnityEngine.Object> GetAwaiterReturnByResourcesRequest(ResourceRequest instruction)
+        static YieldTask<UnityEngine.Object> GetAwaiterReturnByResourcesRequest(ResourceRequest instruction)
         {
-            var awaiter = new YieldAwaitable<UnityEngine.Object>();
+            var awaiter = new YieldTask<UnityEngine.Object>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
@@ -264,9 +298,9 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        static YieldAwaitable<AssetBundle> GetAwaiterReturnByAssetBundleCreateRequest(AssetBundleCreateRequest instruction)
+        static YieldTask<AssetBundle> GetAwaiterReturnByAssetBundleCreateRequest(AssetBundleCreateRequest instruction)
         {
-            var awaiter = new YieldAwaitable<AssetBundle>();
+            var awaiter = new YieldTask<AssetBundle>();
             RunOnUnityScheduler(() => ((ICoroutineCompletion)awaiter).Coroutine = MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {

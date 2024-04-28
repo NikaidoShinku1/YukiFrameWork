@@ -31,10 +31,10 @@ namespace YukiFrameWork.Audio
 
     public static class PlaySoundRequestExtension
     {
-        public static YieldAwaitable<AudioPlayer> GetAwaiter(this PlaySoundRequest request)
+        public static YieldTask<AudioPlayer> GetAwaiter(this PlaySoundRequest request)
         {
-            var awaiter = new YieldAwaitable<AudioPlayer>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<AudioPlayer>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return request;

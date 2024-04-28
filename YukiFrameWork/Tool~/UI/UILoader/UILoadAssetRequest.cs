@@ -27,10 +27,10 @@ namespace YukiFrameWork.UI
 
     public static class UILoadAssetRequestExtension
     {
-        public static YieldAwaitable<BasePanel> GetAwaiter(this UILoadAssetRequest request)
+        public static YieldTask<BasePanel> GetAwaiter(this UILoadAssetRequest request)
         {
-            var awaiter = new YieldAwaitable<BasePanel>();
-            YieldAwaitableExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            var awaiter = new YieldTask<BasePanel>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return request;
