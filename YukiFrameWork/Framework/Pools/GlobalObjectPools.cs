@@ -31,7 +31,7 @@ namespace YukiFrameWork.Pools
             var obj = Instance.Get();
             obj.IsMarkIdle = false;
             obj.Init();
-            return Instance.Get();
+            return obj;
         }
 
         public static void Init(int initSize,int maxSize)

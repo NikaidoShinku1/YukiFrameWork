@@ -14,7 +14,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using UnityEngine;
 using YukiFrameWork.Extension;
-using UnityEngine.Networking;
+using UnityEngine.Networking;   
 namespace YukiFrameWork
 {
 
@@ -23,11 +23,13 @@ namespace YukiFrameWork
         public Coroutine Coroutine { get;internal set; }
     }
     /// <summary>
-    /// 协程专属等待器
+    /// 协程专属等待器，返回值功能仅限2021以上版本使用
     /// </summary>
     [GUIDancePath("YukiFramework/YieldTask")]
     [ClassAPI("协程专属等待器")]
+#if UNITY_2021_1_OR_NEWER
     [AsyncMethodBuilder(typeof(YieldBuilder))]
+#endif
     public class YieldTask : ICoroutineCompletion
     {
         private bool _isDone;
@@ -85,10 +87,12 @@ namespace YukiFrameWork
     }
 
     /// <summary>
-    /// 有返回值的协程等待器
+    /// 有返回值的协程等待器,返回值功能仅限2021以上版本使用
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [AsyncMethodBuilder(typeof(YieldBuilder<>))]
+#if UNITY_2021_1_OR_NEWER
+    [AsyncMethodBuilder(typeof(YieldBuilder))]
+#endif
     public class YieldTask<T> : INotifyCompletion,ICoroutineCompletion
     {
         private bool _isDone;

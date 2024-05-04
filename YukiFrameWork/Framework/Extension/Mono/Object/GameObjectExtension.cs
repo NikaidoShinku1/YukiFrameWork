@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using YukiFrameWork.Extension;
@@ -92,6 +93,42 @@ namespace YukiFrameWork
         public static GameObject[] Hide(this GameObject[] gameObjects)
         {
             for (int i = 0; i < gameObjects.Length; i++)
+            {
+                gameObjects[i].Hide();
+            }
+            return gameObjects;
+        }
+
+        public static List<T> Show<T>(this List<T> components) where T : Component
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                components[i].Show();
+            }
+            return components;
+        }
+
+        public static List<GameObject> Show(this List<GameObject> gameObjects)
+        {
+            for (int i = 0; i < gameObjects.Count; i++)
+            {
+                gameObjects[i].Show();
+            }
+            return gameObjects;
+        }
+
+        public static List<T> Hide<T>(this List<T> components) where T : Component
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                components[i].Hide();
+            }
+            return components;
+        }
+
+        public static List<GameObject> Hide(this List<GameObject> gameObjects)
+        {
+            for (int i = 0; i < gameObjects.Count; i++)
             {
                 gameObjects[i].Hide();
             }

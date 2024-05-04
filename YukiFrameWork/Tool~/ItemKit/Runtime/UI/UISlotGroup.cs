@@ -11,6 +11,8 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using XFABManager;
+
 namespace YukiFrameWork.Item
 {
 	public class UISlotGroup : MonoBehaviour
@@ -61,11 +63,19 @@ namespace YukiFrameWork.Item
             if (Type == UISlotGenericType.Template)
             {
                 UISlotPrefab.Hide();
-                UISlotRoot.DestroyChildrenWithCondition(core => core.GetComponent<UISlot>());
+
+                foreach (var item in UISlotRoot.GetComponentsInChildren<UISlot>())
+                {
+                    GameObjectLoader.UnLoad(item.gameObject);
+                }
+
+                //UISlotRoot.DestroyChildrenWithCondition(core => core.GetComponent<UISlot>());
 
                 foreach (var slot in ItemKit.GetSlotGroup(GroupKey).Slots)
                 {
-                    UISlotPrefab.Instantiate(UISlotRoot).InitSlot(slot).Show();
+                    GameObjectLoader.Load(UISlotPrefab.gameObject,UISlotRoot)
+                        .GetComponent<UISlot>()
+                        .InitSlot(slot).Show();
                 }
             }
             else if (Type == UISlotGenericType.SlotExist)

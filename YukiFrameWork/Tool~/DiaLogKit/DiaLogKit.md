@@ -6,6 +6,10 @@
 
 ![输入图片说明](Texture/1.png)
 
+在根节点中，可以设置启动对话树时对应的语言，也可以使其同步本地化配置的语言，达到多语言随时切换的效果
+
+每次在退出运行时，需要保持节点的状态是Waiting，框架内部有UIDiaLog类进行自动管理，下面会提及。
+
 双击配置文件打开编辑器窗口，在网格中右键创建根节点，展开配置文件，将根节点配置拖入Inspector中,如图中标记的部分:
 
 ![输入图片说明](Texture/2.png)
@@ -21,76 +25,207 @@
 
 ![输入图片说明](Texture/5.png)
 
-在分支节点中，除了跟默认节点一样可以配置多语言文本以外，还可以设置不同语言下的分支条件文本，要注意：每个语言的条件配置中，条件数量应该与子节点数量一致。
+在分支节点中，通过编辑器窗口右键的形式创建过渡线连线，即可在这里的Inspector中显示对应的参数，这里的参数分别是对应连接的节点下标，以及设置条件下的文本(支持多语言)
 
-自由配置好后且连线完毕后，新建脚本并派生自框架DiaLogController类，代码示例如下:
+自由配置好后且连线完毕后，有两种方式进行对该系统的逻辑处理：
 
-```
-using YukiFrameWork.DiaLog;
-using YukiFrameWork;
-public class CustomDiaLogController : DiaLogController
-{
-    
-}
-```
-
-然后将脚本拖拽到对象上如下所示:
-
-![输入图片说明](Texture/6.png)
-
-该类最终派生自ViewController，所以他可以标记RuntimeInitializeOnArchitecture特性以标记架构。
-
-对于对话树的获取，可以通过编辑器拖拽或者事件注入的方式，通过事件注入会需要填写事件的标识名且实现RuntimeInitializeOnArchitecture特性，并自身手动在自己的代码逻辑中去发送事件。
-
-可以勾选语言同步，会自动将语言与框架的本地化中的默认语言保持一致。
-
-拖入对应的Image组件，Text组件作为该控制器中，输出文本/名称以及精灵到UI。
-
-对于条件组件集合，有三个参数，设置条件触发的按钮，成功判断的下标，以及输出文本的事件回调
-
-如果树中具备分支节点，可以在条件集合中添加对应数量的组件。而后代码实现如下:
+手动定义示例如下：
 
 ```
 using YukiFrameWork.DiaLog;
 using YukiFrameWork;
-public class CustomDiaLogController : DiaLogController
+public class CustomDiaLogController : MonoBehaviour
 {
-    ///如果需要使用条件组件集合，这个是可以重写的方法,框架内部已经实现了一套条件逻辑，可以导入框架查看示例包，他会在推进过程中得到类型为分支节点的节点，以及所有的条件组件集合
-    protected override void CompositeSetting(BranchDialogue branch, CompositeItem[] composites)
+    //设置运行时绑定的对话控制器的标识
+    public string diaLogKey;
+
+    //对话配置
+    public NodeTree nodeTree;
+    void Start()
     {
-        ///自行对逻辑的需求实现
+        //通过DiaLogKit得到对话控制器
+        DiaLog diaLog = DiaLogKit.CreateDiaLog(diaLogKey,nodeTree);
+
+        //设置控制器当前的文本语言
+        diaLog.NodeCurrentLanguage = Language.English;
+
+        //控制器进行对对话配置的推进，该推进仅对默认节点有效，对于分支节点必须要进行回调式绑定，返回推进的结果
+        MoveNodeState state = diaLog.MoveNext();
+
+        ///MoveNodeState 
+        ///{
+        ///    Idle,//没有推进
+        ///    Succeed,//成功推进
+        ///    Failed,//推进失败
+        ///}
+
+        diaLog.GetNodeByIndex(index:0);//根据对话节点下标查找指定的配置。
+
+        diaLog.MoveByNodeIndex(index:0);//强制进行对对话节点的移动，无视顺序，只根据传入的下标判断。
+
+        diaLog.RegisterWithNodeEnterEvent(node => { });//注册每一次进入下一个节点时的回调
+
+        diaLog.RegisterWithNodeExitEvent(node => { });//注册每一次退出下一个节点时的回调
+
+        //通过对应下标寻找到指定的分支节点，注册条件下通过的逻辑，并且注册结束时会触发的逻辑，这里注册的两个回调与上面这两个退出与进入的回调不同，仅作为指定分支节点的逻辑处理
+        diaLog.OnOptionsCompleted(0, (CompositeNode node, Option[] options) => 
+        { 
+            //使用示例：
+            foreach(var option in options)
+            {
+                //条件类下提供的改变节点触发方法，需要传入对话控制器
+                option.OnChangeClick(diaLog);
+            }
+        }, onFinish:() => { })
+
+        //注册节点内所有的分支节点条件下通过的逻辑，效果与上述相同，并且注册结束时会触发的逻辑，这里注册的两个回调与上面这两个退出与进入的回调不同，仅作为指定分支节点的逻辑处理
+        diaLog.OnOptionsCompleted((CompositeNode node, Option[] options) => 
+        { 
+            //使用示例：
+            foreach(var option in options)
+            {
+                //条件类下提供的改变节点触发方法，需要传入对话控制器
+                option.OnChangeClick(diaLog);
+            }
+        }, onFinish:() => { })
+
+        //启动对话控制器
+        diaLog.Start();
+
+        //关闭控制器，关闭控制器后仍可重新触发Start方法
+        //diaLog.End();
+
+        //diaLog.GlobalRelease();//回收控制器，该控制器回收后会注销一切的逻辑跟操作，该对象如果还想继续使用必须重新进行初始化，请注意释放时机。
+
     }
 }
 ```
 
-BranchDialogue API:
+DiaLogKit static API:
 
-    ///设置分支节点应该成功推进的节点下标
-    - void SetOptionSuccessed(Func<int> indexEvent);
+    - DiaLog GetDiaLogueByKey(string key);;//根据名称得到控制器
 
-    ///得到对应下标条件的文本(与控制器标记的当前的语言匹配)
-    - string GetOptionText(int index)；
+    - DiaLog CreateDiaLog(string key,NodeTree nodeTree);//创建控制器，并传入标识以及配置
 
-    ///设置分支节点应该成功推进的节点下标
-    - void SetOptionSuccessed(CompositeItem[] composites,System.Action moveNext)
+    - bool CheckDiaLogIsActive(string key);//查找DiaLogKit是否缓存的指定标识的DiaLog控制器
 
+    - EasyEvent<string,Node> onGlobalNodeChanged；//全局的事件，当节点更新的时候就会触发，场景中如果有多个对话器，该事件注册在任意一个对话更新时就会触发
+    ///DiaLogKit.onGlobalNodeChanged.RegisterEvent(node => { });
 
-DiaLogController API:
+DiaLog API:
 
-    ///可重写的设置条件分支的方法
-    - virtual void CompositeSetting(BranchDialogue branch, CompositeItem[] composites);
+    - Language NodeCurrentLanguage;//可修改的语言属性
     
-    ///可重写的分支推进方法，调用一次则在对话树中向下推进(如果目前正在运行的是分支节点，且分支节点没有实现判断成功的逻辑，则推进会直接失败，保持不变)
-    - virtual void MoveToNext()
+    - void Init(string key, NodeTree nodeTree);//DiaLog的初始化，当不通过DiaLogKit获取对话控制器时，可以自行调用
 
-    ///每次推进到新的分支时都会调用一次该方法，可以重写这个方法实现额外的逻辑
-    - virtual void NodeStart(Node node)
+    - void Start();//启动对话器
 
-    ///对组件的更新方法，可以直接调用
-    - void UpdateDiaLogComponent(string dialog,Sprite sprite,string name)；
+    - void End();//关闭对话器
+    
+    - bool GlobalRelease();//对话器回收
 
-    ///设置树在运行时进行复位初始化的操作，可用于直接回档或跳转到哪一个节点，从该处继续
-    - void OnTreeRunningInitialization(Language language,int nodeIndex);
+    - MoveNodeState MoveNext()；//向前推进对话
+
+    - void MoveByNodeIndex(int index);//推进到指定的节点
+
+    - void MoveByNode(Node node);//若在外部存在节点类，则可以传入进行匹配推进。
+
+    - IUnRegister RegisterWithNodeEnterEvent(Action<Node> startEvent)；//注册每次更新对话时进入的事件
+
+    - IUnRegister RegisterWithNodeExitEvent(Action<Node> exitEvent)；//注册每次对话结束时的事件
+
+    //设置对应分支节点的完成逻辑。以及可以自定义结束的逻辑
+    - void OnOptionsCompleted(int nodeIndex, Action<CompositeNode, Option[]> action,Action onFinish);
+
+    //如上，但应用全部的分支节点
+    - void OnOptionsCompleted(Action<CompositeNode, Option[]> action,Action onFinish)
+
+
+对于节点，框架提供了默认的两种基类和一个根类：RootNode(根节点),CompositeNode(分支节点基类),SingleNode(单一节点基类)
+
+对于根节点，可以自定义：
+
+```
+//根节点应该直接派生节点基类Node，然后自行完成逻辑，一般默认情况下使用框架提供的即可
+[RootNode]//标记该特性使系统知道该类为根节点
+public class CustomRootNode : Node
+{
+    
+}
+
+public class CustomCompositeNode : CompositeNode
+{
+    
+}
+
+public class CustomSingleNode : SingleNode
+{
+    
+}
+```
+
+Node生命周期:
+
+        - public virtual void OnEnter() {  }
+        - public virtual void OnExit() {  }
+        - public virtual void OnUpdate() { }
+        - public virtual void OnFixedUpdate() { }
+        - public virtual void OnLateUpdate() { }
+
+框架提供了默认的分支节点BranchDialogue以及默认单一节点NormalDialogue可以直接使用
+
+分支节点对UI的同步:
+
+![输入图片说明](Texture/6.png)
+
+![输入图片说明](Texture/7.png)
+
+在UIOptionGroup中输入创建DiaLog所绑定的标识，可以选择绑定模式，有安全模式以及默认模式，安全模式会在Start方法后等待一帧更新，防止生命周期颠倒导致的报错。
+
+设置对应的UIOption组件，UIOption组件中设置好对应按钮以及文本组件即可自动同步。
+
+对话系统的全自动化示例(第二种使用方式):
+
+![输入图片说明](Texture/8.png)
+
+添加UIDiaLog组件，设置组件，以及添加NodeTree配置，框架提供了默认的自动推进方式 KeyDown以及MouseDown，可以自行选择，提供了两种文本显示方式：打字机以及默认显示。
+
+设置好后该脚本会自动运行整个对话。
+
+如需在此基础之上自定义或者说外部初始化UIDiaLog，示例如下：
+
+```
+public class TestScripts : MonoBehaviour
+{   
+    //设置运行时绑定的对话控制器的标识
+    public string diaLogKey;
+
+    //对话配置
+    public NodeTree nodeTree;
+    void Start()
+    {
+        UIDiaLog uiDiaLog = GetComponent<UIDiaLog>();
+
+        //初始化
+        uiDiaLog.InitDiaLog(DiaLogKit.CreateDiaLog(diaLogKey,nodeTree));
+
+        //自定义是否触发成功推进的回调
+        uiDiaLog.MoveNextCondition += () => Input.GetMouseButtonDown(0);
+
+        //与DiaLog中的MoveNextByIndex的效果一致，但UIDiaLog更好
+        uiDiaLog.UpdateDiaLogByIndex(index:0);
+
+        //自动推进没有选择None的情况下，自动条件与MoveNextCondition同时可生效。
+
+    }
+}
+```
+
+可以将数据导出Json配置：
+
+导出后的示例：
+
+![输入图片说明](Texture/9.png)
 
 
 
