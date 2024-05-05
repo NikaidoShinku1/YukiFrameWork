@@ -11,7 +11,6 @@
 
 using UnityEngine;
 using System;
-using YukiFrameWork.Audio;
 
 namespace YukiFrameWork.UI
 {
