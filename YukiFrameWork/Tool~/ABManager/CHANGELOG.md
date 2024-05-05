@@ -1,3 +1,7 @@
+## version 1.11.7 更新内容
+
+1. 优化 GameObjectLoader 代码!
+
 ## version 1.11.6 更新内容
 
 1. 优化 AssetBundle 文件名称，防止不同模块出现相同名称AssetBundle的文件!

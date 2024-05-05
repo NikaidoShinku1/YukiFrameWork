@@ -14,7 +14,9 @@ using YukiFrameWork.Extension;
 using System.Reflection;
 
 using UnityEngine.U2D;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 namespace YukiFrameWork.Item
 {
 	[CreateAssetMenu(menuName = "YukiFrameWork/Item DataBase",fileName = nameof(ItemDataBase))]

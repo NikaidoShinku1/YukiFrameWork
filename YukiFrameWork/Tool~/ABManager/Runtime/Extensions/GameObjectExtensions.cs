@@ -8,29 +8,17 @@ namespace XFABManager
 
         internal static bool IsDestroy(this GameObject gameObject)
         {
-            try
-            {
-                if (gameObject == null || gameObject.transform == null)
-                    return true;
-            }
-            catch (System.Exception)
-            {
+            if (gameObject == null || gameObject.ToString() == "null")
                 return true;
-            }
-            return false;
+
+            return false; 
         }
 
         internal static bool IsEmpty(this Transform transform)
         {
-            try
-            {
-                if (transform == null || transform.gameObject == null)
-                    return true;
-            }
-            catch (System.Exception)
-            {
+            if (transform == null || transform.ToString() == "null")
                 return true;
-            }
+
             return false;
         }
 

@@ -108,8 +108,11 @@ namespace XFABManager {
         /// <exception cref="System.Exception"></exception>
         public static void UnLoad(GameObject obj)
         {
-            if (!EditorApplicationTool.isPlaying) return;
-            if (obj == null) return;
+            if (!EditorApplicationTool.isPlaying) 
+                return;
+            // 如果为空 或者 已经被销毁了，可以不用处理
+            if (obj == null || obj.IsDestroy())
+                return;
             int key = obj.GetHashCode();
             if (allObjPoolMapping.ContainsKey(key)) { 
                 int pool_key = allObjPoolMapping[key];
