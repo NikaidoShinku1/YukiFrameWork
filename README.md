@@ -82,6 +82,8 @@
 
 #### 框架更新版本速览
 
+V1.15.3 优化ItemKit，现在可以自定义Item类与自定义ItemDataBase类
+
 V1.15.2 对话系统优化，修复YieldTask在2021以下版本报错的问题。
 
 V1.15.1 支持异步流的返回值YieldTask，优化细节。

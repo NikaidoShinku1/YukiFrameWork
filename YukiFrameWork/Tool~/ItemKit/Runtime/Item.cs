@@ -6,7 +6,6 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
 using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
@@ -18,15 +17,17 @@ namespace YukiFrameWork.Item
         string GetKey { get;  }
         string GetName { get; }
         string GetDescription { get; }
-        Sprite GetIcon { get; }     
+        Sprite GetIcon { get; set; }     
         bool IsStackable { get; }
         bool IsMaxStackableCount { get;}
         int MaxStackableCount { get; }
-        ItemType ItemType { get; }
+        ItemType ItemType { get; }        
+        string SpriteAtlas { get; set; }        
+        string Sprite { get; set; }
     }
 
     [Serializable]
-    public class Item : IItem
+    public class Item : IItem 
     {
         [SerializeField, LabelText("唯一标识"),JsonProperty]
         private string Key;
@@ -36,7 +37,7 @@ namespace YukiFrameWork.Item
             get => Key;
             set => Key = value;
         }
-        [SerializeField, LabelText("名称"),JsonProperty]
+        [SerializeField, LabelText("名称"),JsonProperty] 
         private string Name;
         [JsonIgnore]
         public string GetName
@@ -140,9 +141,9 @@ namespace YukiFrameWork.Item
                 else Icon = value;
             }
         }             
-        [LabelText("精灵所在的图集"),JsonProperty]
-        internal string SpriteAtlas;
-        [LabelText("精灵的路径/名称"),JsonProperty]
-        internal string Sprite;      
+        [LabelText("精灵所在的图集"), JsonProperty, SerializeField, HideInInspector]
+        public string SpriteAtlas { get; set; }
+        [LabelText("精灵的路径/名称"),JsonProperty, SerializeField, HideInInspector]
+        public string Sprite { get; set; }      
     }
 }

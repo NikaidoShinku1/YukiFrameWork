@@ -2,6 +2,7 @@
 using Sirenix.OdinInspector;
 namespace YukiFrameWork
 {
+    [HideMonoScript]
     public class FrameworkConfigInfo : ScriptableObject
     {
         [HideInInspector]

@@ -14,43 +14,53 @@ using YukiFrameWork.Extension;
 using System.Reflection;
 
 using UnityEngine.U2D;
+using System.Linq;
+
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 namespace YukiFrameWork.Item
 {
-	[CreateAssetMenu(menuName = "YukiFrameWork/Item DataBase",fileName = nameof(ItemDataBase))]
-	public class ItemDataBase : ScriptableObject
-    {      
-        [Searchable, FoldoutGroup("物品管理")]
-		public List<Item> Items = new List<Item>();
-
-        public void OnEnable()
+    public abstract class ItemDataBase : ScriptableObject
+    {
+        public abstract List<IItem> Items { get; set; }
+    }
+    public abstract class ItemDataBase<Item> : ItemDataBase where Item : IItem
+    {        
+#if UNITY_EDITOR
+        public virtual void OnEnable()
         {
             InitItemTypeByDataBase();
         }
-
-#if UNITY_EDITOR
-        [SerializeField,LabelText("命名空间"), FoldoutGroup("Code Setting",-1)]
-        string NameSpace = "YukiFrameWork.Item.Example";     
-        [SerializeField,LabelText("生成路径"), FoldoutGroup("Code Setting"), ShowIf(nameof(DoNotNullOrEmpty))]
+        [SerializeField, LabelText("命名空间"), FoldoutGroup("Code Setting", -2)]
+        string NameSpace = "YukiFrameWork.Item.Example";
+        [SerializeField, LabelText("生成路径"), FoldoutGroup("Code Setting"), ShowIf(nameof(DoNotNullOrEmpty))]
         string filePath = string.Empty;
         private bool DoNotNullOrEmpty => !string.IsNullOrEmpty(filePath);
         [Button("生成代码"), FoldoutGroup("Code Setting")]
-		void CreateCode()
-		{
-            if (Items.Count == -0)
+        void CreateCode()
+        {
+            if (Items.Count == 0)
             {
                 Debug.LogWarning("没有添加物品,无法创建代码");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(NameSpace))
+            {
+                Debug.LogWarning("请输入命名空间，为项目保持好习惯");
                 return;
             }
             if (string.IsNullOrEmpty(filePath))
             {
                 filePath = UnityEditor.EditorUtility.SaveFilePanelInProject("Items" + ".cs", "Items", "cs", "");
             }
+
+            
             if (string.IsNullOrEmpty(filePath)) return;
             string[] i = filePath.Split('/');
-            string name = i[i.Length - 1].Split('.')[0];           
+            string name = i[i.Length - 1].Split('.')[0];
             UnityEditor.AssetDatabase.Refresh();
             CodeCore core = new CodeCore();
             CodeWriter writer = new CodeWriter();
@@ -69,11 +79,11 @@ namespace YukiFrameWork.Item
                 .CodeSetting(NameSpace, name, string.Empty, writer, false, false);
             System.IO.File.WriteAllText(filePath, core.builder.ToString());
             AssetDatabase.Refresh();
-                      
+
         }
-        [LabelText("打开物品类型的自定义功能"),SerializeField,BoxGroup("物品自定义")]
+        [LabelText("打开物品类型的自定义功能"), SerializeField, BoxGroup("物品自定义")]
         bool IsOpenCustomType;
-        [Button("生成物品类型代码",ButtonHeight = 20),BoxGroup("物品自定义"),ShowIf(nameof(IsOpenCustomType))]
+        [Button("生成物品类型代码", ButtonHeight = 20), BoxGroup("物品自定义"), ShowIf(nameof(IsOpenCustomType))]
         void CreateItemType()
         {
             CodeCore core = new CodeCore();
@@ -85,11 +95,11 @@ namespace YukiFrameWork.Item
             }
             core.Using("Sirenix.OdinInspector").Descripton(nameof(ItemType), "YukiFrameWork.Item", "物品的类型枚举", System.DateTime.Now.ToString())
                 .CodeSetting("YukiFrameWork.Item", nameof(ItemType), string.Empty, writer, false, false, true)
-                .builder.CreateFileStream(ImportSettingWindow.GetData().path + "/ItemKit/Runtime",nameof(ItemType),".cs");
-        }        
-        [SerializeField,LabelText("配置文件:"), FoldoutGroup("配置表导入")]
-        TextAsset textAsset;                      
-        [Button("导入",ButtonHeight = 30), PropertySpace, FoldoutGroup("配置表导入")]
+                .builder.CreateFileStream(ImportSettingWindow.GetData().path + "/ItemKit/Runtime", nameof(ItemType), ".cs");
+        }
+        [SerializeField, LabelText("配置文件:"), FoldoutGroup("配置表设置")]
+        TextAsset textAsset;
+        [Button("导入", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置表设置")]
         [InfoBox("Item中对于精灵/精灵图集的路径配置，必须是以Assets为开头的完整包含后缀的路径")]
         void Import()
         {
@@ -97,7 +107,7 @@ namespace YukiFrameWork.Item
             {
                 Debug.LogError("无法导入，当前没有添加Json配置文件");
                 return;
-            }          
+            }
 
             List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);
             this.Items.Clear();
@@ -108,15 +118,35 @@ namespace YukiFrameWork.Item
                         : UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(item.SpriteAtlas).GetSprite(item.Sprite);
             }
 
-            Items = items;
+            Items = items.Select(x => x as IItem).ToList();
+        }
+        [LabelText("导出路径"), FoldoutGroup("配置表设置"),SerializeField]
+        string reImportPath = "Assets/ItemKitData";
+        [LabelText("导出文件名称"), FoldoutGroup("配置表设置"),SerializeField]
+        string reImportName = "Item";
+        [Button("将现有物品导出配表",ButtonHeight = 30),FoldoutGroup("配置表设置"),PropertySpace(15)]
+        void ReImport()
+        {
+            if (this.Items?.Count == 0)
+            {
+                return;
+            }
+            foreach (var item in Items)
+            {
+                if (item.GetIcon != null)
+                {
+                    item.Sprite = AssetDatabase.GetAssetPath(item.GetIcon);
+                }
+            }
+            SerializationTool.SerializedObject(Items).CreateFileStream(reImportPath, reImportName, ".json");
         }
 
-        [SerializeField,LabelText("物品的类型收集"),Searchable,DictionaryDrawerSettings(KeyLabel = "类型",ValueLabel = "类型介绍"), BoxGroup("物品自定义"),ShowIf(nameof(IsOpenCustomType))]
-        [InfoBox("请勿更改ItemType文件的存放位置，这是由框架设定的",InfoMessageType.Warning)]
+        [SerializeField, LabelText("物品的类型收集"), Searchable, DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "类型介绍"), BoxGroup("物品自定义"), ShowIf(nameof(IsOpenCustomType))]
+        [InfoBox("请勿更改ItemType文件的存放位置，这是由框架设定的", InfoMessageType.Warning)]
         private YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
-       
+
         void InitItemTypeByDataBase()
-        {                   
+        {
             var itemType = typeof(ItemType);
 
             mItemTypeDicts.Clear();
@@ -131,5 +161,5 @@ namespace YukiFrameWork.Item
 
         }
 #endif
-	}
+    }   
 }
