@@ -45,6 +45,11 @@ namespace YukiFrameWork
             return this;
         }
 
+        public CodeCore Descripton(string fileName, string nameSpace, string description)
+        {
+            return Descripton(fileName, nameSpace, description, System.DateTime.Now.ToString());
+        }
+
         public CodeCore Descripton(string description)
         {
             builder.AppendLine(description);          
@@ -82,6 +87,12 @@ namespace YukiFrameWork
             }
             builder.AppendLine("\t}");
             builder.AppendLine("}");
+            return this;
+        }
+
+        public CodeCore Create(string fileName,string filePath)
+        {
+            builder.CreateFileStream(filePath,fileName,".cs");
             return this;
         }
     }

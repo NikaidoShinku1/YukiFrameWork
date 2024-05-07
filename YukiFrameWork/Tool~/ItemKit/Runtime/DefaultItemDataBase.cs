@@ -13,16 +13,16 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 namespace YukiFrameWork.Item
 {
-    [CreateAssetMenu(menuName = "YukiFrameWork/Item DataBase", fileName = nameof(DefaultItemDataBase))]
+    [CreateAssetMenu(menuName = "YukiFrameWork/Default Item DataBase", fileName = nameof(DefaultItemDataBase))]
     public class DefaultItemDataBase : ItemDataBase<Item>
     {
         [SerializeField, Searchable, FoldoutGroup("物品管理", -1)]
-        private List<Item> items = new List<Item>();
+        private Item[] items = new Item[0];
 
-        public override List<IItem> Items
+        public override IItem[] Items
         {
-            get => items.Select(x => x as IItem).ToList();
-            set => items = value.Select(x => x as Item).ToList();
+            get => items.Select(x => x as IItem).ToArray();
+            set => items = value.Select(x => x as Item).ToArray();
         }
     }
 }

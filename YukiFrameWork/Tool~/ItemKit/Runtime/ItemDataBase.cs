@@ -15,6 +15,8 @@ using System.Reflection;
 
 using UnityEngine.U2D;
 using System.Linq;
+using System.Text;
+
 
 
 #if UNITY_EDITOR
@@ -24,24 +26,32 @@ namespace YukiFrameWork.Item
 {
     public abstract class ItemDataBase : ScriptableObject
     {
-        public abstract List<IItem> Items { get; set; }
+        public abstract IItem[] Items { get; set; }
     }
     public abstract class ItemDataBase<Item> : ItemDataBase where Item : IItem
     {        
 #if UNITY_EDITOR
         public virtual void OnEnable()
         {
+            if (string.IsNullOrEmpty(fileName))
+            { 
+                fileName = this.GetType().Name.Replace("DataBase","s");
+                this.Save();
+            }
             InitItemTypeByDataBase();
         }
         [SerializeField, LabelText("命名空间"), FoldoutGroup("Code Setting", -2)]
         string NameSpace = "YukiFrameWork.Item.Example";
         [SerializeField, LabelText("生成路径"), FoldoutGroup("Code Setting"), ShowIf(nameof(DoNotNullOrEmpty))]
         string filePath = string.Empty;
+
+        [SerializeField,LabelText("脚本名称/文件名称"), FoldoutGroup("Code Setting")]
+        string fileName;
         private bool DoNotNullOrEmpty => !string.IsNullOrEmpty(filePath);
         [Button("生成代码"), FoldoutGroup("Code Setting")]
         void CreateCode()
         {
-            if (Items.Count == 0)
+            if (Items.Length == 0)
             {
                 Debug.LogWarning("没有添加物品,无法创建代码");
                 return;
@@ -52,15 +62,27 @@ namespace YukiFrameWork.Item
                 Debug.LogWarning("请输入命名空间，为项目保持好习惯");
                 return;
             }
+            StringBuilder builer = new StringBuilder();
             if (string.IsNullOrEmpty(filePath))
             {
-                filePath = UnityEditor.EditorUtility.SaveFilePanelInProject("Items" + ".cs", "Items", "cs", "");
-            }
+                filePath = UnityEditor.EditorUtility.SaveFolderPanel(fileName, fileName, "");
+                string[] cores = filePath.Split('/');
+                bool enter = false;
+                for (int i = 0; i < cores.Length; i++)
+                {
+                    if (cores[i].Equals("Assets"))
+                        enter = true;
 
-            
+                    if (!enter) continue;
+
+                    builer.Append(cores[i] + (i == cores.Length - 1 ? "" : "/"));
+                }
+
+                filePath = builer.ToString();
+            }           
             if (string.IsNullOrEmpty(filePath)) return;
-            string[] i = filePath.Split('/');
-            string name = i[i.Length - 1].Split('.')[0];
+            if (string.IsNullOrEmpty(fileName)) return;
+            string name = fileName;
             UnityEditor.AssetDatabase.Refresh();
             CodeCore core = new CodeCore();
             CodeWriter writer = new CodeWriter();
@@ -76,8 +98,11 @@ namespace YukiFrameWork.Item
             }
 
             core.Descripton(name, NameSpace, "对项目内所有的ItemConfig收集代码生成类", System.DateTime.Now.ToString())
-                .CodeSetting(NameSpace, name, string.Empty, writer, false, false);
-            System.IO.File.WriteAllText(filePath, core.builder.ToString());
+                .CodeSetting(NameSpace, name, string.Empty, writer, false, false)
+                ;
+
+            System.IO.File.WriteAllText(filePath + "/" + name + ".cs", core.builder.ToString());
+           
             AssetDatabase.Refresh();
 
         }
@@ -109,8 +134,7 @@ namespace YukiFrameWork.Item
                 return;
             }
 
-            List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);
-            this.Items.Clear();
+            List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);            
             foreach (Item item in items)
             {
                 item.GetIcon = string.IsNullOrEmpty(item.SpriteAtlas)
@@ -118,7 +142,7 @@ namespace YukiFrameWork.Item
                         : UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(item.SpriteAtlas).GetSprite(item.Sprite);
             }
 
-            Items = items.Select(x => x as IItem).ToList();
+            Items = items.Select(x => x as IItem).ToArray();
         }
         [LabelText("导出路径"), FoldoutGroup("配置表设置"),SerializeField]
         string reImportPath = "Assets/ItemKitData";
@@ -127,7 +151,7 @@ namespace YukiFrameWork.Item
         [Button("将现有物品导出配表",ButtonHeight = 30),FoldoutGroup("配置表设置"),PropertySpace(15)]
         void ReImport()
         {
-            if (this.Items?.Count == 0)
+            if (this.Items?.Length == 0)
             {
                 return;
             }
