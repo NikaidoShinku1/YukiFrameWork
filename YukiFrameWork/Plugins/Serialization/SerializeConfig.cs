@@ -6,8 +6,7 @@ namespace YukiFrameWork.Extension
     public enum SerializationType
     {
         Json,
-        Xml,
-        Bytes
+        Xml,      
     }
     [Serializable]
     public class SerializeConfig
@@ -35,16 +34,7 @@ namespace YukiFrameWork.Extension
                             {
                                 info = SerializationTool.XmlSerializedObject(serializable);
                             }
-                            break;
-                        case SerializationType.Bytes:
-                            {
-                                Byte[] bytes = SerializationTool.ByteSerializedObject(serializable);
-
-                                string hex = BitConverter.ToString(bytes).Replace("-", " ");
-
-                                info = hex;
-                            }
-                            break;
+                            break;               
                     }
                 }
                 return info;
@@ -66,8 +56,7 @@ namespace YukiFrameWork.Extension
             return type switch
             {
                 SerializationType.Json => ".json",
-                SerializationType.Xml => ".xml",
-                SerializationType.Bytes => ".bytes",
+                SerializationType.Xml => ".xml",              
                 _ => string.Empty
             } ;
         }

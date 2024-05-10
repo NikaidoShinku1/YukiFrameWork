@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,12 +7,13 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using YukiFrameWork;
 
 
 namespace XFABManager
 {
 
-    public class XFAssetBundleManagerProjects : EditorWindow
+    public class XFAssetBundleManagerProjects 
     {
 
         #region 常量
@@ -62,12 +64,9 @@ namespace XFABManager
             showProjects.Add(ProjectsShowMode.List, new ListShowProjects());
         }
 
-
+        [OnInspectorGUI]
         void OnGUI()
-        {
-
-           
-
+        {         
             if (buttonStyle == null)
             {
                 ConfigStyle();
@@ -79,8 +78,7 @@ namespace XFABManager
                 this.profileContent = new GUIContent(string.Format("Profile:{0}", XFABManagerSettings.Instances.CurrentGroup));
             }
 
-            profileContent.text = string.Format("Profile:{0}", XFABManagerSettings.Instances.CurrentGroup);
-            //profileContent = new GUIContent( string.Format( "Profile:{0}",XFABManagerSettings.Settings.CurrentGroup));
+            profileContent.text = string.Format("Profile:{0}", XFABManagerSettings.Instances.CurrentGroup);          
             Rect r = GUILayoutUtility.GetRect(profileContent, EditorStyles.toolbarDropDown,GUILayout.Width(150));
 
             if ( EditorGUI.DropdownButton(r,profileContent, FocusType.Passive, EditorStyles.toolbarDropDown ) ) {
@@ -94,10 +92,8 @@ namespace XFABManager
                     }, i);
                 }
 
-                menu.AddSeparator(string.Empty);
-                menu.AddItem(new GUIContent("Manage Profiles"), false, ()=> {
-                    GetWindow<ProfileWindow>("Profiles").Show();
-                });
+                menu.AddSeparator(string.Empty);       
+             
                 menu.DropDown(r);
             }
 
@@ -113,7 +109,7 @@ namespace XFABManager
 
                 menu.AddItem(new GUIContent("Refresh"), false, () => {
                     XFABProjectManager.Instance.RefreshProjects();
-                    this.ShowNotification(new GUIContent("刷新成功!"));
+                    FrameWorkDisignWindow.Instance.ShowNotification(new GUIContent("刷新成功!"));
                 });
                 menu.AddItem(new GUIContent("Package All"), false, () => {
                     BuildAll();
@@ -157,17 +153,17 @@ namespace XFABManager
             }
 
             if (showProjects.ContainsKey( XFABManagerSettings.Instances.ShowMode)) {
-                projectsRect.Set(0, showMode.height, position.width, position.height - showMode.height);
-                showProjects[XFABManagerSettings.Instances.ShowMode].DrawProjects( projectsRect , this );
+                projectsRect.Set(0, showMode.height, FrameWorkDisignWindow.Instance.position.width, FrameWorkDisignWindow.Instance.position.height - showMode.height);
+                showProjects[XFABManagerSettings.Instances.ShowMode].DrawProjects( projectsRect, FrameWorkDisignWindow.Instance);
             }
         }
 
-        // 每秒10帧更新
+       /* // 每秒10帧更新
         void OnInspectorUpdate()
         {
             //开启窗口的重绘，不然窗口信息不会刷新
-            Repaint();
-        }
+            FrameWorkDisignWindow.Instance.Repaint();
+        }*/
 
         #endregion
          

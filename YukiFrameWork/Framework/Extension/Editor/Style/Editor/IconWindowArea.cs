@@ -32,10 +32,9 @@ namespace YukiFrameWork.Extension
             if (showBorder) areaRect = DoBorder(rect);
             else areaRect = rect;
             GUILayout.BeginArea(areaRect);
-
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             OnTitleGUI();
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();           
             OnBodyGUI();
 
             GUILayout.EndArea();

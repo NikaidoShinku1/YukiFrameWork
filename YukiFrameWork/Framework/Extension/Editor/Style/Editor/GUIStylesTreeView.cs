@@ -90,24 +90,32 @@ namespace YukiFrameWork.Extension
 
         public override void OnGUI(Rect rect)
         {
-            searchAreaRect = new Rect(rect.x + rect.width * 0.5f, rect.y, rect.width * 0.5f, 20);
-            searchString = searchField.OnGUI(searchAreaRect,searchString);
+            searchAreaRect = new Rect(rect.x + rect.width * 0.5f, rect.y, rect.width * 0.5f, 20);      
+            searchString = searchField.OnGUI(searchAreaRect,searchString);         
             viewAreaRect = new Rect(rect.x, rect.y + 20, rect.width, rect.height * 0.7f);
             infoAreaRect = new Rect(rect.x, rect.y + viewAreaRect.height + searchAreaRect.height, rect.width, rect.height - searchAreaRect.height);
-            base.OnGUI(viewAreaRect);
-            OnInfoGUI(infoAreaRect);
+            base.OnGUI(viewAreaRect);        
+            OnInfoGUI(infoAreaRect);        
         }
 
         private void OnInfoGUI(Rect rect)
         {
             Rect leftRect = new Rect(infoAreaRect.x, infoAreaRect.y, 80, infoAreaRect.height);
-            GUILayout.BeginArea(leftRect,"","grey_border");
-            OnLeftInfoGUI();
-            GUILayout.EndArea();
+            try
+            {
+                GUILayout.BeginArea(leftRect, "", "grey_border");
+                OnLeftInfoGUI();
+                GUILayout.EndArea();
+            }
+            catch { }
             Rect rightRect = new Rect(infoAreaRect.x + leftRect.width,infoAreaRect.y,rect.width - leftRect.width,infoAreaRect.height);
-            GUILayout.BeginArea(rightRect,"","grey_border");
-            OnRightInfoGUI();
-            GUILayout.EndArea();
+            try
+            {
+                GUILayout.BeginArea(rightRect, "", "grey_border");
+                OnRightInfoGUI();
+                GUILayout.EndArea();
+            }
+            catch { }
         }
 
         private void OnLeftInfoGUI()
@@ -139,6 +147,7 @@ namespace YukiFrameWork.Extension
         {
             if (selectedItem == null) 
             {
+                GUILayout.EndArea();
                 GUIUtility.ExitGUI();
                 return;
             }

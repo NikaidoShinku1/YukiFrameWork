@@ -14,12 +14,19 @@ using UnityEngine;
 using System;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using Sirenix.OdinInspector;
 
 namespace YukiFrameWork.Extension
 {
-    public class MEditorWindow : EditorWindow
+    public class MEditorWindow : IDisposable
     {
+        ~MEditorWindow()
+        {
+            Dispose();
+        }
         protected bool isInit = false;
+
+        [OnInspectorGUI]
         protected virtual void OnGUI()
         {
             if (!isInit) OnEnable();
@@ -27,6 +34,11 @@ namespace YukiFrameWork.Extension
             OnTitleGUI();
             EditorGUILayout.EndHorizontal();
             OnBodyGUI();
+        }
+
+        public MEditorWindow()
+        {
+            OnEnable();
         }
 
         protected virtual void OnEnable()
@@ -53,6 +65,11 @@ namespace YukiFrameWork.Extension
         {
         }
 
+        public void Dispose()
+        {
+            OnDisable();
+        }
+
         /*/// <summary>
         /// 拷贝字符串到剪贴板
         /// </summary>
@@ -77,18 +94,8 @@ namespace YukiFrameWork.Extension
         private GUIStyle[] customStyles;
         private IconArea iconArea;
 
-        private static GUIStyleExtensionWindow window = null;
-
-        [MenuItem("YukiFrameWork/Unity Style 拓展工具")]
-        private static void OpenWindow()
-        {
-            window = GetWindow<GUIStyleExtensionWindow>();
-            window.Show();
-            window.titleContent = new GUIContent("样式拓展工具"); 
-        }
-
         protected override void OnEnable()
-        {      
+        {            
             isInit = true;
             itemAutoChange = false;
             toolArray = GetToolArray();
@@ -130,8 +137,12 @@ namespace YukiFrameWork.Extension
                     guiTreeView.AddTreeViewItem(style, false);
                 itemAutoChange = true;  
             }
-            guiTreeView.Reload(); 
-            guiTreeView.OnGUI(new Rect(0, 25, position.width, position.height));
+            guiTreeView.Reload();
+            try
+            {
+                guiTreeView.OnGUI(new Rect(0, 25, FrameWorkDisignWindow.LocalPosition.width, FrameWorkDisignWindow.LocalPosition.height));
+            }
+            catch { EditorGUIUtility.ExitGUI(); }
         }       
 
         private MultiColumnHeader CreateMMultiColumnHeader()
@@ -166,11 +177,15 @@ namespace YukiFrameWork.Extension
             MultiColumnHeaderState state = new MultiColumnHeaderState(columns);
             MultiColumnHeader header = new MultiColumnHeader(state);
             return header;
-        }
+        }    
 
         private void DrawIcons()
         {
-            iconArea.OnGUI(new Rect(0, 25, position.width, position.height - 30));
+            try
+            {
+                iconArea.OnGUI(new Rect(0, 25, FrameWorkDisignWindow.LocalPosition.width, FrameWorkDisignWindow.LocalPosition.height - 30));
+            }
+            catch { EditorGUIUtility.ExitGUI(); }
         }
 
         private string[] GetToolArray()

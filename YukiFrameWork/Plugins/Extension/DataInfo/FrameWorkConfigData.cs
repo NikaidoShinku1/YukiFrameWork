@@ -33,6 +33,8 @@ namespace YukiFrameWork.Extension
 
         public static string GenerateScriptBtn => !IsEN ? "生成脚本" : "Generate Scripts";
 
+        public static string ViewControllerParent => !IsEN ? "派生自:" : "Derive From:";
+
         public static string OpenPartialScriptBtn => !IsEN ? "打开分写脚本" : "Open the life cycle script";   
        
         public static string AddEventInfo => !IsEN ? "添加事件可视化注册器" : "Add an event visual registry";

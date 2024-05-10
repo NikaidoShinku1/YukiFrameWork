@@ -17,8 +17,6 @@ using UnityEngine.U2D;
 using System.Linq;
 using System.Text;
 
-
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -28,8 +26,17 @@ namespace YukiFrameWork.Item
     {
         public abstract IItem[] Items { get; set; }
     }
-    public abstract class ItemDataBase<Item> : ItemDataBase where Item : IItem
-    {        
+    public abstract class ItemDataBase<Item> : ItemDataBase where Item :class, IItem
+    {
+        [SerializeField, Searchable, FoldoutGroup("物品管理", -1)]
+        private Item[] items = new Item[0];
+
+        public override IItem[] Items
+        {
+            get => items.Select(x => x as IItem).ToArray();
+            set => items = value.Select(x => x as Item).ToArray();
+        }
+
 #if UNITY_EDITOR
         public virtual void OnEnable()
         {

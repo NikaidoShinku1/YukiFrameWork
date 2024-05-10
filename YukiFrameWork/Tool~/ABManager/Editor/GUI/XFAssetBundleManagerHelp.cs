@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Newtonsoft.Json;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -14,13 +15,14 @@ namespace XFABManager
         public string version;
     }
 
-    public class XFAssetBundleManagerHelp : EditorWindow
+    public class XFAssetBundleManagerHelp
     {
         Rect textureRect = new Rect(0, 10, 291 * 0.7F, 96 * 0.7F);
         private GUIStyle style;
 
         private string version;
 
+        [OnInspectorInit]
         private void Awake()
         {
             var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.importPath);
@@ -44,13 +46,7 @@ namespace XFABManager
             //style.onFocused.textColor = Color.red;
         }
 
-        // 每秒10帧更新
-        void OnInspectorUpdate()
-        {
-            //开启窗口的重绘，不然窗口信息不会刷新
-            Repaint();
-        }
-
+        [OnInspectorGUI]
         private void OnGUI()
         {
 

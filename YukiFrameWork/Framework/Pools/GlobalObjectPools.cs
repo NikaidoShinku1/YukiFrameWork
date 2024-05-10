@@ -17,6 +17,7 @@ namespace YukiFrameWork.Pools
         void Init();
         void Release();
     }
+  
     public class GlobalObjectPools<T> : AbstarctPools<T>,ISingletonKit,IDisposable where T : IGlobalSign, new()
     {
         public static GlobalObjectPools<T> Instance => Singleton.GetInstance<GlobalObjectPools<T>>();
@@ -39,7 +40,7 @@ namespace YukiFrameWork.Pools
             Instance.OnInit(initSize,maxSize);
         }
 
-        public static bool GlobalRelease(T obj) => Instance.Release(obj);
+        public static bool GlobalRelease(T obj) => Instance.Release(obj);    
 
         public void OnInit(int initSize, int maxSize)
         {
@@ -129,5 +130,6 @@ namespace YukiFrameWork.Pools
     {
         public static bool GlobalRelease<T>(this T sign) where T : IGlobalSign,new()
             => GlobalObjectPools<T>.GlobalRelease(sign);
+
     }
 }

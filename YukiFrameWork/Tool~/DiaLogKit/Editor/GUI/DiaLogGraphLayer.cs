@@ -7,6 +7,7 @@
 /// -  All Rights Reserved.
 ///=====================================================
 using YukiFrameWork;
+#if UNITY_EDITOR
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -113,3 +114,4 @@ namespace YukiFrameWork.DiaLog
         #endregion
     }
 }
+#endif

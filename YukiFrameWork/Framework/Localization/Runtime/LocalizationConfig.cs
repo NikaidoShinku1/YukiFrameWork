@@ -14,7 +14,9 @@ using YukiFrameWork.Extension;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.U2D;
+
 #if UNITY_EDITOR
+using UnityEditor.Callbacks;
 using UnityEditor;
 #endif
 namespace YukiFrameWork
@@ -27,7 +29,7 @@ namespace YukiFrameWork
 
         public abstract void Init();
 
-        public abstract string[] ConfigKeys { get; }     
+        public abstract string[] ConfigKeys { get; }
     }
   
     public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase where LocalizationData : ILocalizationData,new()

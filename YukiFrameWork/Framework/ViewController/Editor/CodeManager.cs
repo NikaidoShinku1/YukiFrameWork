@@ -13,12 +13,21 @@ using System.Text;
 using YukiFrameWork.Extension;
 using System.Linq;
 using System.Collections.Generic;
+using YukiFrameWork.Pools;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
 namespace YukiFrameWork
 {
-
+    public enum FunctionType
+    {
+        None,
+        Override,
+        Virtual,
+        Abstract,
+        Static
+    }
     public class CodeWriter
     {
         public List<string> codes = new List<string>();
@@ -27,10 +36,44 @@ namespace YukiFrameWork
             codes.Add(code);
             return this;
         }
+
+        public CodeWriter CustomDefaultFunction(string funcName,bool isPublic = true, FunctionType function = FunctionType.None)
+        {
+            string p = string.Empty;
+            switch (function)
+            {
+                case FunctionType.None:
+                    break;
+                case FunctionType.Override:
+                    p = "override";
+                    break;
+                case FunctionType.Virtual:
+                    p = "virtual";
+                    break;
+                case FunctionType.Abstract:
+                    p = "abstract";
+                    break;
+                case FunctionType.Static:
+                    p = "static";
+                    break;            
+            }
+            string func = $"{(isPublic ? "public" : "private")} {p} {funcName.ToLower()}()" + "{  };";
+            codes.Add(func);
+            return this;
+        }
+
+
+        private static SimpleObjectPools<CodeWriter> objectPools
+           = new SimpleObjectPools<CodeWriter>(() => new CodeWriter(), code => code.codes.Clear(), 30);
+
+        public static CodeWriter CreateWriter() => objectPools.Get();
+
     }
 
     public class CodeCore
     {
+        private static SimpleObjectPools<CodeCore> objectPools
+            = new SimpleObjectPools<CodeCore>(() => new CodeCore(), code => code.builder = new StringBuilder(), 30);
         public StringBuilder builder = new StringBuilder();
         public CodeCore Descripton(string fileName,string nameSpace,string description,string dateTime)
         {
@@ -95,6 +138,8 @@ namespace YukiFrameWork
             builder.CreateFileStream(filePath,fileName,".cs");
             return this;
         }
+
+        public static CodeCore CreateCodeCore() => objectPools.Get();
     }
     public static class CodeManager
 	{           
@@ -121,9 +166,9 @@ namespace YukiFrameWork
                     builder.AppendLine("using System;");
                     builder.AppendLine($"namespace {Data?.ScriptNamespace}");
                     builder.AppendLine("{");
-                    if (Data.IsAutoMation && Data.AutoArchitectureIndex != 0)
+                    if (Data.AutoArchitectureIndex != 0)
                         builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({Data?.AutoInfos[Data.AutoArchitectureIndex]}),true)]");
-                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : ViewController");
+                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : {Data.Parent[Data.SelectIndex]}");
                     builder.AppendLine("\t{");
                     builder.AppendLine("");
                     builder.AppendLine("\t}");

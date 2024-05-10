@@ -15,9 +15,11 @@ using System;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork.Extension
 {
-    public class ImportSettingWindow : EditorWindow
+    public class ImportSettingWindow
     {
         private Vector2 scrollPosition;
         private Data data;
@@ -32,6 +34,11 @@ namespace YukiFrameWork.Extension
         {
             public string version;
             public Info author;
+        }
+        private OdinMenuEditorWindow window;
+        public ImportSettingWindow(OdinMenuEditorWindow menuEditorWindow)
+        {
+            this.window = menuEditorWindow;
         }
 
         public const string importPath = "Packages/com.yuki.yukiframework/Plugins/ImportWindow/Data/ImportPath.json";
@@ -53,16 +60,18 @@ namespace YukiFrameWork.Extension
             return customData;
         }
 
-        [MenuItem("YukiFrameWork/Import Window",false,-1000)]
-        static void ShowWindow()
-        {
-            var window = GetWindow<ImportSettingWindow>("YukiFrameWork");
-            window.Show();
-        }      
+        /* [MenuItem("YukiFrameWork/Import Window",false,-1000)]
+         static void ShowWindow()
+         {
+             var window = GetWindow<ImportSettingWindow>("YukiFrameWork");
+             window.Show();
+         }      */
+        [OnInspectorInit]
         private void OnEnable()
         {
             LoadData();        
-        }      
+        }
+        [OnInspectorDispose]
         private void OnDisable()
         {
             SaveData();
@@ -113,7 +122,8 @@ namespace YukiFrameWork.Extension
                 fileStream.Close();
             }
             AssetDatabase.Refresh();
-        }        
+        }
+        [OnInspectorGUI]
         private void OnGUI()
         {                  
             EditorGUILayout.Space();
@@ -316,7 +326,7 @@ namespace YukiFrameWork.Extension
                 }
 
                 GUI.color = Color.red;
-                if (GUILayout.Button(ImportWindowInfo.IsEN ? "Delete Module" : "删除模块", GUILayout.Height(20),data.develop != 1 ? GUILayout.Width(position.width / 2) : GUILayout.Width(position.width / 3)))
+                if (GUILayout.Button(ImportWindowInfo.IsEN ? "Delete Module" : "删除模块", GUILayout.Height(20),data.develop != 1 ? GUILayout.Width(window.position.width / 2.5f) : GUILayout.Width(window.position.width / 4f)))
                 {
                     File.Delete(path + ".meta");
                     Directory.Delete(path,true);

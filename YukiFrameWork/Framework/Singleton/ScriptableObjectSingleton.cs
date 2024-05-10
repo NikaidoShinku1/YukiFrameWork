@@ -21,13 +21,13 @@ namespace YukiFrameWork
             }
         }
 
-        public void OnDestroy()
+        public virtual void OnDestroy()
         {
             instance = null;
             SingletonFectory.ReleaseInstance<T>();
         }
 
-        public void OnDisable()
+        public virtual void OnDisable()
         {
             instance = null;
             SingletonFectory.ReleaseInstance<T>();

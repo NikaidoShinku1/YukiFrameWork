@@ -103,6 +103,45 @@ namespace YukiFrameWork.Extension
             }
             catch { }
 
+            controller.Data.Parent.Clear();
+            controller.Data.Parent.Insert(0, typeof(ViewController).Name);
+            try
+            {
+                var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));
+
+                if (types != null)
+                {
+                    foreach (var type in types)
+                    {
+                        if (type.IsSubclassOf(typeof(ViewController)))
+                        {
+                            controller.Data.Parent.Add(type.FullName);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            if (controller.Data.SelectIndex >= controller.Data.Parent.Count)
+                controller.Data.SelectIndex = 0;
+
+            if (controller.Data.AutoArchitectureIndex >= controller.Data.AutoInfos.Count)
+                controller.Data.AutoArchitectureIndex = 0;
+
+            var currentType = controller.GetType();
+            if (currentType.IsSubclassOf(typeof(ViewController)) && currentType.BaseType != typeof(ViewController))
+            {
+                for (int i = 0; i < controller.Data.Parent.Count; i++)
+                {
+                    if (controller.Data.Parent[i] == currentType.BaseType.FullName)
+                    {
+                        controller.Data.SelectIndex = i;                       
+                        break;
+                    }
+                }
+
+            }
+
         }
 
         protected override  void OnDisable()
@@ -212,16 +251,12 @@ namespace YukiFrameWork.Extension
 
             EditorGUILayout.BeginHorizontal();
 
-            EditorGUI.BeginDisabledGroup(!target.GetType().Equals(typeof(ViewController)));
-            GUILayout.Label(FrameWorkConfigData.AutoInfo, GUILayout.Width(FrameWorkConfigData.IsEN ? 300 : 200));
-            Data.IsAutoMation = EditorGUILayout.Toggle(Data.IsAutoMation, GUILayout.Width(50));
-            EditorGUILayout.EndHorizontal();
-            if (Data.IsAutoMation)
-            {
-                EditorGUILayout.Space(10);
-                SelectArchitecture(Data);
-            }
-            EditorGUILayout.Space(10);
+            EditorGUI.BeginDisabledGroup(!target.GetType().Equals(typeof(ViewController)));          
+            EditorGUILayout.EndHorizontal();            
+            SelectParentClass(Data);
+            EditorGUILayout.Space();
+            SelectArchitecture(Data);
+            EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space(20);
@@ -240,6 +275,14 @@ namespace YukiFrameWork.Extension
                 EditorGUILayout.Space();
                 AddEventCenter(controller);
             }
+        }
+
+        private void SelectParentClass(CustomData data)
+        {
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
+            EditorGUILayout.LabelField(FrameWorkConfigData.ViewControllerParent,GUILayout.Width(120));
+            data.SelectIndex = EditorGUILayout.Popup(data.SelectIndex, data.Parent.ToArray());
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DragObject(Rect rect, out string path)
@@ -263,7 +306,7 @@ namespace YukiFrameWork.Extension
         }
         private void SelectArchitecture(CustomData Data)
         {
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(300));
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
             EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Select Architecture:" : "架构选择:", GUILayout.Width(120));
             Data.AutoArchitectureIndex = EditorGUILayout.Popup(Data.AutoArchitectureIndex, list.ToArray());
             EditorGUILayout.EndHorizontal();

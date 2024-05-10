@@ -244,43 +244,6 @@ namespace YukiFrameWork
             CheckAndCreateFolder();
             SaveExecute(saveObject, fileName, saveID, SerializationType.Xml);
         }
-        /// <summary>
-        /// 将对象保存为Bytes文件(文件名称默认为类名称)
-        /// </summary>
-        /// <param name="saveObject">对象</param>
-        /// <param name="saveID">保存的id</param>
-        public static void SaveObjectToBytes(object saveObject, int saveID = 0)
-            => SaveObjectToBytes(saveObject, saveObject.GetType().Name, saveID);
-
-        /// <summary>
-        /// 将对象保存为Bytes文件(文件名称默认为类名称)
-        /// </summary>
-        /// <param name="saveObject">对象</param>
-        /// <param name="info">存档信息</param>
-        public static void SaveObjectToBytes(object saveObject, SaveInfo info)
-            => SaveObjectToBytes(saveObject, saveObject.GetType().Name, info.saveID);
-
-        /// <summary>
-        /// 将对象保存为Bytes文件
-        /// </summary>
-        /// <param name="saveObject">对象</param>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="info">存档信息</param>
-        public static void SaveObjectToBytes(object saveObject, string fileName, SaveInfo info)
-           => SaveObjectToBytes(saveObject, fileName, info.saveID);
-
-        /// <summary>
-        /// 将对象保存为Bytes文件
-        /// </summary>
-        /// <param name="saveObject">对象</param>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="saveID">保存的id</param>
-        public static void SaveObjectToBytes(object saveObject, string fileName, int saveID = 0)
-        {
-            CheckAndCreateFolder();
-            SaveExecute(saveObject, fileName, saveID, SerializationType.Bytes);
-        }
-
         private static void SaveExecute(object saveObject, string fileName, int saveID, SerializationType serialization)
         {
             string info = string.Empty;
@@ -291,10 +254,7 @@ namespace YukiFrameWork
                     break;
                 case SerializationType.Xml:
                     info = SerializationTool.XmlSerializedObject(saveObject);
-                    break;
-                case SerializationType.Bytes:
-                    info = Encoding.UTF8.GetString(SerializationTool.ByteSerializedObject(saveObject));
-                    break;              
+                    break;           
             }
 
             string folder = GetSavePath(saveID);     
@@ -360,8 +320,7 @@ namespace YukiFrameWork
             return type switch
             {
                 SerializationType.Json => ".json",
-                SerializationType.Xml => ".xml",
-                SerializationType.Bytes => ".bytes",
+                SerializationType.Xml => ".xml",              
                 _ => string.Empty
             };
         }
@@ -483,50 +442,6 @@ namespace YukiFrameWork
             return LoadObjectFromXml<T>(typeof(T).Name, info.saveID);
         }
 
-        /// <summary>
-        /// 通过bytes文件读取存档
-        /// </summary>
-        /// <typeparam name="T">返回的类型</typeparam>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="saveID">保存的id</param>
-        /// <returns>返回一个类型为T的对象</returns>
-        public static T LoadObjectFromBytes<T>(string fileName, int saveID = 0) where T : class
-        {
-            return Loading<T>(fileName,saveID,SerializationType.Bytes);
-        }
-        /// <summary>
-        /// 通过bytes文件读取存档
-        /// </summary>
-        /// <typeparam name="T">返回的类型</typeparam>
-        /// <param name="fileName">文件名称</param>
-        /// <param name="info">存档信息</param>
-        /// <returns>返回一个类型为T的对象</returns>
-        public static T LoadObjectFromBytes<T>(string fileName, SaveInfo info) where T : class
-        {
-            return LoadObjectFromBytes<T>(fileName, info.saveID);
-        }
-        /// <summary>
-        /// 通过bytes文件读取存档
-        /// </summary>
-        /// <typeparam name="T">返回的类型</typeparam>
-        /// <param name="saveID">保存的id</param>
-        /// <returns>返回一个类型为T的对象</returns>
-        public static T LoadObjectFromBytes<T>(int saveID = 0) where T : class
-        {
-            return LoadObjectFromBytes<T>(typeof(T).Name,saveID);
-        }
-
-        /// <summary>
-        /// 通过bytes文件读取存档
-        /// </summary>
-        /// <typeparam name="T">返回的类型</typeparam>     
-        /// <param name="info">存档信息</param>
-        /// <returns>返回一个类型为T的对象</returns>
-        public static T LoadObjectFromBytes<T>(SaveInfo info) where T : class
-        {
-            return LoadObjectFromBytes<T>(typeof(T).Name, info.saveID);
-        }
-
         private static T Loading<T>(string fileName,int saveID,SerializationType type) where T : class
         {
             string name = GetSaveName(type, fileName);
@@ -552,11 +467,7 @@ namespace YukiFrameWork
                         break;
                     case SerializationType.Xml:
                         obj = SerializationTool.XmlDeserializedObject<T>(info);
-                        break;
-                    case SerializationType.Bytes:
-                        byte[] bytes = Encoding.UTF8.GetBytes(info);
-                        obj = SerializationTool.ByteDeserializedObject<T>(bytes);
-                        break;                
+                        break;                 
                 }
             }
 

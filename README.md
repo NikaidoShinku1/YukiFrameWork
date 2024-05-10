@@ -7,14 +7,14 @@
 
 特殊标记: 下载压缩包或者fork项目(V1.13.0更新后会出现如大量报错，请按照安装教程说明将Sirenix文件夹整个复制到Assets项目中)
 
-![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading.png)
+![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading.png)
 
 将Sirenix文件夹整个复制到项目Assets文件夹下，在完成这一步之后再进行导入框架的操作！
 
 在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
-![输入图片说明](YukiFrameWork/Plugins/Description/Resources/Loading2.png)
+![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading2.png)
 
-框架工具集合:可在下方打开ImportWindow自行导入需要的模块。
+框架本地配置窗口:如图打开LocalConfiguration，可以显示框架所有的配置以及示例还有工具导入窗口!
 ![输入图片说明](YukiFrameWork/Framework/Texture/des.png)
 
 注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！必须要按照教程说明进行框架安装!
@@ -25,6 +25,8 @@
 ![输入图片说明](YukiFrameWork/Framework/Texture/Controller1.png)
 ![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
 ![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
+
+支持直接使用快捷键Ctrl + Q创建ViewController。
 
 [ViewController对架构的自动化具体使用示例](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController使用说明.md)
 
@@ -81,6 +83,8 @@
 - 框架支持插件:[Odin](https://odininspector.com/);
 
 #### 框架更新版本速览
+
+V1.15.4 优化编辑器窗口，现在将所有的配置统一到LocalConfig窗口中，优化细节。
 
 V1.15.3 优化ItemKit，现在可以自定义Item类与自定义ItemDataBase类
 

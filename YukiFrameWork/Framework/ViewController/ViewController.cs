@@ -26,8 +26,7 @@ namespace YukiFrameWork
     {
         [SerializeField]
         private string completedFile;       
-        [SerializeField]
-        private bool isAutoMation = true;
+        
         [SerializeField]
         private int autoArchitectureIndex;
         [SerializeField]
@@ -36,6 +35,10 @@ namespace YukiFrameWork
         private string assetPath = "Assets";
         [SerializeField]
         private bool isCustomAssembly = false;
+
+        private List<string> parents = new List<string>();
+
+        private int selectIndex = 0;
 
         public string AssetPath
         {
@@ -47,12 +50,7 @@ namespace YukiFrameWork
         {
             get => completedFile;
             set => completedFile = value;
-        }      
-        public bool IsAutoMation
-        {
-            get => isAutoMation;
-            set => isAutoMation = value;
-        }
+        }            
 
         public int AutoArchitectureIndex
         {
@@ -67,6 +65,14 @@ namespace YukiFrameWork
         }
 
         public List<string> AutoInfos => autoInfos;
+
+        public List<string> Parent => parents;
+
+        public int SelectIndex
+        {
+            get => selectIndex;
+            set => selectIndex = value;
+        }
 
         private bool isPartialLoading = false;
 

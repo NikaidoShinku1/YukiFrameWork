@@ -25,7 +25,8 @@ namespace YukiFrameWork
         temporaryCachePath,           
         [LabelText("自定义存档路径")]
         custom
-    }  
+    }
+    [HideMonoScript]
 	public class SaveToolConfig : ScriptableObject
     {
         [LabelText("文件夹名称:"), BoxGroup("文件路径设置")]
