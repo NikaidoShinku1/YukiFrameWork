@@ -33,9 +33,9 @@ namespace YukiFrameWork.ExampleRule
             Utility,
             Command,
 			Controller
-		}    
-
-		private static string exampleTextPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Text/";
+		}
+#if UNITY_EDITOR
+        private static string exampleTextPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Text/";
 
 		private static string userPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Rule/User.cs";
 
@@ -48,7 +48,7 @@ namespace YukiFrameWork.ExampleRule
         private static string userUtilityPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Rule/UserUtility.cs";
 
         private static string userCommandPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Rule/UserCommand.cs";
-
+#endif
         internal static string UserEventKey => "UserData";
 
         [SerializeField,EnumToggleButtons(),LabelText("规则分布")]
