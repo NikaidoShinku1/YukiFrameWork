@@ -25,6 +25,10 @@ namespace YukiFrameWork.Extension
             [LabelText("文件名称")]
             public string fileName;
         }
+        public SerializationWindow(int selectIndex)
+        {
+            this.selectIndex = selectIndex;
+        }
         [Serializable]
         class JsonData
         {

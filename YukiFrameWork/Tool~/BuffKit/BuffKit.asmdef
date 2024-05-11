@@ -1,0 +1,18 @@
+{
+    "name": "BuffKit",
+    "rootNamespace": "",
+    "references": [
+        "GUID:28de4b2156c475e4d864ce1532193932",
+        "GUID:ac5442d03fe2cf94a8f2482cfc427e6c",
+        "GUID:35d17ca44c3f9e0489ba3bd4ba52f23c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -315,7 +315,7 @@ namespace YukiFrameWork
         {
             yield return new WaitDefaultFrame();
         }
-       
+        
         public static IEnumerator WaitUntil(Func<bool> m_Predicate)
         {
             yield return new CustomWaitUntil(m_Predicate);

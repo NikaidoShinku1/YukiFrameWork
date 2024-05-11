@@ -19,7 +19,6 @@ namespace YukiFrameWork.ExampleRule.ExampleFrameWork
         public override void OnInit()
         {
             this.RegisterUtility(new UserUtility());//默认注册
-            this.RegisterModel(new UserModel());
             
         }
     }

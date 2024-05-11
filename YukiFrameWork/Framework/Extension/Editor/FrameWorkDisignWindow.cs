@@ -34,9 +34,7 @@ namespace YukiFrameWork
         private Dictionary<string,int> titleDicts;
 
         private int selectIndex;
-        private FrameworkConfigInfo config;
-        [SerializeField]
-        private SerializationWindow serializationWindow = new SerializationWindow();
+        private FrameworkConfigInfo config;    
        
         protected override void OnEnable()
         {
@@ -106,11 +104,7 @@ namespace YukiFrameWork
                             if (selectItem.Parent.FlatTreeIndex == 0 || selectItem.Parent.FlatTreeIndex == 6)
                             {
                                 config.SelectIndex = value;
-                            }
-                            else if (selectItem.Parent.FlatTreeIndex == 3)
-                            {
-                                serializationWindow.selectIndex = value;
-                            }
+                            }                        
                         }
                     }
 
@@ -129,8 +123,8 @@ namespace YukiFrameWork
                 { $"框架基本设置/{keys[0]}", config.GetFramework(0), Sirenix.OdinInspector.SdfIconType.File },
                 { $"框架基本设置/{keys[2]}",config.GetFramework(2),Sirenix.OdinInspector.SdfIconType.AspectRatio},
 
-                { $"框架序列化工具/{keys[3]}",this,Sirenix.OdinInspector.SdfIconType.SegmentedNav},
-                { $"框架序列化工具/{keys[4]}",this,Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
+                { $"框架序列化工具/{keys[3]}",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
+                { $"框架序列化工具/{keys[4]}",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
                 { $"{keys[1]}",config.GetFramework(1),Sirenix.OdinInspector.SdfIconType.Controller},
             };
 

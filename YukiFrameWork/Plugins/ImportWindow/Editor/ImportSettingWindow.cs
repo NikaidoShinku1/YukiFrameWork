@@ -88,7 +88,7 @@ namespace YukiFrameWork.Extension
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
-            ["ABManager"] = packagePath + "/Tool~/ABManager",
+            ["BuffKit"] = packagePath + "/Tool~/BuffKit",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",
@@ -188,13 +188,13 @@ namespace YukiFrameWork.Extension
            , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
-            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit");         
+            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit");
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.BuffKitInfo
+                , MessageType.Info, string.Format("{0}/BuffKit", data.path), "BuffKit", packagePath + "/Tool~/BuffKit");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.IOCInfo
             , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", packagePath + "/Tool~/IOCContainer");
-
-            DrawBoxGUI(Color.white, ImportWindowInfo.ABManagerInfo
-          , MessageType.Info, string.Format("{0}/ABManager", data.path), "ABManager", packagePath + "/Tool~/ABManager");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.UIInfo
            , MessageType.Info, string.Format("{0}/UI",data.path), "UI", packagePath + "/Tool~/UI");

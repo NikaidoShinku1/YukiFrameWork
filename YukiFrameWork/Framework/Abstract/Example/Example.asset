@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Example
   m_EditorClassIdentifier: 
   rule: 0
-  user: {fileID: 1250641312685367009, guid: 21c32693876c37a478c5845b529396d7, type: 3}
-  IsModel: 1
+  user: {fileID: 0}
+  IsModel: 0
   IsSystem: 0

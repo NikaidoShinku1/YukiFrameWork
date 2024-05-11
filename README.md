@@ -5,7 +5,11 @@
 
 #### 安装教程
 
-特殊标记: 下载压缩包或者fork项目(V1.13.0更新后会出现如大量报错，请按照安装教程说明将Sirenix文件夹整个复制到Assets项目中)
+特殊标记: 
+
+1.下载压缩包或者fork项目(V1.13.0更新后会出现如大量报错，请按照安装教程说明将Sirenix文件夹整个复制到Assets项目中)
+
+2.V1.16.0开始需要删除Assets文件夹下导入的XFABManager模块，已经内置在框架package中。
 
 ![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading.png)
 
@@ -41,6 +45,8 @@
 - 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md)
 
 - 框架对话系统:[DiaLogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md);
+
+- 框架Buff系统[BuffKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md)
 
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
@@ -83,6 +89,8 @@
 - 框架支持插件:[Odin](https://odininspector.com/);
 
 #### 框架更新版本速览
+
+V1.16.0 框架更新Buff系统，优化窗口细节，新版本必须先将在Assets文件夹里的ABManager模块删除，该资源管理模块已经内置框架。
 
 V1.15.4 优化编辑器窗口，现在将所有的配置统一到LocalConfig窗口中，优化细节。
 
