@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using YukiFrameWork;
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public class BranchDialogue : CompositeNode
     {

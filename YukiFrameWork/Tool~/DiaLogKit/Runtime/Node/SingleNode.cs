@@ -1,5 +1,5 @@
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public abstract class SingleNode : Node
     {

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     [RootNode]
     public class RootDialogue : Node

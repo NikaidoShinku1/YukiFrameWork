@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     [Serializable]
     public class Option

@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      DiaLogKit.cs
-/// - NameSpace:     YukiFrameWork.DiaLog
+/// - NameSpace:     YukiFrameWork.DiaLogueue
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/4/12 20:50:57
 /// -  (C) Copyright 2008 - 2024
@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using Sirenix.OdinInspector;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public enum DiaLogLoadMode
     {
@@ -216,11 +216,15 @@ namespace YukiFrameWork.DiaLog
             DiaLogTree.OnTreeEnd();             
         }
         public MoveNodeState MoveNext()
-        { 
+        {
             var state = DiaLogTree.MoveNext();
             if (state == MoveNodeState.Succeed)
             {
-                DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, DiaLogTree.runningNode);                            
+                DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, DiaLogTree.runningNode);
+            }
+            else if (state == MoveNodeState.Failed)
+            {
+                DiaLogTree.onEndCallBack.SendEvent();
             }
             return state;
         }
@@ -257,6 +261,14 @@ namespace YukiFrameWork.DiaLog
         {            
             return DiaLogTree.onExitCallBack.RegisterEvent(exitEvent);
         }
+
+        /// <summary>
+        /// 注册当对话树结束或者推进状态为Failed时触发的事件
+        /// </summary>
+        /// <param name="endEvent"></param>
+        /// <returns></returns>
+        public IUnRegister RegisterTreeEndEvent(Action endEvent)
+            => DiaLogTree.onEndCallBack.RegisterEvent(endEvent);
 
         /// <summary>
         /// 通过对应下标查找到分支节点后设置分支的完成回调，以及分支结束时的回调

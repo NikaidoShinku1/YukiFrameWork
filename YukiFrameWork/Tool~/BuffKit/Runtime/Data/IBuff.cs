@@ -17,17 +17,17 @@ namespace YukiFrameWork.Buffer
 		/// <summary>
 		/// BUff唯一标识
 		/// </summary>
-		string BuffKey { get; }
+		string GetBuffKey { get; }
 
 		/// <summary>
 		/// Buff名称
 		/// </summary>
-		string BuffName { get; }
+		string GetBuffName { get; }
 
 		/// <summary>
 		/// Buff介绍
 		/// </summary>
-		string Description { get; }
+		string GetDescription { get; }
 
 		/// <summary>
 		/// 当Buff存在时重复添加类型

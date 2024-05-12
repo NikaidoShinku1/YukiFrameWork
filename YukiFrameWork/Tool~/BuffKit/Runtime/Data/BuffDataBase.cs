@@ -81,10 +81,10 @@ namespace YukiFrameWork.Buffer
             foreach (var item in buffConfigs)
             {
                 if (item == null) continue;
-                if (string.IsNullOrEmpty(item.BuffKey)) continue;
+                if (string.IsNullOrEmpty(item.GetBuffKey)) continue;
 
-                writer.CustomCode($"public static string {item.BuffKey}_Key = \"{item.BuffKey}\";");
-                writer.CustomCode($"public static IBuff {item.BuffKey} => BuffKit.GetBuffByKey(\"{item.BuffKey}\");");
+                writer.CustomCode($"public static string {item.GetBuffKey}_Key = \"{item.GetBuffKey}\";");
+                writer.CustomCode($"public static IBuff {item.GetBuffKey} => BuffKit.GetBuffByKey(\"{item.GetBuffKey}\");");
             }
             codeCore.CodeSetting(nameSpace, "Buffs", string.Empty, writer).Create("Buffs", filePath);
         }

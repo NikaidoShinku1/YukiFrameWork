@@ -10,13 +10,13 @@ using UnityEditor;
 #endif
 using Sirenix.OdinInspector;
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public enum MoveNodeState
     {
         Idle,//没有推进
         Succeed,//成功推进
-        Failed,//推进失败
+        Failed,//推进失败       
     }
     [CreateAssetMenu(fileName = "NodeTree", menuName = "YukiFrameWork/NodeTree")]
     public class NodeTree : ScriptableObject
@@ -58,7 +58,7 @@ namespace YukiFrameWork.DiaLog
 
             if (!runningNode.IsCompleted)
             {
-                return MoveNodeState.Failed;
+                return MoveNodeState.Idle;
             }
 
             if (runningNode.IsDefaultMoveNext)
@@ -143,6 +143,9 @@ namespace YukiFrameWork.DiaLog
 
         internal readonly EasyEvent<Node> onEnterCallBack = new EasyEvent<Node>();
         internal readonly EasyEvent<Node> onExitCallBack = new EasyEvent<Node>();
+
+        //当对话树推进失败/结束时调用
+        internal readonly EasyEvent onEndCallBack = new EasyEvent();
         // 对话树结束的触发方法
         internal virtual void OnTreeEnd()
         {

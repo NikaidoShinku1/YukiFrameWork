@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      DiaLogGraphLayer.cs
-/// - NameSpace:     YukiFrameWork.DiaLog
+/// - NameSpace:     YukiFrameWork.DiaLogue
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/4/30 0:44:14
 /// -  (C) Copyright 2008 - 2024
@@ -12,7 +12,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
 	public class DiaLogGraphLayer
 	{

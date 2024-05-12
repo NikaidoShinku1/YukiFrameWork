@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 
 #if UNITY_EDITOR
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public class DiaLogNodeLayer : DiaLogGraphLayer
     {

@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using YukiFrameWork;
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     // 对话节点状态枚举值
     public enum NodeTreeState

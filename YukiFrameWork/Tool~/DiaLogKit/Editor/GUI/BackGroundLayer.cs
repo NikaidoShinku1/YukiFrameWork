@@ -8,7 +8,7 @@ using System.Reflection;
 
 #if UNITY_EDITOR
 using UnityEditor;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public class BackGroundLayer : DiaLogGraphLayer
     {

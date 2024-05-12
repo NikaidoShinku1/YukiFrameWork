@@ -130,6 +130,19 @@ namespace YukiFrameWork
             .builder.CreateFileStream(codePath, "Localization", ".cs");
 
         }
+
+        [InitializeOnLoadMethod]
+        static void CreateConfig()
+        {
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
+
+            if (info == null)
+            {
+                info = ScriptableObject.CreateInstance<FrameworkConfigInfo>();
+                AssetDatabase.CreateAsset(info, "Assets/Resources/FrameworkConfigInfo.asset");
+                AssetDatabase.Refresh();
+            }
+        }
 #endif
     }
 

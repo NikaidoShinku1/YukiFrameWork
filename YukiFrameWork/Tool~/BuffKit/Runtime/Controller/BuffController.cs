@@ -52,7 +52,7 @@ namespace YukiFrameWork.Buffer
 
         public IBuff Buffer { get; private set; }
 
-		public string BuffKey => Buffer.BuffKey;
+		public string BuffKey => Buffer.GetBuffKey;
 
 		public UIBuffer UIBuffer { get; internal set; }
 

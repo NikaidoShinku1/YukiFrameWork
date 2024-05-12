@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      DiaLogEditorWindow.cs
-/// - NameSpace:     YukiFrameWork.DiaLog
+/// - NameSpace:     YukiFrameWork.DiaLogue
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/4/30 0:45:17
 /// -  (C) Copyright 2008 - 2024
@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using Sirenix.OdinInspector.Editor;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
 	public class DiaLogEditorWindow : OdinEditorWindow
 	{

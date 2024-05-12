@@ -1,5 +1,5 @@
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     /// <summary>
     /// 设置对话分支的根节点,设置该特性必须直接继承Node类

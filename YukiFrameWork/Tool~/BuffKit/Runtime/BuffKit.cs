@@ -55,7 +55,7 @@ namespace YukiFrameWork.Buffer
         {
             foreach (var buff in buffDataBase.buffConfigs)
             {
-                buffItems.Add(buff.BuffKey, buff);
+                buffItems.Add(buff.GetBuffKey, buff);
             }
         }
 
@@ -64,5 +64,21 @@ namespace YukiFrameWork.Buffer
             buffItems.TryGetValue(key, out var buff);
             return buff;
         }
+
+        public static void DependLocalizationConfig(string configKey,char spilt = ':')
+        {
+            LocalizationConfigKey = configKey;
+            Spilt = spilt;
+            UseLocalizationConfig = true;
+        }
+
+        internal static bool UseLocalizationConfig { get; private set; } = false;
+
+        internal static string LocalizationConfigKey { get; private set; }
+
+        public static char Spilt { get; private set; }
+
+        internal static ILocalizationData GetContent(string buffKey)
+            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);
     }
 }

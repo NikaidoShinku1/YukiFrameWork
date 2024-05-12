@@ -1,6 +1,6 @@
 ﻿///=====================================================
 /// - FileName:      UIOptionGroup.cs
-/// - NameSpace:     YukiFrameWork.DiaLog
+/// - NameSpace:     YukiFrameWork.DiaLogue
 /// - Description:   通过本地的代码生成器创建的脚本
 /// - Creation Time: 2024/5/2 21:39:37
 /// -  (C) Copyright 2008 - 2024
@@ -10,7 +10,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Collections;
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
 	public class UIOptionGroup : MonoBehaviour
 	{

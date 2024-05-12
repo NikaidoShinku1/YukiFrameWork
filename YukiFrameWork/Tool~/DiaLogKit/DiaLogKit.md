@@ -1,6 +1,6 @@
 ﻿对话系套件:DiaLogKit
 
-命名空间: using YukiFrameWork.DiaLog;
+命名空间: using YukiFrameWork.DiaLogue;
 
 在Assets文件夹下创建NodeTree，一个对话树的根节点文件：
 
@@ -133,6 +133,8 @@ DiaLog API:
     - IUnRegister RegisterWithNodeEnterEvent(Action<Node> startEvent)；//注册每次更新对话时进入的事件
 
     - IUnRegister RegisterWithNodeExitEvent(Action<Node> exitEvent)；//注册每次对话结束时的事件
+
+    - IUnRegister RegisterTreeEndEvent(Action endEvent); // 注册当对话树结束或者推进返回Failed时触发的回调
 
     //设置对应分支节点的完成逻辑。以及可以自定义结束的逻辑
     - void OnOptionsCompleted(int nodeIndex, Action<CompositeNode, Option[]> action,Action onFinish);

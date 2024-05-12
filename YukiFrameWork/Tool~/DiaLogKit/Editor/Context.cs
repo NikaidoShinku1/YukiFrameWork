@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 
-namespace YukiFrameWork.DiaLog
+namespace YukiFrameWork.DiaLogue
 {
     public class Context 
     {

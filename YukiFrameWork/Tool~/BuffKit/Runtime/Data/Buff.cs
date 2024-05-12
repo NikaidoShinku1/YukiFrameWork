@@ -18,12 +18,12 @@ namespace YukiFrameWork.Buffer
     public abstract class Buff : ScriptableObject, IBuff
     {
         [SerializeField, LabelText("Buff的唯一标识:"), InfoBox("该标识应唯一，不允许出现多个buff同标识的情况"),JsonProperty]
-        private string buffKey;
+        private string BuffKey;
         [JsonIgnore]
-        public string BuffKey
+        public string GetBuffKey
         {
-            get => buffKey;
-            set => buffKey = value;
+            get => BuffKey;
+            set => BuffKey = value;
         }
 
         public static Buff CreateInstance(string buffName, Type type)
@@ -36,20 +36,34 @@ namespace YukiFrameWork.Buffer
         public Buff Clone() => GameObject.Instantiate(this);
 
         [SerializeField, LabelText("Buff名称:"),JsonProperty]
-        private string buffName;
+        private string BuffName;
         [JsonIgnore]
-        public string BuffName
+        public string GetBuffName
         {
-            get => buffName;
-            set => buffName = value;
+            get
+            {
+                return BuffKit.UseLocalizationConfig ? BuffKit.GetContent(BuffKey).Context.Split(BuffKit.Spilt)[0] : BuffName;
+            }
+            set
+            {
+                if (BuffKit.UseLocalizationConfig)
+                    BuffKit.GetContent(BuffKey).Context = $"{value}{BuffKit.Spilt}{GetDescription}";
+                else BuffName = value;
+            }
         }
         [SerializeField, LabelText("Buff的介绍:"),JsonProperty,TextArea]
-        private string description;
+        private string Description;
         [JsonIgnore]
-        public string Description
+        public string GetDescription
         {
-            get => description;
-            set => description = value;
+            get => BuffKit.UseLocalizationConfig ? BuffKit.GetContent(BuffKey).Context.Split(BuffKit.Spilt)[1] : Description;
+            set
+            {
+
+                if (BuffKit.UseLocalizationConfig)
+                    BuffKit.GetContent(BuffKey).Context = $"{GetBuffName}{BuffKit.Spilt}{value}";
+                else Description = value;
+            }
         }
         [SerializeField, LabelText("Buff重复添加的类型:"),JsonProperty]
         private BuffRepeatAdditionType additionType;
@@ -137,7 +151,7 @@ namespace YukiFrameWork.Buffer
 
                     if (buff == null || buff.BuffName == BuffName) continue;
 
-                    names.Add(buff.BuffName, buff.buffKey);
+                    names.Add(buff.BuffName, buff.BuffKey);
                 }               
 
                 return names;
