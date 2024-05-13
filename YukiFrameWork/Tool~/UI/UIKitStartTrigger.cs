@@ -38,6 +38,7 @@ namespace YukiFrameWork.UI
 		[SerializeField, HideInInspector]
 		private int selectIndex;
 		[SerializeField, BoxGroup("加载的方式:")]
+		[InfoBox("该组件加载的面板必须是本地的面板资源，如果是从服务端下载，请使用XFABManager的API进行加载")]
 		private ResourcesType resourcesType;
 		[SerializeField, BoxGroup("加载的方式:")]
 		private LoadType loadType = LoadType.XFABManager;
