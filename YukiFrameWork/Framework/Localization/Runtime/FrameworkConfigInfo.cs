@@ -139,6 +139,11 @@ namespace YukiFrameWork
             if (info == null)
             {
                 info = ScriptableObject.CreateInstance<FrameworkConfigInfo>();
+                if (!Directory.Exists("Assets/Resources"))
+                {
+                    Directory.CreateDirectory("Assets/Resources");
+                    AssetDatabase.Refresh();
+                }
                 AssetDatabase.CreateAsset(info, "Assets/Resources/FrameworkConfigInfo.asset");
                 AssetDatabase.Refresh();
             }
