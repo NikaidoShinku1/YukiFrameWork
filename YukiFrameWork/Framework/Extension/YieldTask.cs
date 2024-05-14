@@ -317,6 +317,6 @@ namespace YukiFrameWork
         public static void SetRunOnUnityScheduler(ICoroutineCompletion completion, Coroutine coroutine)
         {
             RunOnUnityScheduler(() => completion.Coroutine = coroutine);
-        }
+        }      
     }
 }

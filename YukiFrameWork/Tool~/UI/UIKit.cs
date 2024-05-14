@@ -280,7 +280,7 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 根据加载后的面板/路径名称关闭面板(name与使用OpenPanel时一致),如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭
+        /// 根据加载后的面板/路径名称关闭面板(name与使用OpenPanel时一致),如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭，当查找面板发现没有开启时，会按照正常情况自顶关闭
         /// </summary>
         /// <param name="name"></param>
         public static void ClosePanel(string name)
@@ -297,7 +297,7 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 关闭相应类型的面板,如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭
+        /// 关闭相应类型的面板,如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭，当查找面板发现没有开启时，会按照正常情况自顶关闭 
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public static void ClosePanel<T>() where T : class, IPanel

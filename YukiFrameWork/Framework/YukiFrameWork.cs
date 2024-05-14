@@ -215,13 +215,13 @@ namespace YukiFrameWork
             easyContainer.Register<T>(t);            
         }    
         
-        public T GetModel<T>(int id = 0) where T : class,IModel
+        public virtual T GetModel<T>(int id = 0) where T : class,IModel
             => easyContainer.GetModel<T>(id);
 
-        public T GetSystem<T>() where T : class,ISystem
+        public virtual T GetSystem<T>() where T : class,ISystem
            => easyContainer.Get<T>();
 
-        public T GetUtility<T>() where T : class,IUtility
+        public virtual T GetUtility<T>() where T : class,IUtility
             => easyContainer.Get<T>();
 
         IEnumerable<T> IArchitecture.GetModels<T>()

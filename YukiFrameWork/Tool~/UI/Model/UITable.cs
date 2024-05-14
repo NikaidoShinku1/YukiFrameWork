@@ -228,6 +228,7 @@ namespace YukiFrameWork.UI
         private List<IPanel> panels = new List<IPanel>();
         public Type panelType;
         public bool IsNull => panels.Count == 0;
+        public int index;
         public IEnumerator GetEnumerator()
         {
             return panels.GetEnumerator();
@@ -295,13 +296,13 @@ namespace YukiFrameWork.UI
         }
     }
 
-    public class StackPanelTable : UIKitTable<Stack<PanelElementTable>>
+    public class StackPanelTable : UIKitTable<PanelStack>
     {            
         public StackPanelTable()
         {
             for (UILevel i = UILevel.BG; i < UILevel.Top + 1; i++)
             {
-                container.Add(i, new Stack<PanelElementTable>());
+                container.Add(i, new PanelStack());
             }
         }        
 
@@ -338,35 +339,112 @@ namespace YukiFrameWork.UI
        
         public override void Remove(PanelInfo info)
         {                      
-            var stack = container[info.level];
-
+            var stack = container[info.level];          
             if (stack.Count > 0)
             {
                 var list = stack.Peek();
+                var current = stack.Find(x => x.panelType == info.panelType);
+                if (list == current || current == null)
+                {
+                    if (info.panel != null)
+                    {
+                        info.panel.Exit();
+                        list.Remove(info.panel);
+                        if (!info.panel.IsPanelCache)
+                            info.panel.gameObject.Destroy();
+                    }
+                    else
+                    {
+                        list.Clear();
+                    }
+                    if (list.Count == 0)
+                    {
+                        var core = stack.Pop();
+                        GlobalObjectPools<PanelElementTable>.GlobalRelease(core);
+                    }
 
-                if (info.panel != null)
-                {
-                    info.panel.Exit();
-                    list.Remove(info.panel);
-                    if (!info.panel.IsPanelCache)
-                        info.panel.gameObject.Destroy();
+                    if (stack.Count > 0)
+                    {
+                        list = stack.Peek();
+                        list.OnResume();
+                    }
                 }
-                else
+                else if(current != null)
                 {
-                    list.Clear();
+                    if (info.panel != null)
+                    {
+                        info.panel.Exit();
+                        current.Remove(info.panel);
+                        if (!info.panel.IsPanelCache)
+                            info.panel.gameObject.Destroy();
+                    }
+                    else
+                    {
+                        current.Clear();
+                    }
+                    if (current.Count == 0)
+                    {
+                        stack.Remove(current);
+                        GlobalObjectPools<PanelElementTable>.GlobalRelease(current);
+                    }
                 }
-                if (list.Count == 0)
+            }          
+        }
+    }
+
+    public class PanelStack : IEnumerable
+    {
+        private FastList<PanelElementTable> mTables = new FastList<PanelElementTable>();
+       
+        public void Push(PanelElementTable elementTable)
+        {
+            elementTable.index = mTables.Count;
+            mTables.Add(elementTable);    
+        }
+
+        public int Count => mTables.Count;
+
+        public PanelElementTable Pop()
+        {          
+            if (mTables.Count == 0) return null;
+            PanelElementTable table = mTables[Count - 1];
+            mTables.Remove(table);           
+            return table;      
+        }
+
+        public PanelElementTable Peek()
+        {
+            return mTables.LastOrDefault();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return mTables.GetEnumerator();
+        }
+
+        public PanelElementTable Find(Func<PanelElementTable, bool> func)
+        {
+            foreach (var item in mTables)
+            {
+                if (func.Invoke(item))
                 {
-                    var core = stack.Pop();
-                    GlobalObjectPools<PanelElementTable>.GlobalRelease(core);
+                    return item;
                 }
             }
 
-            if (stack.Count > 0)
+            return null;
+        }
+
+        public bool Remove(PanelElementTable elementTable)
+        {
+            mTables.Remove(elementTable);
+
+            for (int i = 0; i < mTables.Count; i++)
             {
-                var list = stack.Peek();
-                list.OnResume();
-            }          
+                mTables[i].index = i;
+            }
+
+            return true;
         }
     }
 }
