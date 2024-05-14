@@ -10,7 +10,11 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using System.IO;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace YukiFrameWork
 {
     public enum FolderType
@@ -29,13 +33,56 @@ namespace YukiFrameWork
     [HideMonoScript]
 	public class SaveToolConfig : ScriptableObject
     {
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        static void CreateConfig()
+        {
+            string path = "Assets/Resources";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                AssetDatabase.Refresh();
+            }
+
+            SaveToolConfig config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
+
+            if (config == null)
+            {
+                config = ScriptableObject.CreateInstance<SaveToolConfig>();
+                AssetDatabase.CreateAsset(config, path + "/" + nameof(SaveToolConfig) + ".asset");
+                AssetDatabase.Refresh();
+            }
+        }
+#endif
+
         [LabelText("文件夹名称:"), BoxGroup("文件路径设置")]
         public string saveFolderName = "SaveData";
 
         [LabelText("保存的文件路径:"), BoxGroup("文件路径设置"), ShowIf(nameof(IsCustom))]
         public string saveFolder;
 
-        public string saveDirPath => saveFolder + @"/" + saveFolderName;    
+        public string saveDirPath
+        {
+            get
+            {
+                string fileName = @"/" + saveFolderName;
+                switch (folderType)
+                {
+                    case FolderType.persistentDataPath:
+                        return Application.persistentDataPath + fileName;
+                    case FolderType.dataPath:
+                        return Application.dataPath + fileName;                    
+                    case FolderType.streamingAssetsPath:
+                        return Application.streamingAssetsPath + fileName;                      
+                    case FolderType.temporaryCachePath:
+                        return Application.temporaryCachePath + fileName;                       
+                    case FolderType.custom:
+                        return saveFolder + fileName;
+                }
+
+                return default;
+            }
+        }
         [LabelText("文件夹方式选择:"),SerializeField, BoxGroup("文件路径设置")]
         public FolderType folderType = FolderType.persistentDataPath;   
        

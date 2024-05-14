@@ -117,7 +117,7 @@ namespace YukiFrameWork
             string path = GetSavePath(saveID, false);
             if (!string.IsNullOrEmpty(path))
             {
-                Directory.Delete(path);
+                Directory.Delete(path,true);
 #if UNITY_EDITOR
                 AssetDatabase.Refresh();
 #endif
