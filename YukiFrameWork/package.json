@@ -1,6 +1,6 @@
 {
   "name": "com.yuki.yukiframework",
-  "version": "1.16.1",
+  "version": "1.16.2",
   "unity": "2020.3",
   "displayName": "YukiFrameWork",
   "description": "YukiFrameWork是一款架构分层的快速开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、序列化工具、声音管理模块、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展,有框架协程性能工具以及场景管理工具，具备类似Odin插件的一些编辑器自定义功能,框架集成Odin、DoTween、UniRx、UniTask作为工具可以自由选择使用",
