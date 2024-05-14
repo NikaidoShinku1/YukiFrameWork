@@ -97,4 +97,13 @@ namespace YukiFrameWork
             onCompleted?.Invoke(asyncOperation);
         }
     }
+
+    public class SceneListener : SingletonMono<SceneListener>
+    {
+        protected override void Awake()
+        {
+            IsDonDestroyLoad = false;
+            base.Awake();
+        }
+    }
 }

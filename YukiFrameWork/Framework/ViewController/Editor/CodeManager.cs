@@ -395,6 +395,27 @@ namespace YukiFrameWork
             EditorUtility.SetDirty(infoAsset);
             AssetDatabase.SaveAssets();
         }
+
+        public static void DragObject(Rect rect, out string path)
+        {
+            Event e = Event.current;
+            path = string.Empty;
+            if (rect.Contains(e.mousePosition))
+            {
+                DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
+
+                if (e.type == EventType.DragPerform)
+                {
+                    var assets = DragAndDrop.objectReferences;
+                    if (assets[0].GetType().Equals(typeof(DefaultAsset)))
+                    {
+                        path = AssetDatabase.GetAssetPath(assets[0]);
+                    }
+                    e.Use();
+                }
+            }
+        }
+
         public static void BindInspector(ISerializedFieldInfo info,Component target, Action GenericCallBack = null)
         {       
             EditorGUI.BeginDisabledGroup(IsPlaying);

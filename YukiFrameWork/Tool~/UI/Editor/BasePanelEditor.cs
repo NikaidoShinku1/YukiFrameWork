@@ -47,10 +47,10 @@ namespace YukiFrameWork.UI
                 AssetDatabase.Refresh();
             }
 
-            if (panel.GetType() == typeof(BasePanel))
+            if (panel.GetType() == typeof(BasePanel) && panel.Data.ScriptNamespace.IsNullOrEmpty())
             {
                 var genericInfo = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");
-                panel.Data.ScriptNamespace = genericInfo != null ? genericInfo.nameSpace + ".UI" : "YukiFrameWork.Example.UI";
+                panel.Data.ScriptNamespace = genericInfo.nameSpace + ".UI";
             }
 
             if(panel.Data.IsPartialLoading)
@@ -143,11 +143,14 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.BeginHorizontal();
+            var rect = EditorGUILayout.BeginHorizontal();
 
             GUILayout.Label(FrameWorkConfigData.Path, GUILayout.Width(200));
             GUILayout.TextField(Data.ScriptPath);
             CodeManager.SelectFolder(Data);
+            CodeManager.DragObject(rect, out string path);
+            if (!path.IsNullOrEmpty())
+                Data.ScriptPath = path;
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space();

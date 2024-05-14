@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -133,6 +133,26 @@ namespace YukiFrameWork
                 gameObjects[i].Hide();
             }
             return gameObjects;
+        }
+
+        public static bool Active<T>(this T component) where T : Component
+        {
+            return Active(component.gameObject);
+        }
+
+        public static bool Active(this GameObject gameObject)
+        {
+            return gameObject.activeSelf;
+        }
+
+        public static bool ActiveInHierarchy<T>(this T component) where T : Component
+        {
+            return Active(component.gameObject);
+        }
+
+        public static bool ActiveInHierarchy(this GameObject gameObject)
+        {
+            return gameObject.activeInHierarchy;
         }
 
         #endregion
@@ -593,7 +613,7 @@ namespace YukiFrameWork
     {
 
         /// <summary>
-        /// ×¢ÏúÊÂ¼ş£¬²¢ÇÒ°ó¶¨MonoBehaviourÉúÃüÖÜÆÚ,µ±Ïú»ÙµÄÊ±×Ô¶¯Çå¿ÕÊÂ¼ş
+        /// æ³¨é”€äº‹ä»¶ï¼Œå¹¶ä¸”ç»‘å®šMonoBehaviourç”Ÿå‘½å‘¨æœŸ,å½“é”€æ¯çš„æ—¶è‡ªåŠ¨æ¸…ç©ºäº‹ä»¶
         /// </summary>
         /// <param name="gameObject">GameObject</param>
         public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action onFinish = null) where Component : UnityEngine.Component
@@ -602,7 +622,7 @@ namespace YukiFrameWork
         }
 
         /// <summary>
-        /// ×¢ÏúÊÂ¼ş£¬²¢ÇÒ°ó¶¨MonoBehaviourÉúÃüÖÜÆÚ,µ±Ïú»ÙµÄÊ±×Ô¶¯Çå¿ÕÊÂ¼ş
+        /// æ³¨é”€äº‹ä»¶ï¼Œå¹¶ä¸”ç»‘å®šMonoBehaviourç”Ÿå‘½å‘¨æœŸ,å½“é”€æ¯çš„æ—¶è‡ªåŠ¨æ¸…ç©ºäº‹ä»¶
         /// </summary>
         /// <param name="gameObject">GameObject</param>
         public static void UnRegisterWaitGameObjectDestroy(this IUnRegister property, UnityEngine.GameObject gameObject, Action onFinish = null)
@@ -616,5 +636,14 @@ namespace YukiFrameWork
             objectSend.PushFinishEvent(onFinish);
 
         }
+
+        /// <summary>
+        /// æ³¨é”€äº‹ä»¶ï¼Œå¹¶ä¸”ç»‘å®šå½“å‰åœºæ™¯
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitSceneUnLoad<Component>(this IUnRegister property, Action onFinish = null) where Component : UnityEngine.Component
+        {
+            UnRegisterWaitGameObjectDestroy(property, SceneListener.Instance, onFinish);
+        }   
     }
 }

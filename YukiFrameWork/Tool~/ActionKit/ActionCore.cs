@@ -432,7 +432,7 @@ namespace YukiFrameWork
             }.Start(MonoHelper.I,onFinish);
         }
 
-        public static IActionNodeController BindGameObject<T,K>(this IMonoActionNode<K> mono,T component,Action callBack = null) where T : Component where K : Delegate
+        public static IActionNodeController Start<T,K>(this IMonoActionNode<K> mono,T component,Action callBack = null) where T : Component where K : Delegate
         {
             return new MonoActionController<K>()
             {
@@ -440,7 +440,7 @@ namespace YukiFrameWork
             }.Start(component,callBack);
         }
 
-        public static IActionNodeController BindGlobal<K>(this IMonoActionNode<K> mono,Action callBack = null) where K : Delegate
+        public static IActionNodeController StartGlobal<K>(this IMonoActionNode<K> mono,Action callBack = null) where K : Delegate
         {
             return new MonoActionController<K>()
             {

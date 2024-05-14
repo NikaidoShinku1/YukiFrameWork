@@ -242,7 +242,7 @@ namespace YukiFrameWork.Extension
             GUILayout.Label(FrameWorkConfigData.Path, GUILayout.Width(200));
             GUILayout.TextField(Data.ScriptPath);
             CodeManager.SelectFolder(Data);
-            DragObject(rect, out string path);
+            CodeManager.DragObject(rect, out string path);
             if (!string.IsNullOrEmpty(path))
                 Data.ScriptPath = path;
             EditorGUILayout.EndHorizontal();
@@ -283,27 +283,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.LabelField(FrameWorkConfigData.ViewControllerParent,GUILayout.Width(120));
             data.SelectIndex = EditorGUILayout.Popup(data.SelectIndex, data.Parent.ToArray());
             EditorGUILayout.EndHorizontal();
-        }
-
-        private void DragObject(Rect rect, out string path)
-        {
-            Event e = Event.current;
-            path = string.Empty;
-            if (rect.Contains(e.mousePosition))
-            {
-                DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
-
-                if (e.type == EventType.DragPerform)
-                {
-                    var assets = DragAndDrop.objectReferences;
-                    if (assets[0].GetType().Equals(typeof(DefaultAsset)))
-                    {
-                        path = AssetDatabase.GetAssetPath(assets[0]);
-                    }
-                    e.Use();
-                }
-            }
-        }
+        }     
         private void SelectArchitecture(CustomData Data)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Width(400));

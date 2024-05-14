@@ -92,21 +92,45 @@ namespace YukiFrameWork
 
     public static class SyncContext
     {
+        private static bool isInstall = false;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Install()
         {
+            if (isInstall) return;
             UnitySynchronizationContext = SynchronizationContext.Current;
             UnityThreadId = Thread.CurrentThread.ManagedThreadId;
+            isInstall = true;
         }
+
+        private static SynchronizationContext synchronization;
+        private static int mThreadId = -1;
 
         public static int UnityThreadId
         {
-            get; private set;
+            get
+            {
+                if (mThreadId == -1)
+                    Install();
+                return mThreadId;
+            }
+            private set
+            {
+                mThreadId = value;
+            }
         }
 
         public static SynchronizationContext UnitySynchronizationContext
         {
-            get; private set;
+            get
+            {
+                if (synchronization == null)
+                    Install();
+                return synchronization;
+            }
+            private set
+            {
+                synchronization = value;
+            }
         }
     }
 
