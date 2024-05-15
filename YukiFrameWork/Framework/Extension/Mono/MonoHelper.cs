@@ -33,13 +33,17 @@ namespace YukiFrameWork
             MonoHelper helper = target as MonoHelper;
             if (helper == null) return;
 
-            serializedObject.Update();
-            foreach (var index in helper.GetCoreIndex())
-            {               
-                EditorGUILayout.PropertyField(coreProperty.GetArrayElementAtIndex(index), new GUIContent((EventEditorInfo.IsEN ? "Logger" : "注册器 ")),true);
-            }           
+            if (!Application.isPlaying && !helper.IsAgree)
+            {
+                EditorGUILayout.HelpBox("Yuki非常不建议在Editor状态下添加MonoHelper,可能会引发生命周期顺序不一而导致的问题。Helper应该是运行时通过代码调用生成!如你确保自己的逻辑处理以及生命周期触发完全没有问题,那么可以在Editor添加", MessageType.Error);
 
-            serializedObject.ApplyModifiedProperties();
+                EditorGUILayout.Space();
+                if (GUILayout.Button("我已确认警告",GUILayout.Height(30)))
+                {
+                    helper.IsAgree = true;
+                }
+            }
+            else base.OnInspectorGUI();
         }
     }
 
@@ -49,80 +53,7 @@ namespace YukiFrameWork
     [GUIDancePath("YukiFrameWork/Framework/Extension")]
     public class MonoHelper : SingletonMono<MonoHelper>
     {
-        [Serializable]
-        public class MonoEventCore
-        {
-            [Header("事件生命周期:")]
-            public UpdateStatus updateStatus;
-            [Header("Event")]
-            public UnityEvent<MonoHelper> onMonoEvent;
-        }
-      
-        [SerializeField, Header("可视化的事件注册")] private MonoEventCore[] cores = new MonoEventCore[] 
-        {
-            new MonoEventCore
-            {
-                updateStatus = UpdateStatus.OnUpdate
-            },
-            new MonoEventCore
-            {
-                updateStatus = UpdateStatus.OnFixedUpdate,
-            },
-            new MonoEventCore 
-            {
-                updateStatus = UpdateStatus.OnLateUpdate
-            }
-        };
-
-#if UNITY_EDITOR
-        [MenuItem("GameObject/YukiFrameWork/MonoHelper")]
-        public static void CreateHelperTool()
-        {
-            
-            GameObject obj = Selection.activeGameObject;
-#if UNITY_2020_1_OR_NEWER
-            obj ??= new GameObject("MonoBehaviour Helper");
-#endif
-            Undo.RegisterCreatedObjectUndo(obj, "Create Mono Helper");
-
-            obj.AddComponent<MonoHelper>();
-
-            EditorUtility.SetDirty(obj);
-            AssetDatabase.SaveAssets();
-        }  
-
-        public IEnumerable<int> GetCoreIndex()
-        {
-            for (int i = 0; i < cores.Length; i++)
-            {
-                yield return i;
-            }
-        }
-#endif
-        protected override void Awake()
-        {
-            base.Awake();           
-
-            Action<MonoHelper> onEvent = null;
-            foreach(var core in cores)
-            {
-                onEvent = helper => core.onMonoEvent?.Invoke(helper);
-               
-                switch (core.updateStatus)
-                {
-                    case UpdateStatus.OnUpdate:
-                        Update_AddListener(onEvent);
-                        break;
-                    case UpdateStatus.OnFixedUpdate:
-                        FixedUpdate_AddListener(onEvent);
-                        break;
-                    case UpdateStatus.OnLateUpdate:
-                        LateUpdate_AddListener(onEvent);
-                        break;                 
-                }
-            };
-           
-        }    
+        internal bool IsAgree = false;
         private event Action<MonoHelper> onUpdateEvent;
 
         private event Action<MonoHelper> onLateUpdateEvent;

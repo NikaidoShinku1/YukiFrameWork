@@ -58,11 +58,13 @@ namespace YukiFrameWork
         private bool IsCustom => folderType == FolderType.custom && LogSaving;
         [SerializeField,LabelText("允许最大生成的文件数量"), BoxGroup("文件路径设置"), ShowIf(nameof(LogSaving))]
         internal int fileCount = 20;
+
+        [ShowInInspector]
         public string saveDirPath
         {
             get
             {
-                string folderName = "/Log";
+                string folderName = "/Logs";
                 switch (folderType)
                 {
                     case FolderType.persistentDataPath:

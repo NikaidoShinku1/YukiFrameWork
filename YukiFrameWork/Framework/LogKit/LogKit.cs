@@ -16,13 +16,14 @@ using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
+using System.Text;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System.Threading.Tasks;
 using System.Linq;
 namespace YukiFrameWork
-{    
+{
     [ClassAPI("控制台拓展")]
     [GUIDancePath("YukiFrameWork/Framework/LogKit")]
     public class LogKit
@@ -30,11 +31,21 @@ namespace YukiFrameWork
         internal const string LOGFULLCONDITION = "YukiFrameWork_DEBUGFULL";
         internal const string LOGINFOCONDITION = "YukiFrameWork_DEBUGINFO";
         internal const string LOGWARNINGCONDITION = "YukiFrameWork_DEBUGWARNING";
-        internal const string LOGERRORCONDITION = "YukiFrameWork_DEBUGERROR";       
-        private static LogConfig config;
+        internal const string LOGERRORCONDITION = "YukiFrameWork_DEBUGERROR";
+
+        private static LogConfig _config;
+
+        private static LogConfig config
+        {
+            get
+            {
+                if (_config == null)
+                    _config = Resources.Load<LogConfig>(nameof(LogConfig));
+                return _config;
+            }
+        }
 
         private static StreamWriter mLogInfoWriter;
-        private static Task writeFileTask = null;    
 
         public static bool LogEnabled
         {
@@ -51,7 +62,7 @@ namespace YukiFrameWork
         private static string mLogFileName;
         private static bool IsWriting;
 
-        private static Queue<string> allLogInfos = new Queue<string>();
+        private static Queue<string> allLogInfos = new Queue<string>();     
 
         static void InitLogFileName()
         {
@@ -59,69 +70,79 @@ namespace YukiFrameWork
             mLogFileName = mLogFileName.Replace("-", "_");
             mLogFileName = mLogFileName + ".log";
         }
+        static LogKit() 
+        {
+            Application.logMessageReceivedThreaded += OnLogByUnity;
+        }
 
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Init()
-        {          
-            config = Resources.Load<LogConfig>(nameof(LogConfig));
-
+        {
             if (config == null) return;
             if (config.saveDirPath.IsNullOrEmpty()) return;
 
-            Task.Run(() =>
+            if (!Directory.Exists(config.saveDirPath)) return;
+
+            CheckFileSize();
+
+            LogKit.I("获取日志文件输出路径:" + config.saveDirPath);
+        }
+
+        private static async void CheckFileSize()
+        {
+            ///防止运行时卡顿，真实时间三秒后执行
+            await CoroutineTool.WaitForSecondsRealtime(3f);
+            var files = Directory.GetFiles(config.saveDirPath).Where(x => !x.EndsWith(".meta") && !x.StartsWith("EditorLogTip")).ToArray();
+
+            int deleteSize = files.Length - config.fileCount;
+            if (deleteSize <= 0) return;  
+            try
             {
-                string[] files = Directory.GetFiles(config.saveDirPath).Where(x => !x.EndsWith(".meta")).ToArray();
-                Array.Reverse(files);
-                for (int i = 0; i < files.Length; i++)
+                for (int i = 0; i < deleteSize; i++)
                 {
-                    try
-                    {                      
-                        DateTime dateTime = File.GetCreationTime(files[i]);
-
-                        if ((DateTime.Now - dateTime).Days > 3 || i + 1 > config.fileCount)
-                        {
-                            File.Delete(files[i]);
-                        }
-                    }
-                    catch (Exception)
-                    {
-
-                    }
+                    //每一百个文件等待一帧
+                    if(i % 100 == 0)                   
+                        await CoroutineTool.WaitForFrame();
+                    File.Delete(files[i]);
                 }
-            });
+            }
+            catch (Exception)
+            {
+
+            }
+
         }
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         static void EditorInit()
-        {          
+        {
             string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
 
-            config = Resources.Load<LogConfig>(nameof(LogConfig));
             if (config == null)
             {
-                config = ScriptableObject.CreateInstance<LogConfig>();
+                _config = ScriptableObject.CreateInstance<LogConfig>();
                 string path = "Assets/Resources";
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                     AssetDatabase.Refresh();
                 }
-                AssetDatabase.CreateAsset(config, $"{path}/{nameof(LogConfig)}.asset");
+                AssetDatabase.CreateAsset(_config, $"{path}/{nameof(LogConfig)}.asset");
                 AssetDatabase.Refresh();
             }
-            if (!config.IsInitialization)
+            if (!_config.IsInitialization)
             {
-                config.IsInitialization = true;
+                _config.IsInitialization = true;
                 if (defines.IsNullOrEmpty())
                     defines += LOGFULLCONDITION + ";";
                 else defines += $";{LOGFULLCONDITION};";
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
-            }        
+            }
         }
 #endif
-        [Conditional(LOGINFOCONDITION),Conditional(LOGFULLCONDITION)]
-        public static void I(object message,params object[] args)
+        [Conditional(LOGINFOCONDITION), Conditional(LOGFULLCONDITION)]
+        public static void I(object message, params object[] args)
         {
             if (!config.LogEnabled) return;
             string msg = $"{config.prefix} Info:{message}";
@@ -134,8 +155,8 @@ namespace YukiFrameWork
             allLogInfos.Enqueue(msg);
             LogToFile();
         }
-        [Conditional(LOGFULLCONDITION),Conditional(LOGWARNINGCONDITION)]
-        public static void W(object message,params object[] args)
+        [Conditional(LOGFULLCONDITION), Conditional(LOGWARNINGCONDITION)]
+        public static void W(object message, params object[] args)
         {
             if (!config.LogEnabled) return;
             string msg = $"{config.prefix} Warning:{message}";
@@ -149,7 +170,7 @@ namespace YukiFrameWork
             LogToFile();
         }
         [Conditional(LOGFULLCONDITION), Conditional(LOGERRORCONDITION)]
-        public static void E(object message,params object[] args)
+        public static void E(object message, params object[] args)
         {
             if (!config.LogEnabled) return;
 
@@ -162,8 +183,8 @@ namespace YukiFrameWork
 
             allLogInfos.Enqueue(msg);
             LogToFile();
-        }    
-      
+        }
+
         public static void Exception(Exception e)
         {
             Debug.LogException(e);
@@ -173,23 +194,19 @@ namespace YukiFrameWork
         {
             Exception(new System.Exception(message.ToString()));
         }
-
+        static StringBuilder stackBuilder = new StringBuilder();
         private static void OnLogByUnity(string condition, string stackTrace, LogType type)
         {
-            if(type == LogType.Log || condition.StartsWith(config.prefix))
-            {
-                return;
-            }
-            var str = type == LogType.Warning ? "[W]" : "[E]" + GetSystemNowTime() + condition + "\n" + stackTrace;                 
+            // 这里只关心报错信息
+            if (type != LogType.Exception) return;
+
+            if (!config.LogSaving) return;
+            stackBuilder.Clear();
+            stackBuilder.Append("[").Append(DateTime.Now.ToString()).Append("]").Append("[").Append(type.ToString()).Append("]").Append(condition).AppendLine();
+            stackBuilder.AppendLine(stackTrace);
+            allLogInfos.Enqueue(stackBuilder.ToString());
             LogToFile();
-
-        } 
-
-        private static string GetSystemNowTime()
-        {
-            return DateTime.Now.ToString("HH:mm:ss.fff") + " "; ;
-        }
-
+        }   
         /// <summary>
         /// 将日志写入到文件中
         /// </summary>
@@ -205,58 +222,56 @@ namespace YukiFrameWork
             else if (mLogFileName.IsNullOrEmpty())
                 InitLogFileName();
 
-            writeFileTask = Task.Run(() =>
-            {                  
-                if (string.IsNullOrEmpty(config.saveDirPath))
-                {                  
-                    return;
-                }
-                string path = config.saveDirPath + "/" + mLogFileName;                
-                try
-                {
-                    if (!Directory.Exists(config.saveDirPath))
-                    {
-                        Directory.CreateDirectory(config.saveDirPath);
-                    }                   
-                    mLogInfoWriter = File.AppendText(path);                                
+            if (string.IsNullOrEmpty(config.saveDirPath))
+            {
+                return;
+            }
 
-                    while (allLogInfos.Count > 0)
-                    {
-                        string t = allLogInfos.Dequeue();
-                        mLogInfoWriter.WriteLine(t);
-                        mLogInfoWriter.Flush();
-                    }
-                    mLogInfoWriter.Close();
-
-                }
-                catch (Exception)
+            string path = config.saveDirPath + "/" + mLogFileName;
+            try
+            {
+                if (!Directory.Exists(config.saveDirPath))
                 {
-                   
+                    Directory.CreateDirectory(config.saveDirPath);
                 }
-                IsWriting = false;
-                writeFileTask = null;
-                mLogInfoWriter = null;
-            });
-        }   
+                mLogInfoWriter = File.AppendText(path);
+
+                while (allLogInfos.Count > 0)
+                {
+                    string t = allLogInfos.Dequeue();
+                    mLogInfoWriter.WriteLine(t);
+                    mLogInfoWriter.Flush();
+                }
+                mLogInfoWriter.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex.ToString());
+            }
+            IsWriting = false;
+            mLogInfoWriter = null;
+
+        }
 
     }
-    
+
     [ClassAPI("日志工具拓展")]
     public static class LogKitExtension
     {
-        public static void LogInfo<T>(this T core,params object[] args)
+        public static void LogInfo<T>(this T core, params object[] args)
         {
-            LogKit.I(core,args);
-        }
-        
-        public static void LogError<T>(this T core,params object[] args)
-        {
-            LogKit.E(core,args);
+            LogKit.I(core, args);
         }
 
-        public static void LogWarning<T>(this T core,params object[] args)
+        public static void LogError<T>(this T core, params object[] args)
         {
-            LogKit.W(core,args);
+            LogKit.E(core, args);
+        }
+
+        public static void LogWarning<T>(this T core, params object[] args)
+        {
+            LogKit.W(core, args);
         }
 
         public static void LogException<T>(this Exception core)
@@ -270,5 +285,5 @@ namespace YukiFrameWork
         }
     }
 
-  
+
 }
