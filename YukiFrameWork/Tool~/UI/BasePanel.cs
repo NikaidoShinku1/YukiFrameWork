@@ -13,7 +13,7 @@ namespace YukiFrameWork.UI
     public interface IPanel
     {
         void OnInit();
-        void Enter();
+        void Enter(params object[] param);
         void Resume();
         void Pause();
         void Exit();
@@ -102,7 +102,7 @@ namespace YukiFrameWork.UI
         }
 
         [MethodAPI("面板打开(进入)")]
-        public virtual void OnEnter()
+        public virtual void OnEnter(params object[] param)
         {                     
               
         }
@@ -132,14 +132,14 @@ namespace YukiFrameWork.UI
             => UIKit.ClosePanel(this);      
 
         #region IPanel
-        void IPanel.Enter()
+        void IPanel.Enter(params object[] param)
         {
             if (canvasGroup == null)
                 canvasGroup = GetComponent<CanvasGroup>();
 
             canvasGroup.alpha = 1;
             canvasGroup.blocksRaycasts = true;       
-            OnEnter();
+            OnEnter(param);
             IsActive = true;
             IsPaused = false;
         }

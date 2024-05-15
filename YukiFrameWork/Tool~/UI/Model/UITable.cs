@@ -293,6 +293,7 @@ namespace YukiFrameWork.UI
         {
             panels.Clear();
             panelType = null;
+            index = -1;
         }
     }
 
@@ -317,7 +318,7 @@ namespace YukiFrameWork.UI
 
                 if (list.panelType == panel.GetType() && panel.OpenType == PanelOpenType.Multiple)
                 {
-                    panel.Enter();
+                    panel.Enter(info.param);
                     panel.gameObject.SetParent(UIManager.Instance.GetPanelLevel(panel.Level));
                     panel.gameObject.transform.SetAsLastSibling();
                     list.Add(panel);
@@ -328,7 +329,7 @@ namespace YukiFrameWork.UI
                     list.OnPause();
                 }
             }           
-            panel.Enter();
+            panel.Enter(info.param);
             panel.gameObject.SetParent(UIManager.Instance.GetPanelLevel(panel.Level));
             panel.gameObject.transform.SetAsLastSibling();           
             var core = GlobalObjectPools<PanelElementTable>.GlobalAllocation();

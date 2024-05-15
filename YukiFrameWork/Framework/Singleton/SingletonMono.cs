@@ -60,7 +60,7 @@ namespace YukiFrameWork
         public static void Show(Action action = null)
         {
             T i = instance;
-
+            if (!i) return;
             i.gameObject.SetActive(true);
 
             if (action != null)
@@ -71,7 +71,8 @@ namespace YukiFrameWork
 
         public static void Hide(bool isBack = true)
         {
-            T i = instance;          
+            T i = instance;
+            if (!i) return;
             if (isBack && i.OnBack != null && i.OnBack.Count>0)
             {
                 i.OnBack.Pop()?.Invoke();

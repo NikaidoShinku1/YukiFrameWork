@@ -269,9 +269,9 @@ namespace YukiFrameWork
                     builder.AppendLine("\t\t{");
                     builder.AppendLine("\t\t\tbase.OnInit();");
                     builder.AppendLine("\t\t}");
-                    builder.AppendLine("\t\tpublic override void OnEnter()");
+                    builder.AppendLine("\t\tpublic override void OnEnter(params object[] param)");
                     builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnEnter();");
+                    builder.AppendLine("\t\t\tbase.OnEnter(param);");
                     builder.AppendLine("\t\t}");
                     builder.AppendLine("\t\tpublic override void OnPause()");
                     builder.AppendLine("\t\t{");

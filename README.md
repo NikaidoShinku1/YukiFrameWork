@@ -90,6 +90,8 @@
 
 #### 框架更新版本速览
 
+V1.16.4 拓展SceneTool中的API，现在支持使用SceneTool.XFABManager进行从ab包加载场景的拓展API，优化UI模块，OnEnter添加参数传递，优化MonoHelper的判空
+
 V1.16.3 优化UI模块的关闭面板功能，重新打包Audio模块的示例。
 
 V1.16.2 优化ActionKit细节，新增生命周期与场景绑定，修复异步同步锁的赋值生命周期，防止启动架构时冲突。GameObject新增部分拓展API。

@@ -57,7 +57,7 @@ namespace YukiFrameWork
             [Header("Event")]
             public UnityEvent<MonoHelper> onMonoEvent;
         }
-
+      
         [SerializeField, Header("可视化的事件注册")] private MonoEventCore[] cores = new MonoEventCore[] 
         {
             new MonoEventCore
@@ -121,7 +121,8 @@ namespace YukiFrameWork
                         break;                 
                 }
             };
-        }       
+           
+        }    
         private event Action<MonoHelper> onUpdateEvent;
 
         private event Action<MonoHelper> onLateUpdateEvent;
@@ -172,13 +173,13 @@ namespace YukiFrameWork
 
         public static Coroutine Start(IEnumerator enumerator)
         {
-            if (I == null || I.ToString() == "null") return null;
+            if (ReferenceEquals(I,null)) return null;
             return I.StartCoroutine(enumerator);
         }
         public static void Stop(Coroutine coroutine)
         {
-            if(I != null || I.ToString() != "null")
-                I.StopCoroutine(coroutine);
+            if (ReferenceEquals(I, null)) return;
+            I.StopCoroutine(coroutine);
         }
 
         private void Update()
@@ -198,8 +199,7 @@ namespace YukiFrameWork
 
         public override void OnDestroy()
         {
-            base.OnDestroy();
-
+            base.OnDestroy();          
             onUpdateEvent = null;
             onFixedUpdateEvent = null;
             onLateUpdateEvent = null;

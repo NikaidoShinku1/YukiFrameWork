@@ -466,9 +466,11 @@ namespace YukiFrameWork.States
 
                 EditorGUILayout.Space();
 
-                EditorGUILayout.BeginHorizontal();
+                var rect = EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("创建状态脚本路径:");
                 filePath = EditorGUILayout.TextField(filePath,GUILayout.Width(350));
+                CodeManager.DragObject(rect, out var newPath);
+                if (!newPath.IsNullOrEmpty()) filePath = newPath;
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("状态脚本名称:");

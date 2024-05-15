@@ -20,7 +20,7 @@ namespace YukiFrameWork
             
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static YieldBuilder Create()
-        {
+        {   
             return new YieldBuilder() {task = new YieldTask() };
         }   
 

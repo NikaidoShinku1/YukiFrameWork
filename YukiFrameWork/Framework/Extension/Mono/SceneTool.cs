@@ -10,12 +10,16 @@ using UnityEngine;
 using System;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using YukiFrameWork.Extension;
+using XFABManager;
 namespace YukiFrameWork
 {
 	public static class SceneTool
 	{	
 		public static event Action<float> LoadingScene = null;
         public static event Action LoadSceneSucceed = null;
+
+        public static readonly XFABManagerSceneTool XFABManager = new XFABManagerSceneTool();
 
 		public static void LoadScene(string sceneName,LoadSceneMode mode = LoadSceneMode.Single)
 			=> SceneManager.LoadScene(sceneName,mode);
@@ -41,7 +45,7 @@ namespace YukiFrameWork
             return LoadSceneAsync(operation, loadingCallBack);              
         }
 
-        private static IEnumerator LoadSceneAsync(AsyncOperation asyncOperation, Action<float> loadingCallBack = null)
+        internal static IEnumerator LoadSceneAsync(AsyncOperation asyncOperation, Action<float> loadingCallBack = null)
         {
             float progress = 0f;
 
@@ -83,7 +87,7 @@ namespace YukiFrameWork
             return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted,loadingCallBack);
         }
 
-        private static IEnumerator LoadSceneAsyncWithAllowSceneActive(AsyncOperation asyncOperation, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null)
+        internal static IEnumerator LoadSceneAsyncWithAllowSceneActive(AsyncOperation asyncOperation, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null)
         {
             asyncOperation.allowSceneActivation = false;          
             while (asyncOperation.progress < 0.9f)
@@ -105,5 +109,30 @@ namespace YukiFrameWork
             IsDonDestroyLoad = false;
             base.Awake();
         }
+    }
+
+    public class XFABManagerSceneTool
+    {
+        private string projectName;
+        private bool isInited = false;
+        [MethodAPI("XFABManager的场景加载封装拓展工具")]
+        public void Init(string projectName)
+        {
+            if (isInited) return;
+            isInited = true;
+            this.projectName = projectName;
+        }
+
+        public void LoadScene(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        {
+            if (!isInited) return;
+            AssetBundleManager.LoadScene(projectName, sceneName, mode);
+        }
+
+        public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+            => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsync(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
+
+        public IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+            => isInited ? SceneTool.LoadSceneAsyncWithAllowSceneActive(AssetBundleManager.LoadSceneAsync(projectName, sceneName, mode), onCompleted, loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
     }
 }

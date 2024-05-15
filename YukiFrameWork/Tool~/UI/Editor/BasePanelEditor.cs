@@ -191,7 +191,7 @@ namespace YukiFrameWork.UI
             builder.AppendLine("using YukiFrameWork;");
             builder.AppendLine("using UnityEngine;");
             builder.AppendLine("using UnityEngine.UI;");
-            builder.AppendLine("using TMPro;");
+            //builder.AppendLine("using TMPro;");
             builder.AppendLine();
 
             builder.AppendLine($"namespace {panel.Data.ScriptNamespace}");

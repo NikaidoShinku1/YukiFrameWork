@@ -73,10 +73,10 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T">面板类型</typeparam>
         /// <param name="name">路径/名称</param>
         /// <returns></returns>
-        public static T OpenPanel<T>(string name) where T : BasePanel
+        public static T OpenPanel<T>(string name, params object[] param) where T : BasePanel
         {
             IPanel panelCore = GetPanelCore<T>(name);         
-            return OpenPanelExecute<T>(name, panelCore.Level, panelCore as T);
+            return OpenPanelExecute<T>(name, panelCore.Level, panelCore as T,param);
         }
 
         /// <summary>
@@ -86,10 +86,10 @@ namespace YukiFrameWork.UI
         /// <param name="name">路径/名称</param>
         /// <param name="level">UI层级</param>
         /// <returns></returns>
-        public static T OpenPanel<T>(string name,UILevel level) where T : BasePanel
+        public static T OpenPanel<T>(string name,UILevel level,params object[] param) where T : BasePanel
         {
             IPanel panelCore = GetPanelCore<T>(name);           
-            return OpenPanelExecute<T>(name, level, panelCore as T);
+            return OpenPanelExecute<T>(name, level, panelCore as T,param);
         }   
 
         private static IPanel GetPanelCore<T>(string name) where T : class,IPanel
@@ -113,10 +113,10 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="panel"></param>      
         /// <returns></returns>
-        public static T OpenPanel<T>(T panel) where T : BasePanel
+        public static T OpenPanel<T>(T panel, params object[] param) where T : BasePanel
         {            
             UIManager.Instance.AddPanelCore(panel);
-            return OpenPanelExecute(panel.name,panel.Level,panel);
+            return OpenPanelExecute(panel.name,panel.Level,panel,param);
         }
 
         /// <summary>
@@ -125,10 +125,10 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="panel"></param>      
         /// <returns></returns>
-        public static T OpenPanel<T>(T panel,UILevel level) where T : BasePanel
+        public static T OpenPanel<T>(T panel,UILevel level, params object[] param) where T : BasePanel
         {
             UIManager.Instance.AddPanelCore(panel);
-            return OpenPanelExecute(panel.name, level, panel);
+            return OpenPanelExecute(panel.name, level, panel, param);
         }
 
         private static T CreatePanelCore<T>(string name) where T :class, IPanel
@@ -154,7 +154,7 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <param name="onCompleted"></param>
-        public static void OpenPanelAsync<T>(string name,Action<T> onCompleted) where T : BasePanel
+        public static void OpenPanelAsync<T>(string name,Action<T> onCompleted, params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
@@ -164,11 +164,11 @@ namespace YukiFrameWork.UI
                 loader.LoadAsync<T>(name, panel => 
                 {
                     uiMgr.AddPanelCore(panel);
-                    onCompleted?.Invoke(OpenPanelExecute(name, panel.Level, panel));
+                    onCompleted?.Invoke(OpenPanelExecute(name, panel.Level, panel, param));
                 });
                 return;
             }          
-            onCompleted?.Invoke(OpenPanelExecute(name, panelCore.Level, panelCore));
+            onCompleted?.Invoke(OpenPanelExecute(name, panelCore.Level, panelCore,param));
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static UILoadAssetRequest OpenPanelAsync<T>(string name) where T : BasePanel
+        public static UILoadAssetRequest OpenPanelAsync<T>(string name, params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
@@ -187,14 +187,14 @@ namespace YukiFrameWork.UI
                 loader.LoadAsync<T>(name, panel =>
                 {
                     uiMgr.AddPanelCore(panel);
-                    loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,panel.Level, panel));
+                    loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,panel.Level, panel,param));
                 });
                 return loadAssetRequest;
             }         
-            return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,panelCore.Level, panelCore));
+            return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,panelCore.Level, panelCore, param));
         }
 
-        public static void OpenPanelAsync<T>(string name,UILevel level, Action<T> onCompleted) where T : BasePanel
+        public static void OpenPanelAsync<T>(string name,UILevel level, Action<T> onCompleted, params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
@@ -204,14 +204,14 @@ namespace YukiFrameWork.UI
                 loader.LoadAsync<T>(name, panel =>
                 {                   
                     uiMgr.AddPanelCore(panel);
-                    onCompleted?.Invoke(OpenPanelExecute(name,level, panel));
+                    onCompleted?.Invoke(OpenPanelExecute(name,level, panel, param));
                 });
                 return;
             }         
-            onCompleted?.Invoke(OpenPanelExecute(name,level, panelCore));
+            onCompleted?.Invoke(OpenPanelExecute(name,level, panelCore,param));
         }
 
-        public static UILoadAssetRequest OpenPanelAsync<T>(string name,UILevel level) where T : BasePanel
+        public static UILoadAssetRequest OpenPanelAsync<T>(string name,UILevel level, params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
@@ -222,14 +222,14 @@ namespace YukiFrameWork.UI
                 {
                   
                     uiMgr.AddPanelCore(panel);
-                    loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,level, panel));
+                    loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,level, panel, param));
                 });
                 return loadAssetRequest;
             }         
-            return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,level, panelCore)); 
+            return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,level, panelCore,param)); 
         }
 
-        private static T OpenPanelExecute<T>(string name,UILevel level,T panelCore) where T : BasePanel
+        private static T OpenPanelExecute<T>(string name,UILevel level,T panelCore,params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panel = Table.GetActivityPanel(name,panelCore.Level,panelCore.OpenType);           
@@ -274,6 +274,7 @@ namespace YukiFrameWork.UI
                 info.panelName = panel.gameObject.name;
                 info.level = panel.Level;
                 info.panelType = typeof(T);
+                info.param = param;
                 Table.PushPanel(info);
             }
             return (T)panel;
@@ -335,7 +336,7 @@ namespace YukiFrameWork.UI
         public static T GetPanel<T>(UILevel level) where T : BasePanel
         {
             return GetPanelInternal(typeof(T), level) as T;
-        }
+        }     
 
         internal static BasePanel GetPanelInternal(Type type, UILevel level)
         {
