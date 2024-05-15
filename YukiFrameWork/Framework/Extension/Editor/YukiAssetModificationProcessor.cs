@@ -35,6 +35,11 @@ namespace YukiFrameWork
                 EditorUtility.DisplayDialog("提示", "文件夹:Sirenix 是框架依赖的编辑器拓展,不能删除!否则无法正确使用框架!", "确定");
                 return AssetDeleteResult.FailedDelete;
             }
+            else if (assetPath.EndsWith("LogConfig.asset"))
+            {
+                EditorUtility.DisplayDialog("提示", "LogConfig是框架依赖的日志系统配置，不能删除!", "确定");
+                return AssetDeleteResult.FailedDelete;
+            }
             else if (assetPath == $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset")
             {
                 EditorUtility.DisplayDialog("提示", "Example是框架提供的示例模块,不能删除!", "确定");

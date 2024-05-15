@@ -131,7 +131,7 @@ namespace YukiFrameWork.IOC
         public void RegisterInstance<TInstance>(TInstance instance)
         {
             if (CheckTypeOrComponent(typeof(TInstance)))
-                throw LogKit.Exception("对于UnityEngine.Component的注册，请使用对应的组件注册方法RegisterComponent!，注册的类型是:" + typeof(TInstance));
+                throw new Exception("对于UnityEngine.Component的注册，请使用对应的组件注册方法RegisterComponent!，注册的类型是:" + typeof(TInstance));
             container.RegisterDObject(typeof(TInstance).Name, instance,true);
         }
 
@@ -155,7 +155,7 @@ namespace YukiFrameWork.IOC
         public void RegisterScopeInstance<TInstance>(string name, TInstance instance) where TInstance : class
         {
             if (CheckTypeOrComponent(typeof(TInstance)))
-                throw LogKit.Exception("对于UnityEngine.Component的注册，请使用对应的组件注册方法RegisterComponent!，注册的类型是:" + typeof(TInstance));
+                throw new Exception("对于UnityEngine.Component的注册，请使用对应的组件注册方法RegisterComponent!，注册的类型是:" + typeof(TInstance));
             container.RegisterDObject(name, instance);
         }
 

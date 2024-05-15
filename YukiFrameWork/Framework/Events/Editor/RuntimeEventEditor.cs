@@ -118,7 +118,7 @@ namespace YukiFrameWork.Events
                         }
                         else
                         {
-                            $"{EventEditorInfo.Update_ErrorInfo}{center.name}".LogInfo(Log.E);
+                            $"{EventEditorInfo.Update_ErrorInfo}{center.name}".LogWarning();
                         }
 
                     }

@@ -135,13 +135,13 @@ namespace YukiFrameWork.UI
         {
             if (loader == null)
             {
-                string.Format("没有正确加载出面板的GameObject！如果是模块默认加载则请检查资源名称以及检查是否已经初始化UIKit! name:{0}", name).LogInfo(Log.E);
+                string.Format("没有正确加载出面板的GameObject！如果是模块默认加载则请检查资源名称以及检查是否已经初始化UIKit! name:{0}", name).LogError();
                 return null;
             }
             var panelObj = loader.Load<T>(name);                
             if (panelObj == null)
             {
-                string.Format("没有正确加载出面板的Panel组件！请检查是否在该面板(GameObject)挂载了需要的脚本！name:{0}",name).LogInfo(Log.E);
+                string.Format("没有正确加载出面板的Panel组件！请检查是否在该面板(GameObject)挂载了需要的脚本！name:{0}", name).LogError();
                 return null;
             }
 

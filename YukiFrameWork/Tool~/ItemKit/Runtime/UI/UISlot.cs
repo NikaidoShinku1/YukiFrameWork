@@ -69,13 +69,11 @@ namespace YukiFrameWork.Item
         private void OnSelect(BaseEventData eventData)
         {
             Slot.slotGroup.SlotSelectInvoke(this);
-            Debug.Log("选择");
         }
 
         private void OnDeselect(BaseEventData eventData)
         {
-            Slot.slotGroup.SlotDeselectInvoke(this);
-            Debug.Log("未选择");
+            Slot.slotGroup.SlotDeselectInvoke(this);            
         }
 
         private void OnPointerExit(PointerEventData eventData)

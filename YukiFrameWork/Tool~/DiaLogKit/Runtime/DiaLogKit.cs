@@ -210,7 +210,7 @@ namespace YukiFrameWork.DiaLogue
         {          
             if (DiaLogTree.treeState != NodeTreeState.Running)
             {
-                Debug.Log("该控制器没有被启动，End方法是不会触发的,请至少调用一次Start方法");
+                LogKit.I("该控制器没有被启动，End方法是不会触发的,请至少调用一次Start方法");
                 return;
             }
             DiaLogTree.OnTreeEnd();             
@@ -290,7 +290,7 @@ namespace YukiFrameWork.DiaLogue
         {
             if (node == null)
             {
-                Debug.LogError("该API仅可以用于分支节点，请检查传入的下标/节点是否是分支节点，且传入的下标Index是存在节点的 Node Null");
+                LogKit.E("该API仅可以用于分支节点，请检查传入的下标/节点是否是分支节点，且传入的下标Index是存在节点的 Node Null");
                 return;
             }
             node.OnOptionsCompleted(action,onFinish);

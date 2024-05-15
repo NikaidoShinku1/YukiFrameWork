@@ -47,11 +47,10 @@ namespace YukiFrameWork.UI
             }
 
             eventSystem.SetParent(Canvas.transform);
-                      
-            "UIKit Initialization Succeeded!".LogInfo(_ => 
-            {              
-                Object.DontDestroyOnLoad(Canvas.gameObject);
-            });
+
+            Object.DontDestroyOnLoad(Canvas.gameObject);
+
+            LogKit.I("UIKit Initialization Succeeded!");           
 
             UpdateScreenAspect();
             ScreenTool.OnScreenChanged.RegisterEvent(UpdateScreenAspect);

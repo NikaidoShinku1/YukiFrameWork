@@ -30,7 +30,7 @@ namespace YukiFrameWork
         {           
             if (isInited) return;
             saveConfig = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));            
-            Debug.Log($"存档系统初始化完成,存档保存的路径----：{saveDirPath}");
+            LogKit.I($"存档系统初始化完成,存档保存的路径----：{saveDirPath}");
             CheckAndCreateFolder();           
             isInited = true;
         }
@@ -333,7 +333,7 @@ namespace YukiFrameWork
         private static string GetSavePath(int saveID, bool autoGeneric = true)
         {
             if (GetSaveInfo(saveID) == null)
-                throw LogKit.Exception($"YukiFrameWork---当前存档没有被创建，存档id为{saveID}");
+                throw new Exception($"YukiFrameWork---当前存档没有被创建，存档id为{saveID}");
 
             string folder = $@"{saveDirPath}/{saveID}";
 
@@ -452,12 +452,12 @@ namespace YukiFrameWork
                 string folder = GetSavePath(saveID, false);
                 if (string.IsNullOrEmpty(folder))
                 {
-                    throw LogKit.Exception("无法读取存档数据，请检查文件夹是否正确或者是否已经保存了存档!");
+                    throw new Exception("无法读取存档数据，请检查文件夹是否正确或者是否已经保存了存档!");
                 }
                 string targetPath = $@"{folder}/{name}";
                 if (!File.Exists(targetPath))
                 {
-                    throw LogKit.Exception("该文件夹下存档不存在!路径:" + targetPath);
+                    throw new Exception("该文件夹下存档不存在!路径:" + targetPath);
                 }
                 string info = File.ReadAllText(targetPath);
                 switch (type)
@@ -483,7 +483,7 @@ namespace YukiFrameWork
             }           
 
 #if UNITY_EDITOR
-            AssetDatabase.Refresh();
+            AssetDatabase.Refresh(); 
 #endif
         }
 

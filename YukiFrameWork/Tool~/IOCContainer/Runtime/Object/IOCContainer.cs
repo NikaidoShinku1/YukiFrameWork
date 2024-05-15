@@ -135,7 +135,7 @@ namespace YukiFrameWork.IOC
             }
             catch
             {
-                throw LogKit.Exception("试图释放没有注册过的实例!实例类型:" + type + "注册名称:" + name);
+                throw new Exception("试图释放没有注册过的实例!实例类型:" + type + "注册名称:" + name);
             }
             bool Un = false;
             bool localUn = false;

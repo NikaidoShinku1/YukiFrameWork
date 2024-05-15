@@ -90,6 +90,8 @@
 
 #### 框架更新版本速览
 
+V1.17.0 LogKit日志系统重做，现在可以自定义宏定义以及文件输出的方式，日志的自由开关以及输出。优化细节
+
 V1.16.4 拓展SceneTool中的API，现在支持使用SceneTool.XFABManager进行从ab包加载场景的拓展API，优化UI模块，OnEnter添加参数传递，优化MonoHelper的判空
 
 V1.16.3 优化UI模块的关闭面板功能，重新打包Audio模块的示例。

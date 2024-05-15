@@ -151,7 +151,7 @@ namespace YukiFrameWork.States
                         .FirstOrDefault(target => target != null 
                         && target.GetClass() != null 
                         && target.GetClass().ToString().Equals(type.ToString())) 
-                        ?? throw LogKit.Exception("打开脚本失败!请检查脚本是否单独新建了一个cs文件进行编写!The Script is None! --- Type:" + type);
+                        ?? throw new Exception("打开脚本失败!请检查脚本是否单独新建了一个cs文件进行编写!The Script is None! --- Type:" + type);
                         AssetDatabase.OpenAsset(script);                                                           
                     });
                     e.Use();

@@ -314,7 +314,7 @@ namespace YukiFrameWork.States
                     .Append("该游戏物体:").Append(gameObject.name).Append("中的状态机").Append("检测到状态:")
                     .Append("{").Append(name).Append("}")
                     .Append("切换超过多次，请检查条件是否设置合理，如果强制切换逻辑是否正确!");
-                LogKit.Exception(stringBuilder);
+                throw new System.Exception(stringBuilder.ToString());
             }
         }
 

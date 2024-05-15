@@ -79,7 +79,7 @@ namespace YukiFrameWork.Audio
             var audioMgr = AudioManager.Instance;
             AudioClip clip = audioInfo.Clip;            
             if (clip == null)
-                LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
+                throw new Exception("AudioInfo没有正确添加音频资源，请检查!");
 
             PlayMusicExecute(null,audioMgr, clip
                 , audioInfo.Loop
@@ -146,7 +146,7 @@ namespace YukiFrameWork.Audio
             AudioClip clip = audioInfo.Clip;
 
             if (clip == null)
-                LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
+                throw new Exception("AudioInfo没有正确添加音频资源，请检查!");
 
             PlayVoiceExecute(null,audioMgr, clip
                 , audioInfo.Loop
@@ -235,7 +235,7 @@ namespace YukiFrameWork.Audio
             AudioClip clip = audioInfo.Clip;
 
             if (clip == null)
-                LogKit.Exception("AudioInfo没有正确添加音频资源，请检查!");
+                throw new Exception("AudioInfo没有正确添加音频资源，请检查!");
             if (!CheckPlaySound(clip.name)) return null;
             var audioMgr = AudioManager.Instance;          
 

@@ -16,20 +16,7 @@ using System.IO;
 using UnityEditor;
 #endif
 namespace YukiFrameWork
-{
-    public enum FolderType
-    {
-        [LabelText("Application.persistentDataPath")]
-        persistentDataPath,
-        [LabelText("Application.dataPath")]
-        dataPath,
-        [LabelText("Application.streamingAssetsPath")]
-        streamingAssetsPath,
-        [LabelText("Application.temporaryCachePath")]
-        temporaryCachePath,           
-        [LabelText("自定义存档路径")]
-        custom
-    }
+{  
     [HideMonoScript]
 	public class SaveToolConfig : ScriptableObject
     {
@@ -58,7 +45,7 @@ namespace YukiFrameWork
         [LabelText("文件夹名称:"), BoxGroup("文件路径设置")]
         public string saveFolderName = "SaveData";
 
-        [LabelText("保存的文件路径:"), BoxGroup("文件路径设置"), ShowIf(nameof(IsCustom))]
+        [LabelText("保存的文件路径:"), BoxGroup("文件路径设置"),FolderPath(AbsolutePath = true), ShowIf(nameof(IsCustom))]
         public string saveFolder;
 
         public string saveDirPath
@@ -90,13 +77,6 @@ namespace YukiFrameWork
         public int currentID => infos.Count;
 
         private bool IsCustom => folderType == FolderType.custom;
-        [Button("定位到指定文件夹"), BoxGroup("文件路径设置"), ShowIf(nameof(IsCustom))]
-        private void CheckMouseToPosition()
-        {
-#if UNITY_EDITOR
-            saveFolder = UnityEditor.EditorUtility.OpenFolderPanel("定位到指定文件夹", string.Empty, string.Empty);
-#endif
-        }
 
         [Button("打开文件夹"), BoxGroup("文件路径设置"), HideIf(nameof(IsCustom))]
         private void CheckMouseToPosition2()

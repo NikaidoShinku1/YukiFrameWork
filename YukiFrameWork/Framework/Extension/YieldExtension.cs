@@ -149,7 +149,7 @@ namespace YukiFrameWork
         {
             if (!Application.isPlaying)
             {
-                LogKit.Exception("IYieldExtension cannot be used in Editor!");
+                throw new Exception("IYieldExtension cannot be used in Editor!");
             }
             var core = simpleObjectPools.Get();
             core.Init(enumerator);

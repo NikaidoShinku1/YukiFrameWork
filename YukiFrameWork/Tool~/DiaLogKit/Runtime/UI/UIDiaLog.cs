@@ -225,7 +225,7 @@ namespace YukiFrameWork.DiaLogue
 
             if (mDiaLog == null)
             {
-                Debug.LogError("获取对话控制器失败!当前UIDiaLog不是通过编辑器内部添加的对话树以及标识，请检查是否在外部进行注册");
+                LogKit.E("获取对话控制器失败!当前UIDiaLog不是通过编辑器内部添加的对话树以及标识，请检查是否在外部进行注册");
                 return null;
             }
             return mDiaLog;

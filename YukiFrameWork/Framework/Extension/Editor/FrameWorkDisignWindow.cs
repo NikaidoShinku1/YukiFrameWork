@@ -121,7 +121,7 @@ namespace YukiFrameWork
             {
                 { $"框架基本设置/工具导入窗口",new ImportSettingWindow(this),SdfIconType.GearFill },
                 { $"框架基本设置/{keys[0]}", config.GetFramework(0), Sirenix.OdinInspector.SdfIconType.File },
-                { $"框架基本设置/{keys[2]}",config.GetFramework(2),Sirenix.OdinInspector.SdfIconType.AspectRatio},
+                { $"框架基本设置/{keys[2]}",config.GetFramework(2),Sirenix.OdinInspector.SdfIconType.AspectRatio},               
 
                 { $"框架序列化工具/{keys[3]}",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
                 { $"框架序列化工具/{keys[4]}",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
@@ -131,6 +131,19 @@ namespace YukiFrameWork
             foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
             {
                 tree.Add($"{keys[1]}/{item.name}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
+            }
+
+            try
+            {
+                LogConfig config = Resources.Load<LogConfig>(nameof(LogConfig));
+                if (config != null)
+                {
+                    tree.Add($"框架基本设置/LogKit日志配置窗口", config, SdfIconType.InfoCircleFill);
+                }
+            }
+            catch 
+            {
+
             }
 
             try

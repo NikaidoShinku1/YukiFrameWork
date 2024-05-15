@@ -43,7 +43,7 @@ namespace YukiFrameWork.Extension
 
             if (gameObject.GetComponent<ViewController>() != null)
             {
-                $"当前不需要为这个对象添加ViewController,脚本已存在。GameObject Name: {gameObject.name}".LogInfo(Log.W);
+                $"当前不需要为这个对象添加ViewController,脚本已存在。GameObject Name: {gameObject.name}".LogWarning();
                 return;
             }
 
