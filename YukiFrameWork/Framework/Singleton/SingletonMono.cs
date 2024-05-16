@@ -12,7 +12,7 @@ namespace YukiFrameWork
 
         private readonly Stack<Action> OnBack = new Stack<Action>();
 
-        private static T instance;
+        protected static T instance;
         [SerializeField]
         protected bool IsDonDestroyLoad = true;
         public static T Instance

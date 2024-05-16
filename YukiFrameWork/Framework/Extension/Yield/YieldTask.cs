@@ -14,13 +14,15 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using UnityEngine;
 using YukiFrameWork.Extension;
-using UnityEngine.Networking;   
+using UnityEngine.Networking;
 namespace YukiFrameWork
 {
 
     public interface ICoroutineCompletion : ICriticalNotifyCompletion
     {
         public Coroutine Coroutine { get;internal set; }
+        public bool IsCompleted { get; }
+        void StopAllTask();
     }
     /// <summary>
     /// 协程专属等待器，返回值功能仅限2021以上版本使用
@@ -30,7 +32,7 @@ namespace YukiFrameWork
 #if UNITY_2021_1_OR_NEWER
     [AsyncMethodBuilder(typeof(YieldBuilder))]
 #endif
-    public class YieldTask : ICoroutineCompletion
+    public partial class YieldTask : ICoroutineCompletion
     {
         private bool _isDone;
         private System.Exception exception;
@@ -83,7 +85,7 @@ namespace YukiFrameWork
             {
                 ExceptionDispatchInfo.Capture(exception).Throw();
             }
-        } 
+        }  
     }
 
     /// <summary>
@@ -91,9 +93,9 @@ namespace YukiFrameWork
     /// </summary>
     /// <typeparam name="T"></typeparam>
 #if UNITY_2021_1_OR_NEWER
-    [AsyncMethodBuilder(typeof(YieldBuilder))]
+    [AsyncMethodBuilder(typeof(YieldBuilder<>))]
 #endif
-    public class YieldTask<T> : INotifyCompletion,ICoroutineCompletion
+    public partial class YieldTask<T> : INotifyCompletion,ICoroutineCompletion
     {
         private bool _isDone;
         private System.Exception exception;
@@ -317,6 +319,28 @@ namespace YukiFrameWork
         public static void SetRunOnUnityScheduler(ICoroutineCompletion completion, Coroutine coroutine)
         {
             RunOnUnityScheduler(() => completion.Coroutine = coroutine);
-        }      
+        }
+
+        #region Forget
+        public static void Forget(this ICoroutineCompletion completion)
+        {
+            
+        }
+
+        public static void Forget(this IEnumerator completion)
+        {
+
+        }
+
+        public static void Forget(this AsyncOperation completion)
+        {
+
+        }
+
+        public static void Forget(this YieldInstruction completion)
+        {
+
+        }
+        #endregion
     }
 }

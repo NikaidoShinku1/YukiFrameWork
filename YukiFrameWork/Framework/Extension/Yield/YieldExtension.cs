@@ -360,7 +360,7 @@ namespace YukiFrameWork
         public static CoroutineCompletion CancelWaitGameObjectDestroy<T,CoroutineCompletion>(this CoroutineCompletion awaitable, T component) 
             where T : Component where CoroutineCompletion : ICoroutineCompletion
         {
-            if (component != null || component.ToString() != "null")
+            if (!ReferenceEquals(component,null))
             {
                 if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
                 {
@@ -370,16 +370,18 @@ namespace YukiFrameWork
                 {
                     if (awaitable?.Coroutine != null)
                     {
-                        MonoHelper.Stop(awaitable.Coroutine);
+                        MonoHelper.Stop(awaitable.Coroutine);                        
                     }
+                    awaitable.StopAllTask();
                 });
             }
             else
             {
                 if (awaitable?.Coroutine != null)
                 {
-                    MonoHelper.Stop(awaitable.Coroutine);
+                    MonoHelper.Stop(awaitable.Coroutine);                   
                 }
+                awaitable.StopAllTask();
             }
             return awaitable;
         }

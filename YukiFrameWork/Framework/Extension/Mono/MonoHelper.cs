@@ -104,12 +104,17 @@ namespace YukiFrameWork
 
         public static Coroutine Start(IEnumerator enumerator)
         {
-            if (ReferenceEquals(I,null)) return null;
+            if (ReferenceEquals(I,null) || I.ToString() == "null") return null;
+
+            if (enumerator == null) return null;
+
             return I.StartCoroutine(enumerator);
         }
         public static void Stop(Coroutine coroutine)
         {
-            if (ReferenceEquals(I, null)) return;
+            if (ReferenceEquals(I, null) || I.ToString() == "null") return;
+            if (coroutine == null) return;
+
             I.StopCoroutine(coroutine);
         }
 
@@ -130,7 +135,7 @@ namespace YukiFrameWork
 
         public override void OnDestroy()
         {
-            base.OnDestroy();          
+            base.OnDestroy();            
             onUpdateEvent = null;
             onFixedUpdateEvent = null;
             onLateUpdateEvent = null;

@@ -208,7 +208,7 @@ namespace YukiFrameWork
         {
             if (!IsInit) OnInit();
             if (condition == null) yield break;
-            yield return new WaitUntil(condition);
+            yield return CoroutineTool.WaitUntil(condition);
             OnFinish();
         }
     }
@@ -260,7 +260,7 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return new WaitUntil(() => OnExecute(Time.deltaTime));
+            yield return CoroutineTool.WaitUntil(() => OnExecute(Time.deltaTime));
             OnFinish();
         }
     }
@@ -319,7 +319,7 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return new WaitUntil(() => OnExecute(Time.deltaTime));
+            yield return CoroutineTool.WaitUntil(() => OnExecute(Time.deltaTime));
             OnFinish();
         }
     }
