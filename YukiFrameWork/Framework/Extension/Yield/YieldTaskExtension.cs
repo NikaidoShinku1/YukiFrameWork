@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Networking;
+using UnityEngine.Events;
+using XFABManager;
+using System.Linq;
 namespace YukiFrameWork
 {
     public partial class YieldTask
@@ -65,14 +68,52 @@ namespace YukiFrameWork
             return task.Invoke().GetAwaiter<K,T>();
         }
 
-        public static YieldTask Run(Action action)
+        public static YieldTask Run(Action task)
         {
             IEnumerator enumerator()
             {
                 yield return CoroutineTool.WaitForFrame();
-                action.Invoke();
+                task.Invoke();
             }
             return enumerator().GetAwaiter();
+        }
+
+        public static YieldTask<UnityEngine.Object> Run(Func<LoadAssetRequest> task)
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
+        public static YieldTask<T> Run<T>(Func<LoadAssetRequest<T>> task) where T : UnityEngine.Object
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
+        public static YieldTask<UnityEngine.Object> Run(Func<LoadSubAssetRequest> task)
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
+        public static YieldTask<UnityEngine.Object[]> Run(Func<LoadAssetsRequest> task)
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
+        public static YieldTask<T> Run<T>(Func<T> task)
+        {
+            IEnumerator<T> enumerator()
+            {
+                yield return task.Invoke();
+            }
+            return enumerator().GetAwaiter();
+        }
+
+        public static Action Action(Action action)
+        {
+            return () => action.Invoke();
+        }
+        public static UnityAction UnityAction(UnityAction unityAction)
+        {
+            return () => unityAction.Invoke();
         }
 
         void ICoroutineCompletion.StopAllTask()
@@ -215,13 +256,14 @@ namespace YukiFrameWork
         internal FastList<YieldTask<T>> taskQueue = new FastList<YieldTask<T>>();
 
         internal FastList<YieldTask<T>> taskAny = new FastList<YieldTask<T>>();
-      
-        private FastList<T> queueResults = new FastList<T>();
+           
         internal IEnumerator QueueRunning(Action callBack)
         {
-            yield return CoroutineTool.WaitUntil(() => queueResults.Count == taskQueue.Count);
+            yield return CoroutineTool.WaitUntil(() => queueCompletedCount >= taskQueue.Count);
             callBack?.Invoke();
         }
+
+        private int queueCompletedCount;
 
         internal YieldTask<T[]> StartAll()
         {
@@ -233,12 +275,12 @@ namespace YukiFrameWork
                .RunOnUnityScheduler(() => ((ICoroutineCompletion)taskQueue[i]).Coroutine = MonoHelper.Start(Running(taskQueue[i])));
             }
             YieldTaskExtension
-            .RunOnUnityScheduler(() => ((ICoroutineCompletion)task).Coroutine = MonoHelper.Start(QueueRunning(() => task.Complete(null, queueResults.Items))));
+            .RunOnUnityScheduler(() => ((ICoroutineCompletion)task).Coroutine = MonoHelper.Start(QueueRunning(() => task.Complete(null, taskQueue.Select(x => x.GetResult()).ToArray()))));
 
             IEnumerator Running(YieldTask<T> task)
             {
                 yield return task.ToCoroutine();
-                queueResults.Add(task.GetResult());                         
+                queueCompletedCount++;                       
             }
             return task;
         }
