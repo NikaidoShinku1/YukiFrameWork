@@ -18,6 +18,10 @@ using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
 using System.Text;
 
+#if UNITY_2023_1_OR_NEWER && UNITY_EDITOR
+using UnityEditor.Build;
+#endif
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -117,8 +121,11 @@ namespace YukiFrameWork
         [InitializeOnLoadMethod]
         static void EditorInit()
         {
+#if UNITY_2023_1_OR_NEWER
+            string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);
+#else
             string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone);
-
+#endif
             if (config == null)
             {
                 _config = ScriptableObject.CreateInstance<LogConfig>();
@@ -137,11 +144,15 @@ namespace YukiFrameWork
                 if (defines.IsNullOrEmpty())
                     defines += LOGFULLCONDITION + ";";
                 else defines += $";{LOGFULLCONDITION};";
+#if UNITY_2023_1_OR_NEWER
+                PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone,defines);
+#else
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
+#endif
             }
         }
 #endif
-        [Conditional(LOGINFOCONDITION), Conditional(LOGFULLCONDITION)]
+                [Conditional(LOGINFOCONDITION), Conditional(LOGFULLCONDITION)]
         public static void I(object message, params object[] args)
         {
             if (!config.LogEnabled) return;

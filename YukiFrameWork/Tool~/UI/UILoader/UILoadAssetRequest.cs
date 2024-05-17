@@ -9,6 +9,7 @@
 
 using UnityEngine;
 using System.Collections;
+using YukiFrameWork;
 namespace YukiFrameWork.UI
 {
     public class UILoadAssetRequest : CustomYieldInstruction
@@ -37,6 +38,7 @@ namespace YukiFrameWork.UI
                 awaiter.Complete(null, request.Panel);
             }
             return awaiter;
-        }
+        }    
     }
+    
 }

@@ -108,7 +108,9 @@ namespace YukiFrameWork
             {
                 return instance;
             }
-#if UNITY_2020_1_OR_NEWER
+#if UNITY_2023_1_OR_NEWER
+            instance = UnityEngine.Object.FindAnyObjectByType(type, FindObjectsInactive.Include) as ISingletonKit;
+#elif UNITY_2020_1_OR_NEWER
             instance = UnityEngine.Object.FindObjectOfType(type,true) as ISingletonKit;
 #endif
             if (instance == null)

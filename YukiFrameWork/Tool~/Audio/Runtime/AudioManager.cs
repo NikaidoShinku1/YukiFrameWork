@@ -95,7 +95,13 @@ namespace YukiFrameWork.Audio
         private void CheckAudioListener()
         {
             if (audioListener == null)
+            {
+#if UNITY_2023_1_OR_NEWER
+                audioListener = FindAnyObjectByType<AudioListener>();
+#else
                 audioListener = FindObjectOfType<AudioListener>();
+#endif
+            }
             if (audioListener == null)
                 audioListener = gameObject.AddComponent<AudioListener>();
         } 

@@ -24,7 +24,7 @@ namespace YukiFrameWork
                 awaiter.Complete(null, asyncOperation.asset);
             }
             return awaiter;
-        }
+        }   
 
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadAssetRequest asyncOperation,T component)
             where T : Component

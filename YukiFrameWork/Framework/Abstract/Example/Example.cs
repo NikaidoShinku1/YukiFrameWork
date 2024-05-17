@@ -120,7 +120,6 @@ namespace YukiFrameWork.ExampleRule
 				example = ScriptableObject.CreateInstance<Example>();
                 AssetDatabase.CreateAsset(example, path);
 			}
-
 			example.user = AssetDatabase.LoadAssetAtPath<UserController>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/User.prefab");
         }
 

@@ -260,7 +260,6 @@ namespace YukiFrameWork
                     builder.AppendLine("using YukiFrameWork.UI;");
                     builder.AppendLine("using UnityEngine;");
                     builder.AppendLine("using UnityEngine.UI;");
-                    builder.AppendLine("using TMPro;");
                     builder.AppendLine($"namespace {Data?.ScriptNamespace}");
                     builder.AppendLine("{");
                     builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : BasePanel");
