@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -189,11 +190,11 @@ namespace XFABManager
                     _allComponentAdapter = new Dictionary<TargetComponentType, TargetComponentAdapter>();
 
                     // 通过反射查询到所有的适配器
-                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();                  
                     foreach (Assembly assembly in assemblies)
                     {
-                        if (!assembly.FullName.StartsWith("XFABManager"))
-                            continue;
+                        //if (!assembly.FullName.StartsWith("XFABManager"))
+                        //    continue;
 
                         foreach (var item in assembly.GetTypes())
                         {
@@ -202,7 +203,7 @@ namespace XFABManager
                                 TargetComponentAdapter adapter = System.Activator.CreateInstance(item) as TargetComponentAdapter;
                                 if (adapter == null) continue;
                                 if (_allComponentAdapter.ContainsKey(adapter.TargetComponentType)) continue;
-                                _allComponentAdapter.Add(adapter.TargetComponentType, adapter);
+                                _allComponentAdapter.Add(adapter.TargetComponentType, adapter);                                
                             }
                         } 
                     } 

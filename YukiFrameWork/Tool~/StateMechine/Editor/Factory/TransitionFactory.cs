@@ -12,6 +12,8 @@ namespace YukiFrameWork.States
         {          
             if (toStateName.Equals(StateConst.entryState))
                 return;
+
+            if (toStateName.StartsWith(StateConst.upState)) return;
            
             if (fromStateName.Equals(toStateName))
                 return;

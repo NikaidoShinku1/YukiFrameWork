@@ -278,8 +278,7 @@ namespace YukiFrameWork.States
 
             ///如果是子状态机
             if (node.IsSubingState)
-            {
-                Debug.Log("Change");
+            {               
                 stateMechine.subStatesPair.Remove(node.name,out var value);
                 stateMechine.subStatesPair[newName] = value;
 

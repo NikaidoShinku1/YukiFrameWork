@@ -17,12 +17,7 @@ using System.Linq;
 namespace YukiFrameWork
 {
     public partial class YieldTask
-	{
-		public static YieldTask Run(Func<IEnumerator> task)
-		{
-            return task.Invoke().GetAwaiter();
-		}  
-
+	{	
         public static YieldTask Run(Func<YieldInstruction> task)
         {
             return task.Invoke().GetAwaiter();
@@ -78,6 +73,11 @@ namespace YukiFrameWork
             return enumerator().GetAwaiter();
         }
 
+        public static YieldTask Run(Func<IEnumerator> task)
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
         public static YieldTask<UnityEngine.Object> Run(Func<LoadAssetRequest> task)
         {
             return task.Invoke().GetAwaiter();
@@ -98,7 +98,7 @@ namespace YukiFrameWork
             return task.Invoke().GetAwaiter();
         }
 
-        public static YieldTask<T> Run<T>(Func<T> task)
+        public static YieldTask<T> RunByObject<T>(Func<T> task) where T : class
         {
             IEnumerator<T> enumerator()
             {

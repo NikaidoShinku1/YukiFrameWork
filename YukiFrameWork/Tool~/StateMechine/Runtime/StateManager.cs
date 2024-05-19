@@ -92,7 +92,7 @@ namespace YukiFrameWork.States
             {
                 if (ParametersDicts.ContainsKey(stateMechine.parameters[i].name))
                 {
-                    Debug.LogError("参数名称重复！" + stateMechine.parameters[i].name);
+                    LogKit.E("参数名称重复！" + stateMechine.parameters[i].name);
                     continue;
                 }
                 ParametersDicts.Add(stateMechine.parameters[i].name, stateMechine.parameters[i]);
@@ -134,7 +134,7 @@ namespace YukiFrameWork.States
             }
             if (deBugLog == DeBugLog.Open)
             {
-                Debug.Log($"状态机归属： {gameObject.name},初始化完成！");
+                LogKit.I($"状态机归属： {gameObject.name},初始化完成！");
             }
 
             foreach (var item in runTimeSubStatePair["BaseLayer"].stateBases)
@@ -165,7 +165,7 @@ namespace YukiFrameWork.States
             }
             else
             {
-                Debug.LogError("条件参数类型不一致或者没有此参数！参数名：" + name);
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
                 return false;
             }
         }
@@ -178,7 +178,7 @@ namespace YukiFrameWork.States
             }
             else
             {
-                Debug.LogError("条件参数类型不一致或者没有此参数！参数名：" + name);
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
                 return 0;
             }
         }
@@ -191,7 +191,7 @@ namespace YukiFrameWork.States
             }
             else
             {
-                Debug.LogError("条件参数类型不一致或者没有此参数！参数名：" + name);
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
                 return 0f;
             }
         }
@@ -241,7 +241,7 @@ namespace YukiFrameWork.States
             }
             else
             {
-                Debug.LogError("条件参数类型不一致或者没有此参数！参数名：" + name);
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
             }
         }
 
@@ -293,7 +293,7 @@ namespace YukiFrameWork.States
             }
             if (deBugLog == DeBugLog.Open)
             {
-                Debug.Log($"状态切换: -> {state.name} 状态机归属： {gameObject.name}");              
+                LogKit.I($"状态切换: -> {state.name} 状态机归属： {gameObject.name}");              
             }
             runTimeSubStatePair[state.layerName].CurrentState = state;
             OnEnterState(state, callBack);
@@ -386,7 +386,7 @@ namespace YukiFrameWork.States
 
             if (stateBase == null)
             {
-                Debug.LogError("无法强制切换不同图层的状态!,需要切换的状态层级:" + layerName);
+                LogKit.E("无法强制切换不同图层的状态!,需要切换的状态层级:" + layerName);
                 return;
             }
 
