@@ -84,7 +84,8 @@ namespace YukiFrameWork
         public static SaveInfo CreateSaveInfo()
         {
             SaveInfo SaveInfo = new SaveInfo(saveConfig.currentID,DateTime.Now);
-            saveConfig.infos.Add(SaveInfo);               
+            saveConfig.infos.Add(SaveInfo);
+            saveConfig.Save();
             return SaveInfo;
         }
 
@@ -123,7 +124,8 @@ namespace YukiFrameWork
 #endif
             }
 
-            saveConfig.infos.Remove(GetSaveInfo(saveID));            
+            saveConfig.infos.Remove(GetSaveInfo(saveID));
+            saveConfig.Save();
         }     
 
         /// <summary>
@@ -138,7 +140,8 @@ namespace YukiFrameWork
                 AssetDatabase.Refresh();
 #endif
             }
-            saveConfig.infos.Clear();           
+            saveConfig.infos.Clear();
+            saveConfig.Save();
             CheckAndCreateFolder();
         }
 

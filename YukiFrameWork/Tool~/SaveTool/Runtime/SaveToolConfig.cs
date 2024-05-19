@@ -34,7 +34,7 @@ namespace YukiFrameWork
             SaveToolConfig config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
 
             if (config == null)
-            {
+            {              
                 config = ScriptableObject.CreateInstance<SaveToolConfig>();
                 AssetDatabase.CreateAsset(config, path + "/" + nameof(SaveToolConfig) + ".asset");
                 AssetDatabase.Refresh();

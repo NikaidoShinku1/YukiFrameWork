@@ -84,7 +84,7 @@ BuffHandler API:
 	{
 		public override void OnBuffAwake()
         {
-            Debug.Log("准备添加Buff:" + Buffer.BuffName);
+            Debug.Log("准备添加Buff:" + Buffer.GetBuffName);
         }
 
         public override void OnBuffStart()

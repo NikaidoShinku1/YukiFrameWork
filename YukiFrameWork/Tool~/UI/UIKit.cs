@@ -395,6 +395,29 @@ namespace YukiFrameWork.UI
             Table.Dispose();         
             Default = false;
         }
+
+        /// <summary>
+        /// 通过层级查找场景中存在的面板实例，特供于寻找对象本身
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public static T FindPanelByType<T>(UILevel level) where T : BasePanel
+        {
+            var root = UIManager.Instance.GetPanelLevel(level);
+            return root.GetComponentInChildren<T>();
+        }
+
+        /// <summary>
+        /// 通过层级查找场景中存在的面板实例集合，特供于寻找对象本身
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public static T[] FindPanelsByType<T>(UILevel level) where T : BasePanel
+        {
+            return UIManager.Instance.GetPanelLevel(level).GetComponentsInChildren<T>();
+        }
     }
 
     public static class UIGenericExtension

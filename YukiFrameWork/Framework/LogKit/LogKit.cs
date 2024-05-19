@@ -54,13 +54,21 @@ namespace YukiFrameWork
         public static bool LogEnabled
         {
             get => config.LogEnabled;
-            set => config.LogEnabled = value;
+            set
+            {
+                config.LogEnabled = value;
+                config.Save();
+            }
         }
 
         public static bool LogSaving
         {
             get => config.LogSaving;
-            set => config.LogSaving = value;
+            set
+            {
+                config.LogSaving = value;
+                config.Save();
+            }
         }
 
         private static string mLogFileName;
