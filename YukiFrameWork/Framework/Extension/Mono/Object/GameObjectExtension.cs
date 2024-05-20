@@ -637,6 +637,18 @@ namespace YukiFrameWork
 
         }
 
+        public static void CancelGameObjectWithDestroy(this GameObject core,Action onFinish)
+        {
+            EasyEvent easyEvent = new EasyEvent();
+            var info = easyEvent.RegisterEvent(onFinish);
+            info.UnRegisterWaitGameObjectDestroy(core);
+        }
+
+        public static void CancelGameObjectWithDestroy(this Component core, Action onFinish)
+        {
+            CancelGameObjectWithDestroy(core.gameObject, onFinish);
+        }
+
         /// <summary>
         /// 注销事件，并且绑定当前场景
         /// </summary>

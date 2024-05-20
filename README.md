@@ -90,6 +90,8 @@
 
 #### 框架更新版本速览
 
+V1.17.3 修复LogKit重新打开项目会额外添加宏定义的问题，优化BuffKit模块，新增IBuffController接口进一步抽象化。
+
 V1.17.2 修复存档系统在运行时的存档添加重启项目后失效的问题。UIKit新增运行时查找已经生成的面板的API
 
 V1.17.1 异步拓展新增YieldTask.Run以及YieldTask.WhenAll YieldTask.WhenAny API可使用，进行多任务异步。

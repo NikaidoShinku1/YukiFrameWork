@@ -149,13 +149,17 @@ namespace YukiFrameWork
             if (!_config.IsInitialization)
             {
                 _config.IsInitialization = true;
-                if (defines.IsNullOrEmpty())
-                    defines += LOGFULLCONDITION + ";";
-                else defines += $";{LOGFULLCONDITION};";
+                if (!defines.Contains(LOGFULLCONDITION))
+                {
+                    if (defines.IsNullOrEmpty())
+                        defines += LOGFULLCONDITION + ";";
+                    else defines += $";{LOGFULLCONDITION};";
+                }
 #if UNITY_2023_1_OR_NEWER
                 PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Standalone,defines);
 #else
                 PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, defines);
+                _config.Save();
 #endif
             }
         }

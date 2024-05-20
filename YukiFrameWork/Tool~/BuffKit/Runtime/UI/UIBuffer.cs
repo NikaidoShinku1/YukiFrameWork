@@ -19,12 +19,12 @@ namespace YukiFrameWork.Buffer
 		/// <param name="buffKey">buff标识</param>		
 		public abstract void OnBuffStart(IBuff buff,string buffKey,int buffLayer);
 
-		/// <summary>
-		/// 当Buff正在运行时，持续调用UIBuffer的Update周期反复方法
-		/// </summary>		
-		/// <param name="remainingTime">Buff剩余时间</param>
-		/// <param name="buffLayer">Buff的层级</param>
-		public abstract void OnBuffUpdate(float remainingTime);
+        /// <summary>
+        /// 当Buff正在运行时，持续调用UIBuffer的Update周期反复方法
+        /// </summary>		
+        /// <param name="remainingTime">Buff剩余时间</param>
+        /// <param name="remainingProgress">Buff剩余进度(1-0)</param>
+        public abstract void OnBuffUpdate(float remainingTime,float remainingProgress);
 
 		/// <summary>
 		/// 当Buff移除时，该方法也会同步执行

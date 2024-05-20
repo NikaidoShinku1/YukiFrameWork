@@ -10,30 +10,31 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+using System;
 namespace YukiFrameWork.Buffer
 {	
 	public class BuffHandler : MonoBehaviour
 	{      
 		private BuffControllerTable mTable = new BuffControllerTable();
-		private List<BuffController> release = new List<BuffController>();
+		private List<IBuffController> release = new List<IBuffController>();		
 		private UIBuffHandlerGroup handlerGroup;
 
 		/// <summary>
 		/// Buff添加时触发的回调，只要调用AddBuffer没有添加失败而改变了Buff的状态，则统一会调用该方法。并且可以拿到Controller
 		/// </summary>
-		public readonly EasyEvent<BuffController> onBuffAddCallBack = new EasyEvent<BuffController>();
+		public readonly EasyEvent<IBuffController> onBuffAddCallBack = new EasyEvent<IBuffController>();
 
 
         /// <summary>
         /// Buff移除时触发的回调，并且可以拿到Controller
         /// </summary>
-        public readonly EasyEvent<BuffController> onBuffRemoveCallBack = new EasyEvent<BuffController>();
+        public readonly EasyEvent<IBuffController> onBuffRemoveCallBack = new EasyEvent<IBuffController>();	
 
 		public void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
 		{
 			this.handlerGroup = handlerGroup;
 		}
-		public void AddBuffer<T>(IBuff buff,GameObject player) where T : BuffController,new()
+		public void AddBuffer<T>(IBuff buff,GameObject player) where T :class, IBuffController,new()
 		{						
 			if (mTable.TryGetValue(buff.GetBuffKey, out var controllers))
 			{				
@@ -160,7 +161,7 @@ namespace YukiFrameWork.Buffer
 			return mTable.Count;
 		}
 
-        private void InitController(BuffController controller)
+        private void InitController(IBuffController controller)
 		{
 			controller.OnBuffAwake();
 			controller.BuffLayer = 1;
@@ -210,7 +211,7 @@ namespace YukiFrameWork.Buffer
 			return true;
 		}	
 	
-		internal void AddBuffer(BuffController buffController)
+		internal void AddBuffer(IBuffController buffController)
 		{
 			mTable.Add(buffController.BuffKey, buffController);
 			buffController.OnBuffStart();
@@ -259,12 +260,12 @@ namespace YukiFrameWork.Buffer
 			}
         }
 
-        private void UpdateSetting(BuffController controller)
+        private void UpdateSetting(IBuffController controller)
         {
             controller.OnBuffUpdate();
 			if (controller.UIBuffer != null)
 			{
-				controller.UIBuffer.OnBuffUpdate(controller.RemainingTime);
+				controller.UIBuffer.OnBuffUpdate(controller.RemainingTime,controller.RemainingProgress);
 			}
             controller.RemainingTime -= Time.deltaTime;
             if ((controller.OnRemoveBuffCondition()) || (controller.RemainingTime <= 0 && controller.Buffer.SurvivalType == BuffSurvivalType.Timer))
@@ -273,7 +274,7 @@ namespace YukiFrameWork.Buffer
             }            
         }
 
-		private void OnControllerRemove<T>(T controller) where T : BuffController
+		private void OnControllerRemove<T>(T controller) where T : IBuffController
 		{
 			if(controller.Buffer.IsBuffRemoveBySlowly)
 				controller.BuffLayer--;
@@ -282,6 +283,7 @@ namespace YukiFrameWork.Buffer
                 controller.RemainingTime = controller.Buffer.BuffTimer;
 			}
 			controller.OnBuffRemove();
+			onBuffRemoveCallBack.SendEvent(controller);
 			if (controller.UIBuffer != null)
 				controller.UIBuffer.OnBuffRemove(controller.BuffLayer);
             if (controller.BuffLayer <= 0 || !controller.Buffer.IsBuffRemoveBySlowly)
@@ -297,25 +299,25 @@ namespace YukiFrameWork.Buffer
                 if (mTable.IsNullOrEmpty(controller.BuffKey))
                     mTable.Remove(controller.BuffKey);
 
-				Debug.Log("回收的控制器类型:"+ controller.GetType());
+				LogKit.I("回收的控制器类型:"+ controller.GetType());
 				BuffController.Release(controller, controller.GetType());
             }
         }
 
-		private void FixedUpdateSetting(BuffController controller)
+		private void FixedUpdateSetting(IBuffController controller)
 		{
             controller.OnBuffFixedUpdate();
         }
 
 		/// <summary>
-		/// 终止运行中的所有Buff，调用所有控制器的OnBuffDestroy方法，该方法不会触发BuffController的OnBuffRemove方法
+		/// 终止运行中的所有Buff，调用所有控制器的OnBuffDestroy方法，该方法不会触发BuffController的OnBuffRemove方法以及Handler的移除回调
 		/// </summary>
 		public void StopAllBuffController()
 		{
 			foreach (var item in mTable.Values)
 			{
 				for (int i = 0; i < item.Count; i++)
-				{					
+				{
 					item[i].OnBuffDestroy();
 					if (item[i].UIBuffer != null)
 						item[i].UIBuffer.OnBuffDestroy();

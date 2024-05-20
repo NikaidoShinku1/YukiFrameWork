@@ -18,7 +18,7 @@ namespace YukiFrameWork.Buffer
         /// <summary>
         /// 缓存所有的Buff配置
         /// </summary>
-        private static Dictionary<string, IBuff> buffItems = new Dictionary<string, IBuff>();
+        private readonly static Dictionary<string, IBuff> buffItems = new Dictionary<string, IBuff>();   
 
         private static IBuffLoader loader = null;
 
@@ -79,6 +79,6 @@ namespace YukiFrameWork.Buffer
         public static char Spilt { get; private set; }
 
         internal static ILocalizationData GetContent(string buffKey)
-            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);
+            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);   
     }
 }

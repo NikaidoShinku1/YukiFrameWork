@@ -127,7 +127,7 @@ BuffHandler API:
 
 BuffController专门处理Buff逻辑以及生命周期。
 
-BuffController API:
+BuffController API: 希望BuffController完全自定义可以继承IBuffController接口，正常情况下使用框架提供的BuffController足够。
 
     //BuffController的静态创建实例方法，如自定义控制器时，推荐使用该方法创建控制器，会有专门的对象池进行性能优化
     - static T CreateInstance<T>(IBuff buffer, GameObject Player) where T : BuffController, new();
@@ -152,6 +152,9 @@ BuffController API:
     
     //当前Buff剩余时间
     - float RemainingTime { get; }
+
+    //当前Buff的剩余进度(1-0);
+    - float RemainProgress{ get; }
 
     ///------- 生命周期API：
 
@@ -216,7 +219,7 @@ UI同步，为设置好的面板挂载UIBuffHandlerGroup类，如图所示:
 
         }
 
-        public override void OnBuffUpdate(float remainingTime)
+        public override void OnBuffUpdate(float remainingTime,float remainingProgress)
         {
             
         }
