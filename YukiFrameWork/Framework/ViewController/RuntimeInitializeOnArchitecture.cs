@@ -29,7 +29,7 @@ namespace YukiFrameWork
         /// </summary>
         /// <param name="type">架构类型</param>
         /// <param name="IsOnly">是否是全局唯一的架构</param>
-        public RuntimeInitializeOnArchitecture(Type type,bool IsGeneric = false)
+        public RuntimeInitializeOnArchitecture(Type type,bool IsGeneric = true)
         {
             this.type = type;
             this.isGeneric = IsGeneric;

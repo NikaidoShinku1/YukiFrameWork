@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
 
@@ -322,6 +323,50 @@ namespace YukiFrameWork
             return core;
         }
 
+        public static T SetLocalEnlerAngles<T>(this T core,Vector3 localEnlerAngles) where T : Component
+        {
+            SetLocalEnlerAngles(core.gameObject, localEnlerAngles);
+            return core;
+        }
+
+        public static GameObject SetLocalEnlerAngles(this GameObject core, Vector3 localEnlerAngles) 
+        {
+            core.transform.localEulerAngles = localEnlerAngles;
+            return core;
+        }
+
+        public static T SetEnlerAngles<T>(this T core, Vector3 enlerAngles) where T : Component
+        {
+            SetEnlerAngles(core.gameObject, enlerAngles);
+            return core;
+        }
+
+        public static GameObject SetEnlerAngles(this GameObject core, Vector3 enlerAngles)
+        {
+            core.transform.eulerAngles = enlerAngles;
+            return core;
+        }
+
+        public static T SetLocalEnlerAngles2D<T>(this T core, Vector2 localEnlerAngles) where T : Component
+        {
+            return SetLocalEnlerAngles(core, localEnlerAngles);
+        }
+
+        public static GameObject SetLocalEnlerAngles2D(this GameObject core, Vector2 localEnlerAngles)
+        {
+            return SetLocalEnlerAngles(core, localEnlerAngles);
+        }
+
+        public static T SetEnlerAngles2D<T>(this T core, Vector2 enlerAngles) where T : Component
+        {
+            return SetEnlerAngles(core, enlerAngles);
+        }
+
+        public static GameObject SetEnlerAngles2D(this GameObject core, Vector2 enlerAngles)
+        {
+            return SetEnlerAngles(core, enlerAngles);
+        }
+
         public static GameObject ResetIdentity(this GameObject core)
         {
             core.transform.position = Vector3.zero;
@@ -468,6 +513,19 @@ namespace YukiFrameWork
 #else
             return component != null ? component : core.AddComponent<T>();
 #endif
+        }
+
+        public static GameObject FindRootGameObject(this Scene scene,string name)
+        {
+            GameObject[] gameObjects = scene.GetRootGameObjects();
+
+            for (int i = 0; i < gameObjects.Length; i++)
+            {
+                if (gameObjects[i].name == name)
+                    return gameObjects[i];
+            }
+
+            return null;
         }
 
         public static T GetOrAddComponent<T>(this Component core) where T : Component
