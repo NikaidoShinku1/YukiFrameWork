@@ -59,6 +59,20 @@ namespace YukiFrameWork
             LoadSceneSucceed?.Invoke();
         }
 
+        internal static IEnumerator LoadSceneAsync(LoadSceneRequest asyncOperation, Action<float> loadingCallBack = null)
+        {
+            float progress = 0f;
+
+            while (progress < 1)
+            {
+                progress = asyncOperation.progress;
+                loadingCallBack?.Invoke(progress);
+                LoadingScene?.Invoke(progress);
+                yield return CoroutineTool.WaitForFrame();
+            }
+            LoadSceneSucceed?.Invoke();
+        }
+
         /// <summary>
         /// 异步加载场景但是不立刻跳转，必须要实现回调
         /// </summary>
@@ -99,7 +113,7 @@ namespace YukiFrameWork
 
             LoadSceneSucceed?.Invoke();
             onCompleted?.Invoke(asyncOperation);
-        }
+        }   
     }
 
     public class SceneListener : SingletonMono<SceneListener>
@@ -130,8 +144,9 @@ namespace YukiFrameWork
         }
 
         public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
-            => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsync(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
+            => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsynchrony(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
 
+        [Obsolete("通过XFABManager进行场景加载时希望提前关闭场景的加载方法已经过时，请使用标准的LoadSceneAsyncWithAllowSceneActive或者使用LoadSceneAsync")]
         public IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsyncWithAllowSceneActive(AssetBundleManager.LoadSceneAsync(projectName, sceneName, mode), onCompleted, loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
     }

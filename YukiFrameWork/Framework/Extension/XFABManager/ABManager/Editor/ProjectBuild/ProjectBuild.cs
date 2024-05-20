@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -5,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
-#if UNITY_EDITOR
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine; 
 
@@ -300,7 +301,7 @@ namespace XFABManager
             if (Directory.Exists(path))
             {
                 try
-                {
+                { 
                     Directory.Delete(path, true);
                 }
                 catch (System.IO.IOException)
@@ -641,26 +642,52 @@ namespace XFABManager
 
 
         private static void AddToDictionary(Dictionary<string,List<string>> dic,string bundleName ,string asset) {
-            if (dic.ContainsKey(bundleName))
-                dic[bundleName].Add(asset);
+            if (dic.ContainsKey(bundleName)) 
+            {
+                // 判断一下包中的资源数量 如果超过10 个， 就放到新的包中
+                if (dic[bundleName].Count > 10)
+                { 
+                    bool a = Regex.IsMatch(bundleName, @"_[0-9]+$"); 
+                    if (a)
+                    {
+                        string[] strs = bundleName.Split('_');
+                        int num = 0;
+
+                        string last = strs[strs.Length - 1];
+
+                        int.TryParse(last, out num);
+                        bundleName = bundleName.Remove(bundleName.Length - last.Length - 1, last.Length + 1);
+                        num++; 
+                        bundleName = string.Format("{0}_{1}", bundleName, num); 
+                    }
+                    else {
+                        bundleName = string.Format("{0}_1", bundleName);
+                    }
+
+                    AddToDictionary(dic, bundleName, asset);
+                }
+                else 
+                {
+                    dic[bundleName].Add(asset);
+                }
+
+            }
             else
                 dic.Add(bundleName, new List<string>() { asset });
         }
 
         private static void AddToDictionary(Dictionary<string, List<string>> dic, string bundleName, string[] assets)
         {
-            if (dic.ContainsKey(bundleName))
-                dic[bundleName].AddRange(assets);
-            else { 
-                List<string> list = new List<string>();
-                dic.Add(bundleName, list);
-                list.AddRange(assets);
+            foreach (var item in assets)
+            {
+                AddToDictionary(dic, bundleName, item);
             }
         }
 
         private static string GetAssetsName(List<string> assetPaths) { 
             List<string> guids = new List<string>(); 
-            foreach (string assetPath in assetPaths) { 
+            foreach (string assetPath in assetPaths) 
+            {
                 guids.Add(AssetDatabase.AssetPathToGUID(assetPath));
             }
             string guid = string.Join("", guids); 
@@ -772,4 +799,5 @@ namespace XFABManager
     }
 
 }
+
 #endif

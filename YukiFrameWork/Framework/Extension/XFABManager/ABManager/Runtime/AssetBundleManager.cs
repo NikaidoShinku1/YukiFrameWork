@@ -7,9 +7,9 @@ using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement; 
-#endif
+using UnityEditor.SceneManagement;
 
+#endif
 using UnityEngine; 
 using UnityEngine.SceneManagement;
 //using UnityEngine.SceneManagement;
@@ -60,16 +60,22 @@ namespace XFABManager
         static AssetBundleManager(){
             Initialize();
             CoroutineStarter.Start(AutomaticResourceClearing());
+            CoroutineStarter.Start(AutoUnloadScene());
         }
 
         #region 字段 
 
         public const int AutomaticResourceClearingTime = 300; // 默认5分钟检测一次
 
+        private const int AutoUnloadSceneTimeInterval = 60; // 默认 1分钟
+        private const int AutoUnloadSceneTimeOuttime = 600; // 默认 10分钟
+
         /// <summary>
         /// 存放所有的 AssetBundle
         /// </summary>
         private static Dictionary<string, Dictionary<string, AssetBundle>> assetBundles = new Dictionary<string, Dictionary<string, AssetBundle>>();
+
+        private static List<SceneObject> unloadedSceneObjects = new List<SceneObject>();
 
         /// <summary>
         /// 某一个 AssetBundle 被依赖的引用
@@ -180,18 +186,11 @@ namespace XFABManager
 
             // 监听场景切换的事件
             SceneManager.sceneUnloaded += (scene)=> 
-            {
+            {         
                 SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
-                TimerManager.DelayInvoke(() => 
-                {
-                    Scene scene1 = SceneManager.GetSceneByName(s.name);
-                    if (scene1.IsValid() && scene1.GetHashCode() == s.GetHashCode())
-                        return;
-                    // 当某一个场景被卸载时触发,当场景被卸载时同时卸载资源
-                    UnloadAsset(s);
-                }, 1);
+                unloadedSceneObjects.Add(s);
             };
-
+           
             isInited = true; 
         }
  
@@ -1209,6 +1208,7 @@ namespace XFABManager
         /// <param name="projectName"></param>
         /// <param name="sceneName"></param>
         /// <param name="mode"></param>
+        [Obsolete("该方法已过时,请使用LoadSceneAsynchrony代替!")]
         public static AsyncOperation LoadSceneAsync(string projectName , string sceneName, LoadSceneMode mode)
         {
             string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
@@ -1217,6 +1217,18 @@ namespace XFABManager
                 return null;
             }
             return LoadSceneAsyncInternal(projectName, bundle_name, sceneName, mode);
+        }
+
+        public static LoadSceneRequest LoadSceneAsynchrony(string projectName, string sceneName, LoadSceneMode mode)
+        {
+            string key = string.Format("LoadSceneAsynchrony:{0}_{1}", projectName, sceneName);
+
+            return ExecuteOnlyOnceAtATime<LoadSceneRequest>(key, () =>
+            {
+                LoadSceneRequest request = new LoadSceneRequest();
+                CoroutineStarter.Start(request.LoadSceneAsyncInternal(projectName, sceneName, mode));
+                return request;
+            });
         }
 
         #endregion
@@ -1541,11 +1553,13 @@ namespace XFABManager
             // 加载场景
             SceneManager.LoadScene(sceneName, mode);
 
-            Scene scene = SceneManager.GetSceneByName(sceneName);
-            if (scene.IsValid()) {
-                // 添加缓存
-                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
-                AddAssetCache(projectName, bundleName,s);
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene scene = SceneManager.GetSceneAt(i);
+                if (!scene.IsValid()) continue;
+                if (scene.name != sceneName) continue;
+                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());              
+                AddAssetCache(projectName, bundleName, s);
             }
         }
 
@@ -1592,7 +1606,11 @@ namespace XFABManager
         /// </summary>
         internal static void AddAssetCache(string projectName,string bundleName, object asset) {
 
-            if (asset == null) return; 
+            if (asset == null) return;
+
+            int asset_hash = asset.GetHashCode();
+            if (asset_hash_project_name.ContainsKey(asset_hash))
+                return; // 说明当前这个资源已经添加到缓存里面了 不需要重复添加
 
             if (!bundle_assets.ContainsKey(projectName))
                 bundle_assets.Add(projectName,  new Dictionary<string, Dictionary<int,object>>());
@@ -1602,8 +1620,7 @@ namespace XFABManager
 
             if(!bundle_assets[projectName][bundleName].ContainsKey(asset.GetHashCode()))
                 bundle_assets[projectName][bundleName].Add(asset.GetHashCode(),asset);
-
-            int asset_hash = asset.GetHashCode();
+           
             if (!asset_hash_project_name.ContainsKey(asset_hash)) 
                 asset_hash_project_name.Add(asset_hash, projectName);
         }
@@ -1766,6 +1783,28 @@ namespace XFABManager
                 yield return new WaitForSeconds(AutomaticResourceClearingTime); // 10 分钟检测一次
             }   
         }
+
+        private static IEnumerator AutoUnloadScene()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(AutoUnloadSceneTimeInterval); // 1
+                if (LoadSceneRequest.LoadingScene)
+                    continue;
+
+                for (int i = 0; i < unloadedSceneObjects.Count; i++)
+                {
+                    SceneObject scene = unloadedSceneObjects[i];
+                    if (Time.time - scene.time > AutoUnloadSceneTimeOuttime)
+                    {
+                        unloadedSceneObjects.Remove(scene);
+                        i--;
+                        UnloadAsset(scene);
+                    }
+                }
+            }
+        }
+
 
         #endregion
 
@@ -2012,7 +2051,7 @@ namespace XFABManager
         /// <param name="projectName"></param>
         /// <param name="bundleName"></param>
         /// <returns></returns>
-        private static XFABAssetBundle GetXFABAssetBundle(string projectName, string bundleName)
+        internal static XFABAssetBundle GetXFABAssetBundle(string projectName, string bundleName)
         {
             if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(bundleName) ) {
                 return null;
@@ -2185,7 +2224,10 @@ namespace XFABManager
             }
         }
 
-        internal static string GetBundleName(string projectName,string assetName, Type type) {
+        internal static string GetBundleName(string projectName,string assetName, Type type) 
+        {
+            if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(assetName))
+                return string.Empty;
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {

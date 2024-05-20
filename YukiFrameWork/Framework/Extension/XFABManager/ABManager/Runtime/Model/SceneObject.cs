@@ -7,13 +7,14 @@ namespace XFABManager
     internal struct SceneObject
     {
         public string name { get; set; }
-
+        public float time;
         private int hashCode;
 
         internal SceneObject(string name, int hashCode)
         {
             this.name = name;
             this.hashCode = hashCode;
+            time = Time.time;
         }
 
         public override int GetHashCode()
