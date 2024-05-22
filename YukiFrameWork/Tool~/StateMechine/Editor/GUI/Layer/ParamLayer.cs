@@ -172,9 +172,9 @@ namespace YukiFrameWork.States
                 case ParameterType.Int:
                     SetValue(parameterData, EditorGUI.IntField(paramValueRect, (int)parameterData.Value));
                         break;
-                    case ParameterType.Bool:
+                case ParameterType.Bool:
                     SetValue(parameterData, EditorGUI.Toggle(paramValueRect, parameterData.Value == 1) ? 1 : 0);
-                    break;           
+                    break;         
             }
         }
 

@@ -1,11 +1,16 @@
-﻿using Sirenix.OdinInspector;
+﻿using OfficeOpenXml.Style;
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
+using static YukiFrameWork.Extension.ImportSettingWindow;
 
 namespace YukiFrameWork
 {
@@ -23,24 +28,58 @@ namespace YukiFrameWork
         Close      
     }
 
+    public enum StateExtension
+    {
+        [LabelText("默认状态机")]
+        None,
+        [LabelText("兼容Playable")]
+        Playable
+    }
+
 }
 namespace YukiFrameWork.States
 {
+    internal class PlayableInfo
+    {
+        public int clipIndex;
+        public AnimationClipPlayable clipPlayable;
+      
+
+        public PlayableInfo(int clipIndex,PlayableGraph playableGraph, AnimationClip clip)
+        {
+            this.clipIndex = clipIndex;
+            this.clipPlayable = AnimationClipPlayable.Create(playableGraph, clip);
+           
+        }
+    }
     public class StateManager : MonoBehaviour,IState
     {
+        private const string defaultSystem = "设置";    
         #region 字段    
-        [LabelText("状态机初始化方式:")]
+        [LabelText("状态机初始化方式:"),BoxGroup(defaultSystem)]
         [InfoBox("决定了状态机初始化的生命周期")]
         public RuntimeInitType initType;
 
-        [LabelText("状态机是否开启调试:")]
+        [LabelText("状态机是否开启调试:"), BoxGroup(defaultSystem)]
         [InfoBox("开启后每次切换状态都会Debug一次")]
         public DeBugLog deBugLog;
+
+        [SerializeField,LabelText("状态机的默认类型"),BoxGroup(defaultSystem)]
+        internal StateExtension StateExtension;
+
+        [SerializeField,LabelText("该状态机使用的动画状态机"),BoxGroup(defaultSystem),ShowIf(nameof(StateExtension),StateExtension.Playable)]       
+        internal Animator bindAnimator;
+
+        [LabelText("图名"),SerializeField,BoxGroup(defaultSystem), ShowIf(nameof(StateExtension), StateExtension.Playable)]
+        internal string graphName;
+
+       // [LabelText("状态剪辑绑定"),SerializeField, BoxGroup(defaultSystem), ShowIf(nameof(StateExtension), StateExtension.Playable)]
+        internal Dictionary<string, PlayableInfo> stateOrAnimationDicts = new Dictionary<string, PlayableInfo>();   
 
 #if UNITY_EDITOR
         [ShowIf("IsMechineOrEmpty")]
 #endif
-        [LabelText("状态机本体:")]
+        [LabelText("状态机本体:"), BoxGroup(defaultSystem), PropertySpace(15)]
         public StateMechine stateMechine;                   
 
         public Dictionary<string,StateParameterData> ParametersDicts => parametersDict;
@@ -53,11 +92,12 @@ namespace YukiFrameWork.States
 
         public Dictionary<string, List<StateTransition>> subTransitions = DictionaryPools<string, List<StateTransition>>.Get();
 
-        private bool isDefaultTransition = false;
-
         public List<StateBase> currents { get; } = new List<StateBase>();
 
-        private StateMechineSystem mechineSystem;
+        private PlayableGraph playableGraph;
+        private AnimationPlayableOutput playableOutput;
+
+        private AnimationLayerMixerPlayable baseMixerPlayable;
 
         internal Dictionary<string, int> state_switchCount = new Dictionary<string, int>();
 
@@ -65,9 +105,29 @@ namespace YukiFrameWork.States
 
 #if UNITY_EDITOR
         private bool IsMechineOrEmpty => stateMechine != null;
+
+        [Button("创建状态机",ButtonHeight = 40),BoxGroup(defaultSystem),HideIf(nameof(IsMechineOrEmpty)),PropertySpace(25)]
+        private void CreateMechine()
+        {
+            StateMechine stateMechine = GetComponentInChildren<StateMechine>();
+
+            if (stateMechine == null)
+            {
+                stateMechine = new GameObject(typeof(StateMechine).Name).AddComponent<StateMechine>();
+
+                stateMechine.transform.SetParent(transform);
+
+                StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
+            }
+            this.stateMechine = stateMechine;
+        }
+
+        [Button("打开状态机编辑器", ButtonHeight = 40), BoxGroup(defaultSystem), ShowIf(nameof(IsMechineOrEmpty)), PropertySpace(25)]
+        private void Open() => StateMechineEditorWindow.OpenWindow();
+
 #endif
 
-#endregion
+        #endregion
 
         #region 方法
         private void Awake()
@@ -86,6 +146,11 @@ namespace YukiFrameWork.States
                 stateMechine = transform.GetComponentInChildren<StateMechine>();
                 if (stateMechine == null)
                     return;
+            }
+
+            if (StateExtension == StateExtension.Playable)
+            {
+                bindAnimator ??= GetComponentInChildren<Animator>();
             }
 
             for (int i = 0; i < stateMechine.parameters.Count; i++)
@@ -124,18 +189,50 @@ namespace YukiFrameWork.States
 
                 return transitions;
             });
-            subTransitions.Add("BaseLayer", transitions);
+            subTransitions.Add("BaseLayer", transitions);     
+
+            if (StateExtension == StateExtension.Playable)
+            {
+                playableGraph = PlayableGraph.Create($"{graphName}");
+                playableOutput = AnimationPlayableOutput.Create(playableGraph, "StateMechine", bindAnimator);
+                baseMixerPlayable = AnimationLayerMixerPlayable.Create(playableGraph);               
+                playableOutput.SetSourcePlayable(baseMixerPlayable);
+            }
+            int inputCount = 0;
             foreach (var state in runTimeSubStatePair.Values)
             {
                 foreach (var item in state.stateBases)
                 {
                     item.OnInit(this);
+
+                    if (StateExtension == StateExtension.Playable
+                        && !item.name.StartsWith(StateConst.entryState)
+                        && !item.name.StartsWith(StateConst.upState)
+                        && item.statePlayble.animationClip != null)
+                    {
+                        inputCount++;
+                        PlayableInfo info = new PlayableInfo(stateOrAnimationDicts.Count, playableGraph,item.statePlayble.animationClip);
+                        stateOrAnimationDicts[item.name] = info;
+                        item.clipPlayable = info.clipPlayable;
+                    }
                 }
             }
+
+            if (StateExtension == StateExtension.Playable)
+            {
+                baseMixerPlayable.SetInputCount(inputCount);
+                foreach (var key in stateOrAnimationDicts.Values)
+                {
+                    playableGraph.Connect(key.clipPlayable, 0, baseMixerPlayable, key.clipIndex);
+                }
+
+                playableGraph.Play();
+            }      
+
             if (deBugLog == DeBugLog.Open)
             {
                 LogKit.I($"状态机归属： {gameObject.name},初始化完成！");
-            }
+            }            
 
             foreach (var item in runTimeSubStatePair["BaseLayer"].stateBases)
             {
@@ -203,7 +300,7 @@ namespace YukiFrameWork.States
 #endif*/
             if (SetParameter(name,ParameterType.Bool, out var data))
             {
-                CheckConditionInStateEnter();
+                //CheckConditionInStateEnter();
                 data.Value = v ? 1 : 0;                              
             }
             else
@@ -220,7 +317,7 @@ namespace YukiFrameWork.States
 #endif   */
             if (SetParameter(name,ParameterType.Float, out var data))
             {
-                CheckConditionInStateEnter();
+                //CheckConditionInStateEnter();
                 data.Value = v;            
             }
             else
@@ -236,7 +333,7 @@ namespace YukiFrameWork.States
 #endif*/
             if (SetParameter(name,ParameterType.Int, out var data))
             {
-                CheckConditionInStateEnter();
+                //CheckConditionInStateEnter();
                 data.Value = v;              
             }
             else
@@ -262,17 +359,18 @@ namespace YukiFrameWork.States
         /// 在进入状态时如果使用有限状态机条件检查则调用该方法判断在刚进入这个状态时的条件是否已经满足
         /// </summary>
         private void CheckConditionInStateEnter()
-        {
-            if (!isDefaultTransition)
+        {            
+            foreach (var transition in subTransitions)
             {
-                foreach (var transition in transitions)
+                foreach (var item in transition.Value)
                 {
-                    foreach (var condition in transition.conditions)
-                        condition.CheckParameterValueChange();
-                }
-                isDefaultTransition = true;
+                    if (item.CheckConditionInStateEnter())
+                    {                        
+                        break;
+                    }
+                }              
             }
-        }
+        } 
 
         public void OnChangeState(StateBase state, System.Action callBack = null, bool isBack = true)
         {
@@ -282,7 +380,7 @@ namespace YukiFrameWork.States
             {
                 second = currentSeconds;
                 state_switchCount.Clear();
-            }
+            }           
             if (state == null) return;
 
             AddStateChangeCount(state.name);
@@ -297,8 +395,7 @@ namespace YukiFrameWork.States
             }
             runTimeSubStatePair[state.layerName].CurrentState = state;
             OnEnterState(state, callBack);
-            MonoHelper.Start(DelayChange());         
-            isDefaultTransition = false;
+            MonoHelper.Start(DelayChange());                    
         }
 
         private void AddStateChangeCount(string name)
@@ -319,9 +416,11 @@ namespace YukiFrameWork.States
         }
 
         private void OnEnterState(StateBase state,System.Action callBack)
-        {           
+        {
             currents.Add(state);
             state.OnEnter(callBack);
+            if (state.PlayableCoroutine != null) MonoHelper.Stop(state.PlayableCoroutine);
+            state.PlayableCoroutine = MonoHelper.Start(PlayableEnter(state));
             if (state.IsSubingState)
             {
                 foreach (var item in runTimeSubStatePair[state.name].stateBases)
@@ -336,9 +435,71 @@ namespace YukiFrameWork.States
             }
         }
 
+        private IEnumerator PlayableEnter(StateBase stateBase)
+        {
+            bool IsGetInfo = StateExtension == StateExtension.Playable;
+            if (!stateOrAnimationDicts.TryGetValue(stateBase.name, out var info))
+            {
+                IsGetInfo = false;
+            }          
+            if (IsGetInfo)
+            {
+                stateBase.clipPlayable.SetSpeed(1);
+                stateBase.clipPlayable.SetTime(0);
+            }
+            float clipWidth = stateBase.statePlayble.clipWidth;
+            float current = 0;
+            float speed = 1 / stateBase.statePlayble.speed;
+
+            while (current < clipWidth)
+            {
+                yield return CoroutineTool.WaitForFrame();
+                current = Mathf.Clamp01(current + speed * Time.deltaTime);
+                if (IsGetInfo)
+                    Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
+                stateBase.OnTransitionEnter(speed * Time.deltaTime);
+            }
+            if (IsGetInfo)
+                Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
+            stateBase.OnTransitionEnter(speed * Time.deltaTime);       
+        }
+
+        private IEnumerator PlayableExit(StateBase stateBase)
+        {
+            bool IsGetInfo = StateExtension == StateExtension.Playable;
+            if (!stateOrAnimationDicts.TryGetValue(stateBase.name, out var info))
+            {
+                IsGetInfo = false;
+            }
+            if (IsGetInfo)
+            {
+                stateBase.clipPlayable.SetSpeed(0);
+            }
+            float clipWidth = stateBase.statePlayble.clipWidth;
+
+            float speed = 1 / stateBase.statePlayble.speed;          
+            while (clipWidth > 0)
+            {
+                yield return CoroutineTool.WaitForFrame();
+                clipWidth = Mathf.Clamp01(clipWidth - speed * Time.deltaTime);
+                if(IsGetInfo)
+                    Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
+                stateBase.OnTransitionExit(speed * Time.deltaTime);
+            }
+            if (IsGetInfo)
+                Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
+            stateBase.OnTransitionExit(speed * Time.deltaTime);           
+           
+        }
+
+        private void Update_SourceWeight(AnimationLayerMixerPlayable animationMixer, int index, float clipWidth)
+        {
+            animationMixer.SetInputWeight(index, clipWidth);
+        }
+
         private IEnumerator DelayChange()
         {
-            yield return null;
+            yield return CoroutineTool.WaitForFrame();
             CheckConditionInStateEnter();
         }
 
@@ -346,6 +507,12 @@ namespace YukiFrameWork.States
         {            
             currents.Remove(state);
             state.OnExit(isBack);
+            if (state.PlayableCoroutine != null) 
+            { 
+                MonoHelper.Stop(state.PlayableCoroutine); 
+
+            }
+            state.PlayableCoroutine = MonoHelper.Start(PlayableExit(state));
             if (state.IsSubingState)
             {
                 if (runTimeSubStatePair[state.name].CurrentState != null)
@@ -368,7 +535,14 @@ namespace YukiFrameWork.States
 
         public void OnChangeState(string name,string layerName, System.Action callBack = null, bool isBack = true)
         {
-            var items = runTimeSubStatePair[layerName].stateBases;
+            var root = runTimeSubStatePair[layerName];
+            var items = root.stateBases;
+
+            if (root.CurrentState != null && root.CurrentState.name == name)
+            {
+                LogKit.W("试图切换相同状态,请重试! State Name:" + name);
+                return;
+            }    
 
             StateBase stateBase = items.Find(x => x.name == name);
 
@@ -391,9 +565,14 @@ namespace YukiFrameWork.States
             }
 
             OnChangeState(stateBase, callBack, isBack);         
-        }         
+        }
         #endregion
 
+        private void OnDestroy()
+        {            
+            if(StateExtension == StateExtension.Playable)
+                playableGraph.Destroy();
+        }
     }
 
 }

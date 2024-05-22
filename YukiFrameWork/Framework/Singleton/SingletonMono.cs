@@ -20,8 +20,12 @@ namespace YukiFrameWork
             get
             {
                 lock (_lock)
-                {                   
-                    instance ??= SingletonFectory.CreateMonoSingleton<T>();                   
+                {
+                    if (instance == null)
+                    {
+                        instance = SingletonFectory.CreateMonoSingleton<T>();
+                        instance.OnInit();
+                    }
                     return instance;
                 }
             }
@@ -35,8 +39,7 @@ namespace YukiFrameWork
                 Destroy(gameObject);
             }
             else
-            {
-                OnInit();
+            {             
                 instance = this as T;
                 if (IsDonDestroyLoad)
                     DontDestroyOnLoad(instance);

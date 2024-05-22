@@ -15,12 +15,11 @@ namespace YukiFrameWork.States
 
         private StateBase toState;
 
-        public string FromStateName => transitionData.fromStateName;
-
-        public List<StateCondition> conditions;
+        public string FromStateName => transitionData.fromStateName;   
 
         private string layerName;
-      
+
+        public List<GroupCondition> groupConditions = new List<GroupCondition>();
         #endregion
 
         public StateTransition(StateManager stateManager, StateTransitionData transitionData,string layerName, bool childMechine = false)
@@ -28,13 +27,18 @@ namespace YukiFrameWork.States
             this.transitionData = transitionData;
             this.stateManager = stateManager;
 
-            this.conditions = ListPools<StateCondition>.Get();
+            //this.conditions = ListPools<StateCondition>.Get();
 
-            foreach (var item in this.transitionData.conditions)
+            GroupCondition groupCondition = new GroupCondition(this.transitionData.conditions,stateManager);
+
+            groupCondition.onConditionMeet += this.CheckCondition;
+            groupConditions.Add(groupCondition);
+
+            foreach (var item in transitionData.conditionDatas)
             {
-                StateCondition condition = new StateCondition(item, this.stateManager);
-                condition.onConditionMeet += this.CheckConditionIsMeet;
-                this.conditions.Add(condition);
+                GroupCondition group = new GroupCondition(item.conditions, stateManager);
+                group.onConditionMeet += this.CheckCondition;
+                groupConditions.Add(group);
             }
 
             StateBase targetState = null;
@@ -58,31 +62,57 @@ namespace YukiFrameWork.States
         /// <summary>
         /// 检测条件是否都满足
         /// </summary>
-        public void CheckConditionIsMeet()
+        internal bool CheckConditionIsMeet()
         {
-            if (conditions.Count == 0)
+            if (groupConditions.Count == 0)
             {
-                return;
+                return false;
             }
 
-            foreach (var item in conditions)
-            {
-                if (item.ConditionState == ConditionState.NotMeet) return;
-            }
+            if (!ConditionGroupMeet()) return false;
 
             if (toState == null)
             {
                 Debug.LogError("查询目标状态失败！");
-                return;
-            }         
+                return false;
+            }
+            return true;
+        }
 
-            if (!transitionData.fromStateName.Equals(stateManager.runTimeSubStatePair[layerName].CurrentState?.name))
-            {
-                if (stateManager.runTimeSubStatePair[layerName].CurrentState.name.Equals(transitionData.toStateName))
-                    return;
-            }                    
+        public void CheckCondition()
+        {
+            CheckConditionInStateEnter();
+        }
+
+        private bool TransitionExecute()
+        {
+            if (!transitionData.fromStateName.Equals(stateManager.runTimeSubStatePair[layerName].CurrentState?.name)
+                || stateManager.runTimeSubStatePair[layerName].CurrentState.name.Equals(transitionData.toStateName))
+            {              
+                 return false;
+            }
             stateManager.OnChangeState(toState);
+            return true;
+        }
 
+        internal bool CheckConditionInStateEnter()
+        {
+            bool isMeet = CheckConditionIsMeet();
+
+            if (isMeet)
+                return TransitionExecute();
+
+            return isMeet;
+        }
+
+        private bool ConditionGroupMeet()
+        {
+            foreach (var item in groupConditions)
+            {
+                if (item.IsMeet) return true;
+            }
+
+            return false;
         }
      
     }

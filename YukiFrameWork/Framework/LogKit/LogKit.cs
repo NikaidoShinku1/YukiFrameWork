@@ -57,7 +57,9 @@ namespace YukiFrameWork
             set
             {
                 config.LogEnabled = value;
+#if UNITY_EDITOR
                 config.Save();
+#endif
             }
         }
 
@@ -67,7 +69,9 @@ namespace YukiFrameWork
             set
             {
                 config.LogSaving = value;
+#if UNITY_EDITOR
                 config.Save();
+#endif
             }
         }
 

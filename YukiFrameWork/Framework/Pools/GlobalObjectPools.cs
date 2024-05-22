@@ -20,7 +20,7 @@ namespace YukiFrameWork.Pools
   
     public class GlobalObjectPools<T> : AbstarctPools<T>,ISingletonKit,IDisposable where T : IGlobalSign, new()
     {
-        public static GlobalObjectPools<T> Instance => Singleton.GetInstance<GlobalObjectPools<T>>();
+        public static GlobalObjectPools<T> Instance => SingletonProperty<GlobalObjectPools<T>>.GetInstance();
 
         private GlobalObjectPools()
         {

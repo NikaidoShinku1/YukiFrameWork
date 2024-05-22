@@ -85,7 +85,9 @@ namespace YukiFrameWork
         {
             SaveInfo SaveInfo = new SaveInfo(saveConfig.currentID,DateTime.Now);
             saveConfig.infos.Add(SaveInfo);
+#if UNITY_EDITOR
             saveConfig.Save();
+#endif
             return SaveInfo;
         }
 
@@ -125,7 +127,9 @@ namespace YukiFrameWork
             }
 
             saveConfig.infos.Remove(GetSaveInfo(saveID));
+#if UNITY_EDITOR
             saveConfig.Save();
+#endif
         }     
 
         /// <summary>
@@ -141,7 +145,9 @@ namespace YukiFrameWork
 #endif
             }
             saveConfig.infos.Clear();
+#if UNITY_EDITOR
             saveConfig.Save();
+#endif
             CheckAndCreateFolder();
         }
 

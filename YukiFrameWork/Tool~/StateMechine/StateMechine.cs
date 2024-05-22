@@ -85,7 +85,7 @@ namespace YukiFrameWork.States
         [BoxGroup("数据")]
         [LabelText("每个图层分别保存的条件过渡")]
         public YDictionary<string, List<StateTransitionData>> subTransitions = new YDictionary<string, List<StateTransitionData>>();
-
+       
 #if UNITY_EDITOR
         public void SaveToMechine()
         {

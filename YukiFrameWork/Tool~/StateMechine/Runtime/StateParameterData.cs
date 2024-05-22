@@ -9,7 +9,7 @@ namespace YukiFrameWork.States
     {
         Float = 0,
         Int,
-        Bool
+        Bool,     
     }
 
     [System.Serializable]

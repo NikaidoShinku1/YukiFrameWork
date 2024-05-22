@@ -9,6 +9,7 @@ using AssemblyHelper = YukiFrameWork.Extension.AssemblyHelper;
 using Object = UnityEngine.Object;
 using System.Linq;
 using System.Collections;
+
 #if UNITY_EDITOR
 using UnityEditor;
 namespace YukiFrameWork.States
@@ -25,11 +26,17 @@ namespace YukiFrameWork.States
         private List<string> fieldName = new List<string>();  
         private bool isRecomposeScript = false;
         private List<string> list = new List<string>();
+        private StateManager manager;
         private void OnEnable()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;
             if (helper == null) return;
+
+            if(helper.StateMechine != null)
+                manager = helper.StateMechine.GetComponentInParent<StateManager>();
+
             var state = helper.node;
+            fileName = state.name;
             for (int i = 0; i < state.dataBases.Count; i++)
             {
                 Type type = AssemblyHelper.GetType(state.dataBases[i].typeName);
@@ -93,6 +100,12 @@ namespace YukiFrameWork.States
             }    
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
+
+            if (manager != null && disabled == false)
+            {
+                helper.node.statePlayble.OnInspectorGUI(manager.StateExtension == StateExtension.Playable);
+            }
+
             if (!helper.node.name.Equals(stateName))
             {
                 stateName = helper.node.name;

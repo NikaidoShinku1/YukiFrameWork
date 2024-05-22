@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using YukiFrameWork.Extension;
-using System.Linq;
+using Sirenix.OdinInspector;
+using UnityEngine.Animations;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace YukiFrameWork.States
 {
-    public enum StateAnimType
-    {
-        None = 0,
-        Animator,
-        Animation
-    }
-
+  
     public enum StateLifeCycle
     {
         OnInit = 0,
@@ -22,6 +22,44 @@ namespace YukiFrameWork.States
         OnLateUpdate,
         OnExit
     }
+    [Serializable]
+    public class StatePlayable
+    {      
+        [LabelText("动画剪辑")]
+        public AnimationClip animationClip;
+
+        [LabelText("过渡时间")]
+        public float speed = 0.25f;
+
+        [LabelText("剪辑权重"),Range(0,1)]
+        public float clipWidth = 1;
+
+#if UNITY_EDITOR
+        internal void OnInspectorGUI(bool playable)
+        {            
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("过渡时间");
+            speed = EditorGUILayout.FloatField(speed);
+            EditorGUILayout.EndHorizontal();            
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("剪辑权重");
+            clipWidth = EditorGUILayout.Slider(clipWidth, 0, 1);
+            EditorGUILayout.EndHorizontal();
+
+            if (playable)
+            {
+                EditorGUILayout.HelpBox("当前在StateManager已经启动了Playable兼容,请进行动画剪辑设置!", MessageType.Warning);
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("动画剪辑");
+                animationClip = (AnimationClip)EditorGUILayout.ObjectField(animationClip, typeof(AnimationClip), true);
+                EditorGUILayout.EndHorizontal();
+            }          
+        }
+#endif
+    }
+
     [System.Serializable]
     public class StateBase
     {
@@ -37,13 +75,19 @@ namespace YukiFrameWork.States
 
         public int index;
 
+        internal Coroutine PlayableCoroutine;
+
         public List<StateDataBase> dataBases = new List<StateDataBase>();
      
         public bool IsSubingState;
 
+        internal AnimationClipPlayable clipPlayable;
+        [SerializeField]
+        public StatePlayable statePlayble;
+
         private readonly Stack<Action> callBacks = new Stack<Action>();
 
-        public void OnInit(IState stateManager)
+        internal void OnInit(IState stateManager)
         {
             for (int i = 0; i < dataBases.Count; i++)
             {
@@ -54,35 +98,56 @@ namespace YukiFrameWork.States
                 }
             }
             SetAllBaseLifeCycle(StateLifeCycle.OnInit);
-        }
+        } 
 
-       /* public List<StateBase> GetAllStatesOfSubMechine()
-        {
-            return subState.stateBases;
-        }       */
-
-        public void OnEnter(Action callBack = null)
+        internal void OnEnter(Action callBack = null)
         {
             if (callBack != null) callBacks.Push(callBack);
             SetAllBaseLifeCycle(StateLifeCycle.OnEnter);
         }
 
-        public void OnUpdate()
+        internal void OnUpdate()
         {
             SetAllBaseLifeCycle(StateLifeCycle.OnUpdate);
         }
 
-        public void OnFixedUpdate()
+        internal void OnFixedUpdate()
         {
             SetAllBaseLifeCycle(StateLifeCycle.OnFixedUpdate);
         }
 
-        public void OnLateUpdate()
+        internal void OnLateUpdate()
         {
             SetAllBaseLifeCycle(StateLifeCycle.OnLateUpdate);
         }
 
-        public void OnExit(bool isBack = true)
+        internal void OnTransitionEnter(float velocity)
+        {
+            for (int i = 0; i < dataBases.Count; i++)
+            {
+                if (dataBases[i].isActive)
+                {
+                    StateBehaviour state = dataBases[i].Behaviour;
+                    if (state == null) continue;
+                    state.OnTransitionEnter(velocity);
+                }
+            }
+        }
+
+        internal void OnTransitionExit(float velocity)
+        {
+            for (int i = 0; i < dataBases.Count; i++)
+            {
+                if (dataBases[i].isActive)
+                {
+                    StateBehaviour state = dataBases[i].Behaviour;
+                    if (state == null) continue;
+                    state.OnTransitionExit(velocity);
+                }
+            }
+        }
+
+        internal void OnExit(bool isBack = true)
         {
             SetAllBaseLifeCycle(StateLifeCycle.OnExit);
             if (isBack && callBacks.Count > 0)
@@ -119,19 +184,6 @@ namespace YukiFrameWork.States
                     }
                 }
             }
-
-           /* if (IsSubingState)
-            {
-                var states = GetAllStatesOfSubMechine();
-
-                if (states != null)
-                {
-                    for (int i = 0; i < states.Count; i++)
-                    {
-                        states[i].SetAllBaseLifeCycle(lifeCycle);
-                    }
-                }
-            }*/
         }
     }
     [System.Serializable]

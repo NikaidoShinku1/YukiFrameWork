@@ -388,7 +388,7 @@ namespace YukiFrameWork.States
                         foreach (var item in this.Context.StateMechine.states)
                         {
                             item.defaultState = false;
-                        }
+                        }                     
                         data.defaultState = true;
 
                         this.Context.StateMechine.SaveToMechine();

@@ -23,7 +23,7 @@ namespace YukiFrameWork
     public interface ISingletonKit
     {
         /// <summary>
-        /// 单例初始化方法，如果使用Mono单例父类则效力等同Awake
+        /// 单例初始化方法
         /// </summary>
         [MethodAPI("单例初始化方法")]
         void OnInit();
@@ -38,27 +38,6 @@ namespace YukiFrameWork
     public interface ISingletonKit<T> : ISingletonKit
     {
        
-    }
-
-    public class Singleton
-    {
-        public static T GetInstance<T>() where T : class, ISingletonKit
-            => SingletonFectory.GetSingleton<T>();
-
-        public static ISingletonKit GetInstance(Type type)
-            => SingletonFectory.GetSingleton(type);
-
-        public static T GetMonoInstance<T>(bool isDonDestoryLoad = false) where T : Component,ISingletonKit
-            => SingletonFectory.GetMonoSingleton<T>(isDonDestoryLoad);
-
-        public static ISingletonKit GetMonoInstance(Type type, bool isDonDestoryLoad = false)
-            => SingletonFectory.GetMonoSingleton(type,isDonDestoryLoad);
-
-        public static T GetScriptableInstance<T>() where T : ScriptableObject, ISingletonKit
-            => SingletonFectory.GetScriptableSingleton<T>();
-
-        public static ISingletonKit GetScriptableInstance(Type type)
-            => SingletonFectory.GetScriptableSingleton(type);
     }
 
     public static class SingletonFectory
@@ -111,7 +90,7 @@ namespace YukiFrameWork
 #if UNITY_2023_1_OR_NEWER
             instance = UnityEngine.Object.FindAnyObjectByType(type, FindObjectsInactive.Include) as ISingletonKit;
 #elif UNITY_2020_1_OR_NEWER
-            instance = UnityEngine.Object.FindObjectOfType(type,true) as ISingletonKit;
+            instance = UnityEngine.Object.FindObjectOfType(type, true) as ISingletonKit;
 #endif
             if (instance == null)
             {
@@ -223,5 +202,61 @@ namespace YukiFrameWork
             return instance;
         }
         #endregion
+    }
+
+    public class SingletonMonoProperty<T>  where T : Component,ISingletonKit
+    {        
+        private static T instance;
+
+        private static object mLock = new object();
+
+        /// <summary>
+        /// 获取实例，参数IsDonDestroyLoad仅第一次获取且场景不存在该对象时有效
+        /// </summary>
+        /// <param name="IsDonDestroyLoad"></param>
+        /// <returns></returns>
+        public static T GetInstance(bool IsDonDestroyLoad = true)
+        {
+            lock (mLock)
+            {
+                if (instance == null)
+                {
+                    instance = SingletonFectory.CreateMonoSingleton<T>(IsDonDestroyLoad);
+                    instance.OnInit();
+                }
+                return instance;
+            }
+        } 
+    }
+
+    public class SingletonProperty<T> where T :class, ISingletonKit
+    {
+        private static T instance;
+
+        private static object mLock = new object();
+
+        /// <summary>
+        /// 获取实例，参数IsDonDestroyLoad仅第一次获取有效
+        /// </summary>
+        /// <param name="IsDonDestroyLoad"></param>
+        /// <returns></returns>
+        public static T GetInstance()
+        {
+            lock (mLock)
+            {
+                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(T) == typeof(UnityEngine.Object))
+                {
+                    throw new Exception("对于派生自UnityEngine.Object的单例，应使用SingletonMonoProperty Type:" + typeof(T));
+                }
+
+                if (instance == null)
+                {
+                    instance = SingletonFectory.CreateSingleton<T>();
+                    instance.OnInit();
+                }
+                return instance;
+            }
+        }
+
     }
 }

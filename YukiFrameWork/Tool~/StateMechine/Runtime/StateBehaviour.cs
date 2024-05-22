@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 using YukiFrameWork.Events;
 using YukiFrameWork.Extension;
 
@@ -29,6 +30,7 @@ namespace YukiFrameWork.States
 
         private StateBase _state;
 
+        protected AnimationClipPlayable animationClipPlayable => state.clipPlayable;
         protected StateBase state
         {
             get
@@ -68,6 +70,24 @@ namespace YukiFrameWork.States
         public virtual void OnExit() { }
         #endregion
 
+        /// <summary>
+        /// 过渡到下一个状态的进入时会持续检测的回调
+        /// </summary>
+        /// /// <param name="velocity">过渡的增量速度</param>
+        public virtual void OnTransitionEnter(float velocity)
+        {
+            
+        }
+
+        /// <summary>
+        /// 在状态退出时会持续检测的回调
+        /// </summary>
+        /// <param name="velocity">过渡的增量速度</param>
+        public virtual void OnTransitionExit(float velocity)
+        {
+            
+        }
+     
         protected void OnChangeState(int index)
             => StateManager.OnChangeState(index);
 

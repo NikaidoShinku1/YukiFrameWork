@@ -30,5 +30,13 @@ namespace YukiFrameWork.States
             }
         }
     }
+
+    public class StateTriggerCondition : ConditionInspector
+    {
+        public override void OnGUI(Rect rect, StateConditionData condition, StateMechine stateMechine)
+        {
+            
+        }
+    }
 }
 #endif

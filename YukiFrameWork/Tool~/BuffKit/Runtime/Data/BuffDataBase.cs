@@ -112,6 +112,7 @@ namespace YukiFrameWork.Buffer
 
         private bool reimportTable => buffConfigs.Count > 0;
 
+#if UNITY_EDITOR
         [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
         private string jsonName = "Buff";
         [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
@@ -121,7 +122,7 @@ namespace YukiFrameWork.Buffer
         {
             SerializationTool.SerializedObject(buffConfigs).CreateFileStream(jsonPath,jsonName,".json");
         }
-        
+#endif
         private void OnEnable()
         {
             Type[] types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
