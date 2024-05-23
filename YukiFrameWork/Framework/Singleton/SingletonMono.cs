@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace YukiFrameWork
 {
-    public abstract class SingletonMono<T> : MonoBehaviour, ISingletonKit<T> where T : SingletonMono<T>
+    public abstract class SingletonMono<T> : ViewController, ISingletonKit<T> where T : SingletonMono<T>
     {
         private readonly static object _lock = new object();
 
@@ -32,8 +32,9 @@ namespace YukiFrameWork
         }
         public static T I => Instance;
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (instance != null && instance != this)
             {
                 Destroy(gameObject);

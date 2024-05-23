@@ -73,10 +73,9 @@ namespace YukiFrameWork
         }
 
         protected override void OnImGUI()
-        {
-            EditorGUILayout.BeginHorizontal();
+        {           
             base.OnImGUI();
-
+            EditorGUILayout.BeginHorizontal();
             if (config == null)
                 UpdateConfig();
 
@@ -111,7 +110,7 @@ namespace YukiFrameWork
                 }
             }
             catch { }
-                EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 
         }
         protected override OdinMenuTree BuildMenuTree()

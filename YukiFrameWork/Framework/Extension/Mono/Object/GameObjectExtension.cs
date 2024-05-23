@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -589,6 +590,90 @@ namespace YukiFrameWork
 
             return null;
         }
+
+        public static FastList<(Transform, T2)> QueryComponentsInChildren<T2>(this GameObject core) where T2 : Component
+        {
+            FastList<(Transform, T2)> enumerator = new FastList<(Transform, T2)>();
+
+            T2[] values = core.GetComponentsInChildren<T2>();  
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                enumerator.Add((values[i].transform, values[i]));
+            }
+            return enumerator;
+        }
+
+        public static FastList<(Transform, T2)> QueryComponentsInChildren<T2>(this Component core) where T2 : Component
+        {
+            return QueryComponentsInChildren<T2>(core.gameObject);
+        }
+
+
+        public static FastList<(Transform,T1, T2)> QueryComponentsInChildren<T1, T2>(this GameObject core) where T1 : Component where T2 : Component
+        {
+            FastList<(Transform,T1, T2)> enumerator = new FastList<(Transform, T1, T2)>();
+            FastList<(Transform, T1)> values = QueryComponentsInChildren<T1>(core);
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                (Transform, T1) value = values[i];
+                T2 t2 = value.Item1.GetComponent<T2>();
+                if (!t2) continue;
+                enumerator.Add((value.Item1, value.Item2, t2));
+            }
+            return enumerator;
+        }
+
+        public static FastList<(Transform, T1, T2)> QueryComponentsInChildren<T1, T2>(this Component core) where T1 : Component where T2 : Component
+        {
+            return QueryComponentsInChildren<T1, T2>(core.gameObject);
+        }
+
+        public static FastList<(Transform, T1, T2,T3)> QueryComponentsInChildren<T1, T2,T3>(this GameObject core) where T1 : Component where T2 : Component where T3 : Component
+        {
+            FastList<(Transform, T1, T2, T3)> enumerator = new FastList<(Transform, T1, T2, T3)>();
+
+            FastList<(Transform, T1, T2)> values = QueryComponentsInChildren<T1, T2>(core);
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                (Transform, T1,T2) value = values[i];
+                T3 t3 = value.Item1.GetComponent<T3>();
+                if (!t3) continue;
+                enumerator.Add((value.Item1, value.Item2, value.Item3,t3));
+            }
+
+            return enumerator;
+        }
+
+        public static FastList<(Transform, T1, T2,T3)> QueryComponentsInChildren<T1, T2, T3>(this Component core) where T1 : Component where T2 : Component where T3 : Component
+        {
+            return QueryComponentsInChildren<T1, T2,T3>(core.gameObject);
+        }
+
+        public static FastList<(Transform, T1, T2, T3, T4)> QueryComponentsInChildren<T1, T2, T3,T4>(this GameObject core) where T1 : Component where T2 : Component where T3 : Component where T4 : Component
+        {
+            FastList<(Transform, T1, T2, T3,T4)> enumerator = new FastList<(Transform, T1, T2, T3, T4)>();
+
+            FastList<(Transform, T1, T2,T3)> values = QueryComponentsInChildren<T1, T2,T3>(core);
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                (Transform, T1, T2,T3) value = values[i];
+                T4 t4 = value.Item1.GetComponent<T4>();
+                if (!t4) continue;
+                enumerator.Add((value.Item1, value.Item2, value.Item3,value.Item4, t4));
+            }
+            return enumerator;
+        }
+
+        public static FastList<(Transform, T1, T2, T3,T4)> QueryComponentsInChildren<T1, T2, T3,T4>(this Component core) where T1 : Component where T2 : Component where T3 : Component where T4 : Component
+        {
+            return QueryComponentsInChildren<T1, T2, T3,T4>(core.gameObject);
+        }
+
+
         #endregion
 
         #region Action
