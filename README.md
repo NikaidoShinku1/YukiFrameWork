@@ -90,6 +90,8 @@
 
 #### 框架更新版本速览
 
+V1.17.6 ViewController新增快速组件获取API，详情查看架构自动化具体示例的文档。 
+
 V1.17.5 GameObject拓展新增多个查找组件的API，补充拓展文档，详细描述GameObject拓展API，请查阅。
 
 V1.17.4 框架支持Playable，状态机升级，现在拥有过渡时间。优化细节，2022版本以上新增AnimatorEventListener脚本绑定动画事件

@@ -32,7 +32,19 @@ namespace YukiFrameWork.Example
     [RuntimeInitializeOnArchitecture(typeof(PointGame),true)]
     public class ViewControllerExample : ViewController
     {
-        
+        //对于派生自ViewController的字段/包括SingletonMono在内，可使用快速组件赋值的特性示例如下:
+
+        [VFindObjectOfType]
+        public Camera mCamera;
+
+        [VGetComponent]
+        public Transform mTransform;
+
+        [VAddComponent]
+        public Rigidbody rd;
+
+        [VGetOrAddComponent]
+        public UnityEngine.Image image;
     }
 }
     
