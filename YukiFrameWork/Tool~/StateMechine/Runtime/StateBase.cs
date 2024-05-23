@@ -31,7 +31,7 @@ namespace YukiFrameWork.States
         [LabelText("过渡时间")]
         public float speed = 0.25f;
 
-        [LabelText("剪辑权重"),Range(0,1)]
+        [LabelText("状态权重"),Range(0,1)]
         public float clipWidth = 1;
 
 #if UNITY_EDITOR
@@ -44,7 +44,7 @@ namespace YukiFrameWork.States
             EditorGUILayout.EndHorizontal();            
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("剪辑权重");
+            EditorGUILayout.LabelField("状态权重");
             clipWidth = EditorGUILayout.Slider(clipWidth, 0, 1);
             EditorGUILayout.EndHorizontal();
 
