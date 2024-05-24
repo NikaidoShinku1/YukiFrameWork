@@ -64,9 +64,6 @@ namespace YukiFrameWork
         {
             titleDicts ??= new Dictionary<string, int>()
             {
-                {"脚本生成器",0 },
-                {"本地化配置",1 },
-                {"程序集设置",2 },
                 {"C#转文件流工具",0},
                 { "Excel转Json",1},             
             };
@@ -75,7 +72,7 @@ namespace YukiFrameWork
         protected override void OnImGUI()
         {           
             base.OnImGUI();
-            EditorGUILayout.BeginHorizontal();
+           
             if (config == null)
                 UpdateConfig();
 
@@ -85,32 +82,9 @@ namespace YukiFrameWork
 
             try
             {
-                var configItem = MenuTree.MenuItems.FirstOrDefault(x => x.Name == "本地化配置" && x.IsSelected);
-
-                if (configItem != null)
-                {
-                    config.SelectIndex = 1;
-                    return;
-                }
-
-                var selectItem = UpdateSelect();
-                if (selectItem != null)
-                {
-                    if (titleDicts.TryGetValue(selectItem.Name, out int value) == true)
-                    {
-                        if (selectItem.Parent != null)
-                        {
-                            if (selectItem.Parent.FlatTreeIndex == 0 || selectItem.Parent.FlatTreeIndex == 6)
-                            {
-                                config.SelectIndex = value;
-                            }                        
-                        }
-                    }
-
-                }
+                                     
             }
             catch { }
-            EditorGUILayout.EndHorizontal();
 
         }
         protected override OdinMenuTree BuildMenuTree()
@@ -118,13 +92,11 @@ namespace YukiFrameWork
             string[] keys = titleDicts.Keys.ToArray();
             OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: true)
             {
-                { $"框架基本设置/工具导入窗口",new ImportSettingWindow(this),SdfIconType.GearFill },
-                { $"框架基本设置/{keys[0]}", config.GetFramework(0), Sirenix.OdinInspector.SdfIconType.File },
-                { $"框架基本设置/{keys[2]}",config.GetFramework(2),Sirenix.OdinInspector.SdfIconType.AspectRatio},               
+                { $"工具导入窗口",new ImportSettingWindow(this),SdfIconType.GearFill },
+                { $"框架基本设置", config, Sirenix.OdinInspector.SdfIconType.File },
 
-                { $"框架序列化工具/{keys[3]}",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
-                { $"框架序列化工具/{keys[4]}",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
-                { $"{keys[1]}",config.GetFramework(1),Sirenix.OdinInspector.SdfIconType.Controller},
+                { $"框架序列化工具/C#转文件流",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
+                { $"框架序列化工具/Excel转Json工具",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
             };
 
             foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
@@ -137,7 +109,7 @@ namespace YukiFrameWork
                 LogConfig config = Resources.Load<LogConfig>(nameof(LogConfig));
                 if (config != null)
                 {
-                    tree.Add($"框架基本设置/LogKit日志配置窗口", config, SdfIconType.InfoCircleFill);
+                    tree.Add($"LogKit日志配置窗口", config, SdfIconType.InfoCircleFill);
                 }
             }
             catch 
@@ -212,6 +184,8 @@ namespace YukiFrameWork
             {
                 tree.Add($"框架规则示例", example, SdfIconType.PersonRolodex);
             }
+
+            tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(),SdfIconType.AlarmFill);
             return tree;
         }    
         public static FrameWorkDisignWindow Instance;

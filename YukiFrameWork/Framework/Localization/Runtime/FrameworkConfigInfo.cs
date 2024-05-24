@@ -12,6 +12,17 @@ namespace YukiFrameWork
     [HideMonoScript]
     public class FrameworkConfigInfo : ScriptableObject
     {
+        enum Mode
+        {
+            [LabelText("脚本生成设置")]
+            Tool,
+            [LabelText("本地化配置")]
+            Script,
+            [LabelText("程序集设置")]
+            Assembly
+        }
+        [SerializeField, EnumToggleButtons]
+        Mode mode;
         [ShowIf(nameof(SelectIndex), 0), LabelText("脚本名称：")]
         public string scriptName;          
         [ShowIf(nameof(SelectIndex), 0), LabelText("命名空间：")]
@@ -29,15 +40,9 @@ namespace YukiFrameWork
         public Language defaultLanguage;
         [LabelText("本地配置"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
         public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();
-
-        [HideInInspector]
-        public int SelectIndex = 0;
-
-        public FrameworkConfigInfo GetFramework(int index)
-        {
-            SelectIndex = index;
-            return this;
-        }
+      
+        public int SelectIndex => (int)mode;
+ 
         [Button("生成脚本",ButtonHeight = 35),PropertySpace, ShowIf(nameof(SelectIndex), 0)]
         private void Generic()
         {

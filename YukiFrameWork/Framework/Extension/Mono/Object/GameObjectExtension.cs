@@ -575,7 +575,7 @@ namespace YukiFrameWork
             {
                 Debug.LogWarning("Transform is held by default and does not trigger additions");
             }
-            return FindRoot<T>(core, objName, false, includeInactive);
+            return FindRoot<T>(core, objName, true, includeInactive);
         }
 
         private static T FindRoot<T>(this GameObject core, string objName, bool isAddComponent, bool includeInactive = false) where T : Component

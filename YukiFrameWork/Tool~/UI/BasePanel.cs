@@ -30,7 +30,7 @@ namespace YukiFrameWork.UI
     }
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
-    public class BasePanel : Sirenix.OdinInspector.SerializedMonoBehaviour,ISerializedFieldInfo,IPanel
+    public class BasePanel : YMonoBehaviour,ISerializedFieldInfo,IPanel
     {      
         protected CanvasGroup canvasGroup;
         protected new RectTransform transform;
@@ -74,8 +74,9 @@ namespace YukiFrameWork.UI
         [SerializeField,LabelText("是否让面板可拖拽"),HideIf(nameof(IsBase))]
         protected bool IsPanelDrag = false;
    
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             transform = base.transform as RectTransform;
             canvasGroup = GetComponent<CanvasGroup>();         
             this.BindDragEvent(DefaultDragEvent).UnRegisterWaitGameObjectDestroy(this);

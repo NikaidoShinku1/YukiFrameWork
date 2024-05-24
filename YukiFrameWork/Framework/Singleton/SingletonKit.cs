@@ -23,7 +23,7 @@ namespace YukiFrameWork
     public interface ISingletonKit
     {
         /// <summary>
-        /// 单例初始化方法
+        /// 单例初始化方法,Mono类如果提前挂在项目中请使用Awake
         /// </summary>
         [MethodAPI("单例初始化方法")]
         void OnInit();

@@ -105,14 +105,14 @@ namespace YukiFrameWork.UI
         {
             panelCore[panel.GetType()] = panel;         
         }
-
+      
         public void SetPanelFieldAndProperty(BasePanel panel)
         {
             Type type = panel.GetType();
-
-            SetPanelFieldsAndProperties(type, panel);
+            (panel as IYMonoBehaviour).InitAllFields();
         }
 
+        [Obsolete]
         private void SetPanelFieldsAndProperties(Type type,BasePanel panel)
         {
             foreach (var members in type.GetMembers(BindingFlags.Public

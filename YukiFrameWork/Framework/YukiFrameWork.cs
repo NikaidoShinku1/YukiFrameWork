@@ -227,10 +227,15 @@ namespace YukiFrameWork
         IEnumerable<T> IArchitecture.GetModels<T>()
             => easyContainer.GetModels<T>();
 
-        public void UnRegisterModel<T>(T model = default) where T : class,IModel
+        public void UnRegisterModel<T>(int id) where T : class,IModel
         {                 
-            easyContainer.RemoveModel(typeof(T),model.Id);            
-        }      
+            easyContainer.RemoveModel(typeof(T),id);            
+        }
+
+        public void UnRegisterModel<T>(T model) where T : class, IModel
+        {
+            easyContainer.RemoveModel(typeof(T), model.Id);
+        }
 
         public void UnRegisterSystem<T>(T system = default) where T :class, ISystem
         {          

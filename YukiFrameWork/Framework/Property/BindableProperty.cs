@@ -49,7 +49,7 @@ namespace YukiFrameWork
     public class BindableProperty<T> : IBindableProperty<T>
     {
         [NonSerialized]
-        private EasyEvent<T> onValueChange = new EasyEvent<T>();
+        protected EasyEvent<T> onValueChange = new EasyEvent<T>();
      
         [field: SerializeField] private T value;
         public T Value
@@ -117,6 +117,56 @@ namespace YukiFrameWork
         public void UnRegisterAllEvent()
         {
             onValueChange.UnRegisterAllEvent();
+        }
+    }
+
+    public class BindableProperty<T1, T2> : IBindableProperty<T1, T2>
+    {
+        [NonSerialized]
+        protected EasyEvent<T1, T2> onValueChanged = new EasyEvent<T1, T2>();
+        public IUnRegister Register(Action<T1, T2> action)
+        {
+            return onValueChanged.RegisterEvent(action);
+        }
+
+        private T1 value1;
+        private T2 value2;
+
+        public T1 Value1
+        {
+            get => value1;
+            set
+            {
+                if (!Equals(value, value1))
+                {
+                    value1 = value;
+                    onValueChanged.SendEvent(value1,value2);
+                }
+            }
+        }
+
+        public T2 Value2
+        {
+            get => value2;
+            set
+            {
+                if (!Equals(value, value2))
+                {
+                    value2 = value;
+                    onValueChanged.SendEvent(value1, value2);
+                }
+            }
+        }
+
+        public IUnRegister RegisterWithInitValue(Action<T1, T2> action)
+        {
+            action.Invoke(value1,value2);
+            return onValueChanged.RegisterEvent(action);
+        }
+
+        public void UnRegisterAllEvent()
+        {
+            onValueChanged.UnRegisterAllEvent();
         }
     }
 }

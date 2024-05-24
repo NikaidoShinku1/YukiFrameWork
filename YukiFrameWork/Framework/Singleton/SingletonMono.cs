@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace YukiFrameWork
 {
-    public abstract class SingletonMono<T> : ViewController, ISingletonKit<T> where T : SingletonMono<T>
+    public abstract class SingletonMono<T> : YMonoBehaviour, ISingletonKit<T> where T : SingletonMono<T>
     {
         private readonly static object _lock = new object();
 
@@ -20,7 +20,7 @@ namespace YukiFrameWork
             get
             {
                 lock (_lock)
-                {
+                {              
                     if (instance == null)
                     {
                         instance = SingletonFectory.CreateMonoSingleton<T>();
@@ -55,7 +55,7 @@ namespace YukiFrameWork
         public virtual void OnDestroy()
         {
             if (!IsDonDestroyLoad)
-            {
+            {               
                 instance = null;              
                 SingletonFectory.ReleaseInstance<T>();
             }
