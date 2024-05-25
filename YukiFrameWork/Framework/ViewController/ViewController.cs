@@ -10,6 +10,7 @@
 ///======================================================
 
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -109,7 +110,20 @@ namespace YukiFrameWork
             => _fields.Clear();
 
         IEnumerable<SerializeFieldData> ISerializedFieldInfo.GetSerializeFields() => _fields;
-        #endregion 
+
+        SerializeFieldData ISerializedFieldInfo.Find(Func<SerializeFieldData, bool> func)
+        {
+            for (int i = 0; i < _fields.Count; i++)
+            {
+                if (func(_fields[i]))
+                {
+                    return _fields[i];
+                }
+            }
+
+            return null;
+        }
+        #endregion
     }
 
     public partial class ViewController : YMonoBehaviour, IController

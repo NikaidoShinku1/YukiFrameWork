@@ -269,12 +269,11 @@ namespace YukiFrameWork.Extension
                 AssetDatabase.SaveAssets();
             }
             EditorGUILayout.EndVertical();
-            if (!target.GetType().Equals(typeof(ViewController)))
-            {
-                CodeManager.BindInspector(controller,controller, GenericPartialScripts);
-                EditorGUILayout.Space();
-                AddEventCenter(controller);
-            }
+
+            CodeManager.BindInspector(controller, controller, GenericPartialScripts);
+            EditorGUILayout.Space();
+            AddEventCenter(controller);
+
         }
 
         private void SelectParentClass(CustomData data)
@@ -344,7 +343,8 @@ namespace YukiFrameWork.Extension
             foreach (var info in serialized.GetSerializeFields())
             {
                 codeWriter.CustomCode($"[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
-            }
+            }  
+
             codeCore
                 .Using("YukiFrameWork")
                 .Using("UnityEngine")

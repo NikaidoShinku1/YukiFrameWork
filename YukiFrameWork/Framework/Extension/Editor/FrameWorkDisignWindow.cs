@@ -20,22 +20,22 @@ using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork
 {
     public class FrameWorkDisignWindow : OdinMenuEditorWindow
-    {      
+    {
         public static Rect LocalPosition => Instance.position;
 
-        [MenuItem("YukiFrameWork/Local Configuration",false,-1000)]
+        [MenuItem("YukiFrameWork/Local Configuration", false, -1000)]
         public static void OpenWindow()
-        {            
-            var instance = GetWindow<FrameWorkDisignWindow>();           
+        {
+            var instance = GetWindow<FrameWorkDisignWindow>();
             instance.Show();
             instance.titleContent = new GUIContent("框架本地配置");
         }
 
-        private Dictionary<string,int> titleDicts;
+        private Dictionary<string, int> titleDicts;
 
         private int selectIndex;
-        private FrameworkConfigInfo config;    
-       
+        private FrameworkConfigInfo config;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -52,27 +52,27 @@ namespace YukiFrameWork
 
         OdinMenuItem UpdateSelect()
         {
-            return MenuTree.MenuItems.SelectMany(x => x.GetChildMenuItemsRecursive(true)).Where(x => x.IsSelected).FirstOrDefault();          
+            return MenuTree.MenuItems.SelectMany(x => x.GetChildMenuItemsRecursive(true)).Where(x => x.IsSelected).FirstOrDefault();
         }
 
         void UpdateConfig()
         {
             config = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
         }
-  
+
         void UpdateTitles()
         {
             titleDicts ??= new Dictionary<string, int>()
             {
                 {"C#转文件流工具",0},
-                { "Excel转Json",1},             
+                { "Excel转Json",1},
             };
         }
 
         protected override void OnImGUI()
-        {           
+        {
             base.OnImGUI();
-           
+
             if (config == null)
                 UpdateConfig();
 
@@ -82,7 +82,7 @@ namespace YukiFrameWork
 
             try
             {
-                                     
+
             }
             catch { }
 
@@ -112,7 +112,7 @@ namespace YukiFrameWork
                     tree.Add($"LogKit日志配置窗口", config, SdfIconType.InfoCircleFill);
                 }
             }
-            catch 
+            catch
             {
 
             }
@@ -123,7 +123,7 @@ namespace YukiFrameWork
 
                 if (saveToolType != null)
                 {
-                    tree.Add($"框架存档工具", Resources.Load("SaveToolConfig"),Sirenix.OdinInspector.SdfIconType.Save);
+                    tree.Add($"框架存档工具", Resources.Load("SaveToolConfig"), Sirenix.OdinInspector.SdfIconType.Save);
                 }
             }
             catch { }
@@ -141,7 +141,7 @@ namespace YukiFrameWork
 
                     Type helpType = AssemblyHelper.GetType("XFABManager.XFAssetBundleManagerHelp");
                     if (helpType != null)
-                        tree.Add($"XFABManager/About", Activator.CreateInstance(helpType),SdfIconType.PatchExclamationFill);
+                        tree.Add($"XFABManager/About", Activator.CreateInstance(helpType), SdfIconType.PatchExclamationFill);
                 }
 
             }
@@ -156,7 +156,7 @@ namespace YukiFrameWork
                     Object[] objects = Resources.FindObjectsOfTypeAll(buffType);
                     for (int i = 0; i < objects.Length; i++)
                     {
-                        tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", objects[i],SdfIconType.BookmarkStar);
+                        tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", objects[i], SdfIconType.BookmarkStar);
                     }
                 }
             }
@@ -175,9 +175,9 @@ namespace YukiFrameWork
                     }
                 }
             }
-            catch { }       
+            catch { }
 
-            tree.Add("Unity样式拓展工具", new GUIStyleExtensionWindow(),SdfIconType.Image);
+            tree.Add("Unity样式拓展工具", new GUIStyleExtensionWindow(), SdfIconType.Image);
 
             var example = AssetDatabase.LoadAssetAtPath<Example>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset");
             if (example != null)
@@ -185,9 +185,10 @@ namespace YukiFrameWork
                 tree.Add($"框架规则示例", example, SdfIconType.PersonRolodex);
             }
 
-            tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(),SdfIconType.AlarmFill);
-            return tree;
-        }    
+            tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(), SdfIconType.AlarmFill);
+            tree.Add("框架说明文档", new FrameworkInfoByWindow(), SdfIconType.Bug);
+            return tree;       
+        }
         public static FrameWorkDisignWindow Instance;
 
         // 每秒10帧更新
@@ -196,7 +197,64 @@ namespace YukiFrameWork
             //开启窗口的重绘，不然窗口信息不会刷新
             Repaint();
         }
-    }  
+    }
+
+    public class FrameworkInfoByWindow
+    {        
+        public string updateInfo => AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.packagePath + "/Framework/Extension/UpdateInfo.md")?.text;
+
+        [OnInspectorGUI]
+        void OnInspectorGUI()
+        {
+            var title = new GUIStyle()
+            {
+                fontSize = 20,
+                alignment = TextAnchor.UpperCenter,
+                fontStyle = FontStyle.Bold
+
+            };
+            title.normal.textColor = Color.white;
+            GUILayout.Label("YukiFramework", title);
+            GUILayout.Label("工具教学链接");
+            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical(GUILayout.Width(200));
+            Button("LocalizationKit_本地化套件", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md");
+            Button("DiaLogKit_对话系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
+            Button("BuffKit_框架Buff系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
+            Button("LogKit_日志工具", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%97%A5%E5%BF%97%E5%B7%A5%E5%85%B7.md");
+            Button("ItemKit_框架背包系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md");
+            Button("SerializationTool_框架序列化工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/%E5%BA%8F%E5%88%97%E5%8C%96%E5%B7%A5%E5%85%B7.md");
+            Button("SaveTool_框架存档工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/%E5%AD%98%E6%A1%A3%E7%B3%BB%E7%BB%9F.md");
+            Button("Singleton_框架万能单例介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Singleton/9.%E5%8D%95%E4%BE%8B.md");
+            Button("EventSystem_框架广播系统介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Events/7.%E6%B6%88%E6%81%AF%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%9D%97.md");
+            Button("UIKit_框架UI模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md");
+            Button("AudioKit_框架声音管理", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
+            Button("ActionKit_时序动作套件说明", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
+            Button("StateManager_框架可视化状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md");
+            Button("Extension_框架拓展模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md");
+            Button("PoolsKit_框架设置简易对象池", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md");
+            Button("BindableProperty强化数据绑定类", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md");
+            Button("BezierUtility_框架贝塞尔曲线拓展", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md");
+            Button("XFABManager插件教程官网", "https://gitee.com/xianfengkeji/xfabmanager");
+
+            GUILayout.EndVertical();     
+            GUILayout.BeginVertical(GUILayout.Width(400));     
+            GUILayout.Label(updateInfo, "Framebox");
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();            
+      
+        }
+
+        void Button(string name,string url)
+        {
+            if (GUILayout.Button(name,GUILayout.Height(40),GUILayout.Width(250)))
+            {
+                Application.OpenURL(url);
+            }
+            GUILayout.Space(5);
+        }
+    }
+
     public static class UnityEngineSavingExtension
     {
         public static void Save<T>(this T core) where T : UnityEngine.Object

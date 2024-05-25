@@ -419,10 +419,24 @@ namespace YukiFrameWork
         {       
             EditorGUI.BeginDisabledGroup(IsPlaying);
             EditorGUILayout.Space(20);
-            var value = PlayerPrefs.GetInt("BindFoldOut") == 1;
+            var value = PlayerPrefs.GetInt("BindFoldOut") == 1; 
             EditorGUILayout.BeginHorizontal();          
             PlayerPrefs.SetInt("BindFoldOut",EditorGUILayout.Foldout(PlayerPrefs.GetInt("BindFoldOut") == 1,string.Empty) ? 1 : 0);
             GUILayout.Label(FrameWorkConfigData.BindExtensionInfo, "PreviewPackageInUse");
+            if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
+            {
+                if (GUILayout.Button("绑定层级中的YukiBind", GUILayout.Width(150)))
+                {
+                    Undo.RecordObject(target, "Add Child_Data");
+                    foreach (var item in target.GetComponentsInChildren<YukiBind>())
+                    {
+                        foreach (var field in item._fields) 
+                        {                  
+                            info.AddFieldData(field);
+                        }
+                    }
+                }
+            }
             EditorGUILayout.EndHorizontal();
             if (value)
             {
@@ -484,11 +498,13 @@ namespace YukiFrameWork
                 DragObject(rect, target, info);
 
                 GUILayout.FlexibleSpace();
-                if (info.GetSerializeFields().Count() > 0 && GUILayout.Button("生成代码", GUILayout.Height(25)))
+                if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
                 {
-                    GenericCallBack?.Invoke();
+                    if (info.GetSerializeFields().Count() > 0 && GUILayout.Button("生成代码", GUILayout.Height(25)))
+                    {
+                        GenericCallBack?.Invoke();
+                    }
                 }
-
                 EditorGUILayout.EndVertical();
                 /* if (!target.GetType().Equals(targetType))
                  {

@@ -194,7 +194,20 @@ namespace YukiFrameWork.UI
         void ISerializedFieldInfo.ClearFieldData()
             => _fields.Clear();
 
-        IEnumerable<SerializeFieldData> ISerializedFieldInfo.GetSerializeFields() => _fields;       
+        IEnumerable<SerializeFieldData> ISerializedFieldInfo.GetSerializeFields() => _fields;
+
+        SerializeFieldData ISerializedFieldInfo.Find(Func<SerializeFieldData, bool> func)
+        {
+            for (int i = 0; i < _fields.Count; i++)
+            {
+                if (func(_fields[i]))
+                {
+                    return _fields[i];
+                }
+            }
+
+            return null;
+        }
         #endregion
     }
 }
