@@ -12,7 +12,6 @@ using System;
 using UnityEngine.Events;
 namespace YukiFrameWork
 {
-#if UNITY_2022_1_OR_NEWER
 	[Serializable]
 	public class AnimatorEvent : UnityEvent<string>
 	{ }
@@ -26,5 +25,4 @@ namespace YukiFrameWork
 		public void AddListener(UnityAction<string> action)
 			=> onAnimatorEvent.AddListener(action);
 	}
-#endif
 }

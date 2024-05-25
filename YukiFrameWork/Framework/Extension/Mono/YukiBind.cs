@@ -95,7 +95,7 @@ namespace YukiFrameWork
             {
                 if (components[i].GetType() == typeof(YukiBind)) continue;
                 var data = new SerializeFieldData((target as Component).gameObject);
-                data.fieldName = $"m{target.name}{components[i].GetType().Name}";
+                data.fieldName = $"{target.name}{components[i].GetType().Name}";
                 data.fieldTypeIndex = i + 1;
                 fieldInfo.AddFieldData(data);
             }
