@@ -53,6 +53,18 @@ namespace YukiFrameWork
             return core;
         }
 
+        public static GameObject ShowOrHide(this GameObject core,bool active)
+        {
+            core.SetActive(active);
+            return core;
+        }
+
+        public static T ShowOrHide<T>(this T component,bool active) where T : Component
+        {
+            ShowOrHide(component.gameObject, active);
+            return component;
+        }
+
         public static T Show<T>(this T component) where T : Component
         {
             Show(component.gameObject);

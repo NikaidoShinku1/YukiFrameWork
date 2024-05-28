@@ -9,6 +9,7 @@
 ///======================================================
 
 using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -432,5 +433,27 @@ namespace YukiFrameWork.UI
             transform.offsetMax = Vector2.zero;
             transform.offsetMin = Vector2.zero;
         }
+
+        public static IPanel OnPanelExitingListener(this IPanel panel, Action callBack)
+        {
+            MonoHelper.Start(Async());
+            IEnumerator Async()
+            {
+                yield return CoroutineTool.WaitUntil(() => !panel.IsActive);
+                callBack?.Invoke();
+            }
+            return panel;
+        }
+
+        public static IPanel OnPanelPausingListener(this IPanel panel, Action callBack)
+        {
+            MonoHelper.Start(Async());
+            IEnumerator Async()
+            {
+                yield return CoroutineTool.WaitUntil(() => panel.IsPaused);
+                callBack?.Invoke();
+            }
+            return panel;
+        }       
     }
 }

@@ -36,8 +36,8 @@ namespace YukiFrameWork
         {
             if (fieldInitting || !IsAutoSettingField) return;
             fieldInitting = true;
-            MemberInfo[] memberInfo = this.GetType().GetRuntimeMemberInfos().Where(x => x.GetType() != typeof(MethodInfo)).ToArray();
-
+            MemberInfo[] memberInfo = this.GetType().GetRuntimeFields().ToArray();
+            
             for (int i = 0; i < memberInfo.Length; i++)
             {
                 var member = memberInfo[i];
@@ -74,7 +74,7 @@ namespace YukiFrameWork
 #endif
                     }
                     else if (attribute is VFindChildComponentByName fName)
-                    {
+                    {                       
                         fieldInfo.SetValue(this, this.Find(fName.name)?.GetComponent(fieldInfo.FieldType));
                     }
                     else if (attribute is VFindChildComponentByPath fPath)

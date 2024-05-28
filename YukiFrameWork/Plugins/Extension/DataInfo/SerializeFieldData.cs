@@ -30,10 +30,10 @@ namespace YukiFrameWork
             {
                 if (mComponents == null) mComponents = new List<string>();
                 mComponents.Clear();
-                if (gameObject != null)
+                if (component != null)
                 {
                     mComponents.Add(typeof(GameObject).ToString());
-                    Component[] components = gameObject.GetComponents<Component>();
+                    Component[] components = component.GetComponents<Component>();
 
                     foreach (Component comp in components)
                     {
@@ -58,6 +58,7 @@ namespace YukiFrameWork
         [SerializeField]public Object target;
 
         [SerializeField]private GameObject gameObject => target as GameObject;
+        [SerializeField] private Component component => gameObject != null ? gameObject.transform : target as Component;
 
         public string Name => target.name;
         public string fieldName;
@@ -77,9 +78,9 @@ namespace YukiFrameWork
 
         public Component GetComponent(Type fieldType)
         {
-            if (gameObject == null) return null;
+            if (gameObject == null && component == null) return null;
 
-            return gameObject.GetComponent(fieldType);
+            return component.GetComponent(fieldType);
         }
 
 
