@@ -174,7 +174,10 @@ namespace YukiFrameWork.States
                         break;
                 case ParameterType.Bool:
                     SetValue(parameterData, EditorGUI.Toggle(paramValueRect, parameterData.Value == 1) ? 1 : 0);
-                    break;         
+                    break;
+                case ParameterType.Trigger:
+                    SetValue(parameterData, EditorGUI.Toggle(paramValueRect, parameterData.Value == 1, "Radio") ? 1 : 0);
+                    break;
             }
         }
 

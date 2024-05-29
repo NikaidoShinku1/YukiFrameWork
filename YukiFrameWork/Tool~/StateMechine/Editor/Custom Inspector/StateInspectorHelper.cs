@@ -11,11 +11,13 @@ namespace YukiFrameWork.States
         public StateBase node;
         public StateMechine StateMechine;
 
+        internal bool IsFileInit;
         public void Inspect(StateMechine stateMechine, StateBase state)
         {
             this.node = state;           
             this.StateMechine = stateMechine;
             Selection.activeObject = this;
+            IsFileInit = false;
         }
     }
 }

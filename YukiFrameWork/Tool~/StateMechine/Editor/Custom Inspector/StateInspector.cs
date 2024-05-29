@@ -64,8 +64,7 @@ namespace YukiFrameWork.States
                 }              
             }
             catch { }
-        }
-
+        }        
         public override void OnInspectorGUI()
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;            
@@ -103,7 +102,7 @@ namespace YukiFrameWork.States
 
             if (manager != null && disabled == false)
             {
-                helper.node.statePlayble.OnInspectorGUI(manager.StateExtension == StateExtension.Playable);
+                helper.node.statePlayble.OnInspectorGUI(manager.StateExtension == StateExtension.Playable, helper.node, manager) ;
             }
 
             if (!helper.node.name.Equals(stateName))
@@ -417,8 +416,7 @@ namespace YukiFrameWork.States
                 EditorGUI.EndFoldoutHeaderGroup();
                 EditorGUILayout.EndVertical();
             }
-        }          
-
+        }       
         private void RecomposeScript(StateBase state)
         {
             StateInspectorHelper helper = (StateInspectorHelper)target;
@@ -429,6 +427,11 @@ namespace YukiFrameWork.States
                 {
                     behaviourTypes.Clear();
                     isRecomposeScript = true;
+                    if (!helper.IsFileInit)
+                    {
+                        fileName = state.name;
+                        helper.IsFileInit = true;
+                    }
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
                     foreach (var assembly in assemblies)                    
@@ -447,6 +450,7 @@ namespace YukiFrameWork.States
                     }
                    
                 }
+                helper.IsFileInit = false;
             }
             else
             {                              

@@ -5,6 +5,8 @@ using System;
 using YukiFrameWork.Extension;
 using Sirenix.OdinInspector;
 using UnityEngine.Animations;
+using System.Linq;
+
 
 
 #if UNITY_EDITOR
@@ -34,8 +36,18 @@ namespace YukiFrameWork.States
         [LabelText("状态权重"),Range(0,1)]
         public float clipWidth = 1;
 
+        [SerializeField, LabelText("在拥有动画剪辑时，是否自动进行过渡")]
+        internal bool IsAutoTransition;
+        [SerializeField,ReadOnly]
+        internal int selectIndex;
+        [SerializeField, ReadOnly]
+        internal List<string> targets = new List<string>()
+        {
+            "没有任何可以自动过渡的连线"
+        };
+
 #if UNITY_EDITOR
-        internal void OnInspectorGUI(bool playable)
+        internal void OnInspectorGUI(bool playable,StateBase stateBase,StateManager stateManager)
         {            
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
@@ -55,6 +67,38 @@ namespace YukiFrameWork.States
                 EditorGUILayout.LabelField("动画剪辑");
                 animationClip = (AnimationClip)EditorGUILayout.ObjectField(animationClip, typeof(AnimationClip), true);
                 EditorGUILayout.EndHorizontal();
+
+                if (animationClip != null)
+                {
+                    StateMechine stateMechine = stateManager.stateMechine;
+                    string tName = string.Empty;
+                    if (!stateMechine || stateBase == null) return;
+
+                    if (!stateMechine.subTransitions.TryGetValue(stateBase.layerName, out var value))
+                    {
+                        value = stateMechine.transitions;
+
+                    }
+                    else
+                    {
+
+                    }
+                    var datas = value.Where(x => x.fromStateName == stateBase.name && x.conditionDatas.Count == 0 && x.conditions.Count == 0).ToList();
+                    targets = datas.Select(x => x.toStateName).ToList();
+                    if (!tName.IsNullOrEmpty())
+                        targets.Add(tName);
+                    targets.Add("没有任何可以自动过渡的连线");
+                    IsAutoTransition = EditorGUILayout.Toggle("是否在动画结束后开启自动过渡", IsAutoTransition);
+                    if (selectIndex >= targets.Count) selectIndex = 0;
+                    if (IsAutoTransition)
+                    {
+                        EditorGUILayout.HelpBox("开启自动过渡时，必须持有连线的同时保证该连线没有任何条件", MessageType.Info);
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Label("自动过渡的目标状态");
+                        selectIndex = EditorGUILayout.Popup(selectIndex, targets.ToArray());
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
             }          
         }
 #endif
@@ -121,7 +165,7 @@ namespace YukiFrameWork.States
             SetAllBaseLifeCycle(StateLifeCycle.OnLateUpdate);
         }
 
-        internal void OnTransitionEnter(float velocity)
+        internal void OnTransitionEnter(float velocity,bool completed)
         {
             for (int i = 0; i < dataBases.Count; i++)
             {
@@ -129,12 +173,12 @@ namespace YukiFrameWork.States
                 {
                     StateBehaviour state = dataBases[i].Behaviour;
                     if (state == null) continue;
-                    state.OnTransitionEnter(velocity);
+                    state.OnTransitionEnter(velocity,completed);
                 }
             }
         }
 
-        internal void OnTransitionExit(float velocity)
+        internal void OnTransitionExit(float velocity,bool completed)
         {
             for (int i = 0; i < dataBases.Count; i++)
             {
@@ -142,7 +186,20 @@ namespace YukiFrameWork.States
                 {
                     StateBehaviour state = dataBases[i].Behaviour;
                     if (state == null) continue;
-                    state.OnTransitionExit(velocity);
+                    state.OnTransitionExit(velocity,completed);
+                }
+            }
+        }
+
+        internal void OnAnimationExit()
+        {
+            for (int i = 0; i < dataBases.Count; i++)
+            {
+                if (dataBases[i].isActive)
+                {
+                    StateBehaviour state = dataBases[i].Behaviour;
+                    if (state == null) continue;
+                    state.OnAnimationExit();
                 }
             }
         }

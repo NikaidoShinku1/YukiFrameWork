@@ -28,5 +28,9 @@ namespace YukiFrameWork.States
         void OnChangeState(int index, System.Action callBack = null, bool isBack = true);
 
         void OnChangeState(string name,string layerName, System.Action callBack = null, bool isBack = true);
+
+        void SetTrigger(string name);
+
+        void ResetTrigger(string name);
     }
 }

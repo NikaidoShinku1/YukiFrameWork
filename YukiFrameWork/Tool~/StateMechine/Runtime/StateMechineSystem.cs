@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Playables;
 
 namespace YukiFrameWork.States
 {
@@ -22,7 +23,28 @@ namespace YukiFrameWork.States
             {
                 for (int j = 0; j < stateManagers[i].currents.Count; j++)
                 {
-                    stateManagers[i].currents[j].OnUpdate();
+                    var state = stateManagers[i].currents[j];                 
+                    state.OnUpdate();
+
+                    if (stateManagers[i].StateExtension != StateExtension.Playable) continue;
+
+                    int index = state.statePlayble.selectIndex;                   
+                    AnimationClip animationClip = state.statePlayble.animationClip;
+                    if (animationClip != null)
+                    {
+                        if (state.clipPlayable.GetTime() > animationClip.length)
+                        {
+                            state.OnAnimationExit();
+                            if (state.statePlayble.IsAutoTransition
+                                && state.statePlayble.targets.Count != 0
+                                && index != state.statePlayble.targets.Count - 1
+                                && index < state.statePlayble.targets.Count)
+                            {
+                                string stateName = state.statePlayble.targets[index];
+                                stateManagers[i].OnChangeState(stateName, state.layerName);
+                            }                           
+                        }
+                    }
                 }
             }
         }

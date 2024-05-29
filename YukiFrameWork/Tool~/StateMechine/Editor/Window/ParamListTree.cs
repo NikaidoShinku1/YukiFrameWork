@@ -74,6 +74,12 @@ namespace YukiFrameWork.States
                             condition.compareType = CompareType.Equal;
                         }
                         break;
+                    case ParameterType.Trigger:
+                        {
+                            condition.compareType = CompareType.Equal;
+                            condition.targetValue = 1;
+                        }
+                        break;
                 }
             }
             else

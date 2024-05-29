@@ -27,6 +27,7 @@ namespace YukiFrameWork.States
             if (conditionInspectorDict.Count == 0)
             {
                 conditionInspectorDict.Add(ParameterType.Bool, new StateBoolCondition());
+                conditionInspectorDict.Add(ParameterType.Trigger, new StateTriggerCondition());
                 conditionInspectorDict.Add(ParameterType.Int, new StateIntCondition());
                 conditionInspectorDict.Add(ParameterType.Float, new StateFloatCondition());
             }

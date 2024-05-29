@@ -62,7 +62,7 @@ namespace YukiFrameWork.States
         public DeBugLog deBugLog;
 
         [SerializeField,LabelText("状态机的默认类型"),BoxGroup(defaultSystem)]
-        internal StateExtension StateExtension;
+        public StateExtension StateExtension;
 
         [SerializeField,LabelText("该状态机使用的动画状态机"),BoxGroup(defaultSystem),ShowIf(nameof(StateExtension),StateExtension.Playable)]       
         internal Animator bindAnimator;
@@ -339,6 +339,30 @@ namespace YukiFrameWork.States
             }
         }
 
+        public void SetTrigger(string name)
+        {
+            if (SetParameter(name, ParameterType.Trigger, out var data))
+            {
+                data.Value = 1;
+            }
+            else
+            {
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
+            }
+        }
+
+        public void ResetTrigger(string name)
+        {                     
+            if (SetParameter(name, ParameterType.Trigger, out var data))
+            {
+                data.Value = 0;
+            }
+            else
+            {
+                LogKit.E("条件参数类型不一致或者没有此参数！参数名：" + name);
+            }
+        }
+
         private bool SetParameter(string name,ParameterType type,out StateParameterData data)
         {
             if (parametersDict.TryGetValue(name, out var parameterData))
@@ -454,11 +478,11 @@ namespace YukiFrameWork.States
                 current = Mathf.Clamp01(current + speed * Time.deltaTime);
                 if (IsGetInfo)
                     Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
-                stateBase.OnTransitionEnter(speed * Time.deltaTime);
+                stateBase.OnTransitionEnter(speed * Time.deltaTime,false);
             }
             if (IsGetInfo)
                 Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
-            stateBase.OnTransitionEnter(speed * Time.deltaTime);       
+            stateBase.OnTransitionEnter(speed * Time.deltaTime,true);       
         }
 
         private IEnumerator PlayableExit(StateBase stateBase)
@@ -481,11 +505,11 @@ namespace YukiFrameWork.States
                 clipWidth = Mathf.Clamp01(clipWidth - speed * Time.deltaTime);
                 if(IsGetInfo)
                     Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
-                stateBase.OnTransitionExit(speed * Time.deltaTime);
+                stateBase.OnTransitionExit(speed * Time.deltaTime,false);
             }
             if (IsGetInfo)
                 Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
-            stateBase.OnTransitionExit(speed * Time.deltaTime);           
+            stateBase.OnTransitionExit(speed * Time.deltaTime,true);           
            
         }
 
@@ -557,12 +581,13 @@ namespace YukiFrameWork.States
 
             if (stateBase == null)
             {
-                LogKit.E("无法强制切换不同图层的状态!,需要切换的状态层级:" + layerName);
+                LogKit.E("无法强制切换不同图层的状态!,需要切换的状态层级:" + layerName + "当前判定的状态:" + name);
                 return;
             }
 
             OnChangeState(stateBase, callBack, isBack);         
         }
+    
         #endregion
 
         private void OnDestroy()

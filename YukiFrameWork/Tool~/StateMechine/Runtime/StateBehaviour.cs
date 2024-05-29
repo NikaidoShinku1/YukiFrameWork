@@ -74,7 +74,7 @@ namespace YukiFrameWork.States
         /// 过渡到下一个状态的进入时会持续检测的回调
         /// </summary>
         /// /// <param name="velocity">过渡的增量速度</param>
-        public virtual void OnTransitionEnter(float velocity)
+        public virtual void OnTransitionEnter(float velocity,bool completed)
         {
             
         }
@@ -83,7 +83,15 @@ namespace YukiFrameWork.States
         /// 在状态退出时会持续检测的回调
         /// </summary>
         /// <param name="velocity">过渡的增量速度</param>
-        public virtual void OnTransitionExit(float velocity)
+        public virtual void OnTransitionExit(float velocity,bool completed)
+        {
+            
+        }
+
+        /// <summary>
+        /// 仅当StateManager启用了Playable兼容时可用，用于处理当该状态所绑定的动画结束时的回调。如果是循环动画，则在每一次循环结尾调用
+        /// </summary>
+        public virtual void OnAnimationExit()
         {
             
         }
@@ -102,6 +110,12 @@ namespace YukiFrameWork.States
 
         protected void SetBool(string name, bool v) 
             => StateManager.SetBool(name, v);
+
+        protected void SetTrigger(string name)
+            => StateManager.SetTrigger(name);
+
+        protected void ResetTrigger(string name)
+            => StateManager.ResetTrigger(name);
 
         protected bool GetBool(string name)
             => StateManager.GetBool(name);

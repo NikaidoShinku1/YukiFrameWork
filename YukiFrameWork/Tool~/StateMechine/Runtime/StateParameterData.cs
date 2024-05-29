@@ -10,6 +10,7 @@ namespace YukiFrameWork.States
         Float = 0,
         Int,
         Bool,     
+        Trigger
     }
 
     [System.Serializable]
