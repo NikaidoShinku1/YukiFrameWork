@@ -374,8 +374,8 @@ namespace YukiFrameWork.Extension
             if (!monoScript.GetClass().IsSubclassOf(typeof(ViewController))) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;            
-            currentController.Data = controller.Data;                      
-
+            currentController.Data = controller.Data;
+            currentController.IsAutoSettingField = controller.IsAutoSettingField;
             DestroyImmediate(controller);
             return true;
         }           

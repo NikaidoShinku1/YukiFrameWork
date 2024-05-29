@@ -62,7 +62,7 @@ namespace YukiFrameWork
             {                
                 if (!node.IsInit) node.OnInit();
 
-                if (node.OnExecute(Time.deltaTime))
+                if (node.OnExecute(Time.deltaTime) || node.IsCompleted)
                 {                   
                     actionNodes.Add(node);
                 }

@@ -25,7 +25,7 @@ namespace YukiFrameWork
  
         [SerializeField, LabelText("是否启动自动赋值功能")]
         [InfoBox("自动赋值功能开启将可以让所有对应挂载了指定特性的字段/属性进行赋值(属性必须有Setter!)\n但请注意，性能的开销是必不可少的，请选择性开启,详情的特性请查阅框架本地窗口的特性示例", InfoMessageType.Warning)]
-        private bool IsAutoSettingField;
+        internal bool IsAutoSettingField;
  
         protected virtual void Awake()
 		{
