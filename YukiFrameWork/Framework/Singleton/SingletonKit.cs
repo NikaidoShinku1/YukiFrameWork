@@ -226,7 +226,9 @@ namespace YukiFrameWork
                 }
                 return instance;
             }
-        } 
+        }
+
+        public static T Instance => GetInstance();
     }
 
     public class SingletonProperty<T> where T :class, ISingletonKit
@@ -258,5 +260,6 @@ namespace YukiFrameWork
             }
         }
 
+        public static T Instance => GetInstance();
     }
 }

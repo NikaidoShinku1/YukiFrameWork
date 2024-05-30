@@ -35,6 +35,7 @@ namespace YukiFrameWork.States
                         if (state.clipPlayable.GetTime() > animationClip.length)
                         {
                             state.OnAnimationExit();
+                            state.clipPlayable.SetTime(0);
                             if (state.statePlayble.IsAutoTransition
                                 && state.statePlayble.targets.Count != 0
                                 && index != state.statePlayble.targets.Count - 1
@@ -42,7 +43,8 @@ namespace YukiFrameWork.States
                             {
                                 string stateName = state.statePlayble.targets[index];
                                 stateManagers[i].OnChangeState(stateName, state.layerName);
-                            }                           
+                            }
+                          
                         }
                     }
                 }

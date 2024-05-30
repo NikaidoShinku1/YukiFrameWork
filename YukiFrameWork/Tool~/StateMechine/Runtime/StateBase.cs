@@ -98,6 +98,7 @@ namespace YukiFrameWork.States
                         selectIndex = EditorGUILayout.Popup(selectIndex, targets.ToArray());
                         EditorGUILayout.EndHorizontal();
                     }
+                    else selectIndex = 0;
                 }
             }          
         }
