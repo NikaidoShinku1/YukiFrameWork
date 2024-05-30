@@ -18,39 +18,13 @@ using UnityEditor;
 #endif
 namespace YukiFrameWork
 {
-	public class YukiBind : MonoBehaviour,ISerializedFieldInfo
-	{		
-		internal List<SerializeFieldData> _fields = new List<SerializeFieldData>();
+	public class YukiBind : MonoBehaviour
+	{
+        [SerializeField]
+		public SerializeFieldData _fields;
         internal bool isInited = false;
-        public void AddFieldData(SerializeFieldData data)
-        {
-            _fields.Add(data);
-        }
-
-        public void ClearFieldData()
-        {
-            _fields.Clear();
-        }
-
-        public SerializeFieldData Find(Func<SerializeFieldData, bool> func)
-        {
-            for (int i = 0; i < _fields.Count; i++)
-            {
-                if (func(_fields[i]))
-                    return _fields[i];
-            }
-            return null;
-        }
-
-        public IEnumerable<SerializeFieldData> GetSerializeFields()
-        {
-            return _fields;
-        }
-
-        public void RemoveFieldData(SerializeFieldData data)
-        {
-            _fields.Remove(data);
-        }
+        [SerializeField]
+        public string description;
     }
 
 #if UNITY_EDITOR 
@@ -70,6 +44,16 @@ namespace YukiFrameWork
             }
            
         }
+        private void Awake()
+        {
+            YukiBind fieldInfo = target as YukiBind;
+
+            if (fieldInfo == null) return;
+            if (fieldInfo.isInited) return;
+
+            Init(fieldInfo);
+            fieldInfo.isInited = true;
+        }
         private void OnEnable()
         {
             YukiBind fieldInfo = target as YukiBind;
@@ -77,36 +61,49 @@ namespace YukiFrameWork
             if (fieldInfo == null) return;
             if (fieldInfo.isInited) return;
 
-            Init();
+            Init(fieldInfo);
             fieldInfo.isInited = true;
         }
 
-        void Init()
+        void Init(YukiBind fieldInfo)
         {
-            Undo.RecordObject(target, "Init All Bind Field");
-            ISerializedFieldInfo fieldInfo = target as ISerializedFieldInfo;
-
-            if (fieldInfo == null) return;
-
-            Component[] components = (target as YukiBind).GetComponents<Component>();
-
-            fieldInfo.ClearFieldData();
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i].GetType() == typeof(YukiBind)) continue;
-                var data = new SerializeFieldData((target as Component).gameObject);
-                data.fieldName = $"{target.name}{components[i].GetType().Name}";
-                data.fieldTypeIndex = i + 1;
-                fieldInfo.AddFieldData(data);
-            }
+            fieldInfo._fields = new SerializeFieldData(fieldInfo.gameObject);         
         }
 
 
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.HelpBox("该脚本会自动为为该对象所有的组件进行绑定，选定后在其父物体的ViewController/BasePanel中点击生成代码即可", MessageType.Info);
-            if (GUILayout.Button("重置字段绑定", GUILayout.Height(30))) Init();
-            CodeManager.BindInspector(target as ISerializedFieldInfo, (target as Component));
+            YukiBind fieldInfo = target as YukiBind;
+            if (fieldInfo == null) return;
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.HelpBox("设置自定义绑定组件", MessageType.Info);
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("字段级别",GUILayout.Width(60));
+            fieldInfo._fields.fieldLevelIndex = EditorGUILayout.Popup(fieldInfo._fields.fieldLevelIndex, fieldInfo._fields.fieldLevel);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();           
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("字段类型",GUILayout.Width(60));
+            fieldInfo._fields.fieldTypeIndex = EditorGUILayout.Popup(fieldInfo._fields.fieldTypeIndex, fieldInfo._fields.Components.ToArray());
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("字段名称",GUILayout.Width(60));
+            fieldInfo._fields.fieldName = EditorGUILayout.TextField(fieldInfo._fields.fieldName);
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("注释",GUILayout.Width(30));
+            fieldInfo.description = EditorGUILayout.TextArea(fieldInfo.description,GUILayout.Height(60));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.ObjectField("本体:",fieldInfo._fields.target,typeof(UnityEngine.Object),true);
+            if (EditorGUI.EndChangeCheck())
+            {
+                fieldInfo.Save();
+            }
+
         }
     }
 #endif

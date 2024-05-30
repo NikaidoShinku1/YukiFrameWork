@@ -423,18 +423,12 @@ namespace YukiFrameWork
             EditorGUILayout.BeginHorizontal();          
             PlayerPrefs.SetInt("BindFoldOut",EditorGUILayout.Foldout(PlayerPrefs.GetInt("BindFoldOut") == 1,string.Empty) ? 1 : 0);
             GUILayout.Label(FrameWorkConfigData.BindExtensionInfo, "PreviewPackageInUse");
+            YukiBind[] binds = target.GetComponentsInChildren<YukiBind>();
             if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
             {
-                if (GUILayout.Button("绑定层级中的YukiBind", GUILayout.Width(150)))
+                if (info.GetSerializeFields().Count() <= 0 && (binds != null && binds.Length > 0))
                 {
-                    Undo.RecordObject(target, "Add Child_Data");
-                    foreach (var item in target.GetComponentsInChildren<YukiBind>())
-                    {
-                        foreach (var field in item._fields) 
-                        {                  
-                            info.AddFieldData(field);
-                        }
-                    }
+                    EditorGUILayout.HelpBox("当前存在YukiBind,可以生成代码", MessageType.Info);
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -500,7 +494,7 @@ namespace YukiFrameWork
                 GUILayout.FlexibleSpace();
                 if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
                 {
-                    if (info.GetSerializeFields().Count() > 0 && GUILayout.Button("生成代码", GUILayout.Height(25)))
+                    if ((info.GetSerializeFields().Count() > 0 || (binds != null && binds.Length > 0)) && GUILayout.Button("生成代码", GUILayout.Height(25)))
                     {
                         GenericCallBack?.Invoke();
                     }

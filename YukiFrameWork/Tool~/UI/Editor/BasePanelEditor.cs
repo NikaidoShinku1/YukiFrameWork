@@ -82,6 +82,26 @@ namespace YukiFrameWork.UI
                 }
             }
 
+            YukiBind[] binds = panel.GetComponentsInChildren<YukiBind>();
+            if (binds != null && binds.Length > 0)
+            {
+                foreach (FieldInfo fieldInfo in fieldInfos)
+                {
+                    var b = binds.FirstOrDefault(x => x._fields.fieldName.Equals(fieldInfo.Name));
+                    if (b == null) continue;
+                    SerializeFieldData data = b._fields;
+                    if (data == null) continue;
+                    if (data.target == null) continue;
+                    if (!fieldInfo.FieldType.IsSubclassOf(typeof(Component)))
+                        fieldInfo.SetValue(target, data.target);
+                    else
+                    {
+                        Component component = data.GetComponent(fieldInfo.FieldType);
+                        fieldInfo.SetValue(target, component);
+                    }
+                }
+            }
+
             EditorUtility.SetDirty(target);
             AssetDatabase.SaveAssets();
 
@@ -204,6 +224,16 @@ namespace YukiFrameWork.UI
             {
                 builder.AppendLine($"\t\t{(info.fieldLevelIndex != info.fieldLevel.Length - 1 ? "[SerializeField]" : "")}{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
             }
+
+            YukiBind[] binds = panel.GetComponentsInChildren<YukiBind>();
+
+            foreach (var b in binds)
+            {
+                var info = b._fields;
+                builder
+                    .AppendLine($"\t\t{(info.fieldLevelIndex != info.fieldLevel.Length - 1 ? "[SerializeField]" : "")}{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};//Des:{(b.description.IsNullOrEmpty() ? string.Empty : b.description)}");
+            }
+
             builder.AppendLine("\t}");
 
             builder.AppendLine("}");
