@@ -385,11 +385,23 @@ namespace YukiFrameWork.States
                     if (this.Context.SelectNodes != null && this.Context.StateMechine != null && this.Context.SelectNodes.Count > 0)
                     {
                         if (data.defaultState) return;
-                        foreach (var item in this.Context.StateMechine.states)
+                        if (data.layerName == "BaseLayer")
                         {
-                            item.defaultState = false;
-                        }                     
-                        data.defaultState = true;
+                            foreach (var item in this.Context.StateMechine.states)
+                            {
+                                item.defaultState = false;
+                            }
+                            data.defaultState = true;
+                        }
+                        else if (this.Context.StateMechine.subStatesPair.ContainsKey(data.layerName))
+                        {
+                            foreach (var item in this.Context.StateMechine.subStatesPair[data.layerName].stateBases)
+                            {
+                                item.defaultState = false;
+                            }
+
+                            data.defaultState = true;
+                        }
 
                         this.Context.StateMechine.SaveToMechine();
                     }
