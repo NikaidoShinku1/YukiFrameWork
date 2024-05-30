@@ -1541,9 +1541,9 @@ namespace XFABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
-                //bundle.GetAssetPathByFileName(assetName);
-                EditorSceneManager.LoadSceneInPlayMode(bundle.GetAssetPathByFileName(sceneName,typeof(UnityEngine.SceneManagement.Scene)), new LoadSceneParameters() { loadSceneMode = mode });
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);      
+                string asset_path = bundle.GetAssetPathByFileName(sceneName, typeof(SceneObject)); 
+                EditorSceneManager.LoadSceneInPlayMode(asset_path, new LoadSceneParameters() { loadSceneMode = mode });
                 return;
             }
 #endif
@@ -1577,7 +1577,8 @@ namespace XFABManager
             {
                 XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 //bundle.GetAssetPathByFileName(assetName);
-                return EditorSceneManager.LoadSceneAsyncInPlayMode(bundle.GetAssetPathByFileName(sceneName, typeof(SceneObject)), new LoadSceneParameters() { loadSceneMode = mode });
+                string asset_path = bundle.GetAssetPathByFileName(sceneName, typeof(SceneObject));
+                return EditorSceneManager.LoadSceneAsyncInPlayMode(asset_path, new LoadSceneParameters() { loadSceneMode = mode });
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);

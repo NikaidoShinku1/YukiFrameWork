@@ -1,3 +1,7 @@
+## version 1.12.1 更新内容
+
+1. 修复编辑器模式同步加载场景 AssetBundleManager.LoadScene失败的问题!
+
 ## version 1.12.0 更新内容
 
 1. 优化场景资源卸载
