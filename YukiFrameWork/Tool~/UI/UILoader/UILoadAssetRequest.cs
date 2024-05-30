@@ -23,22 +23,20 @@ namespace YukiFrameWork.UI
         {           
             this.Panel = panel as BasePanel;
             return this;
-        }          
-    }
+        }
 
-    public static class UILoadAssetRequestExtension
-    {
-        public static YieldTask<BasePanel> GetAwaiter(this UILoadAssetRequest request)
+        public YieldTask<BasePanel> GetAwaiter()
         {
             var awaiter = new YieldTask<BasePanel>();
             YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
-                yield return request;
-                awaiter.Complete(null, request.Panel);
+                yield return this;
+                awaiter.Complete(null, this.Panel);
             }
             return awaiter;
-        }    
+        }
     }
     
 }
+  
