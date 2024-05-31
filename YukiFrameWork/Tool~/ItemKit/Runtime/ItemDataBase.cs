@@ -28,8 +28,8 @@ namespace YukiFrameWork.Item
     }
     public abstract class ItemDataBase<Item> : ItemDataBase where Item :class, IItem
     {
-        [SerializeField, Searchable, FoldoutGroup("物品管理", -1)]
-        private Item[] items = new Item[0];
+        [SerializeField, Searchable, FoldoutGroup("物品管理", -1),TableList]
+        internal Item[] items = new Item[0];
 
         public override IItem[] Items
         {
@@ -42,8 +42,7 @@ namespace YukiFrameWork.Item
         {
             if (string.IsNullOrEmpty(fileName))
             { 
-                fileName = this.GetType().Name.Replace("DataBase","s");
-                this.Save();
+                fileName = this.GetType().Name.Replace("DataBase","s");               
             }
             InitItemTypeByDataBase();
         }
@@ -190,6 +189,12 @@ namespace YukiFrameWork.Item
                 mItemTypeDicts[type.ToString()] = labelText?.Text;
             }
 
+        }
+
+        [Button("打开Item编辑器窗口(Plus)",ButtonHeight = 40)]
+        void OpenWindow()
+        {
+            ItemDesignerWindow.OpenWindow();
         }
 #endif
     }   

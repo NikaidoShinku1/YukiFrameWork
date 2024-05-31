@@ -89,30 +89,14 @@ namespace YukiFrameWork.Buffer
             codeCore.CodeSetting(nameSpace, "Buffs", string.Empty, writer).Create("Buffs", filePath);
         }
 #endif
-        [SerializeField, ValueDropdown(nameof(buffInfoNames)), VerticalGroup("配置"),PropertySpace(10), LabelText("生成类型:"), ShowIf(nameof(isShowInfo))]
-        private int buffSelectIndex = 0;
-
-        [SerializeField,LabelText("Buff配置")
-            ,ListDrawerSettings(ShowPaging = true          
-            ,CustomAddFunction = nameof(CreateBuff)
-            ,CustomRemoveIndexFunction = nameof(DeleteBuff)
-            ,OnEndListElementGUI = nameof(OnEndDrawBuffGUI)
-            ,NumberOfItemsPerPage = 3
-            ,DraggableItems = true
-            ,ListElementLabelName = "BuffName"             
-            ,ShowFoldout = true)]
+       
+        [SerializeField,LabelText("Buff配置")]      
         [InfoBox("添加Buff配置需要选择Buff的类型，当项目中没有任何Buff类文件时，无法新建Buff配置，且删除对应文件时，会自动消除对应的类",InfoMessageType.Warning)]
         [VerticalGroup("配置")]
+        [ListDrawerSettings(HideAddButton = true,CustomRemoveIndexFunction = nameof(DeleteBuff),DraggableItems = false)]
         public List<Buff> buffConfigs = new List<Buff>();
-     
-        private ValueDropdownList<int> buffInfoNames = new ValueDropdownList<int>();
-        private string[] nameInfos = new string[0];
-        
-        private bool isShowInfo => buffInfoNames.Count > 0;
-
-        private bool reimportTable => buffConfigs.Count > 0;
-
 #if UNITY_EDITOR
+        bool reimportTable => buffConfigs.Count > 0;
         [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
         private string jsonName = "Buff";
         [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
@@ -122,30 +106,15 @@ namespace YukiFrameWork.Buffer
         {
             SerializationTool.SerializedObject(buffConfigs).CreateFileStream(jsonPath,jsonName,".json");
         }
-#endif
-        private void OnEnable()
+
+        [Button("打开编辑器配置窗口",ButtonHeight = 30)]
+        [PropertySpace(20)]
+        void OpenWindow()
         {
-            Type[] types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
-                .Where(x => x.IsSubclassOf(typeof(Buff))).ToArray();
-
-            buffInfoNames.Clear();
-            for(int i = 0;i<types.Length;i++)
-            {
-                var type = types[i];
-                buffInfoNames.Add(type.FullName, i);
-            }
-
-            nameInfos = new string[buffInfoNames.Count];
-
-            for (int i = 0; i < buffInfoNames.Count; i++)
-            {
-                nameInfos[i] = buffInfoNames[i].Text;
-            }
-
-            if (buffSelectIndex >= nameInfos.Length)
-                buffSelectIndex = 0;
+            BuffDesignerWindow.OpenWindow();
         }
-        List<string> buffNames = new List<string>();
+#endif
+        
         private void OnValidate()
         {          
             for (int i = 0; i < buffConfigs.Count; i++)
@@ -155,52 +124,13 @@ namespace YukiFrameWork.Buffer
                     buffConfigs.RemoveAt(i);
                     i--;
                     continue;
-                }                
-                buffNames.Clear();               
+                }                                       
                 buffConfigs[i].dataBase = this;
             }
-#if UNITY_EDITOR
-            editors.Clear();
-#endif
         }
-
-#if UNITY_EDITOR
-        Dictionary<int, OdinEditor> editors = new Dictionary<int, OdinEditor>();
-#endif
-        void OnEndDrawBuffGUI(int index)
-        {
-            var buff = buffConfigs[index];
-            if (buff == null) return;
-#if UNITY_EDITOR
-
-            try
-            {
-                if (!editors.TryGetValue(index, out var editor))
-                {
-                    editors.Add(index, Editor.CreateEditor(buff, typeof(OdinEditor)) as OdinEditor);
-                }
-                else if (!Equals(editors[index].target, buff))
-                {
-                    editors[index] = Editor.CreateEditor(buff, typeof(OdinEditor)) as OdinEditor;
-                }
-                else
-                {                   
-                    editors[index].DrawDefaultInspector();                   
-                }
-            }
-            catch { }
-#endif
-        }
-        void CreateBuff()
-        {
-            if (buffInfoNames.Count == 0 || nameInfos.Length == 0)
-            {
-                throw new Exception("当前没有任何类继承Buff基类，无法创建新的Buff配置!");              
-            }
-
-            Type buffType = AssemblyHelper.GetType(buffInfoNames[buffSelectIndex].Text) 
-                ?? throw new Exception("该BuffType没有找到，请重试：Type:" + buffInfoNames[buffSelectIndex].Text);
-
+   
+        internal void CreateBuff(Type buffType)
+        {           
             Buff buff = Buff.CreateInstance(buffType.Name, buffType);
            
             buff.dataBase = this;
@@ -212,7 +142,7 @@ namespace YukiFrameWork.Buffer
 #endif
         }
 
-        void DeleteBuff(int index)
+        public void DeleteBuff(int index)
         {
             var buff = buffConfigs[index];
 

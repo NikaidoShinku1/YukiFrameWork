@@ -113,13 +113,13 @@ namespace YukiFrameWork.Buffer
         }
 
         [field:SerializeField,JsonProperty,LabelText("该Buff会与指定相互抵消的BuffID")]
-        [field:ValueDropdown(nameof(Infos))]
-        //[field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
+        [field:ValueDropdown(nameof(names))]
+        [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
         public string[] BuffCounteractID { get ; set ; }
 
         [field:SerializeField,JsonProperty,LabelText("该Buff运作时禁止添加的BuffID")]
-        [field: ValueDropdown(nameof(Infos))]
-        //[field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
+        [field: ValueDropdown(nameof(names))]
+        [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
         public string[] BuffDisableID { get ; set ; }
 
         [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50)]
@@ -136,27 +136,7 @@ namespace YukiFrameWork.Buffer
         #region Buff自带依赖ID转换于编辑器显示
         [Searchable]
         [JsonIgnore]
-        private ValueDropdownList<string> names = new ValueDropdownList<string>();
-
-        [JsonIgnore]
-        IEnumerable Infos
-        {
-            get
-            {
-                names.Clear();
-
-                for (int i = 0; i < dataBase.buffConfigs.Count; i++)
-                {
-                    var buff = dataBase.buffConfigs[i];
-
-                    if (buff == null || buff.BuffName == BuffName) continue;
-
-                    names.Add(buff.BuffName, buff.BuffKey);
-                }               
-
-                return names;
-            }
-        }      
+        internal ValueDropdownList<string> names = new ValueDropdownList<string>();       
         #endregion
     }
 }

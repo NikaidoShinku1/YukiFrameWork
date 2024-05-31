@@ -110,7 +110,12 @@ namespace YukiFrameWork.Extension
         public static Type[] GetTypes(Type type)
         {
             return Assembly.GetAssembly(type).GetTypes();
-        }       
+        }
+
+        public static Type[] GetTypes(Func<Type,bool> condition)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(condition).ToArray();
+        }
 
         public static Type[] GetTypes(Assembly assembly)
         {           

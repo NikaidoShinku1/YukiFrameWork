@@ -236,6 +236,8 @@ namespace YukiFrameWork.Buffer
 
         private void LateUpdate()
         {
+			UpdateAllBuffController(UpdateStatus.OnLateUpdate);
+
 			if (release.Count == 0) return;
 
 			for (int i = 0; i < release.Count; i++)
@@ -251,11 +253,13 @@ namespace YukiFrameWork.Buffer
 			foreach (var item in mTable.Values)
 			{
 				for (int i = 0; i < item.Count; i++)
-				{					
+				{
 					if (updateStatus == UpdateStatus.OnUpdate)
 						UpdateSetting(item[i]);
 					else if (updateStatus == UpdateStatus.OnFixedUpdate)
 						FixedUpdateSetting(item[i]);
+					else if (updateStatus == UpdateStatus.OnLateUpdate && !release.Contains(item[i]))
+						LateUpdateSetting(item[i]);
 				}
 			}
         }
@@ -308,6 +312,11 @@ namespace YukiFrameWork.Buffer
 		{
             controller.OnBuffFixedUpdate();
         }
+
+		private void LateUpdateSetting(IBuffController controller)
+		{
+			controller.OnBuffLateUpdate();
+		}
 
 		/// <summary>
 		/// 终止运行中的所有Buff，调用所有控制器的OnBuffDestroy方法，该方法不会触发BuffController的OnBuffRemove方法以及Handler的移除回调

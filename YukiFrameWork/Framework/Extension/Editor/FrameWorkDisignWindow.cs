@@ -101,7 +101,7 @@ namespace YukiFrameWork
 
             foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
             {
-                tree.Add($"{keys[1]}/{item.name}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
+                tree.Add($"LocalizationConfig/{item.name}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
             }
 
             try
@@ -145,37 +145,7 @@ namespace YukiFrameWork
                 }
 
             }
-            catch { }
-
-            try
-            {
-                System.Type buffType = AssemblyHelper.GetType("YukiFrameWork.Buffer.BuffDataBase");
-
-                if (buffType != null)
-                {
-                    Object[] objects = Resources.FindObjectsOfTypeAll(buffType);
-                    for (int i = 0; i < objects.Length; i++)
-                    {
-                        tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", objects[i], SdfIconType.BookmarkStar);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                System.Type itemType = AssemblyHelper.GetType("YukiFrameWork.Item.ItemDataBase");
-
-                if (itemType != null)
-                {
-                    Object[] objects = Resources.FindObjectsOfTypeAll(itemType);
-                    for (int i = 0; i < objects.Length; i++)
-                    {
-                        tree.Add($"ItemKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", objects[i], SdfIconType.Wallet);
-                    }
-                }
-            }
-            catch { }
+            catch { }         
 
             tree.Add("Unity样式拓展工具", new GUIStyleExtensionWindow(), SdfIconType.Image);
 

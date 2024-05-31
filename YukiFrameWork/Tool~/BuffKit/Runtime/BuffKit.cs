@@ -13,12 +13,13 @@ using System.Collections.Generic;
 using System.Collections;
 namespace YukiFrameWork.Buffer
 {
-    public class BuffKit
+    
+    public static class BuffKit
     {
         /// <summary>
         /// 缓存所有的Buff配置
         /// </summary>
-        private readonly static Dictionary<string, IBuff> buffItems = new Dictionary<string, IBuff>();   
+        private readonly static Dictionary<string, IBuff> buffItems = new Dictionary<string, IBuff>();  
 
         private static IBuffLoader loader = null;
 
@@ -79,6 +80,6 @@ namespace YukiFrameWork.Buffer
         public static char Spilt { get; private set; }
 
         internal static ILocalizationData GetContent(string buffKey)
-            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);   
+            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);      
     }
 }

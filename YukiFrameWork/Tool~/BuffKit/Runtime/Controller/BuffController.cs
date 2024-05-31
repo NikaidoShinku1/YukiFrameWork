@@ -45,6 +45,7 @@ namespace YukiFrameWork.Buffer
         void OnBuffStart();
 		void OnBuffUpdate();
 		void OnBuffFixedUpdate();
+		void OnBuffLateUpdate();
         /// <summary>
         /// 每一次Buff移除的时候执行，如果Buff是叠加了多层的且开启了缓慢减少，则每次减少一层都会调用一次该方法
         /// </summary>
@@ -161,7 +162,9 @@ namespace YukiFrameWork.Buffer
 
 		public virtual void OnBuffUpdate() { }
 
-		public virtual void OnBuffFixedUpdate() { }	
+		public virtual void OnBuffFixedUpdate() { }
+
+		public virtual void OnBuffLateUpdate() { }
 		
 		public abstract void OnBuffRemove();
 		
