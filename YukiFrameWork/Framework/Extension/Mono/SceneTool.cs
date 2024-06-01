@@ -33,7 +33,19 @@ namespace YukiFrameWork
 		public static void LoadScene(int sceneIndex, LoadSceneParameters sceneParameters)
 			=> SceneManager.LoadScene(sceneIndex, sceneParameters);
 
-		public static IEnumerator LoadSceneAsync(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public static async void LoadSceneAsyncSafe(string sceneName, Action<float> loadingCallBack = null,Action onFinish = null, LoadSceneMode mode = LoadSceneMode.Single)
+        {
+            if (SceneManager.GetSceneByName(sceneName).IsValid())
+            {              
+                onFinish?.Invoke();
+                return;
+            }
+            var operation = SceneManager.LoadSceneAsync(sceneName, mode);
+            await MonoHelper.Start(LoadSceneAsync(operation, loadingCallBack));
+            onFinish?.Invoke();
+        }
+
+        public static IEnumerator LoadSceneAsync(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
 		{
             var operation = SceneManager.LoadSceneAsync(sceneName, mode);
             return LoadSceneAsync(operation, loadingCallBack);
@@ -145,6 +157,17 @@ namespace YukiFrameWork
 
         public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsynchrony(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
+
+        public async void LoadSceneAsyncSafe(string sceneName, Action<float> loadingCallBack = null, Action onFinish = null, LoadSceneMode mode = LoadSceneMode.Single)
+        {
+            if (SceneManager.GetSceneByName(sceneName).IsValid())
+            {                
+                onFinish?.Invoke();
+                return;
+            }           
+            await MonoHelper.Start(LoadSceneAsync(sceneName, loadingCallBack,mode));
+            onFinish?.Invoke();
+        }
 
         [Obsolete("通过XFABManager进行场景加载时希望提前关闭场景的加载方法已经过时，请使用标准的LoadSceneAsyncWithAllowSceneActive或者使用LoadSceneAsync")]
         public IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)

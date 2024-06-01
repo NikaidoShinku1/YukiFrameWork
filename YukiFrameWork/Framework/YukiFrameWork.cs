@@ -81,6 +81,7 @@ namespace YukiFrameWork
     {
         
     }
+
     #endregion
 
     #region Controller
@@ -237,6 +238,11 @@ namespace YukiFrameWork
             easyContainer.RemoveModel(typeof(T), model.Id);
         }
 
+        public void UnRegisterAllModel<T>(T model = default)where T : class,IModel
+        {
+            easyContainer.RemoveAllModel(typeof(T));
+        }
+
         public void UnRegisterSystem<T>(T system = default) where T :class, ISystem
         {          
             easyContainer.Remove(typeof(T));
@@ -366,6 +372,12 @@ namespace YukiFrameWork
             {
                 modelInstances.Remove(type);
             }
+        }
+
+        public void RemoveAllModel(Type type)
+        {
+            if (!modelInstances.ContainsKey(type)) return;
+            modelInstances.Remove(type);
         }
 
         public void Clear()

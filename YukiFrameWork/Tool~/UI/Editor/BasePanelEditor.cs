@@ -45,7 +45,7 @@ namespace YukiFrameWork.UI
                 string path = panel.Data.ScriptPath + @"/" + panel.Data.ScriptName + ".cs";
                 Update_ScriptFrameWorkConfigData(path, panel);
                 AssetDatabase.Refresh();
-            }
+            }  
 
             if (panel.GetType() == typeof(BasePanel) && panel.Data.ScriptNamespace.IsNullOrEmpty())
             {

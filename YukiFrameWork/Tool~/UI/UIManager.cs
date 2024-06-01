@@ -19,15 +19,24 @@ namespace YukiFrameWork.UI
         public CanvasScaler CanvasScaler { get; private set; }
         public GraphicRaycaster GraphicRaycaster { get; private set; }
 
+        public EventSystem EventSystem { get; private set; }
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
-        private Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();     
+        private Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();
 
+        //加载安全锁
+        private bool reloadLevelSafe = false;
+        private bool reloadSystemSafe = false;
         public override void OnInit()
         {
-            Canvas = Object.FindObjectsOfType<Canvas>().FirstOrDefault(x => x.name.Equals("UIRoot"));
-            if(Canvas == null)
-                Canvas = Resources.Load<Canvas>("UIRoot").Instantiate();          
+#if UNITY_2023_1_OR_NEWER
+            Canvas = Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include,FindObjectsSortMode.None).FirstOrDefault(x => x.name.Equals("UIRoot"));
+#else
+            Canvas = Object.FindObjectsOfType<Canvas>(true).FirstOrDefault(x => x.name.Equals("UIRoot"));
+#endif
+            if (Canvas == null)
+                Canvas = Resources.Load<Canvas>("UIRoot").Instantiate();
+            else reloadLevelSafe = true;
           
             if (Canvas == null)
             {
@@ -38,15 +47,18 @@ namespace YukiFrameWork.UI
             GraphicRaycaster = Canvas.GetComponent<GraphicRaycaster>();
 
             MonoHelper.Destroy_AddListener(I.Release);
-            var eventSystem = Object.FindObjectOfType<EventSystem>();
-
+#if UNITY_2023_1_OR_NEWER
+            var eventSystem = Object.FindAnyObjectByType<EventSystem>(FindObjectsInactive.Include);
+#else
+            var eventSystem = Object.FindObjectOfType<EventSystem>(true);
+#endif
             if (eventSystem == null)
             {
                 eventSystem = new GameObject(nameof(EventSystem)).AddComponent<EventSystem>();
                 eventSystem.GetOrAddComponent<StandaloneInputModule>();
             }
-
-            eventSystem.SetParent(Canvas.transform);
+            else reloadSystemSafe = true;
+            EventSystem = eventSystem.SetParent(Canvas.transform);
 
             Object.DontDestroyOnLoad(Canvas.gameObject);
 
@@ -80,8 +92,12 @@ namespace YukiFrameWork.UI
         {
             return Screen.width > Screen.height;
         }
+
+        private bool IsLevelInited = false;
         public void InitLevel()
         {
+            if (IsLevelInited) return;
+            IsLevelInited = true;
             for (int i = 0; i < (int)UILevel.Top + 1; i++)
             {
                 UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
@@ -92,6 +108,22 @@ namespace YukiFrameWork.UI
                 image.color = new Color(image.color.r, image.color.g, image.color.b, 0);                
                 image.raycastTarget = false;
                 levelDicts.Add(level, transform);
+               
+            }
+        }
+        [RuntimeInitializeOnLoadMethod]
+        private static void ReLoadSceneLevel()
+        {           
+            if (!I.IsLevelInited) return;
+            if(I.reloadLevelSafe)
+            for (int i = 0; i < I.Canvas.transform.childCount; i++)
+            {
+                I.Canvas.transform.GetChild(i).Hide().Show();
+            }
+
+            if (I.reloadSystemSafe)
+            {
+                I.EventSystem.Hide().Show();
             }
         }
 
@@ -157,6 +189,9 @@ namespace YukiFrameWork.UI
         public void Release(MonoHelper monoHelper = null)
         {
             levelDicts.Clear();
+            reloadLevelSafe = false;
+            reloadSystemSafe = false;
+            IsLevelInited = false;
             if (UIKit.Default)
             {
                 foreach (var obj in panelCore)

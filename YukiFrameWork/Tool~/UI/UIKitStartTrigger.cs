@@ -63,6 +63,7 @@ namespace YukiFrameWork.UI
         
         private void Awake()
 		{
+			UIManager.Instance.InitLevel();
 			switch (resourcesType)
 			{
 				case ResourcesType.Sync:

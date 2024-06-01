@@ -31,7 +31,8 @@ namespace YukiFrameWork.UI
         public static void Init(string projectName)
         {           
             loader = new ABManagerUILoader(projectName);
-            Default = true;            
+            Default = true;
+            UIManager.I.InitLevel();
         }
 
         /// <summary>
@@ -42,11 +43,8 @@ namespace YukiFrameWork.UI
         {      
             UIKit.loader = loader;           
             Default = false;
-        }
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void InitLevel()
-            => UIManager.Instance.InitLevel();
+            UIManager.I.InitLevel();
+        }   
 
         /// <summary>
         /// 设置画布的分辨率

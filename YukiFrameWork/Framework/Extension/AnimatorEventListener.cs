@@ -17,7 +17,7 @@ namespace YukiFrameWork
 	{ }
 	public class AnimatorEventListener : MonoBehaviour
 	{
-		public AnimatorEvent onAnimatorEvent;
+		public AnimatorEvent onAnimatorEvent = new AnimatorEvent();
 
 		public void OnAnimatorEvent(string name)
 			=> onAnimatorEvent?.Invoke(name);
