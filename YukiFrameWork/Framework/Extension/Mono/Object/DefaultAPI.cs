@@ -14,5 +14,10 @@ namespace YukiFrameWork
         {
             
         }
+
+        public void Clear()
+        {
+            onEvent.UnRegisterAllEvent();
+        }
     }
 }

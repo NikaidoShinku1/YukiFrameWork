@@ -66,7 +66,7 @@ namespace YukiFrameWork.Audio
         [MethodAPI("播放音乐，适用于背景等")]
         public static void PlayMusic(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false)
         {
-            if (!Setting.IsMusicOn.Value) return;
+            //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);          
@@ -75,7 +75,7 @@ namespace YukiFrameWork.Audio
 
         public static void PlayMusic(AudioInfo audioInfo)
         {
-            if (!Setting.IsMusicOn.Value) return;
+            //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
             AudioClip clip = audioInfo.Clip;            
             if (clip == null)
@@ -91,7 +91,7 @@ namespace YukiFrameWork.Audio
         [MethodAPI("(异步)播放音乐，适用于背景等")]
         public static void PlayMusicAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {
-            if (!Setting.IsMusicOn.Value) return;
+            //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
 
@@ -126,12 +126,13 @@ namespace YukiFrameWork.Audio
             };
             AudioManager.I.CheckLoaderCache(loader);
             musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader);
+            musicPlayer.Mute = !Setting.IsMusicOn.Value;
         }
 
         [MethodAPI("播放人声，与背景音乐一致有单独的层，一般只适用于一个语音播放")]
         public static void PlayVoice(string name,bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {
-            if (!Setting.IsVoiceOn.Value) return;
+            //if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
@@ -141,7 +142,7 @@ namespace YukiFrameWork.Audio
 
         public static void PlayVoice(AudioInfo audioInfo)
         {
-            if (!Setting.IsMusicOn.Value) return;
+            //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
             AudioClip clip = audioInfo.Clip;
 
@@ -159,7 +160,7 @@ namespace YukiFrameWork.Audio
         [MethodAPI("(异步)播放人声，与背景音乐一致有单独的层，一般只适用于一个语音播放")]
         public static void PlayVoiceAsync(string name, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {
-            if (!Setting.IsVoiceOn.Value) return;
+            //if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);          
             if (loader.Clip != null)
@@ -195,6 +196,7 @@ namespace YukiFrameWork.Audio
             };
             AudioManager.I.CheckLoaderCache(loader);
             voicePlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
+            voicePlayer.Mute = !Setting.IsVoiceOn.Value;
         }
 
         /// <summary>
@@ -219,7 +221,7 @@ namespace YukiFrameWork.Audio
         [MethodAPI("播放声音、特效等，可以用于在多人说话的时候使用,可以传递自定义的父节点挂载AudioSource")]        
         public static AudioPlayer PlaySound(string name,bool loop = false,Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false)
         {
-            if (!Setting.IsSoundOn.Value) return null;
+            //if (!Setting.IsSoundOn.Value) return null;
             if (!CheckPlaySound(name)) return null;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
@@ -231,7 +233,7 @@ namespace YukiFrameWork.Audio
 
         public static AudioPlayer PlaySound(AudioInfo audioInfo)
         {
-            if (!Setting.IsMusicOn.Value) return null;
+            //if (!Setting.IsMusicOn.Value) return null;
             AudioClip clip = audioInfo.Clip;
 
             if (clip == null)
@@ -241,7 +243,7 @@ namespace YukiFrameWork.Audio
 
             return PlaySoundExecute(null,audioMgr, clip
                 , audioInfo.Loop
-                , audioInfo.transform,value => audioInfo.onStartCallBack?.Invoke(value)
+                , audioInfo.position == AudioInfo.Position.IgnorePosition ? audioInfo.transform : null,value => audioInfo.onStartCallBack?.Invoke(value)
                 , value => audioInfo.onEndCallBack?.Invoke(value)
                 , audioInfo.IsRealTime);
 
@@ -250,7 +252,7 @@ namespace YukiFrameWork.Audio
         [MethodAPI("(异步)播放声音、特效等，可以用于在多人说话的时候使用,可以传递自定义的父节点挂载AudioSource")]
         public static PlaySoundRequest PlaySoundAsync(string name, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
         {
-            if (!Setting.IsSoundOn.Value) return null;
+            //if (!Setting.IsSoundOn.Value) return null;
             if (!CheckPlaySound(name)) return null;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
@@ -292,6 +294,7 @@ namespace YukiFrameWork.Audio
             };
             AudioManager.I.CheckLoaderCache(loader);
             soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
+            SetAllSoundMute(Setting.IsSoundOn.Value);
             return soundPlayer;
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using XFABManager;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
 
@@ -228,6 +229,63 @@ namespace YukiFrameWork
             }
             return core;
         }
+
+        /// <summary>
+        /// 使用对象池回收加载
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static T UnLoadChildren<T>(this T core) where T : Component
+        {
+            UnLoadChildren(core.gameObject);
+            return core;
+        }
+        /// <summary>
+        /// 使用对象池回收加载
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static GameObject UnLoadChildren(this GameObject core)
+        {
+            var childCount = core.transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                var item = core.transform.GetChild(i);
+                GameObjectLoader.UnLoad(item.gameObject);
+
+            }
+            return core;
+        }
+        /// <summary>
+        /// 使用对象池回收加载
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static T UnLoadChildrenWithCondition<T>(this T component, Func<Transform, bool> condition) where T : Component
+        {
+            UnLoadChildrenWithCondition(component.gameObject, condition);
+            return component;
+        }
+        /// <summary>
+        /// 使用对象池回收加载
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static GameObject UnLoadChildrenWithCondition(this GameObject core, Func<Transform, bool> condition)
+        {
+            var childCount = core.transform.childCount;
+            for (int i = 0; i < childCount; i++)
+            {
+                var item = core.transform.GetChild(i);
+                if (condition.Invoke(item))
+                    GameObjectLoader.UnLoad(item.gameObject);
+            }
+            return core;
+        }
         #endregion
 
         #region Info
@@ -333,6 +391,30 @@ namespace YukiFrameWork
         public static T SetParent<T>(this T core, Transform parent) where T : Component
         {
             SetParent(core.gameObject, parent);
+            return core;
+        }
+
+        public static T SetAsLastSibling<T>(this T core) where T : Component
+        {
+            core.transform.SetAsLastSibling();
+            return core;
+        }
+
+        public static GameObject SetAsLastSibling(this GameObject core)
+        {
+            core.transform.SetAsLastSibling();
+            return core;
+        }
+
+        public static T SetAsFirstSibling<T>(this T core) where T : Component
+        {
+            core.transform.SetAsFirstSibling();
+            return core;
+        }
+
+        public static GameObject SetAsFirstSibling(this GameObject core)
+        {
+            core.transform.SetAsFirstSibling();
             return core;
         }
 

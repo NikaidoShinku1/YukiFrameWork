@@ -8,10 +8,28 @@ using UnityEngine;
 namespace XFABManager {
 
     [Serializable]
-    public class ImageData {
+    public class ImageData 
+    {
+        private Sprite _sprite;
+
         public string key;
         public Texture2D texture;
-        public Sprite sprite;
+        public Sprite sprite
+        {
+            get
+            {
+                if (_sprite == null && type != ImageLoaderType.AssetBundle) 
+                {
+                    _sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                    _sprite.name = texture.name;
+                }
+                return _sprite;
+            }
+            set
+            {
+                _sprite = value;
+            }
+        }
         internal List<int> references_hash_code = new List<int>(); // 当前这个image 被哪些游戏物体引用
         internal float last_time; // 最近一次使用这个image的时间
          
@@ -124,12 +142,22 @@ namespace XFABManager {
                 // 如果不是从AssetBundle中加载的,直接销毁即可
                 try
                 {
-                    GameObject.Destroy(image.sprite);
-                    GameObject.Destroy(image.texture);
+                    if(image.sprite != null)
+                        GameObject.Destroy(image.sprite); 
                 }
                 catch (Exception)
                 {
                 }
+
+                try
+                { 
+                    if (image.texture != null)
+                        GameObject.Destroy(image.texture);
+                }
+                catch (Exception)
+                {
+                }
+
             } 
             
             image.sprite = null;

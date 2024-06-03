@@ -14,7 +14,10 @@ namespace YukiFrameWork.UI
 {
 	public enum PanelOpenType
 	{	
+		//单一面板
 		Single,
+
+		//可叠加多个面板
 		Multiple
 	}
 }

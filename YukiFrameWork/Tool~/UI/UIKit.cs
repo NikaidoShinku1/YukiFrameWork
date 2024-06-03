@@ -10,7 +10,6 @@
 
 using System;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -22,7 +21,9 @@ namespace YukiFrameWork.UI
 
         public static UITable Table { get; } = new UITable();     
         
-        public static bool Default { get; private set; } = false;         
+        public static bool Default { get; private set; } = false;
+
+        public static UIPrefabExector Exector => UIManager.Instance.Exector;
         /// <summary>
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载
         /// 注意：使用ABManager加载模块,必须前置准备好资源模块的初始化以及准备,否则无法使用。
@@ -117,7 +118,7 @@ namespace YukiFrameWork.UI
             UIManager.Instance.AddPanelCore(panel);
             return OpenPanelExecute(panel.name,panel.Level,panel,param);
         }
-
+       
         /// <summary>
         /// 外部直接传入Prefab加载面板
         /// </summary>
@@ -228,7 +229,7 @@ namespace YukiFrameWork.UI
             return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name,level, panelCore,param)); 
         }
 
-        private static T OpenPanelExecute<T>(string name,UILevel level,T panelCore,params object[] param) where T : BasePanel
+        internal static T OpenPanelExecute<T>(string name,UILevel level,T panelCore,params object[] param) where T : BasePanel
         {
             UIManager uiMgr = UIManager.I;
             var panel = Table.GetActivityPanel(name,panelCore.Level,panelCore.OpenType);           
@@ -286,6 +287,8 @@ namespace YukiFrameWork.UI
         public static void ClosePanel(string name)
         {
             var core = UIManager.Instance.GetPanelCore(name);
+
+            core ??= UIManager.Instance.Exector.prefabInfos.Find(x => x.name == name);
             if (core == null) return;
 
             PanelInfo info = new PanelInfo();
@@ -303,6 +306,7 @@ namespace YukiFrameWork.UI
         public static void ClosePanel<T>() where T : class, IPanel
         {
             var core = UIManager.Instance.GetPanelCore<T>();
+            core ??= UIManager.Instance.Exector.prefabInfos.Find(x => x.GetType() == typeof(T)) as T;
             if (core == null) return;
 
             PanelInfo info = new PanelInfo();
@@ -387,7 +391,41 @@ namespace YukiFrameWork.UI
             if (panel.IsPanelCache)            
                 ClosePanel(panel);      
             return panel;          
-        }   
+        }
+
+        /// <summary>
+        /// 判断面板是否已经激活并且开启(仅限缓存面板)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="level">层级</param>
+        /// <param name="openType">打开类型</param>
+        /// <returns></returns>
+        public static bool IsPanelActive<T>(UILevel level,PanelOpenType openType = PanelOpenType.Single) where T : BasePanel
+        {
+            if (openType == PanelOpenType.Single)
+            {
+                var panel = GetPanel<T>(level);
+
+                if (panel == null) return false;
+
+                return panel.IsActive;
+            }
+            else if (openType == PanelOpenType.Multiple)
+            {
+                var panels = GetPanels<T>(level);
+                if (panels == null) return false;
+
+                for (int i = 0; i < panels.Length; i++)
+                {
+                    if (!panels[i].IsActive)
+                        return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
       
         public static void Release()
         {
@@ -404,7 +442,7 @@ namespace YukiFrameWork.UI
         public static T FindPanelByType<T>(UILevel level) where T : BasePanel
         {
             var root = UIManager.Instance.GetPanelLevel(level);
-            return root.GetComponentInChildren<T>();
+            return root.GetComponentInChildren<T>(true);
         }
 
         /// <summary>

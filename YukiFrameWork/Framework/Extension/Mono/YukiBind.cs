@@ -22,6 +22,7 @@ namespace YukiFrameWork
 	{
         [SerializeField]
 		public SerializeFieldData _fields;
+        [SerializeField]
         internal bool isInited = false;
         [SerializeField]
         public string description;
@@ -67,7 +68,8 @@ namespace YukiFrameWork
 
         void Init(YukiBind fieldInfo)
         {
-            fieldInfo._fields = new SerializeFieldData(fieldInfo.gameObject);         
+            fieldInfo._fields = new SerializeFieldData(fieldInfo.gameObject);
+            target.Save();
         }
 
 

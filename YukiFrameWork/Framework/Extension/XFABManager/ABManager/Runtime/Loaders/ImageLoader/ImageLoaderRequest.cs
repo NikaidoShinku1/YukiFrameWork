@@ -185,14 +185,10 @@ namespace XFABManager
                     DownloadHandlerTexture handler = request_local_file.downloadHandler as DownloadHandlerTexture;
                     Texture2D texture2D = handler.texture;
                     texture2D.name = fileName;
-                    Sprite sprite = Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
-                    sprite.name = texture2D.name;
-
+                      
                     NetworkImage = new ImageData();
                     NetworkImage.key = imageModel.Key;
-                    NetworkImage.texture = texture2D;
-                    NetworkImage.sprite = sprite;
-                    //NetworkImage.AddReference(reference_hash_code);
+                    NetworkImage.texture = texture2D; 
                     NetworkImage.last_time = Time.time;
                     NetworkImage.native_path = path;
                     NetworkImage.type = imageModel.type;

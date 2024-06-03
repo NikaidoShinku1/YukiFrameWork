@@ -87,3 +87,7 @@
 - 框架支持插件:[DoTween](https://dotween.demigiant.com/);
 
 - 框架支持插件:[Odin](https://odininspector.com/);
+
+#### 框架实战项目:
+
+- 2D塔防游戏:[2dTower](https://www.bilibili.com/video/BV1tz421h7Wf/?spm_id_from=333.999.0.0&vd_source=8d59e90cf24f9961527733c56cb61575);

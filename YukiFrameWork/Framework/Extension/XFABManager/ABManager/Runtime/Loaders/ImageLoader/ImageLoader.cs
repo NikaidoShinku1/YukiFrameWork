@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -57,7 +56,7 @@ namespace XFABManager
         /// 如果加载类型为 ImageLoaderType.AssetBundle 则 assetName 为资源名
         /// 如果加载类型为 其他 , 则该字段无效
         /// </summary>
-        [Tooltip("如果加载类型为AssetBundle则assetName为资源名\n如果加载类型为其他,则该字段无效")]
+        [Tooltip("如果加载类型为AssetBundle则assetName为资源名\n如果加载类型为其他,则该字段无效,若加载Sprite下面的子图片,填写方式为:Sprite/Child")]
         public string assetName;
 
         [Tooltip("加载类型")]
@@ -190,11 +189,11 @@ namespace XFABManager
                     _allComponentAdapter = new Dictionary<TargetComponentType, TargetComponentAdapter>();
 
                     // 通过反射查询到所有的适配器
-                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();                  
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
                     {
-                        //if (!assembly.FullName.StartsWith("XFABManager"))
-                        //    continue;
+                        if (!assembly.FullName.StartsWith("XFABManager"))
+                            continue;
 
                         foreach (var item in assembly.GetTypes())
                         {
@@ -203,7 +202,7 @@ namespace XFABManager
                                 TargetComponentAdapter adapter = System.Activator.CreateInstance(item) as TargetComponentAdapter;
                                 if (adapter == null) continue;
                                 if (_allComponentAdapter.ContainsKey(adapter.TargetComponentType)) continue;
-                                _allComponentAdapter.Add(adapter.TargetComponentType, adapter);                                
+                                _allComponentAdapter.Add(adapter.TargetComponentType, adapter);
                             }
                         } 
                     } 
@@ -477,11 +476,7 @@ namespace XFABManager
 
         private void OnRefreshFinsh(ImageLoaderRequest request_image)
         {
-#if XFABMANAGER_LOG_OPEN_TESTING
-            Debug.LogFormat("图片加载完成:sprite:{0} texture2d:{1}", request_image.NetworkImage != null ? request_image.NetworkImage.sprite:null,
-               request_image.NetworkImage != null ? request_image.NetworkImage.texture : null);
-#endif
-
+  
             // 加载完成
             isLoading = false;
             if (request_image != null)

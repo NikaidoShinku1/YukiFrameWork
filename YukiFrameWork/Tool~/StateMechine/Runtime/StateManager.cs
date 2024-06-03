@@ -391,7 +391,18 @@ namespace YukiFrameWork.States
                     }
                 }              
             }
-        } 
+        }
+
+        /// <summary>
+        /// 可以对正在运行的状态进行重新进入的初始化操作
+        /// </summary>
+        /// <param name="stateName"></param>
+        public void OnInitRuntimeState(string stateName)
+        {
+            StateBase state = currents.Find(x => x.name.Equals(stateName));
+            if (state == null) return;
+            state.OnEnter();
+        }
 
         public void OnChangeState(StateBase state, System.Action callBack = null, bool isBack = true)
         {
@@ -557,13 +568,7 @@ namespace YukiFrameWork.States
         public void OnChangeState(string name,string layerName, System.Action callBack = null, bool isBack = true)
         {
             var root = runTimeSubStatePair[layerName];
-            var items = root.stateBases;
-
-            if (root.CurrentState != null && root.CurrentState.name == name)
-            {
-                LogKit.W("试图切换相同状态,请重试! State Name:" + name);
-                return;
-            }    
+            var items = root.stateBases;         
 
             StateBase stateBase = items.Find(x => x.name == name);
 

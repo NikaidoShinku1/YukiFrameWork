@@ -24,6 +24,8 @@ namespace YukiFrameWork.UI
 
         private Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();
 
+        internal UIPrefabExector Exector { get; private set; }
+
         //加载安全锁
         private bool reloadLevelSafe = false;
         private bool reloadSystemSafe = false;
@@ -58,6 +60,14 @@ namespace YukiFrameWork.UI
                 eventSystem.GetOrAddComponent<StandaloneInputModule>();
             }
             else reloadSystemSafe = true;
+
+            Exector = Canvas.GetComponentInChildren<UIPrefabExector>(true);
+
+            Exector ??= new GameObject("UIPrefabRoot").AddComponent<UIPrefabExector>();
+
+            Exector.SetParent(Canvas);
+            Exector.InitExector();
+
             EventSystem = eventSystem.SetParent(Canvas.transform);
 
             Object.DontDestroyOnLoad(Canvas.gameObject);
@@ -109,7 +119,7 @@ namespace YukiFrameWork.UI
                 image.raycastTarget = false;
                 levelDicts.Add(level, transform);
                
-            }
+            }           
         }
         [RuntimeInitializeOnLoadMethod]
         private static void ReLoadSceneLevel()
@@ -125,6 +135,8 @@ namespace YukiFrameWork.UI
             {
                 I.EventSystem.Hide().Show();
             }
+
+            I.Exector.Hide().Show();
         }
 
         public Transform GetPanelLevel(UILevel level)

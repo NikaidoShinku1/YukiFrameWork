@@ -169,4 +169,48 @@ namespace YukiFrameWork
             onValueChanged.UnRegisterAllEvent();
         }
     }
+
+    #region 快速持久化属性绑定
+    public class BindablePropertyPlayerPrefsByInteger : BindableProperty<int>
+    {
+        public BindablePropertyPlayerPrefsByInteger(string key,int value) : base(value)
+        {            
+            this.Value = PlayerPrefs.GetInt(key,value);
+            this.Register(item => PlayerPrefs.SetInt(key, item));
+        }
+    }
+
+    public class BindablePropertyPlayerPrefsByBoolan : BindableProperty<bool>
+    {
+        public BindablePropertyPlayerPrefsByBoolan(string key, bool value) : base(value)
+        {          
+            this.Value = PlayerPrefs.GetInt(key, value ? 1 : 0) == 1 ? true : false;
+            this.Register(item => 
+            {
+                PlayerPrefs.SetInt(key, item ? 1 : 0);
+            });
+        }
+    }
+
+    public class BindablePropertyPlayerPrefsByFloat : BindableProperty<float>
+    {
+        public BindablePropertyPlayerPrefsByFloat(string key, float value) : base(value)
+        {
+            this.Value = PlayerPrefs.GetFloat(key, value);
+            this.Register(item => 
+            {               
+                PlayerPrefs.SetFloat(key, item);
+            });
+        }
+    }
+
+    public class BindablePropertyPlayerPrefsByString : BindableProperty<string>
+    {
+        public BindablePropertyPlayerPrefsByString(string key, string value) : base(value)
+        {
+            this.Value = PlayerPrefs.GetString(key, value);
+            this.Register(item => PlayerPrefs.SetString(key, item));
+        }
+    }
+    #endregion
 }

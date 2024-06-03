@@ -8,6 +8,7 @@ namespace YukiFrameWork.Events
     {        
         public static void Initialization<T>(T viewController) where T : ViewController
         {
+            if (viewController.ToString() == "null" || viewController == null) return;
             var eventCenter = viewController.GetComponent<RuntimeEventCenter>();        
             if (eventCenter == null) return;
 

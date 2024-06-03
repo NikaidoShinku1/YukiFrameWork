@@ -15,30 +15,40 @@ namespace YukiFrameWork.Audio
 {
     public class AudioSetting
     {
-        public BindableProperty<float> MusicVolume { get; private set; }
-        public BindableProperty<float> VoiceVolume { get; private set; }
-        public BindableProperty<float> SoundVolume { get; private set; }
+        internal const string MUSICPLAYERPREFS_VOLUME_KEY = nameof(MUSICPLAYERPREFS_VOLUME_KEY);
+        internal const string VOICEPLAYERPREFS_VOLUME_KEY = nameof(VOICEPLAYERPREFS_VOLUME_KEY);
+        internal const string SOUNDPLAYERPREFS_VOLUME_KEY = nameof(SOUNDPLAYERPREFS_VOLUME_KEY);
 
-        public BindableProperty<bool> IsMusicOn { get; private set; }
-        public BindableProperty<bool> IsVoiceOn { get; private set; }
-        public BindableProperty<bool> IsSoundOn { get; private set; }
+        internal const string MUSICPLAYERPREFS_ON_KEY = nameof(MUSICPLAYERPREFS_ON_KEY);
+        internal const string VOICEPLAYERPREFS_ON_KEY = nameof(VOICEPLAYERPREFS_ON_KEY);
+        internal const string SOUNDPLAYERPREFS_ON_KEY = nameof(SOUNDPLAYERPREFS_ON_KEY);
+
+        internal const string AUDIOPLAYERPREFS_ON_KEY = nameof(AUDIOPLAYERPREFS_ON_KEY);
+
+        public BindablePropertyPlayerPrefsByFloat MusicVolume { get; private set; }
+        public BindablePropertyPlayerPrefsByFloat VoiceVolume { get; private set; }
+        public BindablePropertyPlayerPrefsByFloat SoundVolume { get; private set; }
+
+        public BindablePropertyPlayerPrefsByBoolan IsMusicOn { get; private set; }
+        public BindablePropertyPlayerPrefsByBoolan IsVoiceOn { get; private set; }
+        public BindablePropertyPlayerPrefsByBoolan IsSoundOn { get; private set; }
 
         //设置全部音频
-        public BindableProperty<bool> IsAudioOn { get; private set; }
+        public BindablePropertyPlayerPrefsByBoolan IsAudioOn { get; private set; }
 
         public AudioSetting()
         {
-            MusicVolume = new BindableProperty<float>(1);
-            VoiceVolume = new BindableProperty<float>(1);
-            SoundVolume = new BindableProperty<float>(1);
+            MusicVolume = new BindablePropertyPlayerPrefsByFloat(MUSICPLAYERPREFS_VOLUME_KEY,1);
+            VoiceVolume = new BindablePropertyPlayerPrefsByFloat(VOICEPLAYERPREFS_VOLUME_KEY,1);
+            SoundVolume = new BindablePropertyPlayerPrefsByFloat(SOUNDPLAYERPREFS_VOLUME_KEY,1);
 
-            IsMusicOn = new BindableProperty<bool>(true);
-            IsVoiceOn = new BindableProperty<bool>(true);
-            IsSoundOn = new BindableProperty<bool>(true);
+            IsMusicOn = new BindablePropertyPlayerPrefsByBoolan(MUSICPLAYERPREFS_ON_KEY,true);
+            IsVoiceOn = new BindablePropertyPlayerPrefsByBoolan(VOICEPLAYERPREFS_ON_KEY,true);
+            IsSoundOn = new BindablePropertyPlayerPrefsByBoolan(SOUNDPLAYERPREFS_ON_KEY,true);
 
-            IsAudioOn = new BindableProperty<bool>(true);
+            IsAudioOn = new BindablePropertyPlayerPrefsByBoolan(AUDIOPLAYERPREFS_ON_KEY,true);
 
-            IsAudioOn.RegisterWithInitValue(value => 
+            IsAudioOn.Register(value => 
             {
                 IsMusicOn.Value = value;
                 IsVoiceOn.Value = value;
