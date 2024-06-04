@@ -19,7 +19,8 @@ namespace YukiFrameWork.Buffer
 		string BuffKey { get; }
 		UIBuffer UIBuffer { get;internal set; }
 		int BuffLayer { get;internal set; }
-		GameObject Player { get;internal set; }
+		IBuffExecutor Player { get;internal set; }
+		BuffHandler Handler { get; }
         float MaxTime { get; }
         float RemainingTime { get;internal set; }
 		float RemainingProgress { get; }
@@ -62,13 +63,15 @@ namespace YukiFrameWork.Buffer
 
 		}
 
+		public BuffHandler Handler => Player.Handler;
+
 		void IGlobalSign.Release()
 		{
 			UIBuffer = null;
 			Player = null;
 			Buffer = null;			
 		}
-		public static T CreateInstance<T>(IBuff buffer, GameObject Player) where T :class, IBuffController, new()
+		public static T CreateInstance<T>(IBuff buffer, IBuffExecutor Player) where T :class, IBuffController, new()
 		{		
 			var controller = GlobalObjectPools<T>.GlobalAllocation();
 			controller.Buffer = buffer;
@@ -106,9 +109,9 @@ namespace YukiFrameWork.Buffer
 
 		int IBuffController.BuffLayer { get => BuffLayer; set => BuffLayer = value; }	
 
-        public GameObject Player { get; private set; }
+        public IBuffExecutor Player { get; private set; }
 
-		GameObject IBuffController.Player { get => Player; set => Player = value; }
+        IBuffExecutor IBuffController.Player { get => Player; set => Player = value; }
 
 		public bool IsMarkIdle { get; set; }		
 
@@ -143,7 +146,7 @@ namespace YukiFrameWork.Buffer
 
 		private float mRemainingTime;
 		
-        public BuffController(IBuff buffer,GameObject player)
+        public BuffController(IBuff buffer, IBuffExecutor player)
 		{
 			this.Buffer = buffer;
 			this.Player = player;

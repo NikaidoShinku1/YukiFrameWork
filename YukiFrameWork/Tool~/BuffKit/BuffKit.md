@@ -44,7 +44,24 @@ public class AttackBuff : Buff
 	}
 ```
 
+IBuffExecutor:
+
+    - BuffHandler Handler{ get; }
+
+    - bool OnAddBuffCondition();// 外部Buff添加条件，默认为True，与Controller的添加条件区别在于，该方法控制所有的buff添加判断，如果外部添加条件设置为False,则无法添加任何Buff
+
 BuffHandler为该对象的Buff控制中枢，Buff的添加，UI同步绑定，移除都在这里执行。
+
+为对象继承IBuffExecutor接口，代表该对象可以拥有Buff。
+
+```
+public class TestScripts : MonoBehaviour,IBuffExecutor
+{
+    public BuffHandler Handler { get;}
+
+    public bool OnAddBuffCondition() => true;
+}
+```
 
 BuffHandler API:
 
@@ -58,10 +75,10 @@ BuffHandler API:
 	- void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
 
 	//添加Buff，传递一个Buff以及玩家对象Player
-	- void AddBuffer<T>(IBuff buff,GameObject player) where T : BuffController,new()
+	- void AddBuffer<T>(IBuff buff,IBufferExecutor player) where T : BuffController,new()
 
 	//传递Buff的标识以及玩家对象Player
-	- void AddBuffer<T>(string BuffKey, GameObject player) where T : BuffController, new()
+	- void AddBuffer<T>(string BuffKey, IBufferExecutor player) where T : BuffController, new()
 	
 	//根据标识删除某一个正在运行的Buff
 	- bool RemoveBuffer(string BuffKey)
@@ -148,8 +165,10 @@ BuffController API: 希望BuffController完全自定义可以继承IBuffControll
     //当前Buff的层数
     - int BuffLayer { get; }
 
-    //在BuffHandler创建Buff时绑定的玩家/主角
-    - GameObject Player { get; }
+    //在BuffHandler创建Buff时绑定的玩家/主角(必须继承IBuffExecutor的)
+    - IBuffExecutor Player { get; }
+
+    - BuffHandler Handler{ get; }//控制器可以获取到与对象绑定的控制中枢。
 
     //Buff设置的最大时间的属性定义
     - float MaxTime => Buffer.BuffTimer;
@@ -257,12 +276,15 @@ UIBuffer API：
 Buff管理套件：BuffKit类，使用如下:
 
 ```
-    public class TestScripts : MonoBehaviour
+    public class TestScripts : MonoBehaviour,IBuffExecutor
     {
         public BuffDataBase dataBase;
 
+        private BuffHandler handler;
+        public BuffHandler Handler => handler;
         void Start()
         {
+            handler = GetComponent<BuffHandler>();
             BuffKit有多种方式进行对Buff配置的初始化：
 
              //当需要加载时，BuffKit依赖框架XFABManager模块，传入模块名：
@@ -275,6 +297,9 @@ Buff管理套件：BuffKit类，使用如下:
             //当已经持有dataBase时候可以调用该方法直接使用
             BuffKit.LoadBuffDataBase(dataBase);         
         }
+
+        //外部的添加条件方法
+        bool IBuffExecutor.OnAddBuffCondition() => true;
     }
 
     ///自定义加载器
@@ -297,10 +322,10 @@ Buff管理套件：BuffKit类，使用如下:
 简单完整示例如下:
 
 ```
-    public class TestScripts : MonoBehaviour
+    public class TestScripts : MonoBehaviour,IBuffExecutor
     {
         public BuffDataBase dataBase;
-
+        public BuffHandler Handler => handler;
         private BuffHandler handler;
         void Start()
         {
@@ -318,6 +343,9 @@ Buff管理套件：BuffKit类，使用如下:
                 handler.AddBuff(BuffKit.GetBuffByKey("Buff_Attack"),gameObject);
             }
         }
+
+        //外部的添加条件方法
+        bool IBuffExecutor.OnAddBuffCondition() => true;
     }
 ```
 

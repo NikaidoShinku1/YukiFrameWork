@@ -51,8 +51,11 @@ namespace YukiFrameWork.Overlap
             float size = HandleUtility.GetHandleSize(top) * 0.1f;
             Handles.color = Color.green;
             Quaternion rotation = Quaternion.Euler(0, 0, box2D.transform.eulerAngles.z);
+#if UNITY_2022_1_OR_NEWER
             Vector3 current_top = Handles.FreeMoveHandle(top, size, Vector3.one * size, Handles.CubeHandleCap);
-             
+#else
+            Vector3 current_top = Handles.FreeMoveHandle(top, Quaternion.identity, size, Vector3.one * size, Handles.CubeHandleCap);
+#endif
             SetTop(current_top.y - top.y);
 
             Vector3 down = box2D.transform.localToWorldMatrix.MultiplyPoint(box2D.Offset - new Vector2(0, box2D.Size.y / 2));
@@ -60,8 +63,11 @@ namespace YukiFrameWork.Overlap
             size = HandleUtility.GetHandleSize(down) * 0.1f;
             Handles.color = Color.green;
             rotation = Quaternion.Euler(0, 0, box2D.transform.eulerAngles.z);
+#if UNITY_2022_1_OR_NEWER
             Vector3 current_down = Handles.FreeMoveHandle(down, size, Vector3.one * size, Handles.CubeHandleCap);
-              
+#else
+            Vector3 current_down = Handles.FreeMoveHandle(down, Quaternion.identity, size, Vector3.one * size, Handles.CubeHandleCap);
+#endif
             SetDown(current_down.y - down.y);
 
             Vector3 left = box2D.transform.localToWorldMatrix.MultiplyPoint(box2D.Offset - new Vector2(box2D.Size.x / 2, 0));
@@ -69,8 +75,11 @@ namespace YukiFrameWork.Overlap
             size = HandleUtility.GetHandleSize(left) * 0.1f;
             Handles.color = Color.green;
             rotation = Quaternion.Euler(0, 0, box2D.transform.eulerAngles.z);
+#if UNITY_2022_1_OR_NEWER
             Vector3 current_left = Handles.FreeMoveHandle(left, size, Vector3.one * size, Handles.CubeHandleCap);
-             
+#else
+            Vector3 current_left = Handles.FreeMoveHandle(left, Quaternion.identity, size, Vector3.one * size, Handles.CubeHandleCap);
+#endif
             SetLeft(current_left.x - left.x);
 
 
@@ -79,8 +88,11 @@ namespace YukiFrameWork.Overlap
             size = HandleUtility.GetHandleSize(right) * 0.1f;
             Handles.color = Color.green;
             rotation = Quaternion.Euler(0, 0, box2D.transform.eulerAngles.z);
+#if UNITY_2022_1_OR_NEWER
             Vector3 current_right = Handles.FreeMoveHandle(right, size, Vector3.one * size, Handles.CubeHandleCap);
-             
+#else
+            Vector3 current_right = Handles.FreeMoveHandle(right,Quaternion.identity, size, Vector3.one * size, Handles.CubeHandleCap);
+#endif
             SetRight(current_right.x - right.x); 
         }
 

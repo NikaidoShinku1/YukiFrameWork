@@ -112,9 +112,11 @@ namespace YukiFrameWork.Overlap
                 EditorGUI.BeginChangeCheck();
 
                 Vector3 world = transform.localToWorldMatrix.MultiplyPoint(property.vector3Value);
-
+#if UNITY_2022_1_OR_NEWER
                 var fmh_140_55_638531289003172635 = Quaternion.identity; world = Handles.FreeMoveHandle(world, size, Vector3.one * 0.1f, Handles.CubeHandleCap);
-                
+#else
+                var fmh_140_55_638531289003172635 = Quaternion.identity; world = Handles.FreeMoveHandle(world,fmh_140_55_638531289003172635, size, Vector3.one * 0.1f, Handles.CubeHandleCap);
+#endif
                 property.vector3Value = transform.worldToLocalMatrix.MultiplyPoint(world);
                 property.serializedObject.ApplyModifiedProperties();
 

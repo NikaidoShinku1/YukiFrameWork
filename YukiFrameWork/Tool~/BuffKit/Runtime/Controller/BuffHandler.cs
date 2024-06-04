@@ -34,20 +34,22 @@ namespace YukiFrameWork.Buffer
 		{
 			this.handlerGroup = handlerGroup;
 		}
-		public void AddBuffer<T>(IBuff buff,GameObject player) where T :class, IBuffController,new()
-		{						
-			if (mTable.TryGetValue(buff.GetBuffKey, out var controllers))
-			{				
+
+		public void AddBuffer<T>(IBuff buff, IBuffExecutor player) where T : class,IBuffController,new()
+		{
+            if (mTable.TryGetValue(buff.GetBuffKey, out var controllers))
+            {
                 var item = controllers.FirstOrDefault();
-				if (buff.AdditionType != BuffRepeatAdditionType.None 
-					&& CheckBuffCounteractID(buff) 
-					&& CheckBuffDisableID(buff) 
-					&& item != null 
-					&& item.OnAddBuffCondition()
-					)
-				{
+                if (buff.AdditionType != BuffRepeatAdditionType.None
+                    && CheckBuffCounteractID(buff)
+                    && CheckBuffDisableID(buff)
+                    && item != null
+                    && item.OnAddBuffCondition()
+					&& player.OnAddBuffCondition()
+                    )
+                {
                     switch (buff.AdditionType)
-                    {                    
+                    {
                         case BuffRepeatAdditionType.Reset:
                             {
                                 item.RemainingTime = buff.BuffTimer;
@@ -58,12 +60,12 @@ namespace YukiFrameWork.Buffer
                             break;
                         case BuffRepeatAdditionType.Multiple:
                             {
-								if (buff.IsMaxStackableLayer && item.BuffLayer >= buff.MaxStackableLayer && buff.MaxStackableLayer > 0)
-									return;							
+                                if (buff.IsMaxStackableLayer && item.BuffLayer >= buff.MaxStackableLayer && buff.MaxStackableLayer > 0)
+                                    return;
                                 item.BuffLayer++;
                                 item.OnBuffStart();
-								if (item.UIBuffer != null)
-									item.UIBuffer.OnBuffStart(buff,buff.GetBuffKey,item.BuffLayer);
+                                if (item.UIBuffer != null)
+                                    item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
                                 onBuffAddCallBack.SendEvent(item);
                             }
                             break;
@@ -75,7 +77,7 @@ namespace YukiFrameWork.Buffer
                                 item.RemainingTime = buff.BuffTimer;
                                 item.OnBuffStart();
                                 if (item.UIBuffer != null)
-                                    item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey,item.BuffLayer);
+                                    item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
                                 onBuffAddCallBack.SendEvent(item);
 
                             }
@@ -86,34 +88,46 @@ namespace YukiFrameWork.Buffer
                                 InitController(controller);
                                 controllers.Add(controller);
                                 controller.OnBuffStart();
-								if (handlerGroup != null)
-								{
-									controller.UIBuffer = handlerGroup.CreateBuffer();
-									controller.UIBuffer.OnBuffStart(buff,buff.GetBuffKey,item.BuffLayer);
+                                if (handlerGroup != null)
+                                {
+                                    controller.UIBuffer = handlerGroup.CreateBuffer();
+                                    controller.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
                                     onBuffAddCallBack.SendEvent(controller);
-                                }                               
+                                }
                             }
                             break;
                     }
-                }              
-			}
-			else
-			{				
-				T controller = BuffController.CreateInstance<T>(buff, player);
-				InitController(controller);
+                }
+            }
+            else
+            {
+                T controller = BuffController.CreateInstance<T>(buff, player);
+                InitController(controller);
 
-				//如果检查没有会被抵消的Buff以及该Buff没有处于别的运行时Buff内的禁止Buff，则正常添加，否则不添加
-				if (CheckBuffCounteractID(buff) && CheckBuffDisableID(buff) && controller.OnAddBuffCondition())
-					AddBuffer(controller);
-				else 
-					release.Add(controller);
-			}
+                //如果检查没有会被抵消的Buff以及该Buff没有处于别的运行时Buff内的禁止Buff，则正常添加，否则不添加
+                if (CheckBuffCounteractID(buff) && CheckBuffDisableID(buff) && controller.OnAddBuffCondition() && player.OnAddBuffCondition())
+                    AddBuffer(controller);
+                else
+                    release.Add(controller);
+            }
+        }
+		[Obsolete("该方法已经被废弃,建议使用AddBuffer(IBuff buff,IBuffExecutor player)方法,应该让对象继承IBuffExecutor接口并使用!")]
+		public void AddBuffer<T>(IBuff buff,GameObject player) where T :class, IBuffController,new()
+		{
+			IBuffExecutor executor = player.GetComponent<IBuffExecutor>() ?? throw new System.Exception("对象没有组件继承IBuffExecutor接口!无法添加Buff");
+            AddBuffer<T>(buff, executor);
 		}
-
-        public void AddBuffer<T>(string BuffKey, GameObject player) where T : BuffController, new()
+        [Obsolete("该方法已经被废弃,建议使用AddBuffer(string BuffKey,IBuffExecutor player)方法,应该让对象继承IBuffExecutor接口并使用!")]
+        public void AddBuffer<T>(string BuffKey, GameObject player) where T :class, IBuffController, new()
         {
             IBuff buff = BuffKit.GetBuffByKey(BuffKey);
             AddBuffer<T>(buff, player);
+        }
+
+		public void AddBuffer<T>(string BuffKey, IBuffExecutor player) where T :class, IBuffController, new()
+        {
+            IBuff buff = BuffKit.GetBuffByKey(BuffKey);
+			AddBuffer<T>(buff, player);
         }
 
 		/// <summary>

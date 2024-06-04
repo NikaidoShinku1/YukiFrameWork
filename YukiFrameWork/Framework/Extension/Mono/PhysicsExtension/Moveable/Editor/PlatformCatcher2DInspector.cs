@@ -42,9 +42,12 @@ namespace YukiFrameWork.Platform2D
 
                 Handles.color = Color.green;
 
-                EditorGUI.BeginChangeCheck(); 
+                EditorGUI.BeginChangeCheck();
+#if UNITY_2022_1_OR_NEWER
                 var fmh_44_53_638531341894066023 = Quaternion.identity; from = Handles.FreeMoveHandle(from, size, snap, Handles.CubeHandleCap);
-
+#else
+                var fmh_44_53_638531341894066023 = Quaternion.identity; from = Handles.FreeMoveHandle(from,fmh_44_53_638531341894066023, size, snap, Handles.CubeHandleCap);
+#endif
                 if (EditorGUI.EndChangeCheck()) 
                 { 
                     item.from = catcher.transform.worldToLocalMatrix.MultiplyPoint(from);
@@ -55,10 +58,12 @@ namespace YukiFrameWork.Platform2D
 
                 EditorGUI.BeginChangeCheck();
 
-                
-                
-                var fmh_58_49_638531341894079935 = Quaternion.identity; to = Handles.FreeMoveHandle(to, size, Vector3.one * 0.1f, Handles.CubeHandleCap);
 
+#if UNITY_2022_2_OR_NEWER
+                var fmh_58_49_638531341894079935 = Quaternion.identity; to = Handles.FreeMoveHandle(to, size, Vector3.one * 0.1f, Handles.CubeHandleCap);
+#else
+                var fmh_58_49_638531341894079935 = Quaternion.identity; to = Handles.FreeMoveHandle(to,fmh_58_49_638531341894079935, size, Vector3.one * 0.1f, Handles.CubeHandleCap);
+#endif
                 if (EditorGUI.EndChangeCheck())
                 {
                     item.to = catcher.transform.worldToLocalMatrix.MultiplyPoint(to);
