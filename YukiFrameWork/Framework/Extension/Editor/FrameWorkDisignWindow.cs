@@ -14,6 +14,8 @@ using YukiFrameWork.ExampleRule;
 using Sirenix.OdinInspector;
 using System;
 using Object = UnityEngine.Object;
+using System.Reflection;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using Sirenix.OdinInspector.Editor;
@@ -231,6 +233,89 @@ namespace YukiFrameWork
         {
             EditorUtility.SetDirty(core);
             AssetDatabase.SaveAssets();          
+        }
+
+        public static List<SerializedProperty> GetAllSerializedProperty(this SerializedObject serializedObject)
+        {
+            List<SerializedProperty> properties = new List<SerializedProperty>();
+
+            Type type = serializedObject.targetObject.GetType();
+
+            List<FieldInfo> fields = GetFields(type);
+
+            foreach (FieldInfo field in fields)
+            {
+                if (!field.IsInitOnly) // 忽略只读字段 
+                {
+                    SerializedProperty property = serializedObject.FindProperty(field.Name);
+                    if (property == null) continue;
+                    if (IsContainProperty(property, properties)) continue;
+                    properties.Add(property);
+                }
+            }
+
+            return properties;
+        }
+
+        private static bool IsContainProperty(SerializedProperty property, List<SerializedProperty> properties)
+        {           
+            foreach (var item in properties)
+            {
+                if (item == null) continue;
+                if (item.name == property.name) return true;
+            }
+
+            return false;
+        }
+
+        private static List<FieldInfo> GetFields(Type type)
+        {
+
+            if (type == null) return null;
+
+            List<FieldInfo> fields = new List<FieldInfo>();
+
+            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            if (type.BaseType != null)
+                fields.AddRange(GetFields(type.BaseType));
+            return fields;
+        }
+
+      
+        /// <summary>
+        /// 在Scene视图绘制2D胶囊体
+        /// </summary>
+        /// <param name="center">中心点</param>
+        /// <param name="size">大小</param>
+        /// <param name="dir">方向</param>
+        public static void DrawCapsule2D(this Vector3 center, Vector2 size, CapsuleDirection2D dir)
+        {
+            size.Set(Mathf.Abs(size.x), Mathf.Abs(size.y));
+
+            if (dir == CapsuleDirection2D.Vertical)
+            {
+                if (size.y < size.x)
+                    size.Set(size.x, size.x);
+
+                Handles.DrawWireArc(new Vector3(0, (size.y - size.x) / 2) + center, -Vector3.forward, Vector3.left, 180, size.x / 2);
+
+                Handles.DrawLine(new Vector3(-size.x / 2, -(size.y - size.x) / 2) + center, new Vector3(-size.x / 2, (size.y - size.x) / 2));
+                Handles.DrawLine(new Vector3(size.x / 2, -(size.y - size.x) / 2) + center, new Vector3(size.x / 2, (size.y - size.x) / 2));
+
+                Handles.DrawWireArc(new Vector3(0, -(size.y - size.x) / 2) + center, Vector3.forward, Vector3.left, 180, size.x / 2);
+            }
+            else
+            {
+                if (size.x < size.y)
+                    size.Set(size.y, size.y);
+
+                Handles.DrawWireArc(new Vector3(-(size.x - size.y) / 2, 0) + center, -Vector3.forward, Vector3.down, 180, size.y / 2);
+
+                Handles.DrawLine(new Vector3(-(size.x - size.y) / 2, -size.y / 2) + center, center + new Vector3((size.x - size.y) / 2, -size.y / 2));
+                Handles.DrawLine(new Vector3(-(size.x - size.y) / 2, size.y / 2) + center, center + new Vector3((size.x - size.y) / 2, size.y / 2));
+
+                Handles.DrawWireArc(new Vector3((size.x - size.y) / 2, 0) + center, Vector3.forward, Vector3.down, 180, size.y / 2);
+            }
         }
     }
 }

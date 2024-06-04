@@ -192,9 +192,6 @@ namespace XFABManager
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
                     {
-                        if (!assembly.FullName.StartsWith("XFABManager"))
-                            continue;
-
                         foreach (var item in assembly.GetTypes())
                         {
                             if (XFABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
