@@ -1,11 +1,22 @@
 ViewController编辑器使用说明
 
+框架控制器添加方式:
+![输入图片说明](Texture/Controller1.png)
+![输入图片说明](Texture/Controller2.png)
+![输入图片说明](Texture/Controller3.png)
+
+支持直接使用快捷键Ctrl + Q创建ViewController。
+
+[ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
+
+[ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
+
 使用示例：
 ```
 
     ///首先创建一个架构类
     using YukiFrameWork;
-    public class PointGame : Architecture<PointGame>
+    public class World : Architecture<World>
     {
         ///需要重写的初始化方法
         public override void OnInit()
@@ -29,7 +40,7 @@ using System;
 namespace YukiFrameWork.Example
 {
     ///对架构的自动化注入，设置类型为架构类型后该控制器即可实现层级逻辑的编写，第二个参数默认是true，表示可以访问到架构，如果设置为False该控制器无法得到架构本体
-    [RuntimeInitializeOnArchitecture(typeof(PointGame),true)]
+    [RuntimeInitializeOnArchitecture(typeof(World),true)]
     public class ViewControllerExample : ViewController
     {
         //对于派生自ViewController的字段/包括SingletonMono在内，可使用快速组件赋值的特性示例如下:

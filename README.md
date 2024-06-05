@@ -23,22 +23,7 @@
 
 注意：使用本框架Unity版本不能低于2020.3,框架内置NewtonsoftJson插件，导入时如发现异常请删除Unity项目自带的NewtonsoftJson！必须要按照教程说明进行框架安装!
 
-#### [核心架构](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
-
-框架控制器添加方式:
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller1.png)
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller2.png)
-![输入图片说明](YukiFrameWork/Framework/Texture/Controller3.png)
-
-支持直接使用快捷键Ctrl + Q创建ViewController。
-
-[ViewController对架构的自动化具体使用示例](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController使用说明.md)
-
-[ViewController可视化事件拓展器](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController拓展事件可视化.md)
-
-[ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
-
-[Command介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/10.Command.md)
+#### [核心架构,请在使用框架前点开我查看文档信息!!!!!!](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
 #### 框架支持工具
 
