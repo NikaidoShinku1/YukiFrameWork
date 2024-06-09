@@ -12,7 +12,7 @@ ViewController编辑器使用说明
 [ViewController字段绑定](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/ViewController绑定字段.md)
 
 使用示例：
-```
+``` csharp
 
     ///首先创建一个架构类
     using YukiFrameWork;
@@ -31,7 +31,7 @@ ViewController编辑器使用说明
 
 开启后必须设置一个架构(不为None才可以创建脚本),创建后的脚本内容所示:
 
-```
+``` csharp
 
 using YukiFrameWork;
 using UnityEngine;

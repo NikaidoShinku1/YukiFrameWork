@@ -1,8 +1,8 @@
 ﻿///=====================================================
-/// - FileName:      NoGenericArchitectureAttribute.cs
+/// - FileName:      InitControllerAttribute.cs
 /// - NameSpace:     YukiFrameWork
 /// - Description:   通过本地的代码生成器创建的脚本
-/// - Creation Time: 2024/2/13 17:00:46
+/// - Creation Time: 2024/6/9 20:03:59
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
@@ -11,12 +11,9 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork
 {
-	/// <summary>
-	/// 自动化特性不标记的架构
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Class)]
-	public class NoGenericArchitectureAttribute : Attribute
+	[AttributeUsage(AttributeTargets.Class,AllowMultiple = false)]
+	public class InitControllerAttribute : Attribute
 	{
-
+		
 	}
 }

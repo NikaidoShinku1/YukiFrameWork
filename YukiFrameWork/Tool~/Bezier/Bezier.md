@@ -22,7 +22,7 @@ API:
 	- List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t);
 
 使用示例：
-```
+``` csharp
 
 using YukiFrameWork;
 public class TestScripts : MonoBehaviour
@@ -62,7 +62,7 @@ API: //transform拓展方法,下列API默认初始位置就是transform的位置
 	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 secondOrderControl, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 	- IBezier BezierAndRotateTowards(this Transform transform, Vector3 end, float currentSpeed, BezierRuntimeMode mode = BezierRuntimeMode.OnFixedUpdate, float pointCount = 50);
 
-```
+``` csharp
 
 using YukiFrameWork;
 public class TestScripts : MonoBehaviour
@@ -96,7 +96,7 @@ public class TestScripts : MonoBehaviour
 	- IBezier BezierTowards(this Transform transform,BezierVisualTool tool,float currentSpeed);	
 	- IBezier BezierAndRotateTowards(this Transform transform, BezierVisualTool tool, float currentSpeed);	
 
-```
+``` csharp
 using YukiFrameWork;
 public class TestScripts : MonoBehaviour
 {	
@@ -119,7 +119,7 @@ public class TestScripts : MonoBehaviour
 
 使用示例:
 
-```
+``` csharp
 using YukiFrameWork;
 public class CustomBezierConfig : ISecondOrderBezierCurve
 {	

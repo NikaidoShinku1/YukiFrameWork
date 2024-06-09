@@ -1,7 +1,8 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿
 using System.Collections;
 using System.Collections.Generic;
 #if UNITY_EDITOR
+using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 #endif

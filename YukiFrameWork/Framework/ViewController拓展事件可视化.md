@@ -22,7 +22,7 @@ Awake注册,通过Unity 生命周期中Awake方法注册,需要自行注意注�
 
 在该视图中注册的所有UnityEvent均可使用架构的发送事件方法进行发送,该UnityEvent本体持有一个参数为System.EventArgs,自定义方法时跟平时我们在Unity开发时拖入对象选择方法一致.
 
-```	
+```	csharp
 	//这里方便展示,直接给控制器继承发送事件的规则
 	using System;
 	using UnityEngine;

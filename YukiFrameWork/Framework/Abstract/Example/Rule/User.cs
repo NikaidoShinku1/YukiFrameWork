@@ -12,14 +12,13 @@ using System;
 namespace YukiFrameWork.ExampleRule.ExampleFrameWork
 {
     /// <summary>
-    /// 架构类，创建层级规则必不可少的核心类，实现该架构时，架构的OnInit方法会在运行时，所有对象Awake之前启动。
+    /// 架构类，创建层级规则必不可少的核心类，架构的OnInit方法会在架构准备完成后运行。
     /// </summary>
     public class User : Architecture<User>
     {
         public override void OnInit()
         {
-            this.RegisterUtility(new UserUtility());//默认注册
-            
+            //架构准备完成后会执行的架构初始化方法                    
         }
     }
 }

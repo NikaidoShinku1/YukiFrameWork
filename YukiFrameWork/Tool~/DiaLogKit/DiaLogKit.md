@@ -31,7 +31,7 @@
 
 手动定义示例如下：
 
-```
+``` csharp
 using YukiFrameWork.DiaLog;
 using YukiFrameWork;
 public class CustomDiaLogController : MonoBehaviour
@@ -147,7 +147,7 @@ DiaLog API:
 
 对于根节点，可以自定义：
 
-```
+``` csharp
 //根节点应该直接派生节点基类Node，然后自行完成逻辑，一般默认情况下使用框架提供的即可
 [RootNode]//标记该特性使系统知道该类为根节点
 public class CustomRootNode : Node
@@ -196,7 +196,7 @@ Node生命周期:
 
 如需在此基础之上自定义或者说外部初始化UIDiaLog，示例如下：
 
-```
+``` csharp
 public class TestScripts : MonoBehaviour
 {   
     //设置运行时绑定的对话控制器的标识

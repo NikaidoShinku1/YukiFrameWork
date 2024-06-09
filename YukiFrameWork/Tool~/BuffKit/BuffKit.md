@@ -10,7 +10,7 @@
 
 配置如图所示，最上方生成Buff代码可以设置后生成派生自Buff类的Buff代码，而后就可以在生成类型这里选择，图中AttackBuff示例为:
 
-```
+``` csharp
 public class AttackBuff : Buff
 {
 	//ToDo
@@ -37,7 +37,7 @@ public class AttackBuff : Buff
 
 基本使用示例，首先为对象挂载BuffHandler组件，或是代码添加:
 
-```
+``` csharp
 	void Start()
 	{
 		BuffHandler handler = gameObject.AddComponent<BuffHandler>();
@@ -54,7 +54,7 @@ BuffHandler为该对象的Buff控制中枢，Buff的添加，UI同步绑定，�
 
 为对象继承IBuffExecutor接口，代表该对象可以拥有Buff。
 
-```
+``` csharp
 public class TestScripts : MonoBehaviour,IBuffExecutor
 {
     public BuffHandler Handler { get;}
@@ -99,7 +99,7 @@ BuffHandler API:
 
 示例如下:
 
-```
+``` csharp
 
 	public class CustomBuffController : BuffController
 	{
@@ -223,7 +223,7 @@ UI同步，为设置好的面板挂载UIBuffHandlerGroup类，如图所示:
 
 创建自定义的UIBuffer类，示例如下:
 
-```
+``` csharp
     public class CustomUIBuffer : UIBuffer
     {
      
@@ -275,7 +275,7 @@ UIBuffer API：
 
 Buff管理套件：BuffKit类，使用如下:
 
-```
+``` csharp
     public class TestScripts : MonoBehaviour,IBuffExecutor
     {
         public BuffDataBase dataBase;
@@ -321,7 +321,7 @@ Buff管理套件：BuffKit类，使用如下:
 
 简单完整示例如下:
 
-```
+``` csharp
     public class TestScripts : MonoBehaviour,IBuffExecutor
     {
         public BuffDataBase dataBase;

@@ -22,18 +22,19 @@ using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 #endif
 namespace YukiFrameWork.ExampleRule
-{	
-	public class Example : ScriptableObject
+{
+    internal enum Rule
+    {
+        Architecture,
+        Model,
+        System,
+        Utility,
+        Command,
+        Controller
+    }
+    public class Example : ScriptableObject
 	{
-		internal enum Rule
-		{
-			Architecture,
-			Model,
-			System,
-            Utility,
-            Command,
-			Controller
-		}
+		
 #if UNITY_EDITOR
         private static string exampleTextPath => $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Text/";
 
@@ -58,58 +59,7 @@ namespace YukiFrameWork.ExampleRule
 		internal UserController user;
       
 #if UNITY_EDITOR
-		[SerializeField,ReadOnly, ShowIf(nameof(rule), Rule.Architecture)]
-		internal bool IsModel;
-
-        [SerializeField, ReadOnly, ShowIf(nameof(rule), Rule.Architecture)]
-        internal bool IsSystem;
-      
-        [Button("注册UserModel"), ShowIf(nameof(rule), Rule.Architecture), HorizontalGroup("UserModelExample"), PropertySpace(10)]
-        void RegisterModel()
-        {          
-            if (IsSystem)
-                Instanll("UserAll");
-            else
-                Instanll("User1");
-            IsModel = true;
-        }
-
-        [Button("注销UserModel"), ShowIf(nameof(rule), Rule.Architecture), HorizontalGroup("UserModelExample"), PropertySpace(10)]
-        void RemoveModel()
-        {
-            if (IsSystem)
-                Instanll("User2");
-            else Instanll("User");
-
-            IsModel = false;
-        }
-
-        [Button("注册UserSystem"), ShowIf(nameof(rule), Rule.Architecture), HorizontalGroup("UserSystemExample"), PropertySpace(10)]
-        void RegisterSystem()
-        {
-            if (IsModel)
-                Instanll("UserAll");
-            else Instanll("User2");
-            IsSystem = true;
-        }
-
-        void Instanll(string name)
-        {
-            TextAsset textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(exampleTextPath + name + ".txt");
-            File.WriteAllText(userPath, textAsset.text);
-            AssetDatabase.Refresh();
-        }
-    
-        [Button("注销UserSystem"), ShowIf(nameof(rule), Rule.Architecture), HorizontalGroup("UserSystemExample"), PropertySpace(10)]
-        void RemoveSystem()
-        {
-            if (IsModel)
-                Instanll("User1");
-            else Instanll("User");
-
-            IsSystem = false;
-        }
-
+		         
         [InitializeOnLoadMethod]
 		static void InitExample()
 		{			
@@ -121,19 +71,7 @@ namespace YukiFrameWork.ExampleRule
                 AssetDatabase.CreateAsset(example, path);
 			}
 			example.user = AssetDatabase.LoadAssetAtPath<UserController>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/User.prefab");
-        }
-
-        [Button(), ShowIf(nameof(rule), Rule.System)]
-        void SendEvent() => user.GetSystem<UserSystem>()?.SendEvent<EventArgs>(UserEventKey);
-
-        [Button(), ShowIf(nameof(rule), Rule.Controller)]
-        void SendCommand() => user.SendCommand();
-        [Button(), ShowIf(nameof(rule), Rule.Controller)]
-        void GetUserModel() => user.GetUserModel();
-        [Button(), ShowIf(nameof(rule), Rule.Controller)]
-        void GetUserSystem() => user.GetUserSystem();
-        [Button(), ShowIf(nameof(rule), Rule.Controller)]
-        void GetUserUtility() => user.GetUserUtility();
+        }     
 #endif
 
 #if UNITY_EDITOR
@@ -143,6 +81,7 @@ namespace YukiFrameWork.ExampleRule
 		{
             GUILayout.Space(10);
             string targetPath = string.Empty;
+            EditorGUILayout.HelpBox("该示例仅为代码参考，无实际意义，架构提供可视化Debugger窗口，自己的项目的架构在左上角YukiFrameWork/ArchitectureDebugger打开可直接检查。", MessageType.Warning);
             switch (rule)
 			{
 				case Rule.Architecture:

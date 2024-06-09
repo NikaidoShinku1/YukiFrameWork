@@ -53,7 +53,7 @@ namespace YukiFrameWork.States
                     foreach (var type in types)
                         if (type.BaseType != null)
                             foreach (var baseInterface in type.BaseType.GetInterfaces())
-                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()) && type.GetCustomAttribute<NoGenericArchitectureAttribute>() == null)
+                                if (baseInterface.ToString().Equals(typeof(IArchitecture).ToString()))
                                     list.Add(type.Name);
 
                     if (helper.StateMechine != null && string.IsNullOrEmpty(helper.StateMechine.architectureName))

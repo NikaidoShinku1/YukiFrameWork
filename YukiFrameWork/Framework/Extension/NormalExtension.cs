@@ -49,5 +49,21 @@ namespace YukiFrameWork
         {
             return string.Format("{0}%", Mathf.Lerp(0, 100, progress));
         }
+
+        /// <summary>
+        /// 判断是否是空的，如果是则返回True
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsNull(this object obj)
+            => ReferenceEquals(obj, null);
+
+        /// <summary>
+        /// 判断UObject是不是空的，是则返回True
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsMonoNull(this UnityEngine.Object obj)
+            => IsNull(obj) || obj.ToString() == "null";
     }
 }

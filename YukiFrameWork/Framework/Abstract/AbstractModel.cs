@@ -16,9 +16,7 @@ namespace YukiFrameWork
     [Serializable]
     public abstract class AbstractModel : IModel
     {
-        public abstract void Init();
-
-        public virtual int Id { get; set; } = 0;
+        public abstract void Init();  
 
         #region 架构本体
         [NonSerialized]

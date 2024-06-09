@@ -39,7 +39,8 @@ namespace YukiFrameWork.UI
 			IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
 			if (panel == null) return null;
 			panel.Enter();
-            return panel.gameObject.Show().SetAsLastSibling() as T;
+            panel.gameObject.Show().SetAsLastSibling();
+			return panel as T;
         }
 
 		public T HidePanel<T>() where T : BasePanel
@@ -48,7 +49,8 @@ namespace YukiFrameWork.UI
 			if (panel != null)
 			{
 				panel.Exit();
-				return panel.gameObject.Hide().SetParent(this) as T;
+				panel.gameObject.Hide().SetParent(this);
+				return panel as T;
 			}
 			return null;
         }

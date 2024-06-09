@@ -238,10 +238,8 @@ namespace YukiFrameWork
         private static object mLock = new object();
 
         /// <summary>
-        /// 获取实例，参数IsDonDestroyLoad仅第一次获取有效
-        /// </summary>
-        /// <param name="IsDonDestroyLoad"></param>
-        /// <returns></returns>
+        /// 获取实例，
+        /// </summary>        
         public static T GetInstance()
         {
             lock (mLock)

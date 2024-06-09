@@ -14,5 +14,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rule: 0
   user: {fileID: 0}
-  IsModel: 0
-  IsSystem: 0

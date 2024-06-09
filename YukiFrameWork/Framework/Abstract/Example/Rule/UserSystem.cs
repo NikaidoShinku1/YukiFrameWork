@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.ExampleRule.ExampleFrameWork
 {
+    [Registration(typeof(UserSystem))]//自动注册特性，非Controller层级都应该标记该特性
     public class UserSystem : AbstractSystem
     {
         public override void Init()

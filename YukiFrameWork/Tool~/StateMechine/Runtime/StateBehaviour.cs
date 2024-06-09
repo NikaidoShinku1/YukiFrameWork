@@ -8,11 +8,8 @@ using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.States
 {
-    public class StateBehaviour : IController
-    {
-        private IArchitecture mArchitecture;
-        private readonly object _lock = new object();
-
+    public class StateBehaviour : AbstractController,IController
+    {       
         [HideField]
         public string name;
 
@@ -57,7 +54,7 @@ namespace YukiFrameWork.States
             set => stateBehaviourData.isActive = value;
         }
         #region 生命周期重写
-        public virtual void OnInit() { }
+        public override void OnInit() { }
 
         public virtual void OnEnter() { }
 
@@ -125,29 +122,6 @@ namespace YukiFrameWork.States
 
         protected float GetFloat(string name)
             => StateManager.GetFloat(name);
-
-        #region Architecture
-        /// <summary>
-        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
-        /// </summary>
-        protected virtual IArchitecture RuntimeArchitecture
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (mArchitecture == null)
-                    {
-                        mArchitecture = ArchitectureConstructor.I.Enquene(this);                      
-                    }
-                    return mArchitecture;
-                }
-            }
-        }
-        IArchitecture IGetArchitecture.GetArchitecture()
-        {
-            return RuntimeArchitecture;
-        }
-        #endregion
+  
     }
 }

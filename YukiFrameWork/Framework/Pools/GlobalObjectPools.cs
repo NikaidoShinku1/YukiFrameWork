@@ -1,7 +1,7 @@
 ﻿///=====================================================
 /// - FileName:      GlobalObjectPools.cs
 /// - NameSpace:     YukiFrameWork.Pools
-/// - Description:   通过本地的代码生成器创建的脚本
+/// - Description:   全局单例对象池
 /// - Creation Time: 2024/4/23 3:37:23
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
@@ -32,6 +32,7 @@ namespace YukiFrameWork.Pools
             var obj = Instance.Get();
             obj.IsMarkIdle = false;
             obj.Init();
+            //LogKit.I("取出成功，全局对象池 Type:" + typeof(T) + "   当前对象池容量:" + Instance.cacheQueue.Count);
             return obj;
         }
 
@@ -101,7 +102,7 @@ namespace YukiFrameWork.Pools
 
         void ISingletonKit.OnInit()
         {
-            
+            OnInit(10, 1000);
         }
 
         public override bool Release(T obj)
@@ -111,7 +112,8 @@ namespace YukiFrameWork.Pools
             obj.Release();
             if (cacheQueue.Count < maxSize)
             {
-                cacheQueue.Enqueue(obj);
+               
+                cacheQueue.Enqueue(obj);              
                 return true;
             }
             return false;

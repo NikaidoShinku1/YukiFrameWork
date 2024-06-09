@@ -88,6 +88,39 @@ namespace YukiFrameWork
 
     }
 
+    public abstract class AbstractController : IController
+    {
+        private object _object = new object();
+        private IArchitecture mArchitecture;
+
+        /// <summary>
+        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
+        /// </summary>
+        protected virtual IArchitecture RuntimeArchitecture
+        {
+            get
+            {
+                lock (_object)
+                {
+                    if (mArchitecture == null)
+                    {            
+                        mArchitecture = ArchitectureConstructor.I.Enquene(this);                     
+                    }
+                    return mArchitecture;
+                }
+            }
+        }
+        IArchitecture IGetArchitecture.GetArchitecture()
+        {
+            return RuntimeArchitecture;
+        }
+
+        /// <summary>
+        /// 框架封装AbstractController自带的OnInit初始化方法
+        /// </summary>
+        public abstract void OnInit();
+    }
+
     public partial class ViewController : ISerializedFieldInfo
     {
         [HideInInspector]
@@ -136,7 +169,7 @@ namespace YukiFrameWork
         {
             base.Awake();
             try
-            {
+            {              
                 if (initialized == RuntimeInitialized.Awake)
                     RuntimeEventInitializationFactory.Initialization(this);
             }

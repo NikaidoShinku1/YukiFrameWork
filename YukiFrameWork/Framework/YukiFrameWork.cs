@@ -15,23 +15,43 @@ using System.Linq;
 
 namespace YukiFrameWork
 {
+    public enum SceneLoadType
+    {
+        Local,
+        XFABManager
+    }
     /// <summary>
     /// 框架体系结构
     /// </summary>
-    public interface IArchitecture
+    public interface IArchitecture : IDisposable
     {
-        void OnInit();
+        /// <summary>
+        /// 使用XFABManager加载时，可以进行重写的模块名用于对应XFABManager的配置模块
+        /// </summary>
+        string OnProjectName { get; }
+
+        /// <summary>
+        /// 使用XFABManager打包场景进ab包或者已经有场景直接添加在Buil时，可以重写该方法，输入场景名称以及加载方式，当架构模块完全加载完以后会自动进入场景
+        /// 
+        /// 
+        /// 注意:使用XFABManager加载场景必须重写OnProjectName属性
+        /// </summary>
+        (string, SceneLoadType) DefaultSceneName { get; }
+
+        void Init();
         void OnDestroy();
-        void RegisterModel<T>(T model) where T : class, IModel;      
+        [Obsolete("建议在Model类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
+        void RegisterModel<T>(T model) where T : class, IModel;
+        [Obsolete("建议在System类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         void RegisterSystem<T>(T system) where T : class,ISystem;
+        [Obsolete("建议在Utility类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         void RegisterUtility<T>(T utility) where T : class, IUtility;
         void UnRegisterModel<T>(T model = default) where T : class,IModel;      
         void UnRegisterSystem<T>(T view = default) where T : class,ISystem;
         void UnRegisterUtility<T>(T utility = default) where T : class,IUtility;
-        T GetModel<T>(int id = 0) where T : class, IModel;      
+        T GetModel<T>() where T : class, IModel;      
         T GetSystem<T>() where T : class, ISystem;
-        T GetUtility<T>() where T : class,IUtility;      
-        IEnumerable<T> GetModels<T>() where T : class, IModel;
+        T GetUtility<T>() where T : class,IUtility;            
         IUnRegister RegisterEvent<T>(string eventName, Action<T> onEvent);
         IUnRegister RegisterEvent<T>(Enum eventEnum, Action<T> onEvent);
         IUnRegister RegisterEvent<T>(Action<T> onEvent);
@@ -44,6 +64,12 @@ namespace YukiFrameWork
         void SendCommand<T>(T command) where T : ICommand;
         TResult SendCommand<TResult>(ICommand<TResult> command);
         TResult SendQuery<TResult>(IQuery<TResult> query);
+
+        internal EasyContainer Container { get; }  
+        
+        internal TypeEventSystem TypeEventSystem { get; }
+        internal EnumEventSystem EnumEventSystem { get; }
+        internal StringEventSystem StringEventSystem { get; }
     }
 
     #region 层级规则
@@ -95,8 +121,7 @@ namespace YukiFrameWork
 
     #region Model
     public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture
-    {               
-        int Id { get; set; }
+    {                      
         void Init();        
     }
     #endregion
@@ -155,14 +180,29 @@ namespace YukiFrameWork
         private TypeEventSystem eventSystem = new TypeEventSystem();
         private EnumEventSystem enumEventSystem = new EnumEventSystem();
         private StringEventSystem stringEventSystem = new StringEventSystem();
-        #endregion
+        #endregion  
 
-        ~Architecture()
+        internal bool IsInited = false;
+
+        EasyContainer IArchitecture.Container => easyContainer;
+
+        TypeEventSystem IArchitecture.TypeEventSystem => eventSystem;
+        EnumEventSystem IArchitecture.EnumEventSystem => enumEventSystem;
+        StringEventSystem IArchitecture.StringEventSystem => stringEventSystem;
+
+        void IArchitecture.Init()
         {
-            OnDestroy();
+            if (IsInited) return;
+
+            OnInit();
+            IsInited = true;
         }
-      
-        public abstract void OnInit();       
+        public abstract void OnInit();
+
+        public static ArchitectureStartUpRequest StartUp()
+        {
+            return ArchitectureStartUpRequest.StartUpArchitecture<TCore>();
+        }
 
         public virtual void OnDestroy()
         {
@@ -170,8 +210,10 @@ namespace YukiFrameWork
             eventSystem.Clear();
             enumEventSystem.Clear();
             stringEventSystem.Clear();
+            IsInited = false;
         }
-        
+        public virtual (string, SceneLoadType) DefaultSceneName => default;
+
         #region 架构全局模块，如果想要让架构设置为全局的可以使用这个
         private static TCore mGlobal = null;
         private readonly static object _object = new object();
@@ -192,22 +234,25 @@ namespace YukiFrameWork
                 }
             }
         }
-        #endregion     
+        public virtual string OnProjectName => string.Empty;
+        public static string ProjectName => Global.OnProjectName;
 
+        #endregion
+        [Obsolete("建议在Model类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         public void RegisterModel<T>(T model) where T : class, IModel
         {
             model.SetArchitecture(this);
             Register(model);                      
             model.Init();           
-        }          
-
+        }
+        [Obsolete("建议在System类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         public void RegisterSystem<T>(T system) where T : class,ISystem
         {
             system.SetArchitecture(this);
             Register(system);                     
             system.Init();
         }
-
+        [Obsolete("建议在Utility类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         public void RegisterUtility<T>(T utility) where T : class, IUtility
             => Register(utility);
           
@@ -216,33 +261,20 @@ namespace YukiFrameWork
             easyContainer.Register<T>(t);            
         }    
         
-        public virtual T GetModel<T>(int id = 0) where T : class,IModel
-            => easyContainer.GetModel<T>(id);
+        public virtual T GetModel<T>() where T : class,IModel
+            => easyContainer.Get<T>();
 
         public virtual T GetSystem<T>() where T : class,ISystem
            => easyContainer.Get<T>();
 
         public virtual T GetUtility<T>() where T : class,IUtility
             => easyContainer.Get<T>();
-
-        IEnumerable<T> IArchitecture.GetModels<T>()
-            => easyContainer.GetModels<T>();
-
-        public void UnRegisterModel<T>(int id) where T : class,IModel
+     
+        public void UnRegisterModel<T>(T model = default) where T : class,IModel
         {                 
-            easyContainer.RemoveModel(typeof(T),id);            
-        }
-
-        public void UnRegisterModel<T>(T model) where T : class, IModel
-        {
-            easyContainer.RemoveModel(typeof(T), model.Id);
-        }
-
-        public void UnRegisterAllModel<T>(T model = default)where T : class,IModel
-        {
-            easyContainer.RemoveAllModel(typeof(T));
-        }
-
+            easyContainer.Remove(typeof(T));            
+        } 
+   
         public void UnRegisterSystem<T>(T system = default) where T :class, ISystem
         {          
             easyContainer.Remove(typeof(T));
@@ -303,87 +335,51 @@ namespace YukiFrameWork
         {
             command.SetArchitecture(this);
             return command.Execute();         
-        }
+        }     
     }
 
     public sealed class EasyContainer
     {                      
-        private Dictionary<Type, Dictionary<int,IModel>> modelInstances = new Dictionary<Type, Dictionary<int,IModel>>();
-
+       
         private Dictionary<Type, object> mInstances = new Dictionary<Type, object>(); 
       
         public void Register<T>(T obj)
         {
-            Type type = typeof(T);
-            if (obj is IModel model)
-            {
-                if (!modelInstances.ContainsKey(type))
-                    modelInstances.Add(type, new Dictionary<int, IModel>());
+            Register(obj, typeof(T));
+        }
 
-                if (!modelInstances[type].ContainsKey(model.Id))
-                    modelInstances[type].Add(model.Id, model);
-                else modelInstances[type][model.Id] = model;
-            }
-            else
-            {
-                mInstances[type] = obj;
-            }           
+        internal bool ContainsType(Type type)
+        {
+            return mInstances.ContainsKey(type);
+        }
+
+        internal bool ContainsInstance(Type type)
+            => mInstances.Values.FirstOrDefault(instance => instance.GetType().Equals(type)) != null;
+
+        internal void Register(object obj, Type type)
+        {
+            mInstances[type] = obj;
         }
 
         public T Get<T>() where T : class 
         {
             mInstances.TryGetValue(typeof(T), out var value);
             return value as T;
-        }
+        }       
 
-        public T GetModel<T>(int id) where T : class, IModel
-        {
-            if (modelInstances.TryGetValue(typeof(T), out var models))
-            {
-                if (models.TryGetValue(id, out var model))
-                {
-                    return model as T;
-                }
-            }
-            return null;
-        }
-
-        public IEnumerable<T> GetModels<T>() where T : IModel
+        public IEnumerable<T> GetInstanceByType<T>()
         {            
-            if (modelInstances.TryGetValue(typeof(T), out var value))
-            {
-                return value.Values.Where(x => typeof(T).IsInstanceOfType(x)).Cast<T>();
-            }
-            return null;
+             return mInstances.Values.Where(x => typeof(T).IsInstanceOfType(x)).Cast<T>();         
         }
 
         public void Remove(Type type)
         {            
             mInstances.Remove(type);
-        }
-
-        public void RemoveModel(Type type,int id)
-        {
-            if (!modelInstances.ContainsKey(type)) return;
-
-            modelInstances[type].Remove(id);
-
-            if (modelInstances[type].Count == 0)
-            {
-                modelInstances.Remove(type);
-            }
-        }
-
-        public void RemoveAllModel(Type type)
-        {
-            if (!modelInstances.ContainsKey(type)) return;
-            modelInstances.Remove(type);
-        }
+        } 
 
         public void Clear()
         {
-            mInstances.Clear();
-            modelInstances.Clear();
+            mInstances.Clear();          
         }
        
     }
@@ -391,6 +387,12 @@ namespace YukiFrameWork
     public class EnumEventSystem
     {
         private readonly EnumEasyEvents events = new EnumEasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EnumEasyEvents WindowEvents => events;
+
         public static EnumEventSystem Global { get; } = new EnumEventSystem();
 
         public IUnRegister Register(Enum type, Action onEvent)
@@ -554,6 +556,11 @@ namespace YukiFrameWork
     {
         private readonly StringEasyEvents events = new StringEasyEvents();
 
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal StringEasyEvents StringEvents => events;
+
         public static StringEventSystem Global { get; } = new StringEventSystem();
 
         public IUnRegister Register(string name,Action onEvent)
@@ -716,6 +723,11 @@ namespace YukiFrameWork
     {
         private readonly EasyEvents events = new EasyEvents();
 
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EasyEvents Events => events;
+
         public static TypeEventSystem Global { get; } = new TypeEventSystem();
 
         public IUnRegister Register(Action onEvent)
@@ -876,7 +888,7 @@ namespace YukiFrameWork
 
     public class EasyEvents
     {
-        private readonly Dictionary<Type, IEasyEventSystem> events = new Dictionary<Type, IEasyEventSystem>();
+        internal readonly Dictionary<Type, IEasyEventSystem> events = new Dictionary<Type, IEasyEventSystem>();
 
         public T GetOrAddEvent<T>() where T : IEasyEventSystem, new()
         {        
@@ -904,7 +916,7 @@ namespace YukiFrameWork
 
     public class StringEasyEvents
     {
-        private readonly Dictionary<string, IEasyEventSystem> events = new Dictionary<string, IEasyEventSystem>();
+        internal readonly Dictionary<string, IEasyEventSystem> events = new Dictionary<string, IEasyEventSystem>();
         public T GetOrAddEvent<T>(string name) where T : IEasyEventSystem, new()
         {
             if (!events.TryGetValue(name, out var easyEvent))
@@ -938,7 +950,7 @@ namespace YukiFrameWork
 
     public class EnumEasyEvents
     {
-        private readonly Dictionary<Enum, IEasyEventSystem> events = new Dictionary<Enum, IEasyEventSystem>();
+        internal readonly Dictionary<Enum, IEasyEventSystem> events = new Dictionary<Enum, IEasyEventSystem>();
 
         public T GetOrAddEvent<T>(Enum type) where T : IEasyEventSystem, new()
         {
@@ -976,22 +988,14 @@ namespace YukiFrameWork
     /// </summary>
     public static class ControllerExtension
     {           
-        public static T GetModel<T>(this IGetModel actor,int id = 0) where T : class, IModel
-            => actor.GetArchitecture().GetModel<T>(id);
-
-        public static T[] GetModels<T>(this IGetModel actor) where T : class, IModel
-            => actor.GetArchitecture().GetModels<T>().ToArray();
+        public static T GetModel<T>(this IGetModel actor) where T : class, IModel
+            => actor.GetArchitecture().GetModel<T>();  
 
         public static T GetSystem<T>(this IGetSystem actor) where T : class, ISystem
             => actor.GetArchitecture().GetSystem<T>();
 
         public static T GetUtility<T>(this IGetUtility actor) where T : class, IUtility
-            => actor.GetArchitecture().GetUtility<T>();
-
-        public static void OnDestroy(this IGetArchitecture architecture)
-            => architecture.GetArchitecture().OnDestroy();
-
-        
+            => actor.GetArchitecture().GetUtility<T>();           
     }
 
     /// <summary>
@@ -1061,5 +1065,10 @@ namespace YukiFrameWork
             IQuery<T> query = new TQuery();
             return actor.GetArchitecture().SendQuery(query);
         }
+    }
+
+    public static class ArchitectureExtension
+    {
+        
     }
 }
