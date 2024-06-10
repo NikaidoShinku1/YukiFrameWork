@@ -28,7 +28,7 @@ namespace YukiFrameWork
 
         public void Dispose()
         {          
-            OnDispose();
+            OnDispose();           
         }
 
         public void Add(TItemKey key, TItem item)

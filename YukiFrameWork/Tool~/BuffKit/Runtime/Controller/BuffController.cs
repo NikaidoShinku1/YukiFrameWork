@@ -90,7 +90,9 @@ namespace YukiFrameWork.Buffer
 			controller.Buffer = buffer;
 			controller.Player = Player;
 			controller.BuffLayer = 0;
-            LogKit.I("创建的控制器类型:" + typeof(T));
+#if YukiFrameWork_DEBUGFULL
+			LogKit.I("创建的控制器类型:" + typeof(T));
+#endif
 			controller.OnInit();
 			OnReleasePairs[typeof(T)] = item => GlobalObjectPools<T>.GlobalRelease(item as T);
 			return controller;
@@ -102,8 +104,9 @@ namespace YukiFrameWork.Buffer
 			{
 				return value.Invoke(controller);
 			}
-
-			LogKit.W("请检查BuffController是否使用框架提供的BuffController.CreateInstance创建,否则无法回收进对象池");
+#if YukiFrameWork_DEBUGFULL
+            LogKit.W("请检查BuffController是否使用框架提供的BuffController.CreateInstance创建,否则无法回收进对象池");
+#endif
 			return false;
 		}
 
@@ -140,9 +143,9 @@ namespace YukiFrameWork.Buffer
 			{
 				if (Buffer.SurvivalType == BuffSurvivalType.Timer)
 					return mRemainingTime;
-
-				LogKit.W("试图访问设置成永久性的Buff中的时间流，请取消对该属性的调用!");
-
+#if YukiFrameWork_DEBUGFULL
+                LogKit.W("试图访问设置成永久性的Buff中的时间流，请取消对该属性的调用!");
+#endif
 				return -1;
 			}
 			internal set

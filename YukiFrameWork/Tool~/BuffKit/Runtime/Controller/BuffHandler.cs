@@ -316,8 +316,9 @@ namespace YukiFrameWork.Buffer
                 mTable.Remove(controller.BuffKey,controller);
                 if (mTable.IsNullOrEmpty(controller.BuffKey))
                     mTable.Remove(controller.BuffKey);
-
-				LogKit.I("回收的控制器类型:"+ controller.GetType());
+#if YukiFrameWork_DEBUGFULL
+				LogKit.I("回收的控制器类型:" + controller.GetType());
+#endif
 				BuffController.Release(controller, controller.GetType());
             }
         }
@@ -341,20 +342,36 @@ namespace YukiFrameWork.Buffer
 			{
 				for (int i = 0; i < item.Count; i++)
 				{
-					item[i].OnBuffDestroy();
-					if (item[i].UIBuffer != null)
-						item[i].UIBuffer.OnBuffDestroy();
+					var controller = item[i];
+					controller.OnBuffDestroy();
+					if (controller.UIBuffer != null)
+					{
+						controller.UIBuffer.OnBuffDestroy();
+						if (handlerGroup != null)
+							handlerGroup.ReleaseBuffer(controller.UIBuffer);
+#if YukiFrameWork_DEBUGFULL
+                        LogKit.I("回收的控制器类型:" + controller.GetType());
+#endif
+                    }
+
+                    BuffController.Release(controller, controller.GetType());
 				}
 			}
 			release.Clear();
             mTable.Clear();
         }
+		bool IsRelease = false;
 
-        private void OnDestroy()
+        private void OnEnable()
         {
-			release.Clear();
-			mTable.Dispose();
-			mTable.Clear();
+			IsRelease = false;
         }
+        private void OnDisable()
+        {
+			if (IsRelease) return;
+            StopAllBuffController();
+            mTable.Dispose();
+			IsRelease = true;
+        } 
     }
 }

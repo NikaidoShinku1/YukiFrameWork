@@ -404,6 +404,7 @@ namespace YukiFrameWork.Extension
             currentController.Data = controller.Data;
             currentController.IsAutoSettingField = controller.IsAutoSettingField;
             DestroyImmediate(controller);
+            currentController.gameObject.name = currentController.Data.ScriptName;
             return true;
         }           
     }
