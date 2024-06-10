@@ -55,15 +55,28 @@ namespace YukiFrameWork.Buffer
         /// 只有当该Buff完全销毁时才执行该方法。
         /// </summary>
         void OnBuffDestroy();
+
+        /// <summary>
+        /// 实例通过BuffController.CreateInstance方法被创建的时候调用
+        /// </summary>
+        void OnInit();
     }
-    public abstract class BuffController : IBuffController
+    public abstract class BuffController : AbstractController, IBuffController
 	{
 		void IGlobalSign.Init()
 		{
 
 		}
 
-		public BuffHandler Handler => Player.Handler;
+		/// <summary>
+		/// 实例通过BuffController.CreateInstance方法被创建的时候调用
+		/// </summary>
+        public override void OnInit()
+        {
+            
+        }
+
+        public BuffHandler Handler => Player.Handler;
 
 		void IGlobalSign.Release()
 		{
@@ -78,6 +91,7 @@ namespace YukiFrameWork.Buffer
 			controller.Player = Player;
 			controller.BuffLayer = 0;
             LogKit.I("创建的控制器类型:" + typeof(T));
+			controller.OnInit();
 			OnReleasePairs[typeof(T)] = item => GlobalObjectPools<T>.GlobalRelease(item as T);
 			return controller;
 		}	
@@ -174,26 +188,6 @@ namespace YukiFrameWork.Buffer
 		public virtual void OnBuffDestroy()
 		{
 			
-		}
-
-		private IArchitecture mArchitecture;
-
-		public virtual IArchitecture Architecture
-		{
-			get 
-			{
-				if (mArchitecture == null)
-				{
-					mArchitecture = ArchitectureConstructor.Instance.Enquene(this);					
-				}
-
-				return mArchitecture;
-			}
-		}
-
-        public IArchitecture GetArchitecture()
-        {
-			return Architecture;
-        }
+		}	
     }
 }
