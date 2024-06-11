@@ -16,14 +16,51 @@ using YukiFrameWork.Extension;
 using YukiFrameWork.ExampleRule;
 using System.Collections;
 
-
 #if UNITY_EDITOR
+using static YukiFrameWork.ArchitectureDebuggerWindow;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 namespace YukiFrameWork
 {
     internal class ArchitectureDebuggerWindow : OdinMenuEditorWindow
     {
+        [SerializeField, HideLabel, ShowInInspector]
+        internal Title mtitle;
+        
+        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector]
+        internal SelectType selectType;
+       
+
+        internal enum Title
+        {
+            [LabelText("Model注册收集")]
+            Model,
+            [LabelText("System注册收集")]
+            System,
+            [LabelText("Utility注册收集")]
+            Utility,
+            [LabelText("Controller标记收集")]
+            Controller,
+            [LabelText("运行时事件收集")]
+            Event
+        }
+
+        internal enum EventType
+        {
+            Type,
+            String,
+            Enum
+        }
+
+        internal enum SelectType
+        {
+            [LabelText("展开全部收集")]
+            All,
+            [LabelText("显示标记了该架构的模块")]
+            Architecture,
+            [LabelText("显示没有任何标记的模块")]
+            NoAttribute
+        }
         [MenuItem("YukiFrameWork/Architecture Debugger",false,-1000)]
         static void OpenWindow()
         {
@@ -33,19 +70,35 @@ namespace YukiFrameWork
         protected override void OnEnable()
         {
             base.OnEnable();
+            DrawUnityEditorPreview = true;
             autoRepaintOnSceneChange = true;
             position = new Rect(position.x, position.y, 1550, position.height);
+
+            mtitle = (Title)PlayerPrefs.GetInt("Architecture_Key_Title", 0);
+            selectType = (SelectType)PlayerPrefs.GetInt("Architecture_Key_SelectType", 0);
+        }   
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            PlayerPrefs.SetInt("Architecture_Key_Title", (int)mtitle);
+            PlayerPrefs.SetInt("Architecture_Key_SelectType", (int)selectType);
         }
 
         private void Update()
         {
             Repaint();
         }
+
+        protected override void DrawEditor(int index)
+        {            
+            base.DrawEditor(index);
+        }
         protected override OdinMenuTree BuildMenuTree()
         {
             OdinMenuTree tree = new OdinMenuTree();
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
-           
+                       
             try
             {               
                 Assembly assembly = Assembly.Load(info.assembly);
@@ -71,18 +124,36 @@ namespace YukiFrameWork
             {              
                 if (typeof(IArchitecture).IsAssignableFrom(type))
                 {
-                    tree.Add("YukiFrameWork/" + "架构:" + type.Name,new ArchitectureDebugger(type,this),SdfIconType.ArchiveFill);
+                    tree.Add("YukiFrameWork/" + "架构:" + type.Name,ArchitectureDebugger.Create(type,this),SdfIconType.ArchiveFill);
                 }
             }
         }
     }
 
-    internal class ArchitectureDebugger
+    internal class ArchitectureDebugger : OdinEditorWindow
     {
+        [SerializeField, HideLabel, ShowInInspector,EnumToggleButtons,BoxGroup]
+        internal Title mtitle
+        {
+            get => editorWindow.mtitle;
+            set => editorWindow.mtitle = value;
+        }        
+
+        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector,BoxGroup]
+        internal SelectType selectType
+        {
+            get => editorWindow.selectType;
+            set => editorWindow.selectType = value;
+        }
+
+        [SerializeField, EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
+        private ArchitectureDebuggerWindow.EventType eventType { get; set; }
+       
+        private string eventSearch;
         private IArchitecture architecture;       
-        private OdinMenuEditorWindow editorWindow;
+        private ArchitectureDebuggerWindow editorWindow;
         private Type architectureType;
-        public ArchitectureDebugger(Type type,OdinMenuEditorWindow editorWindow)
+        void Init(Type type,ArchitectureDebuggerWindow editorWindow) 
         {
             this.architectureType = type;
             notRunStyle = new GUIStyle();
@@ -105,8 +176,32 @@ namespace YukiFrameWork
             };
 
             middleStyle.normal.textColor = Color.white;
-            
-        }      
+
+            runningStyle = new GUIStyle("MeLivePlayBar")
+            {
+                alignment = TextAnchor.UpperCenter
+            };
+            rolds.Clear();         
+            rolds[Rule.Model] = GetRoldTypes(type => typeof(IModel).IsAssignableFrom(type) && !type.IsInterface);          
+            rolds[Rule.System] = GetRoldTypes(type => typeof(ISystem).IsAssignableFrom(type) && !type.IsInterface);
+
+            rolds[Rule.Utility] = GetRoldTypes(type => typeof(IUtility).IsAssignableFrom(type) && !type.IsInterface);
+
+            rolds[Rule.Controller] = GetRoldTypesByController(type => typeof(IController).IsAssignableFrom(type) && type != typeof(ViewController) && !type.IsAbstract);          
+
+        }
+
+        [Button("架构信息收集",ButtonHeight = 30),PropertySpace(10)]
+        [GUIColor("@Color.Lerp(Color.red, Color.green, Mathf.Abs(Mathf.Sin((float)EditorApplication.timeSinceStartup)))")]
+        void Light()
+        { }
+
+        public static ArchitectureDebugger Create(Type type, ArchitectureDebuggerWindow editorWindow)
+        {
+            ArchitectureDebugger debugger = OdinEditorWindow.CreateInstance(typeof(ArchitectureDebugger)) as ArchitectureDebugger;
+            debugger.Init(type,editorWindow);
+            return debugger;
+        }
         class GenericInfo
         {
             [HideInInspector]
@@ -118,39 +213,17 @@ namespace YukiFrameWork
             {
                 this.type = type;
                 this.registration = registration;
-            }
-
-            [OnInspectorGUI]
-            void OnInspectorGUI()
-            {
-                GUILayout.Label("Hello");
-            }
+            }      
         }
 
         private bool IsRunning => Application.isPlaying;
       
         private Dictionary<Rule, GenericInfo[]> rolds = new Dictionary<Rule, GenericInfo[]>();
+          
        
-
-        [OnInspectorInit]
-        void OnInit()
-        {          
-            rolds.Clear();
-            rolds[Rule.Model] = GetRoldTypes(type => typeof(IModel).IsAssignableFrom(type) && !type.IsInterface);
-
-            rolds[Rule.System] = GetRoldTypes(type => typeof(ISystem).IsAssignableFrom(type) && !type.IsInterface);
-
-            rolds[Rule.Utility] = GetRoldTypes(type => typeof(IUtility).IsAssignableFrom(type) && !type.IsInterface);
-
-            rolds[Rule.Controller] = GetRoldTypesByController(type => typeof(IController).IsAssignableFrom(type) && type != typeof(ViewController) && !type.IsAbstract);
-
-            title = (Title)PlayerPrefs.GetInt("Architecture_Key_Title",0);
-        }
-
-        [OnInspectorDispose]
-        void Clear()
+        protected override void OnDisable()
         {
-            PlayerPrefs.SetInt("Architecture_Key_Title", (int)title); 
+            base.OnDisable();         
         }
 
         private GenericInfo[] GetRoldTypes(Func<Type,bool> condition)
@@ -183,39 +256,7 @@ namespace YukiFrameWork
         private const string Yuki_ModelFoldOut = nameof(Yuki_ModelFoldOut);
         private const string Yuki_SystemFoldOut = nameof(Yuki_SystemFoldOut);
         private const string Yuki_UtilityFoldOut = nameof(Yuki_UtilityFoldOut);
-                  
-                
-        private enum Title
-        {
-            [LabelText("Model注册收集")]
-            Model,
-            [LabelText("System注册收集")]
-            System,
-            [LabelText("Utility注册收集")]
-            Utility,
-            [LabelText("Controller标记收集")]
-            Controller,
-            [LabelText("运行时事件收集")]
-            Event
-        }
-
-        private enum EventType
-        {
-            Type,
-            String,
-            Enum
-        }
-
-        [EnumToggleButtons,SerializeField,HideLabel]
-        private Title title;
-
-        [Button("架构注册信息收集", ButtonHeight = 40),PropertySpace(10)]
-        [GUIColor("@Color.Lerp(Color.red, Color.green, Mathf.Abs(Mathf.Sin((float)EditorApplication.timeSinceStartup)))")]
-        void ModelTitle()
-        {
-
-
-        }
+                                
 
         Vector2 modelPosition;
         Vector2 systemPosition;
@@ -225,9 +266,8 @@ namespace YukiFrameWork
 
         ArchitectureStartUpRequest request = null;
         [OnInspectorGUI]
-        void OnInspectorGUI()
-        {
-           
+        protected override void OnImGUI()
+        {           
             if (IsRunning)
             {
                 if (ArchitectureConstructor.Instance.runtimeRequests.TryGetValue(architectureType.FullName, out request))
@@ -240,9 +280,9 @@ namespace YukiFrameWork
             float width = editorWindow.position.width - editorWindow.MenuWidth;
 
             var rect = EditorGUILayout.BeginVertical();
-            switch (title)
+            switch (editorWindow.mtitle)
             {
-                case Title.Model:                   
+                case ArchitectureDebuggerWindow.Title.Model:                   
                     modelPosition = EditorGUILayout.BeginScrollView(modelPosition, GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.LabelField("Model注册收集", fontStyle);
@@ -250,7 +290,7 @@ namespace YukiFrameWork
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
                     break;
-                case Title.System:
+                case ArchitectureDebuggerWindow.Title.System:
                    
                     systemPosition = EditorGUILayout.BeginScrollView(systemPosition,GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
@@ -259,7 +299,7 @@ namespace YukiFrameWork
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
                     break;
-                case Title.Utility:
+                case ArchitectureDebuggerWindow.Title.Utility:
                    
                     utilityPosition = EditorGUILayout.BeginScrollView(utilityPosition,GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
@@ -268,7 +308,7 @@ namespace YukiFrameWork
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
                     break;
-                case Title.Controller:                  
+                case ArchitectureDebuggerWindow.Title.Controller:                  
                     controllerPosition = EditorGUILayout.BeginScrollView(controllerPosition,GUILayout.Height(editorWindow.position.height - 300));
                     //EditorGUILayout.HelpBox("Controller标记收集仅收集使用框架提供的控制器基类ViewController才拥有自动注入的功能(状态机模块的状态类也支持但不划分为该标记)\n手动继承IController的控制器类应自己实现GetArchitecture方法", MessageType.Info);
                     EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
@@ -280,7 +320,7 @@ namespace YukiFrameWork
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
                     break;
-                case Title.Event:
+                case ArchitectureDebuggerWindow.Title.Event:
                     eventPosition = EditorGUILayout.BeginScrollView(eventPosition,GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
                     EditorGUILayout.LabelField("运行时架构事件标记EventSystem", fontStyle);
@@ -327,14 +367,11 @@ namespace YukiFrameWork
             {
                 EditorGUILayout.HelpBox("项目还未运行,不会进行架构的准备进度显示,请运行后查看", MessageType.Warning);
             }
-            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndVertical();    
 
         }
         //private GUIStyle runningStyleBG = new GUIStyle("MeLivePlayBackground");
-        private GUIStyle runningStyle = new GUIStyle("MeLivePlayBar")
-        {
-            alignment = TextAnchor.UpperCenter
-        };
+        private GUIStyle runningStyle;
      
         private static Color GetButtonColor()
         {
@@ -342,9 +379,8 @@ namespace YukiFrameWork
             return Color.HSVToRGB(Mathf.Cos((float)UnityEditor.EditorApplication.timeSinceStartup + 1f) * 0.225f + 0.325f, 1, 1);
         }
         string box;
-
-        [SerializeField,EnumToggleButtons,ShowIf(nameof(title),Title.Event),PropertySpace(20)]
-        private EventType eventType;
+        private ArchitectureDebuggerWindow.Title mTitle => editorWindow.mtitle;
+       
         void DrawController()
         {
             foreach (var info in rolds[Rule.Controller])
@@ -357,6 +393,11 @@ namespace YukiFrameWork
                     runtimeInitialize = info.registration as RuntimeInitializeOnArchitecture;
                 }
 
+                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.Architecture && runtimeInitialize?.ArchitectureType != architectureType)                
+                    continue;
+
+                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && runtimeInitialize != null)
+                    continue;
                 var tRect = EditorGUILayout.BeginHorizontal();
                 var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(20));
 
@@ -369,17 +410,17 @@ namespace YukiFrameWork
                     if (runtimeInitialize == null)
                     {
                         GUI.color = Color.yellow;
-                        GUILayout.Label("可标记RuntimeInitializeOnArchitecture特性进行架构的自动注入!", GUILayout.Width(400));
+                        GUILayout.Label("可标记RuntimeInitializeOnArchitecture特性进行架构的自动注入!", GUILayout.Width(550));
                     }
                     else
                     {
-                        GUI.color = Color.green;
-                        GUILayout.Label("已标记RuntimeInitializeOnArchitecture特性!", GUILayout.Width(400));
+                        GUI.color = GetButtonColor();
+                        GUILayout.Label("已标记RuntimeInitializeOnArchitecture特性! 标记架构:" + runtimeInitialize.ArchitectureType, GUILayout.Width(550));
                     }
                 }
                 else
                 {
-                    GUILayout.Label("手动实现IController接口控制器,没有自动操作", GUILayout.Width(400));
+                    GUILayout.Label("手动实现IController接口控制器,没有自动操作", GUILayout.Width(550));
                 }
     
                 GUI.color = Color.white;
@@ -414,17 +455,19 @@ namespace YukiFrameWork
             if (!IsRunning) return;
 
             if (architecture == null) return;
+            IDictionary dictionary = null;
 
-            IDictionary dictionary = null; 
+            eventSearch = EditorGUILayout.TextField(string.Empty, eventSearch, "ToolbarSearchTextField");
+
             switch (eventType)
             {
-                case EventType.Type:
+                case ArchitectureDebuggerWindow.EventType.Type:
                     dictionary = architecture.TypeEventSystem.Events.events;                  
                     break;
-                case EventType.String:
+                case ArchitectureDebuggerWindow.EventType.String:
                     dictionary = architecture.StringEventSystem.StringEvents.events;                    
                     break;
-                case EventType.Enum:
+                case ArchitectureDebuggerWindow.EventType.Enum:
                     dictionary = architecture.EnumEventSystem.WindowEvents.events;
                     break;              
             }
@@ -432,11 +475,18 @@ namespace YukiFrameWork
             foreach (var key in dictionary.Keys)
             {
                 box = box.IsNullOrEmpty() ? "Wizard Box" : box;
+                string info = "已注册事件---->标识:" + key.ToString();
+                if (!eventSearch.IsNullOrEmpty())
+                {
+                    if (!info.Contains(eventSearch))
+                        continue;
+                }
                 var tRect = EditorGUILayout.BeginHorizontal();
                 var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(40));
                 EditorGUILayout.LabelField(EditorGUIUtility.IconContent("d_console.infoicon"), GUILayout.Width(20));
                 EditorGUILayout.BeginVertical();
-                GUILayout.Label("已注册事件---->标识:" + key.ToString());
+               
+                GUILayout.Label(info);
                 GUILayout.Label("参数类型:" + dictionary[key]);
 
                 EditorGUILayout.EndVertical();
@@ -461,6 +511,13 @@ namespace YukiFrameWork
                         EditorGUILayout.HelpBox($"{info.type} 检测到自动标记使用的自定义类型与指定类没有任何关系，请检查是否为该模块的基类/接口", MessageType.Warning);
                     }
                 }
+
+                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.Architecture && registration?.architectureType != architectureType)
+                    continue;
+
+                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && registration != null)
+                    continue;
+
                 var tRect = EditorGUILayout.BeginHorizontal();
                 var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(20));
                 
@@ -469,13 +526,13 @@ namespace YukiFrameWork
                 EditorGUILayout.Space(20);
                 if (registration == null)
                 {
-                    GUI.color = Color.red;
-                    GUILayout.Label("未标记自动获取",GUILayout.Width(100));
+                    GUI.color = Color.yellow;
+                    GUILayout.Label("未标记自动获取",GUILayout.Width(550));
                 }
                 else
                 {
                     GUI.color = GetButtonColor();                   
-                    GUILayout.Label("已标记自动获取",GUILayout.Width(100));                    
+                    GUILayout.Label("已标记自动获取 标记架构:" + registration.architectureType,GUILayout.Width(550));                    
                 }
                 GUI.color = Color.white;
                 OpenScript(info.type);
@@ -497,6 +554,10 @@ namespace YukiFrameWork
                         GUI.color = Color.green;
                         GUILayout.Label(IsInfo ? "已注册(非自动)!" : "已注册!", GUILayout.Width(100));
                         GUI.color = Color.white;
+                    }
+                    else
+                    {
+                        GUILayout.Label(string.Empty, GUILayout.Width(100));
                     }
                 }
                 else 
