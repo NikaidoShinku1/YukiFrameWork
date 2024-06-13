@@ -27,7 +27,7 @@ namespace YukiFrameWork.States
 
         private StateBase _state;
 
-        protected AnimationClipPlayable animationClipPlayable => state.clipPlayable;
+        //protected AnimationClipPlayable animationClipPlayable => state.clipPlayable;
         protected StateBase state
         {
             get
@@ -70,7 +70,7 @@ namespace YukiFrameWork.States
         /// <summary>
         /// 过渡到下一个状态的进入时会持续检测的回调
         /// </summary>
-        /// /// <param name="velocity">过渡的增量速度</param>
+        /// /// <param name="velocity">过渡累加时间</param>
         public virtual void OnTransitionEnter(float velocity,bool completed)
         {
             
@@ -79,7 +79,7 @@ namespace YukiFrameWork.States
         /// <summary>
         /// 在状态退出时会持续检测的回调
         /// </summary>
-        /// <param name="velocity">过渡的增量速度</param>
+        /// <param name="velocity">过渡累加时间</param>
         public virtual void OnTransitionExit(float velocity,bool completed)
         {
             

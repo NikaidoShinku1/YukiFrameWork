@@ -13,7 +13,7 @@ namespace YukiFrameWork.States
     public class StateNodeFactory
     {
         private static int createIndex = 0;
-        public static StateBase CreateStateNode(StateMechine stateMechine,string name,Rect rect,bool defaultState = false,bool subState = false)
+        public static StateBase CreateStateNode(StateMechine stateMechine,string name,Rect rect,bool defaultState = false,bool subState = false,bool isAnyState = false)
         {
             if (stateMechine.states.Where(x => x.name.Equals(name)).FirstOrDefault() != null)
             {
@@ -28,6 +28,7 @@ namespace YukiFrameWork.States
             data.name = name;
             data.layerName = stateMechine.layerName;
             data.rect = rect;
+            data.IsAnyState = isAnyState;
             data.IsSubingState = subState;
             if (defaultState)
             {
@@ -58,7 +59,7 @@ namespace YukiFrameWork.States
                
                 data.index = current.index;
 
-                if (stateMechine.subStatesPair[stateMechine.layerName].stateBases.Count == 2)
+                if (stateMechine.subStatesPair[stateMechine.layerName].stateBases.Count == 3)
                 {
                     data.defaultState = true;
                 }
@@ -76,10 +77,18 @@ namespace YukiFrameWork.States
                 upSub.index = -1;
                 upSub.rect = new Rect(0, 300, StateConst.StateWith, StateConst.StateHeight);
                 upSub.IsSubingState = true;
+
+                StateBase anySub = new StateBase();
+                anySub.name = StateConst.anyState;
+                anySub.IsAnyState = true;
+                anySub.index = -1;
+                anySub.rect = new Rect(0, 500, StateConst.StateWith, StateConst.StateHeight);
+                anySub.IsSubingState = false;
                 var list = new System.Collections.Generic.List<StateBase>
                 {
                     sub,
-                    upSub
+                    upSub,
+                    anySub
                 };
                 if (!stateMechine.subTransitions.ContainsKey(name))
                 {
@@ -129,7 +138,7 @@ namespace YukiFrameWork.States
         public static void DeleteState(StateMechine stateMechine,StateBase state)
         {
             //判断删除的是不是Entry，Any，如果不是才可以删除
-            if (state.name.Equals(StateConst.entryState) || state.name.StartsWith(StateConst.upState))
+            if (state.name.Equals(StateConst.entryState) || state.name.StartsWith(StateConst.upState) || state.name.Equals(StateConst.anyState))
             {
                 string message = "当前状态是不可被删除的，状态为：" + state.name;
                 Debug.LogWarning(message);

@@ -15,7 +15,9 @@ namespace YukiFrameWork.States
 
         private StateBase toState;
 
-        public string FromStateName => transitionData.fromStateName;   
+        public string FromStateName => transitionData.fromStateName;
+
+        public string ToStateName => transitionData.toStateName;
 
         private string layerName;
 
@@ -76,6 +78,17 @@ namespace YukiFrameWork.States
                 Debug.LogError("查询目标状态失败！");
                 return false;
             }
+            StateBase currentState = stateManager.currents.Find(x => x.layerName == layerName);
+            StateBase fromState = stateManager.runTimeSubStatePair[layerName].stateBases.Find(x => x.name == FromStateName);
+
+            if (currentState == null || fromState == null) return false;
+            if (!transitionData.fromStateName.Equals(currentState.name))
+            {
+                if (fromState?.IsAnyState == false) return false;
+
+                if (currentState.name == FromStateName) return false;
+            }
+
             return true;
         }
 
@@ -86,10 +99,23 @@ namespace YukiFrameWork.States
 
         private bool TransitionExecute()
         {
-            if (!transitionData.fromStateName.Equals(stateManager.runTimeSubStatePair[layerName].CurrentState?.name)
-                || stateManager.runTimeSubStatePair[layerName].CurrentState.name.Equals(transitionData.toStateName))
-            {              
-                 return false;
+            bool toContains = false;
+            try
+            {
+                toContains = stateManager.runTimeSubStatePair[layerName].CurrentState.name.Equals(transitionData.toStateName);
+            }
+            catch { toContains = true; }
+            if (!FromStateName.Equals(StateConst.anyState))
+            {
+                if (!FromStateName.Equals(stateManager.runTimeSubStatePair[layerName].CurrentState?.name)
+                    || toContains)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (toContains) return false;
             }
             stateManager.OnChangeState(toState);
             return true;

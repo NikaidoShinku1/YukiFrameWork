@@ -237,7 +237,7 @@ namespace YukiFrameWork.States
 
             rect.center = GetNodePosition(mousePosition);
 
-            StateNodeFactory.CreateStateNode(this.Context.StateMechine, rect, this.Context.StateMechine.states.Count == 1,subState);
+            StateNodeFactory.CreateStateNode(this.Context.StateMechine, rect, this.Context.StateMechine.states.Count == 2,subState);
         }
 
         private Vector2 GetNodePosition(Vector2 mousePosition)

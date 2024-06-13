@@ -23,15 +23,7 @@ namespace YukiFrameWork
         Open,
         [LabelText("关闭")]  
         Close      
-    }
-
-    public enum StateExtension
-    {
-        [LabelText("默认状态机")]
-        None,
-        [LabelText("兼容Playable")]
-        Playable
-    }
+    } 
 
 }
 namespace YukiFrameWork.States
@@ -59,20 +51,7 @@ namespace YukiFrameWork.States
 
         [LabelText("状态机是否开启调试:"), BoxGroup(defaultSystem)]
         [InfoBox("开启后每次切换状态都会Debug一次")]
-        public DeBugLog deBugLog;
-
-        [SerializeField,LabelText("状态机的默认类型"),BoxGroup(defaultSystem)]
-        public StateExtension StateExtension;
-
-        [SerializeField,LabelText("该状态机使用的动画状态机"),BoxGroup(defaultSystem),ShowIf(nameof(StateExtension),StateExtension.Playable)]       
-        internal Animator bindAnimator;
-
-        [LabelText("图名"),SerializeField,BoxGroup(defaultSystem), ShowIf(nameof(StateExtension), StateExtension.Playable)]
-        internal string graphName;
-
-       // [LabelText("状态剪辑绑定"),SerializeField, BoxGroup(defaultSystem), ShowIf(nameof(StateExtension), StateExtension.Playable)]
-        internal Dictionary<string, PlayableInfo> stateOrAnimationDicts = new Dictionary<string, PlayableInfo>();   
-
+        public DeBugLog deBugLog;        
 #if UNITY_EDITOR
         [ShowIf("IsMechineOrEmpty")]
 #endif
@@ -90,11 +69,6 @@ namespace YukiFrameWork.States
         public Dictionary<string, List<StateTransition>> subTransitions = DictionaryPools<string, List<StateTransition>>.Get();
 
         public List<StateBase> currents { get; } = new List<StateBase>();
-
-        private PlayableGraph playableGraph;
-        private AnimationPlayableOutput playableOutput;
-
-        private AnimationLayerMixerPlayable baseMixerPlayable;
 
         internal Dictionary<string, int> state_switchCount = new Dictionary<string, int>();
 
@@ -115,6 +89,7 @@ namespace YukiFrameWork.States
                 stateMechine.transform.SetParent(transform);
 
                 StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
+                StateNodeFactory.CreateStateNode(stateMechine, StateConst.anyState, new Rect(0, -300, StateConst.StateWith, StateConst.StateHeight));
             }
             this.stateMechine = stateMechine;
         }
@@ -143,12 +118,7 @@ namespace YukiFrameWork.States
                 stateMechine = transform.GetComponentInChildren<StateMechine>();
                 if (stateMechine == null)
                     return;
-            }
-
-            if (StateExtension == StateExtension.Playable)
-            {
-                bindAnimator ??= GetComponentInChildren<Animator>();
-            }
+            }    
 
             for (int i = 0; i < stateMechine.parameters.Count; i++)
             {
@@ -187,45 +157,16 @@ namespace YukiFrameWork.States
                 return transitions;
             });
             subTransitions.Add("BaseLayer", transitions);     
-
-            if (StateExtension == StateExtension.Playable)
-            {
-                playableGraph = PlayableGraph.Create($"{graphName}");
-                playableOutput = AnimationPlayableOutput.Create(playableGraph, "StateMechine", bindAnimator);
-                baseMixerPlayable = AnimationLayerMixerPlayable.Create(playableGraph);               
-                playableOutput.SetSourcePlayable(baseMixerPlayable);
-            }
+          
             int inputCount = 0;
             foreach (var state in runTimeSubStatePair.Values)
             {
                 foreach (var item in state.stateBases)
                 {
-                    item.OnInit(this);
-
-                    if (StateExtension == StateExtension.Playable
-                        && !item.name.StartsWith(StateConst.entryState)
-                        && !item.name.StartsWith(StateConst.upState)
-                        && item.statePlayble.animationClip != null)
-                    {
-                        inputCount++;
-                        PlayableInfo info = new PlayableInfo(stateOrAnimationDicts.Count, playableGraph,item.statePlayble.animationClip);
-                        stateOrAnimationDicts[item.name] = info;
-                        item.clipPlayable = info.clipPlayable;
-                    }
+                    item.OnInit(this);       
                 }
             }
-
-            if (StateExtension == StateExtension.Playable)
-            {
-                baseMixerPlayable.SetInputCount(inputCount);
-                foreach (var key in stateOrAnimationDicts.Values)
-                {
-                    playableGraph.Connect(key.clipPlayable, 0, baseMixerPlayable, key.clipIndex);
-                }
-
-                playableGraph.Play();
-            }      
-
+         
             if (deBugLog == DeBugLog.Open)
             {
                 LogKit.I($"状态机归属： {gameObject.name},初始化完成！");
@@ -468,67 +409,32 @@ namespace YukiFrameWork.States
         }
 
         private IEnumerator PlayableEnter(StateBase stateBase)
-        {
-            bool IsGetInfo = StateExtension == StateExtension.Playable;
-            if (!stateOrAnimationDicts.TryGetValue(stateBase.name, out var info))
-            {
-                IsGetInfo = false;
-            }          
-            if (IsGetInfo)
-            {
-                stateBase.clipPlayable.SetSpeed(1);
-                stateBase.clipPlayable.SetTime(0);
-            }
-            float clipWidth = stateBase.statePlayble.clipWidth;
-            float current = 0;
-            float speed = 1 / stateBase.statePlayble.speed;
+        {        
+            float speed = stateBase.transitionSpeed;
 
-            while (current < clipWidth)
+            float current = 0;
+            while (current < speed)
             {
                 yield return CoroutineTool.WaitForFrame();
-                current = Mathf.Clamp01(current + speed * Time.deltaTime);
-                if (IsGetInfo)
-                    Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
-                stateBase.OnTransitionEnter(speed * Time.deltaTime,false);
-            }
-            if (IsGetInfo)
-                Update_SourceWeight(baseMixerPlayable, info.clipIndex, current);
-            stateBase.OnTransitionEnter(speed * Time.deltaTime,true);       
+                current += Time.deltaTime;
+                stateBase.OnTransitionEnter(current,false);
+            }         
+            stateBase.OnTransitionEnter(current,true);       
         }
 
         private IEnumerator PlayableExit(StateBase stateBase)
         {
-            bool IsGetInfo = StateExtension == StateExtension.Playable;
-            if (!stateOrAnimationDicts.TryGetValue(stateBase.name, out var info))
-            {
-                IsGetInfo = false;
-            }
-            if (IsGetInfo)
-            {
-                stateBase.clipPlayable.SetSpeed(0);
-            }
-            float clipWidth = stateBase.statePlayble.clipWidth;
+            float speed = stateBase.transitionSpeed;
 
-            float speed = 1 / stateBase.statePlayble.speed;          
-            while (clipWidth > 0)
+            float current = 0;
+            while (current < speed)
             {
                 yield return CoroutineTool.WaitForFrame();
-                clipWidth = Mathf.Clamp01(clipWidth - speed * Time.deltaTime);
-                if(IsGetInfo)
-                    Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
-                stateBase.OnTransitionExit(speed * Time.deltaTime,false);
-            }
-            if (IsGetInfo)
-                Update_SourceWeight(baseMixerPlayable, info.clipIndex, clipWidth);
-            stateBase.OnTransitionExit(speed * Time.deltaTime,true);           
-           
+                current += Time.deltaTime;              
+                stateBase.OnTransitionExit(current,false);
+            }                      
+            stateBase.OnTransitionExit(current,true);                    
         }
-
-        private void Update_SourceWeight(AnimationLayerMixerPlayable animationMixer, int index, float clipWidth)
-        {
-            animationMixer.SetInputWeight(index, clipWidth);
-        }
-
         private IEnumerator DelayChange()
         {
             yield return CoroutineTool.WaitForFrame();
@@ -565,7 +471,7 @@ namespace YukiFrameWork.States
             OnChangeState(stateBase,callBack,isBack);
         }
 
-        public void OnChangeState(string name,string layerName, System.Action callBack = null, bool isBack = true)
+        public void OnChangeState(string name,string layerName = "BaseLayer", System.Action callBack = null, bool isBack = true)
         {
             var root = runTimeSubStatePair[layerName];
             var items = root.stateBases;         
@@ -593,13 +499,7 @@ namespace YukiFrameWork.States
             OnChangeState(stateBase, callBack, isBack);         
         }
     
-        #endregion
-
-        private void OnDestroy()
-        {            
-            if(StateExtension == StateExtension.Playable)
-                playableGraph.Destroy();
-        }
+        #endregion     
     }
 
 }

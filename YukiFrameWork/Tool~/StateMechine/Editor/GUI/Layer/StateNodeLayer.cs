@@ -243,6 +243,22 @@ namespace YukiFrameWork.States
                     break;
             }
 
+            if (Event.current.type == EventType.KeyDown                                     
+                && Event.current.keyCode == KeyCode.F)
+            {
+                foreach (var item in stateBases)
+                {
+                    if (GetTransformedRect(item.rect).Contains(Event.current.mousePosition))
+                    {
+                        this.Context.CancelPreviewTransition();
+                        SetLayerDefaultState(item);
+                        //显示菜单选项
+                        Event.current.Use();
+                        break;
+                    }
+                }
+            }
+
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete)
             {             
                 DeleteState();
@@ -374,39 +390,18 @@ namespace YukiFrameWork.States
             var genricMenu = new GenericMenu();          
             bool isEntry = data.name.Equals(StateConst.entryState) || data.name.StartsWith(StateConst.upState);
             if (!isEntry)
-            {
+            {               
                 genricMenu.AddItem(new GUIContent("Make Transition"), false, () => 
                 {
                     this.Context.StartPreviewTransition(data);
                 });
-
-                genricMenu.AddItem(new GUIContent("Set as Layer Default State"), false, () =>
-                {
-                    if (this.Context.SelectNodes != null && this.Context.StateMechine != null && this.Context.SelectNodes.Count > 0)
+                if (!data.name.Equals(StateConst.anyState))
+                    genricMenu.AddItem(new GUIContent("Set as Layer Default State(F)"), false, () =>
                     {
-                        if (data.defaultState) return;
-                        if (data.layerName == "BaseLayer")
-                        {
-                            foreach (var item in this.Context.StateMechine.states)
-                            {
-                                item.defaultState = false;
-                            }
-                            data.defaultState = true;
-                        }
-                        else if (this.Context.StateMechine.subStatesPair.ContainsKey(data.layerName))
-                        {
-                            foreach (var item in this.Context.StateMechine.subStatesPair[data.layerName].stateBases)
-                            {
-                                item.defaultState = false;
-                            }
-
-                            data.defaultState = true;
-                        }
-
-                        this.Context.StateMechine.SaveToMechine();
-                    }
-                });
-                genricMenu.AddItem(new GUIContent("Delete State"), false, DeleteState);
+                        SetLayerDefaultState(data);
+                    });
+                if (!data.name.Equals(StateConst.anyState))
+                    genricMenu.AddItem(new GUIContent("Delete State(Delete)"), false, DeleteState);
             }
             else
             {
@@ -415,6 +410,33 @@ namespace YukiFrameWork.States
 
             genricMenu.ShowAsContext();
            
+        }
+
+        private void SetLayerDefaultState(StateBase data)
+        {
+            if (this.Context.SelectNodes != null && this.Context.StateMechine != null && this.Context.SelectNodes.Count > 0)
+            {
+                if (data.defaultState) return;
+                if (data.layerName == "BaseLayer")
+                {
+                    foreach (var item in this.Context.StateMechine.states)
+                    {
+                        item.defaultState = false;
+                    }
+                    data.defaultState = true;
+                }
+                else if (this.Context.StateMechine.subStatesPair.ContainsKey(data.layerName))
+                {
+                    foreach (var item in this.Context.StateMechine.subStatesPair[data.layerName].stateBases)
+                    {
+                        item.defaultState = false;
+                    }
+
+                    data.defaultState = true;
+                }
+
+                this.Context.StateMechine.SaveToMechine();
+            }
         }
 
         private void DeleteState()
@@ -468,18 +490,20 @@ namespace YukiFrameWork.States
         {
             bool isSelected = this.Context.SelectNodes.Contains(StateBase);
 
-             if(Application.isPlaying 
-                && this.Context.StateManager != null 
-                && this.Context.StateManager.runTimeSubStatePair.ContainsKey(this.Context.StateManager.stateMechine.layerName)
-                && this.Context.StateManager.runTimeSubStatePair[this.Context.StateManager.stateMechine.layerName].CurrentState != null
-                && this.Context.StateManager.runTimeSubStatePair[this.Context.StateManager.stateMechine.layerName].CurrentState == StateBase)
+            if (Application.isPlaying
+               && this.Context.StateManager != null
+               && this.Context.StateManager.runTimeSubStatePair.ContainsKey(this.Context.StateManager.stateMechine.layerName)
+               && this.Context.StateManager.runTimeSubStatePair[this.Context.StateManager.stateMechine.layerName].CurrentState != null
+               && this.Context.StateManager.runTimeSubStatePair[this.Context.StateManager.stateMechine.layerName].CurrentState == StateBase)
                 return this.stateStyles.GetStyle(isSelected ? Style.BlueOn : Style.BlueOn, subing);
             else if (!Application.isPlaying && StateBase.defaultState)
                 return this.stateStyles.GetStyle(isSelected ? Style.OrangeOn : Style.Orange, subing);
             else if (StateBase.name == StateConst.entryState)
                 return this.stateStyles.GetStyle(isSelected ? Style.MintOn : Style.Mint, subing);
+            else if (StateBase.name == StateConst.anyState || StateBase.IsAnyState)
+                return this.stateStyles.GetStyle(isSelected ? Style.YellowOn : Style.Yellow);
             else if (StateBase.name.StartsWith(StateConst.upState))
-                return this.stateStyles.GetStyle(isSelected ? Style.RedOn : Style.Red,subing);
+                return this.stateStyles.GetStyle(isSelected ? Style.RedOn : Style.Red, subing);
             else
                 return this.stateStyles.GetStyle(isSelected ? Style.BlueOn : Style.Normal, subing);           
 

@@ -115,6 +115,9 @@ namespace YukiFrameWork.States
 
         public static void OnShowNotification(string message)
         {
+#if UNITY_2023_1_OR_NEWER
+            message = System.Text.Encoding.UTF8.GetString(System.Text.Encoding.UTF8.GetBytes(message));
+#endif
             instance.ShowNotification(new GUIContent(message.ToString()));
         }    
 

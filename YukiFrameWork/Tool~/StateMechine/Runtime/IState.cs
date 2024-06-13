@@ -12,6 +12,8 @@ namespace YukiFrameWork.States
 
         Dictionary<string, SubStateData> runTimeSubStatePair { get; }
 
+        List<StateBase> currents { get; }
+
         bool GetBool(string name);
 
         int GetInt(string name);

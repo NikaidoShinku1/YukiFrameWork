@@ -9,6 +9,7 @@
 using YukiFrameWork;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
@@ -22,7 +23,7 @@ namespace YukiFrameWork.Pools
     {
         public static GlobalObjectPools<T> Instance => SingletonProperty<GlobalObjectPools<T>>.GetInstance();
 
-        private GlobalObjectPools()
+        internal GlobalObjectPools()
         {
             fectoryPool = new GlobalFectory<T>();
         }
@@ -131,7 +132,72 @@ namespace YukiFrameWork.Pools
     public static class GlobalPoolsExtension
     {
         public static bool GlobalRelease<T>(this T sign) where T : IGlobalSign,new()
-            => GlobalObjectPools<T>.GlobalRelease(sign);
+            => GlobalObjectPools<T>.GlobalRelease(sign);      
+    }
 
+    /// <summary>
+    /// 全局无泛型对象池，无大小限制，根据类型取出对象
+    /// </summary>
+    public class GlobalObjectPools : Singleton<GlobalObjectPools>, IPools<IGlobalSign>, IDisposable
+    {
+        private Dictionary<Type, Queue<IGlobalSign>> pools = new Dictionary<Type, Queue<IGlobalSign>>();
+
+        public static object GlobalAllocation(Type type)
+        {
+            if (!Instance.pools.TryGetValue(type, out var pools))
+            {
+                pools = new Queue<IGlobalSign>();
+                Instance.pools.Add(type, pools);
+            }
+            IGlobalSign sign = null;
+            sign = pools.Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type) as IGlobalSign;
+            sign.IsMarkIdle = false;
+            sign.Init();
+            return sign;
+        }
+
+        ~GlobalObjectPools()
+        {
+            Dispose();
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            pools.Clear();
+        }
+
+        public static T GlobalAllocation<T>()
+        {
+            return (T)GlobalAllocation(typeof(T));
+        }
+
+        public static bool GlobalRelease(IGlobalSign obj) => Instance.Release(obj);
+
+        void IPools<IGlobalSign>.Clear(Action<IGlobalSign> clearMethod)
+        {
+            
+        }
+
+        IGlobalSign IPools<IGlobalSign>.Get()
+        {
+            throw new Exception("无泛型全局对象池应该使用静态的GlobalAllocation进行物品取出");
+        }
+
+        public bool Release(IGlobalSign obj)
+        {
+            if (obj == null && obj.IsMarkIdle) return false;
+            obj.IsMarkIdle = true;
+            obj.Release();
+            Type type = obj.GetType();
+            if (!Instance.pools.TryGetValue(type, out var pools))
+            {
+                pools = new Queue<IGlobalSign>();
+                Instance.pools.Add(type, pools);
+            }
+            pools.Enqueue(obj);
+            return false;
+        }
     }
 }

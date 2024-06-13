@@ -168,7 +168,7 @@ namespace YukiFrameWork
             }
         }
 #endif
-                [Conditional(LOGINFOCONDITION), Conditional(LOGFULLCONDITION)]
+        [Conditional(LOGINFOCONDITION), Conditional(LOGFULLCONDITION)]
         public static void I(object message, params object[] args)
         {
             if (!config.LogEnabled) return;

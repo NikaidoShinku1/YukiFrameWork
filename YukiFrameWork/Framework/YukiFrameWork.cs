@@ -26,7 +26,8 @@ namespace YukiFrameWork
     public interface IArchitecture : IDisposable
     {
         /// <summary>
-        /// 使用XFABManager加载时，可以进行重写的模块名用于对应XFABManager的配置模块
+        /// 使用XFABManager加载时，可以进行重写的模块名用于对应XFABManager的配置模块。
+        /// <para>外部使用静态的ProjectName属性进行访问即可,例如World.ProjectName,World为架构</para>
         /// </summary>
         string OnProjectName { get; }
 
@@ -34,7 +35,7 @@ namespace YukiFrameWork
         /// 使用XFABManager打包场景进ab包或者已经有场景直接添加在Buil时，可以重写该方法，输入场景名称以及加载方式，当架构模块完全加载完以后会自动进入场景
         /// 
         /// 
-        /// 注意:使用XFABManager加载场景必须重写OnProjectName属性
+        /// <para> 注意:使用XFABManager加载场景必须重写OnProjectName属性 </para>
         /// </summary>
         (string, SceneLoadType) DefaultSceneName { get; }
 

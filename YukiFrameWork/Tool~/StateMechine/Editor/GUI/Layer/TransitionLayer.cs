@@ -92,7 +92,8 @@ namespace YukiFrameWork.States
         }
 
         private void DrawTransition(string fromStateName, string toStateName, Color color, bool isShowArrow = true,float progress = 1f)
-        {                   
+        {
+           
             var fromState = GetLayerStates()?.Where(x => x.name.Equals(fromStateName)).FirstOrDefault();
             var toState = GetLayerStates()?.Where(x => x.name.Equals(toStateName)).FirstOrDefault();
             DrawTransition(fromState, toState, color, isShowArrow,progress);
@@ -241,45 +242,30 @@ namespace YukiFrameWork.States
                 currentManager = this.Context.StateManager;
                 return;
             }
-            if (!this.Context.StateManager.stateMechine.IsSubLayerAndContainsName())
+
+            string currentName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName]?.CurrentState.name;
+            if (!currentName.Equals(currentStateName))
             {
-                if (!this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name.Equals(currentStateName))
+                var ts = this.Context.StateManager.subTransitions[this.Context.StateMechine.layerName];
+                string name = currentStateName;
+                var info = ts
+                 .Find(x
+                 => x.FromStateName.Equals(currentStateName)
+                 && x.ToStateName.Equals(this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name));
+                if (ts.Find(x => x.FromStateName == StateConst.anyState && x.ToStateName == currentName) != null
+                    && info == null)
                 {
-                    ChangeTimer();
-                    //状态正在切换
-
-                    if (this
-                        .Context
-                        .StateManager
-                        .stateMechine
-                        .transitions
-                        .Find(x 
-                        => x.fromStateName.Equals(currentStateName) 
-                        && x.toStateName.Equals(this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name)) 
-                        != null)
-                        DrawTransition(currentStateName
-                            , this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name
-                            , ColorConst.TransitionColor, false, transitionTimer);
-
+                    name = StateConst.anyState;
                 }
-            }
-            else
-            {
-                if (this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState?.name.Equals(currentStateName) == false)
-                {
-                    ChangeTimer();
+                LogKit.I(ts.Find(x => x.FromStateName == StateConst.anyState && x.ToStateName == currentName) != null && info == null);
+                ChangeTimer();
+                //状态正在切换   
 
-                    if (this.Context.StateManager.stateMechine.subTransitions
-                        [this.Context.StateManager.stateMechine.layerName]
-                        .Find(x 
-                        => x.fromStateName.Equals(currentStateName) 
-                        && x.toStateName.Equals(this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name)) 
-                        != null)
-                        DrawTransition(currentStateName
-                            , this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name
-                            , ColorConst.TransitionColor, false, transitionTimer);
-                }
+                DrawTransition(name
+                    , this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name
+                    , ColorConst.TransitionColor, false, transitionTimer);
             }
+            
         }
 
         private void ChangeTimer()
@@ -287,6 +273,7 @@ namespace YukiFrameWork.States
             transitionTimer += Time.deltaTime;
             if (transitionTimer >= 1)
             {
+                transitionTimer.LogInfo();
                 currentStateName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name;
                 transitionTimer = 0;
             }

@@ -76,7 +76,7 @@ namespace YukiFrameWork.States
                 return;
             }
 
-            bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState) || helper.node.name.StartsWith(StateConst.upState);
+            bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState) || helper.node.name.StartsWith(StateConst.upState) || helper.node.IsAnyState;
 
             EditorGUI.BeginDisabledGroup(disabled);
             bool child = helper.node.layerName != "BaseLayer";
@@ -100,10 +100,8 @@ namespace YukiFrameWork.States
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
 
-            if (manager != null && disabled == false)
-            {
-                helper.node.statePlayble.OnInspectorGUI(manager.StateExtension == StateExtension.Playable, helper.node, manager) ;
-            }
+            if(!helper.node.IsAnyState && !helper.node.name.Equals(StateConst.entryState) && !helper.node.name.Contains(StateConst.upState))
+            helper.node.transitionSpeed = EditorGUILayout.FloatField("模拟过渡时间:",helper.node.transitionSpeed);
 
             if (!helper.node.name.Equals(stateName))
             {

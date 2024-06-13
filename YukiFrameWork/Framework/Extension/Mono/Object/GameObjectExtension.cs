@@ -16,8 +16,8 @@ namespace YukiFrameWork
     {
 
         #region Instantiate
-        public static T Instantiate<T>(this T core, Transform parent = null) where T : Object
-            => Object.Instantiate(core, parent);
+        public static T Instantiate<T>(this T core, Component parent = null) where T : Object
+            => Object.Instantiate(core, parent.transform);
 
         public static T Instantiate<T>(this T obj) where T : Object
             => Object.Instantiate(obj);
@@ -28,8 +28,8 @@ namespace YukiFrameWork
         public static T Instantiate<T>(this T obj, Vector3 position, Quaternion quaternion, Transform parent) where T : Object
             => Object.Instantiate(obj, position, quaternion, parent);
 
-        public static T Instantiate<T>(this T obj, Transform parent, bool instanitateInWorldSpace) where T : Object
-            => Object.Instantiate(obj, parent, instanitateInWorldSpace);
+        public static T Instantiate<T>(this T obj, Component parent, bool instanitateInWorldSpace) where T : Object
+            => Object.Instantiate(obj, parent.transform, instanitateInWorldSpace);
         #endregion
 
         #region Core

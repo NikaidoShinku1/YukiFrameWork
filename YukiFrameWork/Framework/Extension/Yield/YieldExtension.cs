@@ -265,12 +265,12 @@ namespace YukiFrameWork
             public CustomWaitUntil(Func<bool> m_Predicate)
                 => this.m_Predicate = m_Predicate;
 
-            public bool keepWaiting => !m_Predicate();
+            public readonly bool keepWaiting => !m_Predicate();
             public object Current => null;
 
             public bool MoveNext()
             {
-                return !m_Predicate();
+                return keepWaiting;
             }
 
             public void Reset()
@@ -285,12 +285,12 @@ namespace YukiFrameWork
             public CustomWaitWhile(Func<bool> m_Predicate)
                 => this.m_Predicate = m_Predicate;
 
-            public bool keepWaiting => !m_Predicate();
+            public bool keepWaiting => m_Predicate();
             public object Current => null;
 
             public bool MoveNext()
             {
-                return m_Predicate();
+                return keepWaiting;
             }
 
             public void Reset()
