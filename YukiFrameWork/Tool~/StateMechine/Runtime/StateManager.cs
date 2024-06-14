@@ -51,7 +51,11 @@ namespace YukiFrameWork.States
 
         [LabelText("状态机是否开启调试:"), BoxGroup(defaultSystem)]
         [InfoBox("开启后每次切换状态都会Debug一次")]
-        public DeBugLog deBugLog;        
+        public DeBugLog deBugLog;
+
+        [LabelText("安全切换"), BoxGroup(defaultSystem)]
+        [InfoBox("开启后每次在切换状态之后，会等待一帧再进行一次条件的判断是否完成条件,\n关闭则直接判断，可以无缝衔接的连续切换",InfoMessageType.Warning)]
+        public bool IsDelayChange = true;
 #if UNITY_EDITOR
         [ShowIf("IsMechineOrEmpty")]
 #endif
@@ -368,7 +372,9 @@ namespace YukiFrameWork.States
             }
             runTimeSubStatePair[state.layerName].CurrentState = state;
             OnEnterState(state, callBack);
-            MonoHelper.Start(DelayChange());                    
+            if (IsDelayChange)
+                MonoHelper.Start(DelayChange());
+            else CheckConditionInStateEnter();
         }
 
         private void AddStateChangeCount(string name)

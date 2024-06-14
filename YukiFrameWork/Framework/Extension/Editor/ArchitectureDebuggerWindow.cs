@@ -399,7 +399,7 @@ namespace YukiFrameWork
                 if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && runtimeInitialize != null)
                     continue;
                 var tRect = EditorGUILayout.BeginHorizontal();
-                var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(20));
+                var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(25));
 
                 EditorGUILayout.LabelField(EditorGUIUtility.IconContent("cs Script Icon"), GUILayout.Width(20));
                 GUILayout.Label(info.type.FullName, GUILayout.Width(400));
@@ -519,7 +519,7 @@ namespace YukiFrameWork
                     continue;
 
                 var tRect = EditorGUILayout.BeginHorizontal();
-                var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(20));
+                var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(25));
                 
                 EditorGUILayout.LabelField(EditorGUIUtility.IconContent("cs Script Icon"), GUILayout.Width(20));
                 GUILayout.Label(info.type.FullName,GUILayout.Width(400));

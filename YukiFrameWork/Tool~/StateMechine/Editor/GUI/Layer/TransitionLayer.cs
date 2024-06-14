@@ -256,8 +256,7 @@ namespace YukiFrameWork.States
                     && info == null)
                 {
                     name = StateConst.anyState;
-                }
-                LogKit.I(ts.Find(x => x.FromStateName == StateConst.anyState && x.ToStateName == currentName) != null && info == null);
+                }             
                 ChangeTimer();
                 //状态正在切换   
 
@@ -272,8 +271,7 @@ namespace YukiFrameWork.States
         {
             transitionTimer += Time.deltaTime;
             if (transitionTimer >= 1)
-            {
-                transitionTimer.LogInfo();
+            {              
                 currentStateName = this.Context.StateManager.runTimeSubStatePair[this.Context.StateMechine.layerName].CurrentState.name;
                 transitionTimer = 0;
             }

@@ -32,30 +32,42 @@ namespace YukiFrameWork.UI
 				if (panel == null) continue;
 				panel.Hide().OnInit();
 			}
-		}     
+		}
 
+		[Obsolete("推荐直接使用UIKit.ShowPanel进行临时面板的开启")]
 		public T ShowPanel<T>() where T : BasePanel,IPanel
 		{
-			IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
-			if (panel == null) return null;
-			panel.Enter();
-            panel.gameObject.Show().SetAsLastSibling();
-			return panel as T;
+			return Show_Internal<T>();
         }
 
-		public T HidePanel<T>() where T : BasePanel
+        internal T Show_Internal<T>() where T : BasePanel, IPanel
+        {
+            IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
+            if (panel == null) return null;
+            panel.Enter();
+            panel.gameObject.Show().SetAsLastSibling();
+            return panel as T;
+        }
+        [Obsolete("推荐直接使用UIKit.HidePanel进行临时面板的关闭")]
+        public T HidePanel<T>() where T : BasePanel,IPanel
+		{
+			return Hide_Internal<T>();
+        }
+
+		internal T Hide_Internal<T>() where T : BasePanel, IPanel
 		{
             IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
-			if (panel != null)
-			{
-				panel.Exit();
-				panel.gameObject.Hide().SetParent(this);
-				return panel as T;
-			}
-			return null;
+            if (panel != null)
+            {
+                panel.Exit();
+                panel.gameObject.Hide();
+                return panel as T;
+            }
+            return null;
         }
 
-		public void AddPanel(BasePanel panel)
+
+        public void AddPanel(BasePanel panel)
 		{
 			if (prefabInfos.Contains(panel)) return;
 			panel.Hide().OnInit();

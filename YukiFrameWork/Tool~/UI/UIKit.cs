@@ -15,7 +15,7 @@ using UnityEngine.UI;
 using Object = UnityEngine.Object;
 namespace YukiFrameWork.UI
 {
-    public class UIKit
+    public static class UIKit
     {
         private static IUIConfigLoader loader = null;
 
@@ -35,6 +35,22 @@ namespace YukiFrameWork.UI
             Default = true;
             UIManager.I.InitLevel();
         }
+
+        /// <summary>
+        /// 打开临时面板，此处打开的面板必须是位于UIRoot下PrefabRoot层级下面的面板，而非动态加载面板
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T ShowPanel<T>() where T : BasePanel, IPanel
+            => Exector.Show_Internal<T>();
+
+        /// <summary>
+        /// 关闭临时面板,此处关闭的面板必须是位于UIRoot下PrefabRoot层级下面的面板，而非动态加载面板
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T HidePanel<T>() where T : BasePanel, IPanel
+            => Exector.Hide_Internal<T>();
 
         /// <summary>
         /// UI模块初始化方法,传入自定义的UI加载模块
@@ -490,6 +506,12 @@ namespace YukiFrameWork.UI
                 callBack?.Invoke();
             }
             return panel;
-        }       
+        }
+
+        public static T ShowPanel<T>(this T temp) where T : BasePanel, IPanel
+            => UIKit.ShowPanel<T>();
+
+        public static T HidePanel<T>(this T temp) where T : BasePanel, IPanel
+            => UIKit.HidePanel<T>();
     }
 }
