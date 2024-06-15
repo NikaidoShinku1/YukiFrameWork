@@ -63,6 +63,12 @@ namespace YukiFrameWork.Buffer
                 {
                     MenuTree.Add("Buff信息:" + item.GetBuffKey, item, SdfIconType.Wallet);
                 }
+
+                if (MenuTree.MenuItems.Count > 0)
+                {
+                    MenuTree.MenuItems.FirstOrDefault().Select();
+                    MenuTree.MarkLayoutChanged();                 
+                }
             }
         }
 
