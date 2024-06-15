@@ -26,22 +26,87 @@ namespace YukiFrameWork.Buffer
         {
             GetWindow<BuffDesignerWindow>().titleContent = new GUIContent("Buff数据配置窗口");
         }
+
+        public static void OpenWindow(BuffDataBase buffDataBase)
+        {
+            var window = GetWindow<BuffDesignerWindow>();
+            window.titleContent = new GUIContent("Buff数据配置窗口");
+            window.BuffDataBase = buffDataBase;
+        }
+        private BuffDataBase buffDataBase;
+        private BuffDataBase BuffDataBase
+        {
+            get => buffDataBase;
+            set
+            {
+                if (value == null && MenuTree != null)
+                {
+                    MenuTree.MenuItems.Clear();
+                    return;
+                }
+
+                if (value == null || value == buffDataBase) return;
+                buffDataBase = value;
+
+                Init(MenuTree);
+                EnsureEditorsAreReady();
+            }
+        }
+        private bool isDelete;
+        private void Init(OdinMenuTree MenuTree)
+        {
+            if (MenuTree != null && buffDataBase != null)
+            {
+                MenuTree.MenuItems.Clear();
+
+                foreach (var item in buffDataBase.buffConfigs)
+                {
+                    MenuTree.Add("Buff信息:" + item.GetBuffKey, item, SdfIconType.Wallet);
+                }
+            }
+        }
+
+        protected override void DrawEditor(int index)
+        {
+            GUI.color = Color.red;
+            if (GUILayout.Button("移除Buff"))
+            {
+                BuffDataBase.DeleteBuff(MenuTree.MenuItems.FirstOrDefault(x => x.IsSelected).FlatTreeIndex);
+                isDelete = true;
+            }
+            GUI.color = Color.white;
+            base.DrawEditor(index);
+        }
+
+        protected override void OnImGUI()
+        {
+            base.OnImGUI();
+            if (buffDataBase == null) return;
+            for (int i = 0; i < MenuTree.MenuItems.Count; i++)
+            {
+                var item = MenuTree.MenuItems[i];
+                if (i >= MenuTree.MenuItems.Count || isDelete) continue;
+                item.Name = "Buff信息:" + buffDataBase.buffConfigs[i].GetBuffKey;           
+            }
+
+            for (int i = 0; i < buffDataBase.buffConfigs.Count; i++)
+            {
+                var item = buffDataBase.buffConfigs[i];
+                item.names.Clear();
+
+                for (int j = 0; j < buffDataBase.buffConfigs.Count; j++)
+                {
+                    if (buffDataBase.buffConfigs[j].GetBuffName == item.GetBuffName) continue;
+                    item.names.Add(buffDataBase.buffConfigs[j].GetBuffName, buffDataBase.buffConfigs[j].GetBuffKey);
+                }
+
+            }
+        }
+
         protected override OdinMenuTree BuildMenuTree()
         {
             var tree = new OdinMenuTree();
-            System.Type buffType = typeof(BuffDataBase);
-
-
-            BuffDataBase[] objects = AssetDatabase.FindAssets($"t:{buffType}")
-                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .Select(AssetDatabase.LoadAssetAtPath<BuffDataBase>)
-                .Where(item => item != null)
-                .ToArray();
-            for (int i = 0; i < objects.Length; i++)
-            {
-                tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", BuffDataWindow.Create(objects[i]), SdfIconType.BookmarkStar);
-            }
-
+            Init(tree);
             return tree;
         }
 
@@ -49,94 +114,35 @@ namespace YukiFrameWork.Buffer
         {
             try
             {
-                if (MenuTree != null)
+                var rect = EditorGUILayout.BeginHorizontal();
+
+                BuffDataBase = (BuffDataBase)EditorGUILayout.ObjectField(GUIContent.none, BuffDataBase, typeof(BuffDataBase), true);
+
+                EditorGUILayout.EndHorizontal();
+
+                if (Event.current.type == EventType.MouseDown && Event.current.button == 1)
                 {
-                    MenuTree?.DrawSearchToolbar();
-                }
-            }
-            catch { }
-            base.DrawMenu();
-        }
-    }
+                    GenericMenu genericMenu = new GenericMenu();
 
-    public class BuffDataWindow : Sirenix.OdinInspector.Editor.OdinMenuEditorWindow
-    {
-        private BuffDataBase buffData;
-        public static BuffDataWindow Create(BuffDataBase dataBase)
-        {
-            BuffDataWindow window = OdinMenuEditorWindow.CreateInstance<BuffDataWindow>();          
-            window.buffData = dataBase;
-            return window;
-        }
-        internal string[] bufDataNames => buffData.buffConfigs.Select(x => x.GetBuffName).ToArray();
-        protected override OdinMenuTree BuildMenuTree()
-        {
-            OdinMenuTree odinMenuTree = new OdinMenuTree();          
-            for (int i = 0; i < buffData.buffConfigs.Count; i++)
-            {
-                odinMenuTree.Add("Buff信息" + i + buffData.buffConfigs[i].GetBuffKey, buffData.buffConfigs[i], SdfIconType.Wallet);
-            }           
-            return odinMenuTree;
-        }              
-        private void OnInspectorUpdate()
-        {
-            Repaint();
-            ForceMenuTreeRebuild();           
-        }
+                    var types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(Buff)));
 
-        protected override void DrawMenu()
-        {
-            try
-            {
-                if (MenuTree != null)
-                {
-                    MenuTree?.DrawSearchToolbar();
-                }
-            }
-            catch { }
-            base.DrawMenu();
-        }     
-        [OnInspectorGUI]
-        protected override void OnImGUI()
-        {          
-            base.OnImGUI();
-            for(int i = 0;i < MenuTree.MenuItems.Count;i++)
-            {
-                var item = MenuTree.MenuItems[i];
-                item.Name ="Buff信息:" + buffData.buffConfigs[i].GetBuffKey;
-            }
-
-            for (int i = 0; i < buffData.buffConfigs.Count; i++)
-            {
-                var item = buffData.buffConfigs[i];
-                item.names.Clear();
-
-                for (int j = 0; j < bufDataNames.Length; j++)
-                {
-                    if (bufDataNames[j] == buffData.buffConfigs[i].GetBuffName) continue;
-                    item.names.Add(bufDataNames[j], buffData.buffConfigs[j].GetBuffKey);
-                }
-                
-            }
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 1)
-            {              
-                GenericMenu genericMenu = new GenericMenu();
-
-                var types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(Buff)));
-
-                for (int i = 0; i < types.Length; i++)
-                {
-                    int index = i;
-                    genericMenu.AddItem(new GUIContent("创建Buff/" + types[i]),false, () => 
+                    for (int i = 0; i < types.Length; i++)
                     {
-                        buffData.CreateBuff(types[index]);
-                        Repaint();
-                    });
-                }
+                        int index = i;
+                        genericMenu.AddItem(new GUIContent("创建Skill/" + types[i]), false, () =>
+                        {
+                            BuffDataBase.CreateBuff(types[index]);
+                            Repaint();
+                        });
+                    }
 
-                genericMenu.ShowAsContext();
+                    genericMenu.ShowAsContext();
+                }
             }
+            catch { }
+            base.DrawMenu();
         }
-    }
+    } 
+    
 }
 #endif
