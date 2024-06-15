@@ -113,8 +113,11 @@ namespace YukiFrameWork
 
         public CodeCore CodeSetting(string nameSpace, string className, string parentClassName,CodeWriter writer, bool isStatic = false,bool isPartial = false,bool isEnum = false)
         {
-            builder.AppendLine($"namespace {nameSpace}");
-            builder.AppendLine("{");                     
+            if (!nameSpace.IsNullOrEmpty())
+            {
+                builder.AppendLine($"namespace {nameSpace}");
+                builder.AppendLine("{");
+            }
             builder.AppendLine($"\tpublic {(isStatic?"static" + " ": string.Empty)}{(isPartial? "partial" + " ": string.Empty)}{(isEnum?"enum":"class")} {className}{(string.IsNullOrEmpty(parentClassName)?string.Empty:$" : {parentClassName}")}");
             builder.AppendLine("\t{");
             if (writer == null)
@@ -129,7 +132,8 @@ namespace YukiFrameWork
                 }
             }
             builder.AppendLine("\t}");
-            builder.AppendLine("}");
+            if (!nameSpace.IsNullOrEmpty())
+                builder.AppendLine("}");
             return this;
         }
 
@@ -161,11 +165,15 @@ namespace YukiFrameWork
                     builder.AppendLine("/// -  All Rights Reserved.");
                     builder.AppendLine("///=====================================================");
 
+                    bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
                     builder.AppendLine("using YukiFrameWork;");
                     builder.AppendLine("using UnityEngine;");
                     builder.AppendLine("using System;");
-                    builder.AppendLine($"namespace {Data?.ScriptNamespace}");
-                    builder.AppendLine("{");
+                    if (!notnameSpace)
+                    {
+                        builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                        builder.AppendLine("{");
+                    }
                     if (Data.AutoArchitectureIndex != 0)
                         builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({Data?.AutoInfos[Data.AutoArchitectureIndex]}),true)]");
                     builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : {Data.Parent[Data.SelectIndex]}");
@@ -173,7 +181,8 @@ namespace YukiFrameWork
                     builder.AppendLine("");
                     builder.AppendLine("\t}");
 
-                    builder.AppendLine("}");
+                    if (!notnameSpace)
+                        builder.AppendLine("}");
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
@@ -247,6 +256,7 @@ namespace YukiFrameWork
             {
                 if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
                 {
+                    bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
                     StringBuilder builder = new StringBuilder();
                     builder.AppendLine("///=====================================================");
                     builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
@@ -260,8 +270,11 @@ namespace YukiFrameWork
                     builder.AppendLine("using YukiFrameWork.UI;");
                     builder.AppendLine("using UnityEngine;");
                     builder.AppendLine("using UnityEngine.UI;");
-                    builder.AppendLine($"namespace {Data?.ScriptNamespace}");
-                    builder.AppendLine("{");
+                    if (!notnameSpace)
+                    {
+                        builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                        builder.AppendLine("{");
+                    }
                     builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : BasePanel");
                     builder.AppendLine("\t{");
                     builder.AppendLine("\t\tpublic override void OnInit()");
@@ -287,6 +300,7 @@ namespace YukiFrameWork
                     builder.AppendLine("");
                     builder.AppendLine("\t}");
 
+                    if(!notnameSpace)
                     builder.AppendLine("}");
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {

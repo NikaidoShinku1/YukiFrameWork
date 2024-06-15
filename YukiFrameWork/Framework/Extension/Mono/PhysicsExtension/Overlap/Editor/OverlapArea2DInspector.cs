@@ -99,7 +99,6 @@ namespace YukiFrameWork.Overlap
 
         private void OnSceneGUI() 
         {
-
             if (mode.enumValueIndex != 0) return;
 
             for (int i = 0;i < positions.arraySize;i++)
