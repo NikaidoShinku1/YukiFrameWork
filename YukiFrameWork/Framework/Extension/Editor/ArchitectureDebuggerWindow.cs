@@ -24,13 +24,7 @@ namespace YukiFrameWork
 {
     internal class ArchitectureDebuggerWindow : OdinMenuEditorWindow
     {
-        [SerializeField, HideLabel, ShowInInspector]
-        internal Title mtitle;
-        
-        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector]
-        internal SelectType selectType;
-       
-
+            
         internal enum Title
         {
             [LabelText("Model注册收集")]
@@ -74,15 +68,15 @@ namespace YukiFrameWork
             autoRepaintOnSceneChange = true;
             position = new Rect(position.x, position.y, 1550, position.height);
 
-            mtitle = (Title)PlayerPrefs.GetInt("Architecture_Key_Title", 0);
-            selectType = (SelectType)PlayerPrefs.GetInt("Architecture_Key_SelectType", 0);
+            ArchitectureDebugger.mtitle = (Title)PlayerPrefs.GetInt("Architecture_Key_Title", 0);
+            ArchitectureDebugger.selectType = (SelectType)PlayerPrefs.GetInt("Architecture_Key_SelectType", 0);
         }   
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            PlayerPrefs.SetInt("Architecture_Key_Title", (int)mtitle);
-            PlayerPrefs.SetInt("Architecture_Key_SelectType", (int)selectType);
+            PlayerPrefs.SetInt("Architecture_Key_Title", (int)ArchitectureDebugger.mtitle);
+            PlayerPrefs.SetInt("Architecture_Key_SelectType", (int)ArchitectureDebugger.selectType);
         }
 
         private void Update()
@@ -132,21 +126,14 @@ namespace YukiFrameWork
 
     internal class ArchitectureDebugger : OdinEditorWindow
     {
-        [SerializeField, HideLabel, ShowInInspector,EnumToggleButtons,BoxGroup]
-        internal Title mtitle
-        {
-            get => editorWindow.mtitle;
-            set => editorWindow.mtitle = value;
-        }        
+        [HideLabel, ShowInInspector, EnumToggleButtons, BoxGroup]
+        internal static Title mtitle;
 
-        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector,BoxGroup]
-        internal SelectType selectType
-        {
-            get => editorWindow.selectType;
-            set => editorWindow.selectType = value;
-        }
 
-        [SerializeField, EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
+        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector, BoxGroup]
+        internal static SelectType selectType;
+
+        [ EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
         private ArchitectureDebuggerWindow.EventType eventType { get; set; }
        
         private string eventSearch;
@@ -280,7 +267,7 @@ namespace YukiFrameWork
             float width = editorWindow.position.width - editorWindow.MenuWidth;
 
             var rect = EditorGUILayout.BeginVertical();
-            switch (editorWindow.mtitle)
+            switch (mtitle)
             {
                 case ArchitectureDebuggerWindow.Title.Model:                   
                     modelPosition = EditorGUILayout.BeginScrollView(modelPosition, GUILayout.Height(editorWindow.position.height - 300));
@@ -379,7 +366,7 @@ namespace YukiFrameWork
             return Color.HSVToRGB(Mathf.Cos((float)UnityEditor.EditorApplication.timeSinceStartup + 1f) * 0.225f + 0.325f, 1, 1);
         }
         string box;
-        private ArchitectureDebuggerWindow.Title mTitle => editorWindow.mtitle;
+        private ArchitectureDebuggerWindow.Title mTitle => mtitle;
        
         void DrawController()
         {
@@ -393,10 +380,10 @@ namespace YukiFrameWork
                     runtimeInitialize = info.registration as RuntimeInitializeOnArchitecture;
                 }
 
-                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.Architecture && runtimeInitialize?.ArchitectureType != architectureType)                
+                if (selectType == ArchitectureDebuggerWindow.SelectType.Architecture && runtimeInitialize?.ArchitectureType != architectureType)                
                     continue;
 
-                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && runtimeInitialize != null)
+                if (selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && runtimeInitialize != null)
                     continue;
                 var tRect = EditorGUILayout.BeginHorizontal();
                 var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(25));
@@ -512,10 +499,10 @@ namespace YukiFrameWork
                     }
                 }
 
-                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.Architecture && registration?.architectureType != architectureType)
+                if (selectType == ArchitectureDebuggerWindow.SelectType.Architecture && registration?.architectureType != architectureType)
                     continue;
 
-                if (editorWindow.selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && registration != null)
+                if (selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && registration != null)
                     continue;
 
                 var tRect = EditorGUILayout.BeginHorizontal();

@@ -31,14 +31,17 @@ namespace YukiFrameWork.Buffer
             var tree = new OdinMenuTree();
             System.Type buffType = typeof(BuffDataBase);
 
-            if (buffType != null)
+
+            BuffDataBase[] objects = AssetDatabase.FindAssets($"t:{buffType}")
+                .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
+                .Select(AssetDatabase.LoadAssetAtPath<BuffDataBase>)
+                .Where(item => item != null)
+                .ToArray();
+            for (int i = 0; i < objects.Length; i++)
             {
-                Object[] objects = Resources.FindObjectsOfTypeAll(buffType);
-                for (int i = 0; i < objects.Length; i++)
-                {
-                    tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", BuffDataWindow.Create(objects[i] as BuffDataBase), SdfIconType.BookmarkStar);
-                }
+                tree.Add($"BuffKit配置窗口集合/{objects[i].name}_{objects[i].GetInstanceID()}", BuffDataWindow.Create(objects[i]), SdfIconType.BookmarkStar);
             }
+
             return tree;
         }
 
