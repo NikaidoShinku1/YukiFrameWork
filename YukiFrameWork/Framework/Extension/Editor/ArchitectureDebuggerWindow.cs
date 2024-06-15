@@ -58,7 +58,9 @@ namespace YukiFrameWork
         [MenuItem("YukiFrameWork/Architecture Debugger",false,-1000)]
         static void OpenWindow()
         {
-            GetWindow<ArchitectureDebuggerWindow>().titleContent = new GUIContent("架构调试器");
+            var window = GetWindow<ArchitectureDebuggerWindow>();
+            window.titleContent = new GUIContent("架构调试器");
+            window.position = new Rect(window.position.x, window.position.y, 1550, window.position.height);
         }
 
         protected override void OnEnable()
@@ -66,7 +68,7 @@ namespace YukiFrameWork
             base.OnEnable();
             DrawUnityEditorPreview = true;
             autoRepaintOnSceneChange = true;
-            position = new Rect(position.x, position.y, 1550, position.height);
+            //position = new Rect(position.x, position.y, 1550, position.height);
 
             ArchitectureDebugger.mtitle = (Title)PlayerPrefs.GetInt("Architecture_Key_Title", 0);
             ArchitectureDebugger.selectType = (SelectType)PlayerPrefs.GetInt("Architecture_Key_SelectType", 0);
@@ -82,12 +84,11 @@ namespace YukiFrameWork
         private void Update()
         {
             Repaint();
-        }
+        }    
 
-        protected override void DrawEditor(int index)
-        {            
-            base.DrawEditor(index);
-        }
+        //private List<ArchitectureDebugger> debuggerWindows = new List<ArchitectureDebugger>();
+
+        
         protected override OdinMenuTree BuildMenuTree()
         {
             OdinMenuTree tree = new OdinMenuTree();
@@ -118,13 +119,14 @@ namespace YukiFrameWork
             {              
                 if (typeof(IArchitecture).IsAssignableFrom(type))
                 {
-                    tree.Add("YukiFrameWork/" + "架构:" + type.Name,ArchitectureDebugger.Create(type,this),SdfIconType.ArchiveFill);
+                    var window = ArchitectureDebugger.Create(type, this);
+                    tree.Add("YukiFrameWork/" + "架构:" + type.Name,window,SdfIconType.ArchiveFill);                  
                 }
             }
         }
     }
 
-    internal class ArchitectureDebugger : OdinEditorWindow
+    internal class ArchitectureDebugger
     {
         [HideLabel, ShowInInspector, EnumToggleButtons, BoxGroup]
         internal static Title mtitle;
@@ -133,7 +135,7 @@ namespace YukiFrameWork
         [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector, BoxGroup]
         internal static SelectType selectType;
 
-        [ EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
+        [EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
         private ArchitectureDebuggerWindow.EventType eventType { get; set; }
        
         private string eventSearch;
@@ -185,7 +187,7 @@ namespace YukiFrameWork
 
         public static ArchitectureDebugger Create(Type type, ArchitectureDebuggerWindow editorWindow)
         {
-            ArchitectureDebugger debugger = OdinEditorWindow.CreateInstance(typeof(ArchitectureDebugger)) as ArchitectureDebugger;
+            ArchitectureDebugger debugger = new ArchitectureDebugger();
             debugger.Init(type,editorWindow);
             return debugger;
         }
@@ -206,13 +208,7 @@ namespace YukiFrameWork
         private bool IsRunning => Application.isPlaying;
       
         private Dictionary<Rule, GenericInfo[]> rolds = new Dictionary<Rule, GenericInfo[]>();
-          
-       
-        protected override void OnDisable()
-        {
-            base.OnDisable();         
-        }
-
+           
         private GenericInfo[] GetRoldTypes(Func<Type,bool> condition)
         {
             return AssemblyHelper
@@ -253,7 +249,7 @@ namespace YukiFrameWork
 
         ArchitectureStartUpRequest request = null;
         [OnInspectorGUI]
-        protected override void OnImGUI()
+        public void OnImGUI()
         {           
             if (IsRunning)
             {
