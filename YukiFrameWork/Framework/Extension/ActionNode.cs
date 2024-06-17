@@ -73,9 +73,8 @@ namespace YukiFrameWork
 
     public interface IActionUpdateNode
     {
-        UpdateStatus UpdateStatus { get; }
-        bool IsFirstExecute { get; set; }      
-        IActionUpdateNode Register(Action<long> OnEvent, Action OnError = null, Action OnFinish = null);
+        UpdateStatus UpdateStatus { get; }     
+        IActionUpdateNode Register(Action<long> OnEvent);
         bool OnExecute(float delta);
         void OnFinish();
     }
@@ -83,11 +82,8 @@ namespace YukiFrameWork
     public interface IActionUpdateCondition
     {
         ActionUpdateNode Action { get; }
-        IActionUpdateNode Register(Action<long> onEvent, Action OnError = null, Action OnFinish = null);
-        IActionUpdateCondition Where(Func<bool> condition);
-        IActionUpdateCondition First(Func<bool> condition = null);
-        IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition);       
-        IActionUpdateCondition Delay(float time);        
+        IActionUpdateNode Register(Action<long> onEvent);
+        IActionUpdateCondition Where(Func<bool> condition);        
     }
 
     public interface IMonoActionNode<T> : IMonoActionNode where T : Delegate
@@ -166,18 +162,9 @@ namespace YukiFrameWork
 
         public UpdateStatus UpdateStatus { get; private set; }
 
-        protected long data;
-        private float current = 0;
-        public float maxTime { get; set; }
-        protected Action<long> onEvent;
-
-        protected Action onError;
-        protected Action onFinish;
-
-        public Func<bool> OnFinishCondition { get; set; }
-       
-
-        public bool IsFirstExecute { get; set; }
+        protected long data;       
+        
+        protected Action<long> onEvent;        
 
         public ActionUpdateNode(UpdateStatus updateStatus)
         {
@@ -200,51 +187,19 @@ namespace YukiFrameWork
 
         public override bool OnExecute(float delta)
         {
-            try
+            foreach (var action in actions)
             {
-                if (current < maxTime)
-                {
-                    current += delta;
-                    return false;
-                }
-                foreach (var action in actions)
-                {
-                    IsPaused = !action.OnExecute(delta);
-                }
-
-                if (IsPaused) return false;
-                data++;
-                onEvent?.Invoke(data);
-                if (IsFirstExecute)
-                {
-                    onFinish?.Invoke();
-                    return true;
-                }
-                if (OnFinishCondition != null && OnFinishCondition?.Invoke() == true)
-                {
-                    onFinish?.Invoke();
-                    return true;
-                }
-                return false;
-            }
-            catch(Exception ex)
-            {
-                if (onError != null)
-                {
-                    onError?.Invoke();
-                    return true;
-                }
-                else
-                {
-                    throw ex;             
-                }
-            }
+                IsPaused = !action.OnExecute(delta);
+            }          
+            if (IsPaused) return false;
+            data++;
+            onEvent?.Invoke(data);
+            return false;
         }
 
         public override void OnFinish()
         {
-            IsInit = false;
-                     
+            IsInit = false;                   
             IsCompleted = true;
             data = 0;
             onEvent = null;
@@ -252,11 +207,9 @@ namespace YukiFrameWork
             simpleObjectPools.Release(this);
         }
 
-        public IActionUpdateNode Register(Action<long> onEvent, Action OnError = null, Action OnFinish = null)
+        public IActionUpdateNode Register(Action<long> onEvent)
         {
-            this.onEvent = onEvent;
-            this.onError = OnError;
-            this.onFinish = OnFinish;
+            this.onEvent = onEvent;                     
             return this;
         }
 

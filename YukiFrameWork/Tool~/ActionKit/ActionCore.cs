@@ -451,33 +451,13 @@ namespace YukiFrameWork
 
     public struct ActionUpdateCondition : IActionUpdateCondition
     {
-        public ActionUpdateNode Action { get; set; }
+        public ActionUpdateNode Action { get; set; }    
 
-        public IActionUpdateCondition Delay(float time)
+        public IActionUpdateNode Register(Action<long> OnEvent)
         {
-            Action.maxTime = time;
-            return this;
-        }
-
-        public IActionUpdateCondition First(Func<bool> condition = null)
-        {
-            Action.IsFirstExecute = true;
-            Action.AddNode(YukiFrameWork.Condition.Get(condition));
-            return this;
-        }
-
-        public IActionUpdateNode Register(Action<long> OnEvent, Action OnError = null, Action OnFinish = null)
-        {
-            Action.Register(OnEvent, OnError, OnFinish);
+            Action.Register(OnEvent);
             return Action;
-        }
-
-        public IActionUpdateCondition TakeWhile(Func<bool> onFinishCondition)
-        {
-            Action.OnFinishCondition += onFinishCondition;
-            return this;
         }  
-
         public IActionUpdateCondition Where(Func<bool> condition)
         {
             Action.AddNode(YukiFrameWork.Condition.Get(condition));
@@ -493,23 +473,7 @@ namespace YukiFrameWork
             {
                 Action = action as ActionUpdateNode
             }.Where(condition);
-        }
-
-        public static IActionUpdateCondition First(this IActionUpdateNode action, Func<bool> condition)
-        {
-            return new ActionUpdateCondition()
-            {
-                Action = action as ActionUpdateNode
-            }.First(condition);
-        }
-
-        public static IActionUpdateCondition TakeWhile(this IActionUpdateNode action, Func<bool> condition)
-        {
-            return new ActionUpdateCondition()
-            {
-                Action = action as ActionUpdateNode
-            }.TakeWhile(condition);
-        }
+        }  
     }
 
 
