@@ -3,7 +3,11 @@
 /// - NameSpace:     YukiFrameWork
 /// - Created:       Yuki
 /// - Email:         Yuki@qq.com
-/// - Description:   框架核心架构
+/// - Description: 
+///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
+///	框架核心架构 基于QFrameWork拓展衍生的架构本体 框架gitee仓库链接:https://gitee.com/NikaidoShinku/YukiFrameWork.git
+///	QFrameWork作者：凉鞋 QFrameWork  QFrameWork gitee仓库链接:https://gitee.com/liangxiegame/QFramework.git
+///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 /// -  (C) Copyright 2008 - 2023,Yuki
 /// -  All Rights Reserved.
 ///======================================================
