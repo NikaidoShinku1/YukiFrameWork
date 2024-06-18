@@ -42,7 +42,7 @@ namespace YukiFrameWork.Buffer
             {
                 if (value == null || value == buffDataBase) return;
                 buffDataBase = value;
-                Init(MenuTree);
+                Init(MenuTree); 
             }
         }
         private int selectIndex;
@@ -86,7 +86,9 @@ namespace YukiFrameWork.Buffer
                 {
                     //MenuTree.MenuItems.FirstOrDefault().Select();
                     MenuTree.MarkDirty();
+#if UNITY_2022_1_OR_NEWER
                     MenuTree.MarkLayoutChanged();
+#endif
                     MenuTree.UpdateMenuTree();
                 }
             }
