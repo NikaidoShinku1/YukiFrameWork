@@ -71,7 +71,7 @@ namespace YukiFrameWork.Buffer
 
         public static void BindController(string buffKey, Type type)
         {
-            if (typeof(IBuffController).IsAssignableFrom(type))
+            if (!typeof(IBuffController).IsAssignableFrom(type))
             {
                 throw new Exception("Type不继承IBuffController Type:" + type);
             }
