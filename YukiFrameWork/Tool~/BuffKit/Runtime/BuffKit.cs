@@ -6,20 +6,24 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using YukiFrameWork.Pools;
+using System.Reflection;
 namespace YukiFrameWork.Buffer
 {
-    
+    internal class BuffBindder
+    {
+        public IBuff buff;
+        public Type controllerType;
+    }
     public static class BuffKit
     {
         /// <summary>
         /// 缓存所有的Buff配置
         /// </summary>
-        private readonly static Dictionary<string, IBuff> buffItems = new Dictionary<string, IBuff>();  
+        private readonly static Dictionary<string, BuffBindder> buffItems = new Dictionary<string, BuffBindder>();  
 
         private static IBuffLoader loader = null;
 
@@ -56,14 +60,72 @@ namespace YukiFrameWork.Buffer
         {
             foreach (var buff in buffDataBase.buffConfigs)
             {
-                buffItems.Add(buff.GetBuffKey, buff);
+                AddBuff(buff);
             }
+        }
+
+        public static void BindController<T>(string buffKey) where T : IBuffController
+        {
+            BindController(buffKey, typeof(T));                    
+        }
+
+        public static void BindController(string buffKey, Type type)
+        {
+            if (typeof(IBuffController).IsAssignableFrom(type))
+            {
+                throw new Exception("Type不继承IBuffController Type:" + type);
+            }
+
+            if (!buffItems.TryGetValue(buffKey, out var bindder))
+            {
+                throw new Exception("没有对应的Buff标识，如果需要新增Buff并绑定请先使用BuffKit.AddBuff!如果是来自BuffDataBase管理的Buff，请先调用BuffKit.LoadBuffDataBase!");
+            }
+
+            Bind(bindder, type);
+        }
+
+        internal static IBuffController CreateBuffController(string buffKey)
+        {
+            if (!buffItems.TryGetValue(buffKey, out var bindder))
+            {
+                throw new Exception("Buff没有加载到BuffKit内! BuffKey:" + buffKey);
+            }
+
+            if (bindder.controllerType == null)
+            {
+                throw new Exception("该Buff没有绑定控制器，请重试 BuffKey:" + buffKey);
+            }
+            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as IBuffController;          
+        }
+
+        internal static IBuffController CreateInstance_Internal(IBuff buffer, IBuffExecutor Player)
+        {
+            var controller = CreateBuffController(buffer.GetBuffKey);
+            controller.Buffer = buffer;
+            controller.Player = Player;
+            controller.BuffLayer = 0;
+#if YukiFrameWork_DEBUGFULL
+            LogKit.I("创建的控制器类型:" + controller.GetType());
+#endif
+            return controller;
+        }
+
+        public static void AddBuff(IBuff buff)
+        {
+            BindBuffControllerAttribute bind = buff.GetType().GetCustomAttribute<BindBuffControllerAttribute>();
+            Type cType = bind != null ? bind.ControllerType : null;
+            buffItems.Add(buff.GetBuffKey, new BuffBindder() { buff = buff, controllerType = cType });
+        }
+
+        private static void Bind(BuffBindder buffBindder,Type type)
+        {
+            buffBindder.controllerType = type;
         }
 
         public static IBuff GetBuffByKey(string key)
         {
-            buffItems.TryGetValue(key, out var buff);
-            return buff;
+            buffItems.TryGetValue(key, out var buffBindder);
+            return buffBindder.buff;
         }
 
         public static void DependLocalizationConfig(string configKey,char spilt = ':')

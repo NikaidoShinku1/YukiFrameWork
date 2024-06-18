@@ -41,8 +41,7 @@ namespace YukiFrameWork.DiaLogue
         private static Dictionary<string, DiaLog> diaLogController;
 
         static DiaLogKit()
-        {
-            GlobalObjectPools<DiaLog>.Init(20,100);
+        {            
             diaLogController = new Dictionary<string, DiaLog>();
         }
 
@@ -67,7 +66,7 @@ namespace YukiFrameWork.DiaLogue
                 throw new Exception("当前已经存在该标识的对话控制器 Key：" + key);
             }
 
-            var log = GlobalObjectPools<DiaLog>.GlobalAllocation();
+            var log = GlobalObjectPools.GlobalAllocation<DiaLog>();
             log.Init(key, nodeTree);
 
             diaLogController.Add(key, log);
@@ -80,7 +79,7 @@ namespace YukiFrameWork.DiaLogue
         public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key);
 
         public static bool OnDiaLogRelease(DiaLog diaLog)
-            => GlobalObjectPools<DiaLog>.GlobalRelease(diaLog);
+            => GlobalObjectPools.GlobalRelease(diaLog);
 
         /// <summary>
         /// 全局的节点变化事件注册(任何对话控制器执行MoveNext都会触发该回调)

@@ -332,7 +332,7 @@ namespace YukiFrameWork.UI
             panel.Enter(info.param);
             panel.gameObject.SetParent(UIManager.Instance.GetPanelLevel(panel.Level));
             panel.gameObject.transform.SetAsLastSibling();           
-            var core = GlobalObjectPools<PanelElementTable>.GlobalAllocation();
+            var core = GlobalObjectPools.GlobalAllocation<PanelElementTable>();
             core.panelType = panel.GetType();
             core.Add(panel);
             stack.Push(core);          
@@ -361,7 +361,7 @@ namespace YukiFrameWork.UI
                     if (list.Count == 0)
                     {
                         var core = stack.Pop();
-                        GlobalObjectPools<PanelElementTable>.GlobalRelease(core);
+                        GlobalObjectPools.GlobalRelease(core);
                     }
 
                     if (stack.Count > 0)
@@ -386,7 +386,7 @@ namespace YukiFrameWork.UI
                     if (current.Count == 0)
                     {
                         stack.Remove(current);
-                        GlobalObjectPools<PanelElementTable>.GlobalRelease(current);
+                        GlobalObjectPools.GlobalRelease(current);
                     }
                 }
             }          

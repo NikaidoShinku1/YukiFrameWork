@@ -35,7 +35,7 @@ namespace YukiFrameWork.Buffer
 			this.handlerGroup = handlerGroup;
 		}
 
-		public void AddBuffer<T>(IBuff buff, IBuffExecutor player) where T : class,IBuffController,new()
+		public void AddBuffer(IBuff buff, IBuffExecutor player)
 		{
             if (mTable.TryGetValue(buff.GetBuffKey, out var controllers))
             {
@@ -84,7 +84,7 @@ namespace YukiFrameWork.Buffer
                             break;
                         case BuffRepeatAdditionType.MultipleCount:
                             {
-                                T controller = BuffController.CreateInstance<T>(buff, player);
+                                IBuffController controller = CreateInstance(buff, player);
                                 InitController(controller);
                                 controllers.Add(controller);
                                 controller.OnBuffStart();
@@ -101,7 +101,10 @@ namespace YukiFrameWork.Buffer
             }
             else
             {
-                T controller = BuffController.CreateInstance<T>(buff, player);
+				IBuffController controller = CreateInstance(buff, player);       
+#if YukiFrameWork_DEBUGFULL
+                LogKit.I("创建的控制器类型:" + controller.GetType());
+#endif
                 InitController(controller);
 
                 //如果检查没有会被抵消的Buff以及该Buff没有处于别的运行时Buff内的禁止Buff，则正常添加，否则不添加
@@ -111,23 +114,22 @@ namespace YukiFrameWork.Buffer
                     release.Add(controller);
             }
         }
-		[Obsolete("该方法已经被废弃,建议使用AddBuffer(IBuff buff,IBuffExecutor player)方法,应该让对象继承IBuffExecutor接口并使用!")]
-		public void AddBuffer<T>(IBuff buff,GameObject player) where T :class, IBuffController,new()
-		{
-			IBuffExecutor executor = player.GetComponent<IBuffExecutor>() ?? throw new System.Exception("对象没有组件继承IBuffExecutor接口!无法添加Buff");
-            AddBuffer<T>(buff, executor);
-		}
-        [Obsolete("该方法已经被废弃,建议使用AddBuffer(string BuffKey,IBuffExecutor player)方法,应该让对象继承IBuffExecutor接口并使用!")]
-        public void AddBuffer<T>(string BuffKey, GameObject player) where T :class, IBuffController, new()
-        {
-            IBuff buff = BuffKit.GetBuffByKey(BuffKey);
-            AddBuffer<T>(buff, player);
-        }
 
-		public void AddBuffer<T>(string BuffKey, IBuffExecutor player) where T :class, IBuffController, new()
+		private IBuffController CreateInstance(IBuff buff, IBuffExecutor player)
+		{
+			var controller = BuffKit.CreateBuffController(buff.GetBuffKey);
+            controller.Buffer = buff;
+            controller.Player = player;
+            controller.BuffLayer = 0;
+#if YukiFrameWork_DEBUGFULL
+            LogKit.I("创建的控制器类型:" + controller.GetType());
+#endif
+            return controller;
+        }
+		public void AddBuffer(string BuffKey, IBuffExecutor player)
         {
             IBuff buff = BuffKit.GetBuffByKey(BuffKey);
-			AddBuffer<T>(buff, player);
+			AddBuffer(buff, player);
         }
 
 		/// <summary>
@@ -319,7 +321,7 @@ namespace YukiFrameWork.Buffer
 #if YukiFrameWork_DEBUGFULL
 				LogKit.I("回收的控制器类型:" + controller.GetType());
 #endif
-				BuffController.Release(controller, controller.GetType());
+				BuffController.Release(controller);
             }
         }
 
@@ -354,7 +356,7 @@ namespace YukiFrameWork.Buffer
 #endif
                     }
 
-                    BuffController.Release(controller, controller.GetType());
+                    BuffController.Release(controller);
 				}
 			}
 			release.Clear();

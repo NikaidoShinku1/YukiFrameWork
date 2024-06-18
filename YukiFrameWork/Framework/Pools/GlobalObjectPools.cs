@@ -10,6 +10,7 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
@@ -18,142 +19,158 @@ namespace YukiFrameWork.Pools
         void Init();
         void Release();
     }
-  
-    public class GlobalObjectPools<T> : AbstarctPools<T>,ISingletonKit,IDisposable where T : IGlobalSign, new()
+    public static class GlobalPoolsExtension
     {
-        public static GlobalObjectPools<T> Instance => SingletonProperty<GlobalObjectPools<T>>.GetInstance();
-
-        internal GlobalObjectPools()
+        public static bool GlobalRelease<T>(this T sign) where T : IGlobalSign
+            => GlobalObjectPools.GlobalRelease(sign);
+    }
+    /// <summary>
+    /// 全局对象池,根据类型取出对象,对象池拥有独立的生命周期管理，每一分钟检查一次对象池是否超过五分钟未使用，如果超过五分钟未使用会将整个池清空释放,默认对象池容量为200
+    /// </summary>
+    public class GlobalObjectPools : Singleton<GlobalObjectPools>, IPools<IGlobalSign>, IDisposable
+    {
+        internal const float RELEASEPOOL_TIMER = 60;
+        internal const float MAXRELEASEPOOL_TIMER = 5 * 60;
+        internal class GlobalPool
         {
-            fectoryPool = new GlobalFectory<T>();
-        }
+            public Queue<IGlobalSign> pools = new Queue<IGlobalSign>();
+            public Type type;
+            private int maxSize;
 
-        public static T GlobalAllocation()
-        {
-            var obj = Instance.Get();
-            obj.IsMarkIdle = false;
-            obj.Init();
-            //LogKit.I("取出成功，全局对象池 Type:" + typeof(T) + "   当前对象池容量:" + Instance.cacheQueue.Count);
-            return obj;
-        }
-
-        public static void Init(int initSize,int maxSize)
-        {
-            Instance.OnInit(initSize,maxSize);
-        }
-
-        public static bool GlobalRelease(T obj) => Instance.Release(obj);    
-
-        public void OnInit(int initSize, int maxSize)
-        {
-            MaxSize = maxSize;
-
-            if (maxSize > 0)
+            public int MaxSize
             {
-                initSize = Math.Min(maxSize, initSize);
-            }
-
-            if (Count < initSize)
-            {
-                for (var i = Count; i < initSize; ++i)
+                get => maxSize;
+                set
                 {
-                    Release(new T());
-                }
-            }
-        }
+                    maxSize = value;
 
-        public int MaxSize 
-        { 
-            get => maxSize;
-            set
-            {
-                maxSize = value;
-
-                if (cacheQueue != null)
-                {
-                    if (maxSize > 0)
+                    if (pools != null)
                     {
-                        if (maxSize < cacheQueue.Count)
+                        if (maxSize > 0)
                         {
-                            int removeCount = cacheQueue.Count - maxSize;
-                            while (removeCount > 0)
+                            if (maxSize < Count)
                             {
-                                cacheQueue.Dequeue();
-                                --removeCount;
+                                int removeCount = Count - maxSize;
+                                while (removeCount > 0)
+                                {
+                                    pools.Dequeue();
+                                    --removeCount;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-
-        ~GlobalObjectPools()
-        {
-            Dispose();
-        }
-        public void Dispose()
-        {
-            OnDestroy();
-        }
-
-        public void OnDestroy()
-        {
-            SingletonFectory.ReleaseInstance<GlobalObjectPools<T>>();
-        }
-
-        void ISingletonKit.OnInit()
-        {
-            OnInit(10, 1000);
-        }
-
-        public override bool Release(T obj)
-        {
-            if (obj == null && obj.IsMarkIdle) return false;
-            obj.IsMarkIdle = true;
-            obj.Release();
-            if (cacheQueue.Count < maxSize)
+            //记录每次使用池子的时间
+            public float lastTime;
+            public int Count => pools.Count;
+            public IGlobalSign Get()
             {
-               
-                cacheQueue.Enqueue(obj);              
+                var obj =  Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type) as IGlobalSign;
+                obj.IsMarkIdle = false;
+                obj.Init();
+                lastTime = Time.time;              
+                return obj;
+            }
+
+            public bool Release(IGlobalSign obj)
+            {
+                lastTime = Time.time;
+                if (pools.Count >= maxSize)
+                    return false;
+                obj.IsMarkIdle = true;
+                obj.Release();              
+                pools.Enqueue(obj);
                 return true;
             }
-            return false;
         }
-    }
 
-    public class GlobalFectory<T> : IFectoryPool<T> where T : new()
-    {
-        public T Create()
+        private GlobalObjectPools()
         {
-            return new T();
+            if (!Application.isPlaying) return;
+            MonoHelper.Start(CheckPools());
         }
-    }
 
-    public static class GlobalPoolsExtension
-    {
-        public static bool GlobalRelease<T>(this T sign) where T : IGlobalSign,new()
-            => GlobalObjectPools<T>.GlobalRelease(sign);      
-    }
+        private IEnumerator CheckPools()
+        {
+            while (true)
+            {
+                yield return CoroutineTool.WaitForSeconds(RELEASEPOOL_TIMER);
+                
+                foreach (var pool in pools.Values)
+                {
+                    if (Time.time - pool.lastTime >= MAXRELEASEPOOL_TIMER)              
+                        releases.Add(pool.type);                   
+                }
 
-    /// <summary>
-    /// 全局无泛型对象池，无大小限制，根据类型取出对象
-    /// </summary>
-    public class GlobalObjectPools : Singleton<GlobalObjectPools>, IPools<IGlobalSign>, IDisposable
-    {
-        private Dictionary<Type, Queue<IGlobalSign>> pools = new Dictionary<Type, Queue<IGlobalSign>>();
+                if (releases.Count > 0)
+                {
+                    for (int i = 0; i < releases.Count; i++)
+                    {
+                        pools.Remove(releases[i]);
+                    }
+
+                    releases.Clear();
+                }
+            }
+        }
+      
+        private Dictionary<Type, GlobalPool> pools = new Dictionary<Type, GlobalPool>();
+
+        private List<Type> releases = new List<Type>();
 
         public static object GlobalAllocation(Type type)
         {
-            if (!Instance.pools.TryGetValue(type, out var pools))
+            if (!typeof(IGlobalSign).IsAssignableFrom(type))
             {
-                pools = new Queue<IGlobalSign>();
-                Instance.pools.Add(type, pools);
+                throw new Exception("对象没有继承IGlobalSign接口，无法使用对象池");
             }
-            IGlobalSign sign = null;
-            sign = pools.Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type) as IGlobalSign;
-            sign.IsMarkIdle = false;
-            sign.Init();
+            if (!Instance.pools.TryGetValue(type, out var pool))
+            {
+                pool = SetGlobalPoolsBySize_Internal(200, type);
+            }        
+            IGlobalSign sign = pool.Get();          
             return sign;
+        }
+
+        /// <summary>
+        /// 设置池子的大小
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="maxSize"></param>
+        public static void SetGlobalPoolsBySize<T>(int maxSize) where T : IGlobalSign
+        {
+            SetGlobalPoolsBySize(maxSize, typeof(T));
+        }
+
+        /// <summary>
+        /// 设置池子的大小
+        /// </summary>
+        /// <param name="maxSize"></param>
+        /// <param name="type"></param>
+        public static void SetGlobalPoolsBySize(int maxSize,Type type)
+        {
+            SetGlobalPoolsBySize_Internal(maxSize, type);
+        }
+
+        internal static GlobalPool SetGlobalPoolsBySize_Internal(int maxSize, Type type)
+        {
+            if (!Instance.pools.TryGetValue(type, out var pool))
+            {
+                pool = new GlobalPool()
+                {
+                    MaxSize = 200,
+                    type = type,
+                    lastTime = Time.time,
+                };
+                Instance.pools.Add(type, pool);
+            }
+            else
+            {
+                pool.lastTime = Time.time;
+            }
+            pool.MaxSize = maxSize;
+            return pool;
         }
 
         ~GlobalObjectPools()
@@ -187,17 +204,13 @@ namespace YukiFrameWork.Pools
 
         public bool Release(IGlobalSign obj)
         {
-            if (obj == null && obj.IsMarkIdle) return false;
-            obj.IsMarkIdle = true;
-            obj.Release();
+            if (obj == null && obj.IsMarkIdle) return false;            
             Type type = obj.GetType();
-            if (!Instance.pools.TryGetValue(type, out var pools))
+            if (!Instance.pools.TryGetValue(type, out var pool))
             {
-                pools = new Queue<IGlobalSign>();
-                Instance.pools.Add(type, pools);
+                pool = SetGlobalPoolsBySize_Internal(200, type);
             }
-            pools.Enqueue(obj);
-            return false;
+            return pool.Release(obj);
         }
     }
 }

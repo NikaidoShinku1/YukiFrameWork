@@ -10,7 +10,6 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using YukiFrameWork.Pools;
-using System.Collections.Generic;
 namespace YukiFrameWork.Buffer
 {
 	public interface IBuffController : IController, IGlobalSign
@@ -54,23 +53,15 @@ namespace YukiFrameWork.Buffer
         /// <summary>
         /// 只有当该Buff完全销毁时才执行该方法。
         /// </summary>
-        void OnBuffDestroy();
-
-        /// <summary>
-        /// 实例通过BuffController.CreateInstance方法被创建的时候调用
-        /// </summary>
-        void OnInit();
+        void OnBuffDestroy();         
     }
     public abstract class BuffController : AbstractController, IBuffController
 	{
 		void IGlobalSign.Init()
 		{
-
+			OnInit();
 		}
 
-		/// <summary>
-		/// 实例通过BuffController.CreateInstance方法被创建的时候调用
-		/// </summary>
         public override void OnInit()
         {
             
@@ -84,33 +75,13 @@ namespace YukiFrameWork.Buffer
 			Player = null;
 			Buffer = null;			
 		}
-		public static T CreateInstance<T>(IBuff buffer, IBuffExecutor Player) where T :class, IBuffController, new()
-		{		
-			var controller = GlobalObjectPools<T>.GlobalAllocation();
-			controller.Buffer = buffer;
-			controller.Player = Player;
-			controller.BuffLayer = 0;
-#if YukiFrameWork_DEBUGFULL
-			LogKit.I("创建的控制器类型:" + typeof(T));
-#endif
-			controller.OnInit();
-			OnReleasePairs[typeof(T)] = item => GlobalObjectPools<T>.GlobalRelease(item as T);
-			return controller;
-		}	
-
-		public static bool Release(IBuffController controller,Type type) 
+		
+		internal static bool Release(IBuffController controller) 
 		{
-			if (OnReleasePairs.TryGetValue(type, out var value))
-			{
-				return value.Invoke(controller);
-			}
-#if YukiFrameWork_DEBUGFULL
-            LogKit.W("请检查BuffController是否使用框架提供的BuffController.CreateInstance创建,否则无法回收进对象池");
-#endif
-			return false;
+			return GlobalObjectPools.GlobalRelease(controller);
 		}
 
-		private static Dictionary<Type,Func<IBuffController, bool>> OnReleasePairs = new Dictionary<Type, Func<IBuffController, bool>>();
+		//private static Dictionary<Type,Func<IBuffController, bool>> OnReleasePairs = new Dictionary<Type, Func<IBuffController, bool>>();
 
         public IBuff Buffer { get; private set; }
 

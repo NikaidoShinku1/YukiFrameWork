@@ -75,10 +75,10 @@ BuffHandler API:
 	- void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
 
 	//添加Buff，传递一个Buff以及玩家对象Player
-	- void AddBuffer<T>(IBuff buff,IBufferExecutor player) where T : BuffController,new()
+	- void AddBuffer(IBuff buff,IBufferExecutor player)
 
 	//传递Buff的标识以及玩家对象Player
-	- void AddBuffer<T>(string BuffKey, IBufferExecutor player) where T : BuffController, new()
+	- void AddBuffer(string BuffKey, IBufferExecutor player)
 	
 	//根据标识删除某一个正在运行的Buff
 	- bool RemoveBuffer(string BuffKey)
@@ -150,9 +150,7 @@ BuffController专门处理Buff逻辑以及生命周期。
 
 BuffController API: 希望BuffController完全自定义可以继承IBuffController接口，正常情况下使用框架提供的BuffController足够。
 
-    //BuffController的静态创建实例方法，如自定义控制器时，推荐使用该方法创建控制器，会有专门的对象池进行性能优化
-    - static T CreateInstance<T>(IBuff buffer, GameObject Player) where T : BuffController, new();
-
+   
     //Controller执行期间的Buff
     - IBuff Buffer { get; }
 
@@ -216,6 +214,16 @@ BuffController API: 希望BuffController完全自定义可以继承IBuffControll
     /// 只有当该Buff完全销毁时才执行该方法。
     /// </summary>
     - public virtual void OnBuffDestroy(){ }		
+
+回到刚才的AttackBuff
+``` csharp
+    [BindBuffController(typeof(CustomBuffController))]//添加绑定控制器特性，让这个Buff识别控制器
+    public class AttackBuff : Buff
+    {
+    	//ToDo
+    }
+```
+
 
 UI同步，为设置好的面板挂载UIBuffHandlerGroup类，如图所示:
 
@@ -368,6 +376,15 @@ BuffKit static API:
 
     //根据标识获取Buff
     - IBuff GetBuffByKey(string key)；
+
+    //绑定控制器，当没有给Buff标记特性时，使用该方法进行控制器绑定
+    - void BindController<T>(string buffKey) where T : IBuffController
+
+    //手动添加Buff
+    - void AddBuff(IBuff buff);
+
+    //绑定本地化配置
+    - void DependLocalizationConfig(string configKey,char spilt = ':')
 
 
 
