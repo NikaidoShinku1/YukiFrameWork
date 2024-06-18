@@ -33,6 +33,12 @@ namespace YukiFrameWork.Buffer
 		public void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
 		{
 			this.handlerGroup = handlerGroup;
+		}		
+
+		[Obsolete("不再需要手写控制器泛型，现在使用Handler.AddBuffer即可不需要传递泛型了，通过在BuffKit绑定控制器或者给Buff标记自动化特性BindBuffController!")]
+		public void AddBuffer<T>(IBuff buff, IBuffExecutor player) where T : IBuffController, new()
+		{
+			AddBuffer(buff, player);
 		}
 
 		public void AddBuffer(IBuff buff, IBuffExecutor player)
