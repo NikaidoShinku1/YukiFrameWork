@@ -12,8 +12,9 @@ using System;
 namespace YukiFrameWork
 {
 	[AttributeUsage(AttributeTargets.Class,AllowMultiple = false)]
-	public class InitControllerAttribute : Attribute
+	public class InitControllerAttribute : PropertyAttribute
 	{
-		
+		public InitControllerAttribute(int order = 0)
+			=> this.order = order;
 	}
 }

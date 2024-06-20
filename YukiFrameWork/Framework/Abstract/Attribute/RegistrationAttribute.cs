@@ -15,22 +15,27 @@ namespace YukiFrameWork
 	/// 自动化注册特性，标记后可以自动注册各个层级的模块
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-	public class RegistrationAttribute : Attribute
+	public class RegistrationAttribute : PropertyAttribute
 	{
 		internal Type architectureType;
-		internal Type registerType;
-
-		internal bool IsCustomType;
+		internal Type registerType;		
+		internal bool IsCustomType => registerType != null;
 		/// <summary>
 		/// 注册模块进架构的自动化特性
 		/// </summary>
 		/// <param name="architectureType">架构类型</param>
 		/// <param name="registerType">具体的注册类型(例如希望注册到接口时)</param>
-		public RegistrationAttribute(Type architectureType, Type registerType = null)
+		public RegistrationAttribute(Type architectureType, Type registerType, int order = 0)
 		{
 			this.architectureType = architectureType;					
 			this.registerType = registerType;
-			IsCustomType = !this.registerType.IsNull();
+			this.order = order;
+		}
+
+		public RegistrationAttribute(Type architectureType, int order = 0)
+		{
+			this.architectureType = architectureType;
+			this.order = order;
 		}
 	}
 }

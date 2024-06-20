@@ -13,6 +13,7 @@ using System.Collections;
 using YukiFrameWork.Extension;
 using System.Reflection;
 using UnityEngine.SceneManagement;
+using System.Linq;
 namespace YukiFrameWork
 {
     public class ArchitectureStartUpRequest : CustomYieldInstruction
@@ -77,10 +78,36 @@ namespace YukiFrameWork
             return awaiter;
         }
 
-        private FastList<IModel> models = new FastList<IModel>();
-        private FastList<ISystem> systems = new FastList<ISystem>();
+        abstract class OrderModule<T>
+        {
+            public T Value;
+            public int order;
+        }
 
-        private FastList<AbstractController> controllers = new FastList<AbstractController>();
+        class OrderModel : OrderModule<IModel>
+        {
+           
+        }
+
+        class OrderSystem : OrderModule<ISystem>
+        {
+           
+        }
+
+        class OrderUtility : OrderModule<IUtility>
+        {
+            
+        }
+
+        class OrderController : OrderModule<AbstractController>
+        {
+            
+        }
+
+        private FastList<OrderModel> models = new FastList<OrderModel>();
+        private FastList<OrderSystem> systems = new FastList<OrderSystem>();
+
+        private FastList<OrderController> controllers = new FastList<OrderController>();
         
         private EasyContainer container => architecture.Container;
 
@@ -133,12 +160,12 @@ namespace YukiFrameWork
                         else if (value is IModel model)
                         {
                             container.Register(model, registration.registerType);
-                            models.Add(model);
+                            models.Add(new OrderModel() { Value = model,order = registration.order});
                         }
                         else if (value is ISystem system)
                         {
                             container.Register(system, registration.registerType);
-                            systems.Add(system);
+                            systems.Add(new OrderSystem() {Value = system,order = registration.order });
                         }
                     }
                     else if (type.IsSubclassOf(typeof(AbstractController)))
@@ -150,7 +177,7 @@ namespace YukiFrameWork
 
                         if (value == null) continue;
 
-                        controllers.Add(value);
+                        controllers.Add(new OrderController() { Value = value,order = initController.order });
                     }
                 }
                 catch (Exception ex)
@@ -162,21 +189,30 @@ namespace YukiFrameWork
 
             try
             {
-                for (int i = 0; i < models.Count; i++)
+                var orderModels = models
+                    .OrderByDescending(m => m.order);
+
+                foreach (var model in orderModels)
                 {
-                    models[i].SetArchitecture(architecture);
-                    models[i].Init();
+                    model.Value.SetArchitecture(architecture);
+                    model.Value.Init();
                 }
 
-                for (int i = 0; i < systems.Count; i++)
+                var orderSystems = systems
+                    .OrderByDescending(s => s.order);
+
+                foreach (var system in orderSystems)
                 {
-                    systems[i].SetArchitecture(architecture);
-                    systems[i].Init();
+                    system.Value.SetArchitecture(architecture);
+                    system.Value.Init();
                 }
 
-                for (int i = 0; i < controllers.Count; i++)
+                var orderControllers = controllers
+                    .OrderByDescending(c => c.order);
+
+                foreach (var controller in orderControllers)
                 {
-                    controllers[i].OnInit();
+                    controller.Value.OnInit();
                 }
 
                 models.Clear();

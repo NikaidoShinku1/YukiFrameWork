@@ -259,7 +259,7 @@ namespace YukiFrameWork
                         architecture = request.architecture;
                 }
             }
-                           
+        
             float width = editorWindow.position.width - editorWindow.MenuWidth;
 
             var rect = EditorGUILayout.BeginVertical();
@@ -326,6 +326,7 @@ namespace YukiFrameWork
                 {
                     if (request.error.IsNullOrEmpty())
                     {
+                        EditorGUILayout.HelpBox("现在可以正常访问注册进架构的各个模块!", MessageType.Info);
                         GUI.color = Color.green;
                         GUILayout.Label("架构准备完成!", middleStyle);
 
@@ -338,7 +339,7 @@ namespace YukiFrameWork
                 }
                 else
                 {
-                    GUILayout.Label("架构正在准备中:" + request.progress * 100 + "%", middleStyle);
+                    GUILayout.Label("架构正在准备中:" + $"{(request.progress * 100):F2}%", middleStyle);
                 }
                 if (request != null)
                 {
@@ -515,7 +516,7 @@ namespace YukiFrameWork
                 else
                 {
                     GUI.color = GetButtonColor();                   
-                    GUILayout.Label("已标记自动获取 标记架构:" + registration.architectureType,GUILayout.Width(550));                    
+                    GUILayout.Label("已标记自动获取 标记架构:" + registration.architectureType + ">>order:" + registration.order,GUILayout.Width(550));                    
                 }
                 GUI.color = Color.white;
                 OpenScript(info.type);
