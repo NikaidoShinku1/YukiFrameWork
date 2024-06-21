@@ -22,7 +22,7 @@ namespace YukiFrameWork
 
         private readonly Dictionary<IActionNode, IActionNodeController> executeNodeDict = new Dictionary<IActionNode, IActionNodeController>();
 
-        private readonly Stack<Action> onFinishEvents = new Stack<Action>();
+        private readonly FastList<Action> onFinishEvents = new FastList<Action>();
 
         private readonly Stack<IUnRegister> unRegisters = new Stack<IUnRegister>();
 
@@ -38,13 +38,13 @@ namespace YukiFrameWork
             => unRegisters.Pop();
        
         public void PushFinishEvent(Action onFinish)
-        {
-            onFinishEvents.Push(onFinish);
+        {           
+            onFinishEvents.Add(onFinish);
         }
 
-        public Action PopFinishEvent()
+        public void RemoveFinishEvent(Action onFinish)
         {
-            return onFinishEvents.Pop();
+            onFinishEvents.Remove(onFinish);
         }
 
         private void Update()
@@ -93,10 +93,12 @@ namespace YukiFrameWork
                 register.UnRegisterAllEvent();
             }
 
-            while (onFinishEvents.Count > 0)
+            foreach (var finish in onFinishEvents)
             {
-                PopFinishEvent()?.Invoke();
+                finish?.Invoke();
             }
+
+            onFinishEvents.Clear();
 
             unRegisters.Clear();
 

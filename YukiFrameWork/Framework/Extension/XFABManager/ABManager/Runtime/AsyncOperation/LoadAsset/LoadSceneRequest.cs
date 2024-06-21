@@ -6,7 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using XFABManager;
-using System.IO;
+
 namespace XFABManager
 {
     public class LoadSceneRequest : CustomAsyncOperation<LoadSceneRequest>
@@ -55,7 +55,7 @@ namespace XFABManager
                 yield break;
             }
 
-            float target_progress = 0;
+            //float target_progress = 0;
 
 #if UNITY_EDITOR
             if (AssetBundleManager.GetProfile(projectName).loadMode == LoadMode.Assets)
@@ -78,23 +78,10 @@ namespace XFABManager
                  
                 while (!operation_editor.isDone)
                 {
-                    yield return null;
-                    target_progress = operation_editor.progress;
-                    if (progress < target_progress)
-                        progress += Time.unscaledDeltaTime;
-
-                    progress = Mathf.Clamp01(progress);
-                    //Debug.LogFormat("test progress:{0}", progress);
+                    yield return null; 
+                    progress = operation_editor.progress; 
                 }
-
-                // 渐变进度
-                while (progress < 1)
-                { 
-                    progress += Time.unscaledDeltaTime;
-                    progress = Mathf.Clamp01(progress);
-                    //Debug.LogFormat("test progress:{0}",progress);
-                    yield return null;
-                }
+                progress = 1; 
 
                 Scene = SceneManager.GetSceneByName(sceneName);
 
@@ -124,21 +111,11 @@ namespace XFABManager
             
             while (!operation.isDone)
             {
-                yield return null;
-                target_progress = operation.progress;
-                if(progress < target_progress)
-                    progress += Time.unscaledDeltaTime;
+                yield return null;  
+                progress = operation.progress;
+            } 
 
-                progress = Mathf.Clamp01(progress);
-            }
-            // 渐变进度
-            while (progress < 1) 
-            { 
-                progress += Time.unscaledDeltaTime;
-                progress = Mathf.Clamp01(progress);
-                yield return null;
-            }
-
+            progress = 1;
 
             // 添加缓存 
             for (int i = 0; i < SceneManager.sceneCount; i++)

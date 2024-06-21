@@ -8,6 +8,7 @@
 ///=====================================================
 using UnityEngine;
 using System.Collections;
+using System.Threading;
 namespace YukiFrameWork.Audio
 {
     public class PlaySoundRequest : CustomYieldInstruction
@@ -29,12 +30,13 @@ namespace YukiFrameWork.Audio
         }
 
         public YieldTask<AudioPlayer> GetAwaiter()
-        {
+        {         
             var awaiter = new YieldTask<AudioPlayer>();
             YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
                 yield return this;
+                yield return CoroutineTool.WaitUntil(() => awaiter.IsRunning);
                 awaiter.Complete(null, this.Player);
             }
             return awaiter;

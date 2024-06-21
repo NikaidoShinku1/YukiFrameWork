@@ -98,7 +98,7 @@ namespace YukiFrameWork
             return task.Invoke().GetAwaiter();
         }
 
-        public static YieldTask<T> RunByObject<T>(Func<T> task) where T : class
+        public static YieldTask<T> RunByObject<T>(Func<T> task)
         {
             IEnumerator<T> enumerator()
             {
@@ -203,10 +203,14 @@ namespace YukiFrameWork
                 YieldTaskExtension
                 .RunOnUnityScheduler(() => ((ICoroutineCompletion)task).Coroutine = MonoHelper.Start(QueueRunning(() => task.Complete(null, taskQueue.ToArray()))));
 
-            IEnumerator Running(YieldTask task)
+            IEnumerator Running(YieldTask t)
             {
-                yield return task.ToCoroutine();
-                queueResults.Add(task);
+                yield return t.ToCoroutine();
+                if (task.token != null)
+                    yield return CoroutineTool.WaitUntil(() => task.IsRunning);
+                if (t.token != null)
+                    yield return CoroutineTool.WaitUntil(() => t.IsRunning);
+                queueResults.Add(t);
             }
             return task;
         } 
@@ -232,10 +236,14 @@ namespace YukiFrameWork
               .RunOnUnityScheduler(() => coroutineCompletion.Coroutine = MonoHelper.Start(Running(taskAny[i])));
             }
 
-            IEnumerator Running(YieldTask task)
+            IEnumerator Running(YieldTask t)
             {
-                yield return task.ToCoroutine();
-                callBack?.Invoke(task);
+                yield return t.ToCoroutine();
+                if (task.token != null)
+                    yield return CoroutineTool.WaitUntil(() => task.IsRunning);
+                if (t.token != null)
+                    yield return CoroutineTool.WaitUntil(() => t.IsRunning);
+                callBack?.Invoke(t);
             }
             return task;
         }
@@ -277,9 +285,13 @@ namespace YukiFrameWork
             YieldTaskExtension
             .RunOnUnityScheduler(() => ((ICoroutineCompletion)task).Coroutine = MonoHelper.Start(QueueRunning(() => task.Complete(null, taskQueue.Select(x => x.GetResult()).ToArray()))));
 
-            IEnumerator Running(YieldTask<T> task)
+            IEnumerator Running(YieldTask<T> t)
             {
-                yield return task.ToCoroutine();
+                yield return t.ToCoroutine();
+                if (task.token != null)
+                    yield return CoroutineTool.WaitUntil(() => task.IsRunning);
+                if (t.token != null)
+                    yield return CoroutineTool.WaitUntil(() => t.IsRunning);
                 queueCompletedCount++;                       
             }
             return task;
@@ -306,9 +318,13 @@ namespace YukiFrameWork
               .RunOnUnityScheduler(() => coroutineCompletion.Coroutine = MonoHelper.Start(Running(taskAny[i])));
             }       
 
-            IEnumerator Running(YieldTask<T> task)
+            IEnumerator Running(YieldTask<T> t)
             {
                 yield return task.ToCoroutine();
+                if (task.token != null)
+                    yield return CoroutineTool.WaitUntil(() => task.IsRunning);
+                if (t.token != null)
+                    yield return CoroutineTool.WaitUntil(() => t.token.IsRunning);
                 callBack?.Invoke(task.GetResult());
             }
             return task;

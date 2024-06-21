@@ -348,7 +348,7 @@ namespace YukiFrameWork
         public static IEnumerator WaitWhile(Func<bool> m_Predicate)
         {
             yield return new CustomWaitWhile(m_Predicate);
-        }     
+        }
 
         /// <summary>
         /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
@@ -357,6 +357,7 @@ namespace YukiFrameWork
         /// <param name="awaitable"></param>
         /// <param name="component"></param>
         /// <returns></returns>
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static CoroutineCompletion CancelWaitGameObjectDestroy<T,CoroutineCompletion>(this CoroutineCompletion awaitable, T component) 
             where T : Component where CoroutineCompletion : ICoroutineCompletion
         {
@@ -385,24 +386,58 @@ namespace YukiFrameWork
             }
             return awaitable;
         }
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask CancelWaitGameObjectDestroy<T>(this IEnumerator enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask CancelWaitGameObjectDestroy<T>(this YieldInstruction enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this ResourceRequest enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this AssetBundleRequest enumerator, T component) where T : Component
             => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this AssetBundleCreateRequest enumerator, T component) where T : Component
            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
-
+        [Obsolete("请在await的代码后面拓展Token方法，而不建议拓展CancelWaitGameDestroy!")]
         public static YieldTask<AsyncOperation> CancelWaitGameObjectDestroy<T>(this AsyncOperation enumerator, T component) where T : Component
            => CancelWaitGameObjectDestroy(enumerator.GetAwaiter(), component);
+
+        public static CoroutineCompletion Token<CoroutineCompletion>(this CoroutineCompletion awaitable, CoroutineToken Token)
+           where CoroutineCompletion : ICoroutineCompletion
+        {
+            awaitable.Token = Token;
+            Token.Register(() =>
+            {
+                if (awaitable?.Coroutine != null)
+                {
+                    MonoHelper.Stop(awaitable.Coroutine);
+                }
+                awaitable.StopAllTask();
+            });
+
+            return awaitable;
+        }
+
+        public static YieldTask Token(this IEnumerator enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
+
+        public static YieldTask Token(this YieldInstruction enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
+
+        public static YieldTask<UnityEngine.Object> Token(this ResourceRequest enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
+
+        public static YieldTask<UnityEngine.Object> Token(this AssetBundleRequest enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
+
+        public static YieldTask<UnityEngine.AssetBundle> Token(this AssetBundleCreateRequest enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
+
+        public static YieldTask<AsyncOperation> Token(this AsyncOperation enumerator, CoroutineToken token)
+            => Token(enumerator.GetAwaiter(), token);
     }
 
     public struct CoroutineRunner<T>

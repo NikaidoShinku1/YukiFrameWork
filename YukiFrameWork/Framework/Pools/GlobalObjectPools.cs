@@ -31,12 +31,14 @@ namespace YukiFrameWork.Pools
     {
         internal const float RELEASEPOOL_TIMER = 60;
         internal const float MAXRELEASEPOOL_TIMER = 5 * 60;
+  
         internal class GlobalPool
         {
             public Queue<IGlobalSign> pools = new Queue<IGlobalSign>();
             public Type type;
             private int maxSize;
 
+            internal bool IsNoPublic = false;
             public int MaxSize
             {
                 get => maxSize;
@@ -66,7 +68,7 @@ namespace YukiFrameWork.Pools
             public int Count => pools.Count;
             public IGlobalSign Get()
             {
-                var obj =  Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type) as IGlobalSign;
+                var obj =  Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type,IsNoPublic) as IGlobalSign;
                 obj.IsMarkIdle = false;
                 obj.Init();
                 lastTime = Time.time;              
@@ -119,7 +121,7 @@ namespace YukiFrameWork.Pools
 
         private List<Type> releases = new List<Type>();
 
-        public static object GlobalAllocation(Type type)
+        public static object GlobalAllocation(Type type, bool noPublic = false)
         {
             if (!typeof(IGlobalSign).IsAssignableFrom(type))
             {
@@ -128,7 +130,8 @@ namespace YukiFrameWork.Pools
             if (!Instance.pools.TryGetValue(type, out var pool))
             {
                 pool = SetGlobalPoolsBySize_Internal(200, type);
-            }        
+            }
+            pool.IsNoPublic = noPublic;
             IGlobalSign sign = pool.Get();          
             return sign;
         }
@@ -185,9 +188,9 @@ namespace YukiFrameWork.Pools
             pools.Clear();
         }
 
-        public static T GlobalAllocation<T>()
+        public static T GlobalAllocation<T>(bool noPublic = false)
         {
-            return (T)GlobalAllocation(typeof(T));
+            return (T)GlobalAllocation(typeof(T),noPublic);
         }
 
         public static bool GlobalRelease(IGlobalSign obj) => Instance.Release(obj);

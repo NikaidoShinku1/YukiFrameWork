@@ -373,19 +373,12 @@ namespace YukiFrameWork.Buffer
         private void OnEnable()
         {
 			IsRelease = false;
-        }
-        private void OnDisable()
-        {
-			if (IsRelease) return;
-            StopAllBuffController();
-            mTable.Dispose();
-			IsRelease = true;
-        }
+        }        
 
         private void OnDestroy()
         {
-			if (IsRelease) return;
-			OnDisable();
+            StopAllBuffController();
+            mTable.Dispose();
         }
     }
 }

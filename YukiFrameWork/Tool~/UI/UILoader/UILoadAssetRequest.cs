@@ -32,6 +32,7 @@ namespace YukiFrameWork.UI
             IEnumerator NextVoid()
             {
                 yield return this;
+                yield return CoroutineTool.WaitUntil(() => awaiter.IsRunning);
                 awaiter.Complete(null, this.Panel);
             }
             return awaiter;

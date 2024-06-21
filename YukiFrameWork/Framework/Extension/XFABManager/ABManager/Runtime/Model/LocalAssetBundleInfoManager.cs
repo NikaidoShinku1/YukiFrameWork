@@ -28,8 +28,7 @@ namespace XFABManager
 
         #endregion
 
-        #region 字段
-        internal static LocalAssetBundleInfoManager _instance;
+        #region 字段 
         private Dictionary<string, Dictionary<string, string>> bundle_md5_infos = new Dictionary<string, Dictionary<string, string>>();
         //private List<string> temp_list = new List<string>();
         private Dictionary<string,string> suffixs = new Dictionary<string, string>();
@@ -39,17 +38,18 @@ namespace XFABManager
 
         #region 属性
 
-        internal static LocalAssetBundleInfoManager Instance { 
-            get { 
-                if(_instance == null) 
-                    _instance = new LocalAssetBundleInfoManager();
-                return _instance; 
-            }
-        }
+        internal static LocalAssetBundleInfoManager Instance { get; private set; }
 
         #endregion
 
         #region 方法
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void Init() 
+        { 
+            Instance = new LocalAssetBundleInfoManager();
+        }
+
 
         internal string GetAssetBundleMd5(string projectName, string bundleName) 
         {

@@ -57,7 +57,8 @@ namespace XFABManager
     public class AssetBundleManager
     {
 
-        static AssetBundleManager(){
+        [RuntimeInitializeOnLoadMethod]
+        static void Init(){
             Initialize();
             CoroutineStarter.Start(AutomaticResourceClearing());
             CoroutineStarter.Start(AutoUnloadScene());
@@ -105,12 +106,7 @@ namespace XFABManager
         internal static IServerFilePath ServerFilePath { get;private set; }
 
         private static AssetBundle dependenceBundle = null;
-        private static string dependenceProjectName = string.Empty;
-
-        /// <summary>
-        /// 是否初始化
-        /// </summary>
-        private static bool isInited { get;set; } = false;
+        private static string dependenceProjectName = string.Empty;   
 
         /// <summary>
         /// 不能重复的异步操作的缓存 
@@ -178,22 +174,35 @@ namespace XFABManager
         /// <returns></returns>
         private static void Initialize()
         {
-            if (isInited) return;
+            assetBundles.Clear();
+            dependence_assetbundles.Clear();
+            depnecnce_deleted_bundles.Clear();
+            AssetBundleNameMapping.Clear();
+            bundle_assets.Clear();
+            bundle_sub_assets.Clear();
+            dependenceBundle = null;
+            dependenceProjectName = string.Empty;
+            async_cache.Clear();
+            loading_assetbundle.Clear();
+            asset_hash_project_name.Clear();
+            secrets.Clear();
+            unloadedSceneObjects.Clear();
             // 初始化 获取项目版本接口 
             SetGetProjectVersion<GetProjectVersionDefault>(); 
             // 初始化服务器文件路径接口
             SetServerFilePath(new DefaultServerFilePath());
 
             // 监听场景切换的事件
-            SceneManager.sceneUnloaded += (scene)=> 
-            {         
-                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
-                unloadedSceneObjects.Add(s);
-            };
-           
-            isInited = true; 
+            SceneManager.sceneUnloaded -= OnSceneUnloaded;
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
         }
- 
+
+        private static void OnSceneUnloaded(Scene scene)
+        {
+            SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
+            unloadedSceneObjects.Add(s);
+        }
+
         #region 更新和下载资源
 
         /// <summary>

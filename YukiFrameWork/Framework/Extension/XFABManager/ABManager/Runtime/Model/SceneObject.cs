@@ -7,8 +7,10 @@ namespace XFABManager
     internal struct SceneObject
     {
         public string name { get; set; }
-        public float time;
+
         private int hashCode;
+
+        public float time;
 
         internal SceneObject(string name, int hashCode)
         {

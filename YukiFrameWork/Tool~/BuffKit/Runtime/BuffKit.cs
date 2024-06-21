@@ -97,18 +97,7 @@ namespace YukiFrameWork.Buffer
             }
             return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as IBuffController;          
         }
-
-        internal static IBuffController CreateInstance_Internal(IBuff buffer, IBuffExecutor Player)
-        {
-            var controller = CreateBuffController(buffer.GetBuffKey);
-            controller.Buffer = buffer;
-            controller.Player = Player;
-            controller.BuffLayer = 0;
-#if YukiFrameWork_DEBUGFULL
-            LogKit.I("创建的控制器类型:" + controller.GetType());
-#endif
-            return controller;
-        }
+      
 
         public static void AddBuff(IBuff buff)
         {
@@ -125,7 +114,7 @@ namespace YukiFrameWork.Buffer
         public static IBuff GetBuffByKey(string key)
         {
             buffItems.TryGetValue(key, out var buffBindder);
-            return buffBindder.buff;
+            return buffBindder?.buff;
         }
 
         public static void DependLocalizationConfig(string configKey,char spilt = ':')

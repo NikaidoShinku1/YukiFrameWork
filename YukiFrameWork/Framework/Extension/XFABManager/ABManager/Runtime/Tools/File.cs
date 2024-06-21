@@ -7,9 +7,7 @@ using UnityEngine;
 
 namespace XFABManager
 {
-
-
-
+     
     internal class File
     {
         private static Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();

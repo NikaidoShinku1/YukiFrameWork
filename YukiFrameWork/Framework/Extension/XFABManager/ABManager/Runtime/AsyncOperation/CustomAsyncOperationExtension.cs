@@ -10,6 +10,7 @@ using YukiFrameWork;
 using UnityEngine;
 using XFABManager;
 using System.Collections;
+using System;
 namespace YukiFrameWork
 {
 	public static class CustomAsyncOperationExtension
@@ -21,16 +22,26 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+                
                 awaiter.Complete(null, asyncOperation.asset);
             }
             return awaiter;
-        }   
+        }
 
+        [Obsolete]
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadAssetRequest asyncOperation,T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
+
+        public static YieldTask<UnityEngine.Object> Token(this LoadAssetRequest asyncOperation, CoroutineToken token)
+        {
+            return asyncOperation.GetAwaiter().Token(token);
+        }
+
 
         public static YieldTask<T> GetAwaiter<T>(this LoadAssetRequest<T> asyncOperation) where T : UnityEngine.Object
         {
@@ -39,15 +50,23 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.asset);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<K> CancelWaitGameObjectDestroy<T,K>(this LoadAssetRequest<K> asyncOperation, T component)
             where T : Component where K : UnityEngine.Object
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
+        }
+
+        public static YieldTask<K> Token<K>(this LoadAssetRequest<K> asyncOperation,CoroutineToken token)
+            where K : UnityEngine.Object
+        {
+            return asyncOperation.GetAwaiter().Token(token);
         }
 
         public static YieldTask<UnityEngine.Object> GetAwaiter(this LoadSubAssetRequest asyncOperation)
@@ -57,15 +76,22 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.asset);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadSubAssetRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
+        }
+
+        public static YieldTask<UnityEngine.Object> Token(this LoadSubAssetRequest asyncOperation, CoroutineToken token)          
+        {
+            return asyncOperation.GetAwaiter().Token(token);
         }
 
         public static YieldTask<UnityEngine.Object[]> GetAwaiter(this LoadAssetsRequest asyncOperation)
@@ -74,16 +100,23 @@ namespace YukiFrameWork
             YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
             IEnumerator NextVoid()
             {
-                yield return asyncOperation;             
+                yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.assets);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<UnityEngine.Object[]> CancelWaitGameObjectDestroy<T>(this LoadAssetsRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
+        }
+
+        public static YieldTask<UnityEngine.Object[]> Token(this LoadAssetsRequest asyncOperation, CoroutineToken token)        
+        {
+            return asyncOperation.GetAwaiter().Token(token);
         }
 
 
@@ -94,15 +127,23 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.assets);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<K[]> CancelWaitGameObjectDestroy<T,K>(this LoadAssetsRequest<K> asyncOperation, T component)
             where T : Component where K : UnityEngine.Object
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
+        }
+
+        public static YieldTask<K[]> Token<K>(this LoadAssetsRequest<K> asyncOperation, CoroutineToken token)
+            where K : UnityEngine.Object
+        {
+            return asyncOperation.GetAwaiter().Token(token);
         }
 
         public static YieldTask<GameObject> GetAwaiter(this GameObjectLoadRequest asyncOperation)
@@ -112,16 +153,24 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.Obj);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<UnityEngine.GameObject> CancelWaitGameObjectDestroy<T>(this GameObjectLoadRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
         }
+
+        public static YieldTask<UnityEngine.GameObject> Token(this GameObjectLoadRequest asyncOperation, CoroutineToken token)           
+        {
+            return asyncOperation.GetAwaiter().Token(token);
+        }
+
 
         public static YieldTask<AssetBundle> GetAwaiter(this LoadAssetBundleRequest asyncOperation)
         {
@@ -130,15 +179,22 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, asyncOperation.assetBundle);
             }
             return awaiter;
         }
-
+        [Obsolete]
         public static YieldTask<UnityEngine.AssetBundle> CancelWaitGameObjectDestroy<T>(this LoadAssetBundleRequest asyncOperation, T component)
             where T : Component
         {
             return asyncOperation.GetAwaiter().CancelWaitGameObjectDestroy(component);
+        }
+
+        public static YieldTask<UnityEngine.AssetBundle> Token(this LoadAssetBundleRequest asyncOperation,CoroutineToken token)         
+        {
+            return asyncOperation.GetAwaiter().Token(token);
         }
     }
 }

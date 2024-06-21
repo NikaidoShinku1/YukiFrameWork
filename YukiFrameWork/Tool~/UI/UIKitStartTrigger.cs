@@ -51,6 +51,7 @@ namespace YukiFrameWork.UI
 
 		private BasePanel rootPanel;
 
+		private CoroutineTokenSource tokenSource;
 		private Type panelType => typeof(IPanel);		
 
 		/// <summary>
@@ -63,6 +64,7 @@ namespace YukiFrameWork.UI
         
         private void Awake()
 		{
+			tokenSource = CoroutineTokenSource.Create(this);
 			UIManager.Instance.InitLevel();
 			switch (resourcesType)
 			{
@@ -81,13 +83,13 @@ namespace YukiFrameWork.UI
 			{
 				case LoadType.XFABManager:
 					{
-						var request = await AssetBundleManager.LoadAssetAsync<GameObject>(projectName, panelName).CancelWaitGameObjectDestroy(this);
+						var request = await AssetBundleManager.LoadAssetAsync<GameObject>(projectName, panelName).Token(tokenSource.Token);
 						rootPanel = (BasePanel)request.GetComponent(panelType);						
 					}
 					break;
 				case LoadType.Resources:
 					{						
-						var asset = await Resources.LoadAsync(panelPath, panelType).CancelWaitGameObjectDestroy(this);						
+						var asset = await Resources.LoadAsync(panelPath, panelType).Token(tokenSource.Token);						
 						rootPanel = asset as BasePanel;
 					}
 					break;

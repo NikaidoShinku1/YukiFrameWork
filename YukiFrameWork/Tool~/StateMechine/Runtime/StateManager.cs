@@ -161,8 +161,7 @@ namespace YukiFrameWork.States
                 return transitions;
             });
             subTransitions.Add("BaseLayer", transitions);     
-          
-            int inputCount = 0;
+                 
             foreach (var state in runTimeSubStatePair.Values)
             {
                 foreach (var item in state.stateBases)

@@ -15,14 +15,17 @@ using System.Threading;
 using UnityEngine;
 using YukiFrameWork.Extension;
 using UnityEngine.Networking;
+using System.Threading.Tasks;
 namespace YukiFrameWork
 {
 
     public interface ICoroutineCompletion : ICriticalNotifyCompletion
     {
         public Coroutine Coroutine { get;internal set; }
+        public CoroutineToken Token { get; internal set; }
         public bool IsCompleted { get; }
         void StopAllTask();
+        
     }
     /// <summary>
     /// 协程专属等待器，返回值功能仅限2021以上版本使用
@@ -34,6 +37,9 @@ namespace YukiFrameWork
 #endif
     public partial class YieldTask : ICoroutineCompletion
     {
+        internal CoroutineToken token;
+        CoroutineToken ICoroutineCompletion.Token { get => token; set => token = value; }
+        public bool IsRunning => token == null || token.IsRunning;
         private bool _isDone;
         private System.Exception exception;
         private Action _continuation;
@@ -41,7 +47,7 @@ namespace YukiFrameWork
         Coroutine ICoroutineCompletion.Coroutine { get; set; }
 
         void INotifyCompletion.OnCompleted(Action continuation)
-        {
+        {                 
             ((ICriticalNotifyCompletion)this).UnsafeOnCompleted(continuation);
         }
         public void Complete(Exception e)
@@ -97,6 +103,9 @@ namespace YukiFrameWork
 #endif
     public partial class YieldTask<T> : INotifyCompletion,ICoroutineCompletion
     {
+        internal CoroutineToken token;
+        CoroutineToken ICoroutineCompletion.Token { get => token; set => token = value; }
+        public bool IsRunning => token == null || token.IsRunning;
         private bool _isDone;
         private System.Exception exception;
         private Action _continuation;
@@ -263,6 +272,8 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return instruction;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null);
             }
             return awaiter;
@@ -275,6 +286,8 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return instruction;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null,instruction);
             }
             return awaiter;
@@ -287,6 +300,8 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return instruction;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, instruction.asset);
             }
             return awaiter;
@@ -299,6 +314,8 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return instruction;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, instruction.asset);
             }
             return awaiter;
@@ -311,6 +328,8 @@ namespace YukiFrameWork
             IEnumerator NextVoid()
             {
                 yield return instruction;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
                 awaiter.Complete(null, instruction.assetBundle);
             }
             return awaiter;

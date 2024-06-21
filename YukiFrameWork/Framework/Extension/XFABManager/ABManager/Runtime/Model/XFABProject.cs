@@ -339,6 +339,7 @@ namespace XFABManager
         {
             get
             {
+
                 if (asset_bundle_name_mapping_with_type_editor_load == null || asset_bundle_name_mapping_with_type_editor_load.Count == 0)
                 {
                     asset_bundle_name_mapping_with_type_editor_load = new Dictionary<string, string>();
@@ -435,8 +436,16 @@ namespace XFABManager
             return false;
         }
 
-        public void Save() {
+        public void Save() 
+        {
             EditorUtility.SetDirty(this);
+
+            asset_bundle_name_mapping = null;
+            asset_bundle_name_mapping_with_type = null;
+            asset_name_type_mapping_with_asset_path = null;
+
+            asset_bundle_name_mapping_editor_load = null;
+            asset_bundle_name_mapping_with_type_editor_load = null;
         }
 
         public bool AddAssetBundle(XFABAssetBundle bundle ) {
