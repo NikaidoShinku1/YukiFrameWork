@@ -3,7 +3,8 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
- 
+using YukiFrameWork;
+
 
 namespace XFABManager
 {
@@ -17,7 +18,7 @@ namespace XFABManager
 
         #region 变量
         // 保存所有的 资源项目
-        private List<XFABProject> projects;
+        private List<XFABProject> projects = new List<XFABProject>();
 
         private static XFABProjectManager _instance;
 
@@ -98,10 +99,10 @@ namespace XFABManager
 
             projects.Clear();
             // 读项目配置文件
-            allAssets = AssetDatabase.FindAssets("t:XFABProject" );
+            allAssets = AssetDatabase.FindAssets($"t:{typeof(XFABProject)}" );
 
             for (int i = 0; i < allAssets.Length; i++)
-            {
+            {             
                 XFABProject project = AssetDatabase.LoadAssetAtPath<XFABProject>(AssetDatabase.GUIDToAssetPath(allAssets[i]));
                 if (project != null)
                 {
