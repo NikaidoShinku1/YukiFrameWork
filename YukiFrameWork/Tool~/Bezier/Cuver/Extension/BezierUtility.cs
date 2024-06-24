@@ -29,7 +29,7 @@ namespace YukiFrameWork
         /// <param name="p0">P0坐标点</param>
         /// <param name="p1">P1坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierIntepolate(Vector3 p0, Vector3 p1, float t)
         {
             //Vector3 p0p1 = (1 - t) * p0 + t * p1;
@@ -44,7 +44,7 @@ namespace YukiFrameWork
         /// <param name="p1">P1坐标点</param>
         /// <param name="p2">P2坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierIntepolate(Vector3 p0, Vector3 p1, Vector3 p2, float t)
         {
             //二阶完整公式运用
@@ -66,7 +66,7 @@ namespace YukiFrameWork
         /// <param name="p2">P2坐标点</param>
         /// <param name="p3">P3坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierIntepolate(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
             //Vector3 p0p1p2p3 = (1 - t) * (1 - t) * (1 - t) * p0 + p1 * 3 * t * (1 - t) * (1 - t) + p2 * 3 * t * t * (1 - t) + p3 * t * t * t;
@@ -89,7 +89,7 @@ namespace YukiFrameWork
         /// <param name="p0">P0坐标点</param>
         /// <param name="p1">P1坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierLerp(Vector3 p0, Vector3 p1, float t)
         {
             return Vector3.Lerp(p0, p1, t);
@@ -102,7 +102,7 @@ namespace YukiFrameWork
         /// <param name="p1">P1坐标点</param>
         /// <param name="p2">P2坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierLerp(Vector3 p0, Vector3 p1, Vector3 p2, float t)
         {
             Vector3 p0p1 = Vector3.Lerp(p0, p1, t);
@@ -119,7 +119,7 @@ namespace YukiFrameWork
         /// <param name="p2">P2坐标点</param>
         /// <param name="p3">P3坐标点</param>
         /// <param name="t">0返回Start，1返回End</param>
-        /// <returns>返回最终弧度</returns>
+        /// <returns>根据t值返回当前路径</returns>
         public static Vector3 BezierLerp(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
         {
             Vector3 p0p1 = Vector3.Lerp(p0, p1, t);
