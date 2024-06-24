@@ -85,7 +85,7 @@ namespace YukiFrameWork
         }
 
         [LabelText("当前所有的存档信息:"),BoxGroup]
-        public List<SaveInfo> infos = new List<SaveInfo>();
+        public List<SaveInfo> infos = new List<SaveInfo>();    
     }
 
 

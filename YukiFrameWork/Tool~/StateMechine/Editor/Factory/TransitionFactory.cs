@@ -10,13 +10,13 @@ namespace YukiFrameWork.States
     {
         public static void CreateTransition(StateMechine stateMechine, string fromStateName, string toStateName)
         {          
-            if (toStateName.Equals(StateConst.entryState))
+            if (toStateName.Equals(StateConst.entryState) || toStateName.Equals(StateConst.anyState))
                 return;
 
             if (toStateName.StartsWith(StateConst.upState)) return;
            
             if (fromStateName.Equals(toStateName))
-                return;
+                return;       
 
             if (!stateMechine.IsSubLayerAndContainsName())
             {
