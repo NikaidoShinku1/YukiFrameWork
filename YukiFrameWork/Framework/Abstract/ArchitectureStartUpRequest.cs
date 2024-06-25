@@ -136,22 +136,26 @@ namespace YukiFrameWork
                     Type type = allRolds[i];
                     if (type == null) continue;
 
-                    if (typeof(IModel).IsAssignableFrom(type)
-                        || typeof(ISystem).IsAssignableFrom(type)
-                        || typeof(IUtility).IsAssignableFrom(type))
+                    if (CheckArchitectureRegister(type))
                     {
                         RegistrationAttribute registration = type.GetCustomAttribute<RegistrationAttribute>(true);
                         if (registration == null) continue;
                         if (registration.architectureType != architectureType) continue;
                         object value = Activator.CreateInstance(type);
 
-                        registration.registerType ??= type;
+                        if(registration.registerType == null)                       
+                            registration.registerType = type;
+                        else if(!CheckArchitectureRegister(registration.registerType))
+                        {
+                            OnCompleted("存在定义自定义类型没有继承IModel、ISystem、IUtility,模块启动失败! Type:" + type.FullName + "   RegisterType:" + registration.registerType);
+                            yield break;
+                        }
 
                         if (!registration.registerType.IsAssignableFrom(type))
                         {
                             OnCompleted("存在定义自定义类型时使用的类型与本体类没有继承关系,模块启动失败! Type:" + type.FullName + "   RegisterType:" + registration.registerType);
                             yield break;
-                        }
+                        }   
 
                         if (value is IUtility utility)
                         {
@@ -253,6 +257,13 @@ namespace YukiFrameWork
             architecture.Init();
             MonoHelper.Destroy_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
+        }
+
+        private bool CheckArchitectureRegister(Type type)
+        {
+            return typeof(IModel).IsAssignableFrom(type)
+                        || typeof(ISystem).IsAssignableFrom(type)
+                        || typeof(IUtility).IsAssignableFrom(type);
         }
 
         void OnArchitectureDispose(MonoHelper helper)
