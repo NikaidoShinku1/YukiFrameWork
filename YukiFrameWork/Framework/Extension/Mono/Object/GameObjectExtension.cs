@@ -188,6 +188,46 @@ namespace YukiFrameWork
         public static bool Destroy<T>(this T obj) where T : Object
             => Destroy(obj, 0);
 
+        /// <summary>
+        /// 判断是否已经销毁
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component"></param>
+        /// <returns></returns>
+        public static bool IsDestroy<T>(this T component) where T : Component
+        {
+            try
+            {
+                if (ReferenceEquals(component, null) || component.gameObject == null)
+                    return true;
+            }
+            catch
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断是否已经销毁
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool IsDestroy(this GameObject obj) 
+        {
+            try
+            {
+                if (ReferenceEquals(obj, null) || obj.gameObject == null)
+                    return true;
+            }
+            catch
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static T DonDestroyOnLoad<T>(this T core) where T : Object
         {
             Object.DontDestroyOnLoad(core);

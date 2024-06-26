@@ -50,9 +50,7 @@ namespace YukiFrameWork
             if (!component.TryGetComponent<OnGameObjectTrigger>(out var trigger))
             {
                 trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
-            }
-            
-
+            }         
             var source = GlobalObjectPools.GlobalAllocation<CoroutineTokenSource>(true);
             trigger.PushFinishEvent(() => 
             {
@@ -79,8 +77,6 @@ namespace YukiFrameWork
         /// 指令已经打断(完成)
         /// </summary>
         public bool IsCoroutineCompleted => Token.States == TokenStates.Cancel;
-
-        private bool canceled;
 
         public bool IsCanceled { get; private set; }
         private bool isDelayCanceled;
@@ -114,8 +110,7 @@ namespace YukiFrameWork
         void IGlobalSign.Init()
         {
             mToken = GlobalObjectPools.GlobalAllocation<CoroutineToken>();         
-            IsCanceled = false;
-            canceled = false;
+            IsCanceled = false;         
             isDelayCanceled = false;
             Running();
         }

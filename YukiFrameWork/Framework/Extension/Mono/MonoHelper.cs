@@ -104,7 +104,7 @@ namespace YukiFrameWork
 
         public static Coroutine Start(IEnumerator enumerator)
         {
-            if (ReferenceEquals(I,null) || I.ToString() == "null") return null;
+            if (I.IsDestroy()) return null;
 
             if (enumerator == null) return null;
 
@@ -112,7 +112,7 @@ namespace YukiFrameWork
         }
         public static void Stop(Coroutine coroutine)
         {
-            if (ReferenceEquals(I, null) || I.ToString() == "null") return;
+            if (I.IsDestroy()) return;
             if (coroutine == null) return;
 
             I.StopCoroutine(coroutine);
