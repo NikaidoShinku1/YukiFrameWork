@@ -258,7 +258,8 @@ namespace YukiFrameWork.UI
             var component = panel.gameObject.AddComponent(monoScript.GetClass());
             BasePanel currentController = component as BasePanel;
 
-            currentController.Data = panel.Data; 
+            currentController.Data = panel.Data;
+            currentController.name = currentController.Data.ScriptName;          
             DestroyImmediate(panel);
             return true;
         }
