@@ -78,6 +78,11 @@ namespace YukiFrameWork
             return task.Invoke().GetAwaiter();
         }
 
+        public static YieldTask Run(Func<IActionNode> task)
+        {
+            return task.Invoke().ToCoroutine().GetAwaiter();
+        }
+
         public static YieldTask<UnityEngine.Object> Run(Func<LoadAssetRequest> task)
         {
             return task.Invoke().GetAwaiter();

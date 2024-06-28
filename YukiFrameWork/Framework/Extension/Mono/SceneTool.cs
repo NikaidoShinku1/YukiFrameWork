@@ -158,10 +158,17 @@ namespace YukiFrameWork
         public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsynchrony(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
 
+        /// <summary>
+        /// 场景安全加载，如果场景就是当前需要切换的场景，那么会直接执行OnFinish回调，不会执行场景的Load逻辑
+        /// </summary>
+        /// <param name="sceneName"></param>
+        /// <param name="loadingCallBack"></param>
+        /// <param name="onFinish"></param>
+        /// <param name="mode"></param>
         public async void LoadSceneAsyncSafe(string sceneName, Action<float> loadingCallBack = null, Action onFinish = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             if (SceneManager.GetSceneByName(sceneName).IsValid())
-            {                
+            {              
                 onFinish?.Invoke();
                 return;
             }           

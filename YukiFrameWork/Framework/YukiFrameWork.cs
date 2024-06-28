@@ -240,7 +240,7 @@ namespace YukiFrameWork
                 }
             }
         }
-        public virtual string OnProjectName => string.Empty;
+        public virtual string OnProjectName => this.GetType().Name;
         public static string ProjectName => Global.OnProjectName;
 
         #endregion

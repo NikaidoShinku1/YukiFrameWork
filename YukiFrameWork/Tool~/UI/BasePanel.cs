@@ -127,9 +127,9 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 把自己关闭
+        /// 关闭面板
         /// </summary>
-        protected void CloseSelf()
+        public void CloseSelf()
             => UIKit.ClosePanel(this);      
 
         #region IPanel
