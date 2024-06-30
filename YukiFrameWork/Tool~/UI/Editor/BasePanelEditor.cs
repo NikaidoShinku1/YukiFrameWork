@@ -255,6 +255,7 @@ namespace YukiFrameWork.UI
         {
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
             if (monoScript == null) return false;
+            if (panel.IsDestroy()) return false;
             var component = panel.gameObject.AddComponent(monoScript.GetClass());
             BasePanel currentController = component as BasePanel;
 

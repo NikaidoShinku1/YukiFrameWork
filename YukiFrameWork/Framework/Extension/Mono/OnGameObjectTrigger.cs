@@ -26,6 +26,8 @@ namespace YukiFrameWork
 
         private readonly Stack<IUnRegister> unRegisters = new Stack<IUnRegister>();
 
+        private readonly Stack<IUnRegister> unDisableRegisters = new Stack<IUnRegister>();
+
         public void AddAction(IActionNode node,IActionNodeController controller)
         {                     
             queueActionNodes.Add(new KeyValuePair<IActionNode, IActionNodeController>(node, controller));
@@ -33,6 +35,9 @@ namespace YukiFrameWork
 
         public void AddUnRegister(IUnRegister register)
             => unRegisters.Push(register);
+
+        public void AddUnRegisterByDisable(IUnRegister register)
+            => unDisableRegisters.Push(register);
 
         public IUnRegister PopRegister()
             => unRegisters.Pop();
@@ -78,7 +83,17 @@ namespace YukiFrameWork
             }
 
             actionNodes.Clear();
-        }              
+        }
+
+        private void OnDisable()
+        {
+            foreach (var action in unDisableRegisters)
+            {
+                action.UnRegisterAllEvent();
+            }
+
+            unDisableRegisters.Clear();
+        }
 
         private void OnDestroy()
         {

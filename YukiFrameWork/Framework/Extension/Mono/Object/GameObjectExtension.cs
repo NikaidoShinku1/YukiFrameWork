@@ -391,16 +391,87 @@ namespace YukiFrameWork
             return core;
         }
 
+        public static GameObject SetPositionX(this GameObject core, float x)
+        {
+            SetPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
+            return core;
+        }
+
+        public static GameObject SetPositionY(this GameObject core, float y) 
+        {
+            SetPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            return core;
+        }
+
+        public static GameObject SetPositionZ(this GameObject core, float z)
+        {
+            SetPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
+            return core;
+        }
+
         public static T SetPosition<T>(this T core, Vector3 position) where T : Component
         {
             SetPosition(core.gameObject, position);
             return core;
         }
 
+        public static T SetPositionX<T>(this T core, float x) where T : Component
+        {
+            SetPosition(core.gameObject, new Vector3(x,core.transform.position.y,core.transform.position.z));
+            return core;
+        }
+
+        public static T SetPositionY<T>(this T core, float y) where T : Component
+        {
+            SetPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            return core;
+        }
+
+        public static T SetPositionZ<T>(this T core, float z) where T : Component
+        {
+            SetPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
+            return core;
+        }
 
         public static GameObject SetLocalPosition(this GameObject core, Vector3 localPosition)
         {
             core.transform.localPosition = localPosition;
+            return core;
+        }
+
+        public static GameObject SetLocalPositionX(this GameObject core, float x)
+        {
+            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
+            return core;
+        }
+
+        public static GameObject SetLocalPositionY(this GameObject core, float y)
+        {
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            return core;
+        }
+
+        public static GameObject SetLocalPositionZ(this GameObject core, float z)
+        {
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
+            return core;
+        }
+
+        public static T SetLocalPositionX<T>(this T core, float x) where T : Component
+        {
+            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
+            return core;
+        }
+
+        public static T SetLocalPositionY<T>(this T core, float y) where T : Component
+        {
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            return core;
+        }
+
+        public static T SetLocalPositionZ<T>(this T core, float z) where T : Component
+        {
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
             return core;
         }
 
@@ -413,6 +484,24 @@ namespace YukiFrameWork
         public static GameObject SetLocalScale(this GameObject core, Vector3 localScale)
         {
             core.transform.localScale = localScale;
+            return core;
+        }
+
+        public static T SetLocalScaleX<T>(this T core, float x) where T : Component
+        {
+            SetLocalScale(core.gameObject, new Vector3(x, core.transform.localScale.y, core.transform.localScale.z));
+            return core;
+        }
+
+        public static T SetLocalScaleY<T>(this T core, float y) where T : Component
+        {
+            SetLocalScale(core.gameObject, new Vector3(core.transform.localScale.x, y, core.transform.localScale.z));
+            return core;
+        }
+
+        public static T SetLocalScaleZ<T>(this T core, float z) where T : Component
+        {
+            SetLocalScale(core.gameObject, new Vector3(core.transform.localScale.x, core.transform.localScale.y, z));
             return core;
         }
 
@@ -470,48 +559,139 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static T SetLocalEnlerAngles<T>(this T core,Vector3 localEnlerAngles) where T : Component
+        public static GameObject SetLocalScaleX(this GameObject core, float x)
         {
-            SetLocalEnlerAngles(core.gameObject, localEnlerAngles);
+            SetLocalScale(core.gameObject, new Vector3(x, core.transform.localScale.y, core.transform.localScale.z));
             return core;
         }
 
-        public static GameObject SetLocalEnlerAngles(this GameObject core, Vector3 localEnlerAngles) 
+        public static GameObject SetLocalScaleY(this GameObject core, float y)
+        {
+            SetLocalScale(core.gameObject, new Vector3(core.transform.localScale.x, y, core.transform.localScale.z));
+            return core;
+        }
+
+        public static GameObject SetLocalScaleZ(this GameObject core, float z)
+        {
+            SetLocalScale(core.gameObject, new Vector3(core.transform.localScale.x, core.transform.localScale.y, z));
+            return core;
+        }
+
+        public static T SetLocalEulerAngles<T>(this T core,Vector3 localEnlerAngles) where T : Component
+        {
+            SetLocalEulerAngles(core.gameObject, localEnlerAngles);
+            return core;
+        }
+
+        public static T SetLocalEulerAnglesX<T>(this T core, float x) where T : Component
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(x, core.transform.localEulerAngles.y, core.transform.localEulerAngles.z));
+            return core;
+        }
+
+        public static T SetLocalEulerAnglesY<T>(this T core, float y) where T : Component
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(core.transform.localEulerAngles.x, y, core.transform.localEulerAngles.z));
+            return core;
+        }
+
+        public static T SetLocalEulerAnglesZ<T>(this T core, float z) where T : Component
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(core.transform.localEulerAngles.x, core.transform.localEulerAngles.y, z));
+            return core;
+        }
+
+        public static GameObject SetLocalEulerAnglesX(this GameObject core, float x)
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(x, core.transform.localEulerAngles.y, core.transform.localEulerAngles.z));
+            return core;
+        }
+
+        public static GameObject SetLocalEulerAnglesY(this GameObject core, float y)
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(core.transform.localEulerAngles.x, y, core.transform.localEulerAngles.z));
+            return core;
+        }
+
+        public static GameObject SetLocalEulerAnglesZ(this GameObject core, float z)
+        {
+            SetLocalEulerAngles(core.gameObject, new Vector3(core.transform.localEulerAngles.x, core.transform.localEulerAngles.y, z));
+            return core;
+        }
+
+        public static GameObject SetLocalEulerAngles(this GameObject core, Vector3 localEnlerAngles) 
         {
             core.transform.localEulerAngles = localEnlerAngles;
             return core;
         }
 
-        public static T SetEnlerAngles<T>(this T core, Vector3 enlerAngles) where T : Component
+        public static T SetEulerAngles<T>(this T core, Vector3 enlerAngles) where T : Component
         {
-            SetEnlerAngles(core.gameObject, enlerAngles);
+            SetEulerAngles(core.gameObject, enlerAngles);
             return core;
         }
 
-        public static GameObject SetEnlerAngles(this GameObject core, Vector3 enlerAngles)
+        public static T SetEulerAnglesX<T>(this T core, float x) where T : Component
+        {
+            SetEulerAngles(core.gameObject, new Vector3(x, core.transform.eulerAngles.y, core.transform.eulerAngles.z));
+            return core;
+        }
+
+        public static T SetEulerAnglesY<T>(this T core, float y) where T : Component
+        {
+            SetEulerAngles(core.gameObject, new Vector3(core.transform.eulerAngles.x, y, core.transform.eulerAngles.z));
+            return core;
+        }
+
+        public static T SetEulerAnglesZ<T>(this T core, float z) where T : Component
+        {
+            SetEulerAngles(core.gameObject, new Vector3(core.transform.eulerAngles.x, core.transform.eulerAngles.y, z));
+            return core;
+        }
+
+
+        public static GameObject SetEulerAngles(this GameObject core, Vector3 enlerAngles)
         {
             core.transform.eulerAngles = enlerAngles;
             return core;
         }
 
-        public static T SetLocalEnlerAngles2D<T>(this T core, Vector2 localEnlerAngles) where T : Component
+        public static GameObject SetEulerAnglesX(this GameObject core, float x)
         {
-            return SetLocalEnlerAngles(core, localEnlerAngles);
+            SetEulerAngles(core.gameObject, new Vector3(x, core.transform.eulerAngles.y, core.transform.eulerAngles.z));
+            return core;
         }
 
-        public static GameObject SetLocalEnlerAngles2D(this GameObject core, Vector2 localEnlerAngles)
+        public static GameObject SetEulerAnglesY(this GameObject core, float y)
         {
-            return SetLocalEnlerAngles(core, localEnlerAngles);
+            SetEulerAngles(core.gameObject, new Vector3(core.transform.eulerAngles.x, y, core.transform.eulerAngles.z));
+            return core;
         }
 
-        public static T SetEnlerAngles2D<T>(this T core, Vector2 enlerAngles) where T : Component
+        public static GameObject SetEulerAnglesZ(this GameObject core, float z)
         {
-            return SetEnlerAngles(core, enlerAngles);
+            SetEulerAngles(core.gameObject, new Vector3(core.transform.eulerAngles.x, core.transform.eulerAngles.y, z));
+            return core;
         }
 
-        public static GameObject SetEnlerAngles2D(this GameObject core, Vector2 enlerAngles)
+        public static T SetLocalEulerAngles2D<T>(this T core, Vector2 localEnlerAngles) where T : Component
         {
-            return SetEnlerAngles(core, enlerAngles);
+            return SetLocalEulerAngles(core, localEnlerAngles);
+        }
+
+        public static GameObject SetLocalEulerAngles2D(this GameObject core, Vector2 localEnlerAngles)
+        {
+            return SetLocalEulerAngles(core, localEnlerAngles);
+        }
+
+        public static T SetEulerAngles2D<T>(this T core, Vector2 enlerAngles) where T : Component
+        {
+            return SetEulerAngles(core, enlerAngles);
+        }
+
+        public static GameObject SetEulerAngles2D(this GameObject core, Vector2 enlerAngles)
+        {
+            return SetEulerAngles(core, enlerAngles);
         }
 
         public static GameObject ResetIdentity(this GameObject core)
@@ -607,7 +787,7 @@ namespace YukiFrameWork
         {
             core.transform.rotation = quaternion;
             return core;
-        }
+        }     
 
         public static T SetRotation<T>(this T core, Quaternion quaternion) where T : Component
         {
@@ -909,7 +1089,7 @@ namespace YukiFrameWork
     {
 
         /// <summary>
-        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁时自动清空事件
         /// </summary>
         /// <param name="gameObject">GameObject</param>
         public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action onFinish = null) where Component : UnityEngine.Component
@@ -918,7 +1098,7 @@ namespace YukiFrameWork
         }
 
         /// <summary>
-        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁的时自动清空事件
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁时自动清空事件
         /// </summary>
         /// <param name="gameObject">GameObject</param>
         public static void UnRegisterWaitGameObjectDestroy(this IUnRegister property, UnityEngine.GameObject gameObject, Action onFinish = null)
@@ -930,6 +1110,29 @@ namespace YukiFrameWork
             objectSend.AddUnRegister(property);
 
             objectSend.PushFinishEvent(onFinish);
+
+        }
+
+        /// <summary>
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当失活时自动清空事件
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitGameObjectDisable<Component>(this IUnRegister property, Component component) where Component : UnityEngine.Component
+        {
+            UnRegisterWaitGameObjectDisable(property, component.gameObject);
+        }
+
+        /// <summary>
+        /// 注销事件，并且绑定MonoBehaviour生命周期,当失活时自动清空事件
+        /// </summary>
+        /// <param name="gameObject">GameObject</param>
+        public static void UnRegisterWaitGameObjectDisable(this IUnRegister property, UnityEngine.GameObject gameObject)
+        {
+            if (!gameObject.TryGetComponent(out OnGameObjectTrigger objectSend))
+            {
+                objectSend = gameObject.AddComponent<OnGameObjectTrigger>();
+            }
+            objectSend.AddUnRegisterByDisable(property);
 
         }
 

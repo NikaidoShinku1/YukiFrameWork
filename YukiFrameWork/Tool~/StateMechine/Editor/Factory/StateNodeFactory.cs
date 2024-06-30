@@ -163,7 +163,7 @@ namespace YukiFrameWork.States
                 {
                     foreach (var item in stateMechine.states)
                     {
-                        if (item.name.Equals(StateConst.entryState))
+                        if (item.name.Equals(StateConst.entryState) || item.name.StartsWith(StateConst.upState) || item.name.Equals(StateConst.anyState))
                             continue;
                         item.defaultState = true;
                         break;
@@ -188,7 +188,7 @@ namespace YukiFrameWork.States
                 {
                     foreach (var item in stateMechine.subStatesPair[stateMechine.layerName].stateBases)
                     {
-                        if (item.name.Equals(StateConst.entryState) || item.name.Equals(StateConst.upState))
+                        if (item.name.Equals(StateConst.entryState) || item.name.StartsWith(StateConst.upState) || item.name.Equals(StateConst.anyState))
                             continue;
                         item.defaultState = true;
                         break;
@@ -230,9 +230,9 @@ namespace YukiFrameWork.States
         public static void Rename(StateMechine stateMechine, StateBase node, string newName)
         {
             string message;
-            if (node.name.Equals(StateConst.entryState) || node.name.StartsWith(StateConst.upState))
+            if (node.name.Equals(StateConst.entryState) || node.name.StartsWith(StateConst.upState) || node.name.Equals(StateConst.anyState))
             {
-                message = "无法更改Entry以及子节点根状态名称!";
+                message = "无法更改Entry、Any以及子节点根状态名称!";
                 StateMechineEditorWindow.OnShowNotification(message);
                 return;
             }

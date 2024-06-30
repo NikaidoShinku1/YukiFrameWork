@@ -60,7 +60,7 @@ namespace YukiFrameWork.Extension
                 controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);
 
             string scriptFilePath = controller.Data.ScriptPath + @"/" + controller.Data.ScriptName + ".cs";          
-            if (controller.GetType().ToString().Equals(typeof(ViewController).ToString()))
+            if (!controller.GetType().IsSubclassOf(typeof(ViewController)))
             {             
                 if(!Update_ScriptFrameWorkConfigData(scriptFilePath, controller))
                     controller.Data.ScriptName = (target.name == "ViewController" ? (target.name + "Example") : target.name);                    
@@ -398,6 +398,7 @@ namespace YukiFrameWork.Extension
         {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
             if(monoScript == null) return false;
+            if (controller.IsDestroy()) return false;
             if (!monoScript.GetClass().IsSubclassOf(typeof(ViewController))) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;            
