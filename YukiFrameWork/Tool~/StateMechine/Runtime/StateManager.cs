@@ -1,4 +1,5 @@
 ﻿using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -465,7 +466,7 @@ namespace YukiFrameWork.States
                 }
             }
         }
-
+        [Obsolete("不建议再使用该方法进行强制切换，请使用参数为名称的OnChangeState")]
         public void OnChangeState(int index, System.Action callBack = null, bool isBack = true)
         {
             var items = runTimeSubStatePair["BaseLayer"].stateBases;

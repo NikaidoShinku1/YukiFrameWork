@@ -26,8 +26,6 @@ namespace YukiFrameWork.States
         private StateDataBase _dataBase;
 
         private StateBase _state;
-
-        //protected AnimationClipPlayable animationClipPlayable => state.clipPlayable;
         protected StateBase state
         {
             get
@@ -85,14 +83,7 @@ namespace YukiFrameWork.States
             
         }
 
-        /// <summary>
-        /// 仅当StateManager启用了Playable兼容时可用，用于处理当该状态所绑定的动画结束时的回调。如果是循环动画，则在每一次循环结尾调用
-        /// </summary>
-        public virtual void OnAnimationExit()
-        {
-            
-        }
-     
+        [Obsolete("不建议再使用该方法进行强制切换，请使用参数为名称的OnChangeState")]
         protected void OnChangeState(int index)
             => StateManager.OnChangeState(index);
 

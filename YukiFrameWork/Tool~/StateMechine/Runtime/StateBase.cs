@@ -108,20 +108,7 @@ namespace YukiFrameWork.States
                     state.OnTransitionExit(velocity,completed);
                 }
             }
-        }
-
-        internal void OnAnimationExit()
-        {
-            for (int i = 0; i < dataBases.Count; i++)
-            {
-                if (dataBases[i].isActive)
-                {
-                    StateBehaviour state = dataBases[i].Behaviour;
-                    if (state == null) continue;
-                    state.OnAnimationExit();
-                }
-            }
-        }
+        }     
 
         internal void OnExit(bool isBack = true)
         {

@@ -58,7 +58,8 @@ namespace YukiFrameWork
         {
             BezierExecution execution = transform.GetOrAddComponent<BezierExecution>();
             list.Add(end);
-            var core = Bezier.Get(mode,  list);
+            List<Vector3> temp = new List<Vector3>(list);
+            var core = Bezier.Get(mode, temp);
             core.Condition += () =>
             {
                 Vector3 dir = OnUpdate(transform, core, currentSpeed, end,rotated);              
