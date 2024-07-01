@@ -94,7 +94,7 @@ namespace YukiFrameWork.States
                 stateMechine.transform.SetParent(transform);
 
                 StateNodeFactory.CreateStateNode(stateMechine, StateConst.entryState, new Rect(0, -100, StateConst.StateWith, StateConst.StateHeight));
-                StateNodeFactory.CreateStateNode(stateMechine, StateConst.anyState, new Rect(0, -300, StateConst.StateWith, StateConst.StateHeight));
+                StateNodeFactory.CreateStateNode(stateMechine, StateConst.anyState, new Rect(0, -300, StateConst.StateWith, StateConst.StateHeight),isAnyState:true);
             }
             this.stateMechine = stateMechine;
         }
