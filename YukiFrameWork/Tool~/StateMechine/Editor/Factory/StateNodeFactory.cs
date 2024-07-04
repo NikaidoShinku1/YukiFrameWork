@@ -41,7 +41,7 @@ namespace YukiFrameWork.States
             if (!stateMechine.IsSubLayerAndContainsName())
             {
                 if (stateMechine.states.Count >= 1) createIndex = stateMechine.states.Count - 1;               
-                if (name.Equals(StateConst.entryState))
+                if (name.Equals(StateConst.entryState) || (name.Equals(StateConst.anyState) && isAnyState))
                     data.index = -1;
                 else
                     data.index = createIndex;               

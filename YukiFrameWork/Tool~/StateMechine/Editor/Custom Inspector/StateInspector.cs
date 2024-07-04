@@ -609,7 +609,10 @@ namespace YukiFrameWork.States
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label(EditorGUIUtility.IconContent("icons/processed/unityeditor/animations/animatorstate icon.asset"), GUILayout.Width(30), GUILayout.Height(30));
                 EditorGUILayout.LabelField("状态名称：", GUILayout.Width(60));
-                bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState) || helper.node.name.StartsWith(StateConst.upState);
+                bool disabled = EditorApplication.isPlaying || helper.node.name.Equals(StateConst.entryState)
+                    || helper.node.name.StartsWith(StateConst.upState)
+                    || helper.node.name.Equals(StateConst.anyState)
+                    || helper.node.IsAnyState;
 
                 EditorGUI.BeginDisabledGroup(disabled);
                 name = EditorGUILayout.DelayedTextField(helper.node.name);

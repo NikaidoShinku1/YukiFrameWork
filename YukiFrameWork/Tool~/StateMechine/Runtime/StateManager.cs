@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.Playables;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
 
@@ -29,19 +27,6 @@ namespace YukiFrameWork
 }
 namespace YukiFrameWork.States
 {
-    internal class PlayableInfo
-    {
-        public int clipIndex;
-        public AnimationClipPlayable clipPlayable;
-      
-
-        public PlayableInfo(int clipIndex,PlayableGraph playableGraph, AnimationClip clip)
-        {
-            this.clipIndex = clipIndex;
-            this.clipPlayable = AnimationClipPlayable.Create(playableGraph, clip);
-           
-        }
-    }
     public class StateManager : MonoBehaviour,IState
     {
         private const string defaultSystem = "设置";    
@@ -65,13 +50,13 @@ namespace YukiFrameWork.States
 
         public Dictionary<string,StateParameterData> ParametersDicts => parametersDict;
 
-        private Dictionary<string, StateParameterData> parametersDict = DictionaryPools<string,StateParameterData>.Get();    
+        private Dictionary<string, StateParameterData> parametersDict = DictionaryPools<string,StateParameterData>.Get();     
       
         public List<StateTransition> transitions = ListPools<StateTransition>.Get();
 
         public Dictionary<string, SubStateData> runTimeSubStatePair { get; set; } = new Dictionary<string, SubStateData>();
 
-        public Dictionary<string, List<StateTransition>> subTransitions = DictionaryPools<string, List<StateTransition>>.Get();
+        public Dictionary<string, List<StateTransition>> subTransitions { get; set; } = DictionaryPools<string, List<StateTransition>>.Get();
 
         public List<StateBase> currents { get; } = new List<StateBase>();
 
@@ -123,7 +108,7 @@ namespace YukiFrameWork.States
                 stateMechine = transform.GetComponentInChildren<StateMechine>();
                 if (stateMechine == null)
                     return;
-            }    
+            }
 
             for (int i = 0; i < stateMechine.parameters.Count; i++)
             {
@@ -134,15 +119,10 @@ namespace YukiFrameWork.States
                 }
                 ParametersDicts.Add(stateMechine.parameters[i].name, stateMechine.parameters[i]);
             }
-            List<StateBase> list = ListPools<StateBase>.Get();
-            for (int i = 0; i < stateMechine.states.Count; i++)
-            {
-                if (stateMechine.states[i].name.Equals(StateConst.entryState) || stateMechine.states[i].index == -1)
-                    continue;
-                list.Add(stateMechine.states[i]);
-            }
-            runTimeSubStatePair = stateMechine.subStatesPair.ToDictionary(v => v.Key, v => v.Value);
-            runTimeSubStatePair.Add("BaseLayer", new SubStateData(list));
+            List<StateBase> baseStates = new List<StateBase>(stateMechine.states);
+            runTimeSubStatePair = stateMechine.subStatesPair
+                .ToDictionary(v => v.Key, v => v.Value);              
+            runTimeSubStatePair.Add("BaseLayer", new SubStateData(baseStates));
 
             foreach (var item in stateMechine.transitions)
             {
@@ -498,7 +478,19 @@ namespace YukiFrameWork.States
 
             if (stateBase == null)
             {
-                LogKit.E("无法强制切换不同图层的状态!,需要切换的状态层级:" + layerName + "当前判定的状态:" + name);
+                LogKit.E("状态不存在或者视图强制切换不同图层的状态!,需要切换的状态层级:" + layerName + "当前判定的状态:" + name);
+                return;
+            }
+
+            if (stateBase.IsAnyState || stateBase.name.Equals(StateConst.anyState))
+            {
+                LogKit.E("无法切换至AnyState状态! Layer:" + layerName);
+                return;
+            }
+
+            if (stateBase.index == -1)
+            {
+                LogKit.E("该状态是不可以切换的，状态：" + stateBase.name);
                 return;
             }
 
