@@ -13,7 +13,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 
 namespace YukiFrameWork
-{
+{   
     [Serializable]
     public class LocalizationComponentItem
     {
@@ -32,8 +32,23 @@ namespace YukiFrameWork
 
     }
 	public class LocalizationComponent : MonoBehaviour
-	{
-        [SerializeField] 
+    {
+        enum LocalSelectType
+        {
+            [LabelText("作为同步组件")]
+            Local,
+            [LabelText("作为同步组件管理器")]
+            Manager
+        }
+
+        [SerializeField,LabelText("组件的使用方式")]
+        LocalSelectType type = LocalSelectType.Manager;
+
+        [SerializeField]
+        [ShowIf(nameof(type), LocalSelectType.Local)]
+        private LocalizationComponentItem item = new LocalizationComponentItem();
+        [SerializeField]
+        [ShowIf(nameof(type),LocalSelectType.Manager)]
         private LocalizationComponentItem[] items;       
 
         [LabelText("配置项的标识"), SerializeField]
@@ -71,32 +86,52 @@ namespace YukiFrameWork
 
         public void Update_Component(Language language)
         {
-            foreach (var item in items)
+            switch (type)
             {
-                ILocalizationData data = LocalizationKit.GetContent(configKey,item.key, language);
-                                 
-                if (data == null)
-                    continue;                
-                if (resolver != null)
-                {                   
-                    resolver.Invoke(item.component, data);
-                }
-                else
-                {                 
-                    if (item.component is Text text)
+                case LocalSelectType.Local:
                     {
-                        text.text = data.Context;
+                        ILocalizationData data = LocalizationKit.GetContent(configKey, item.key, language);
+                        if (data == null) return;
+                        MakeGraph_Reset(item, data);
                     }
-                    else if (item.component is Image image)
+                    break;
+                case LocalSelectType.Manager:
                     {
-                        image.sprite = data.Sprite;
+                        foreach (var item in items)
+                        {
+                            ILocalizationData data = LocalizationKit.GetContent(configKey, item.key, language);
+
+                            if (data == null)
+                                continue;
+                            MakeGraph_Reset(item, data);
+                        }
                     }
-                }
-                if (item.eventReceiver)
+                    break;               
+            }
+          
+        }
+
+        private void MakeGraph_Reset(LocalizationComponentItem item,ILocalizationData data)
+        {
+            if (resolver != null)
+            {
+                resolver.Invoke(item.component, data);
+            }
+            else
+            {
+                if (item.component is Text text)
                 {
-                    item.stringReceiver?.Invoke(data.Context);
-                    item.spriteReceiver?.Invoke(data.Sprite);
+                    text.text = data.Context;
                 }
+                else if (item.component is Image image)
+                {
+                    image.sprite = data.Sprite;
+                }
+            }
+            if (item.eventReceiver)
+            {
+                item.stringReceiver?.Invoke(data.Context);
+                item.spriteReceiver?.Invoke(data.Sprite);
             }
         }
     }

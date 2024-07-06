@@ -154,11 +154,9 @@ static LocalizationKit API:
     - ILocalizationData GetContentFromDepend(int id, string key, Language language);//根据id得到子配置项，然后根据语言以及标识得到本地数据
 
 
-对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,一个Component只能使用一个配置，如果需要使用的是子配置则打开子配置按钮，输入对应id即可,如图所示:
+对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,一个Component只能使用一个配置
 ![输入图片说明](Texture/6.png)
 
-在同一标识下，如果需要有多个组件，可以打开图中的事件接收器，如下所示：
-![输入图片说明](Texture/7.png)
 
 这样当项目运行时，该组件将会同步，框架默认支持Text与Image，如果使用TextMeshPro等其他组件，可以使用LocalizationComponent的初始化解析器方法
 

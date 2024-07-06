@@ -505,9 +505,9 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static GameObject SetParent(this GameObject core, Transform parent)
+        public static GameObject SetParent(this GameObject core, GameObject parent)
         {
-            core.transform.SetParent(parent);
+            core.transform.SetParent(parent.transform);
             return core;
         }
 
@@ -1146,6 +1146,18 @@ namespace YukiFrameWork
         public static void CancelGameObjectWithDestroy(this Component core, Action onFinish)
         {
             CancelGameObjectWithDestroy(core.gameObject, onFinish);
+        }
+
+        public static void CancelGameObjectWithDisable(this GameObject core, Action onFinish)
+        {
+            EasyEvent easyEvent = new EasyEvent();
+            var info = easyEvent.RegisterEvent(onFinish);
+            info.UnRegisterWaitGameObjectDisable(core);
+        }
+
+        public static void CancelGameObjectWithDisable(this Component core, Action onFinish)
+        {
+            CancelGameObjectWithDisable(core.gameObject, onFinish);
         }
 
         /// <summary>
