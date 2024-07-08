@@ -89,8 +89,9 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T">面板类型</typeparam>
         /// <param name="name">路径/名称</param>
         /// <returns></returns>
-        public static T OpenPanel<T>(string name, params object[] param) where T : BasePanel
+        public static T OpenPanel<T>(string name = "", params object[] param) where T : BasePanel
         {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             IPanel panelCore = GetPanelCore<T>(name);         
             return OpenPanelExecute<T>(name, panelCore.Level, panelCore as T,param);
         }
@@ -104,6 +105,7 @@ namespace YukiFrameWork.UI
         /// <returns></returns>
         public static T OpenPanel<T>(string name,UILevel level,params object[] param) where T : BasePanel
         {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             IPanel panelCore = GetPanelCore<T>(name);           
             return OpenPanelExecute<T>(name, level, panelCore as T,param);
         }   
@@ -172,6 +174,7 @@ namespace YukiFrameWork.UI
         /// <param name="onCompleted"></param>
         public static void OpenPanelAsync<T>(string name,Action<T> onCompleted, params object[] param) where T : BasePanel
         {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
 
@@ -193,8 +196,9 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static UILoadAssetRequest OpenPanelAsync<T>(string name, params object[] param) where T : BasePanel
+        public static UILoadAssetRequest OpenPanelAsync<T>(string name = "", params object[] param) where T : BasePanel
         {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             UIManager uiMgr = UIManager.I;
             var panelCore = uiMgr.GetPanelCore<T>();
             UILoadAssetRequest loadAssetRequest = new UILoadAssetRequest();
@@ -389,10 +393,11 @@ namespace YukiFrameWork.UI
         /// 强行获取面板(面板如果在场景中不存在则会创建一个,创建的面板如果是缓存面板会先进行关闭)
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="path"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public static T GetPanel<T>(string path) where T : BasePanel
+        public static T GetPanel<T>(string name = "") where T : BasePanel
         {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             T panel;         
             for (int i = 0; i < (int)UILevel.System; i++)
             {
@@ -402,7 +407,7 @@ namespace YukiFrameWork.UI
                 if (panel != null)
                     return panel;
             }           
-            panel = OpenPanel<T>(path);
+            panel = OpenPanel<T>(name);
             ///如果面板是缓存面板
             if (panel.IsPanelCache)            
                 ClosePanel(panel);      
