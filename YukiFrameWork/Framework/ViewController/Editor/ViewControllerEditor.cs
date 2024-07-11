@@ -399,7 +399,7 @@ namespace YukiFrameWork.Extension
         private bool Update_ScriptFrameWorkConfigData(string path,ViewController controller)
         {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
-            if(monoScript == null || !PrefabUtility.IsPartOfAnyPrefab(controller)) return false;
+            if(monoScript == null || PrefabUtility.IsPartOfAnyPrefab(controller)) return false;
             if (controller.IsDestroy()) return false;
             if (!monoScript.GetClass().IsSubclassOf(typeof(ViewController))) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
