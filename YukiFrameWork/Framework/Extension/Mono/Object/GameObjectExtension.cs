@@ -194,39 +194,17 @@ namespace YukiFrameWork
         /// <typeparam name="T"></typeparam>
         /// <param name="component"></param>
         /// <returns></returns>
-        public static bool IsDestroy<T>(this T component) where T : Component
+        public static bool IsDestroy<T>(this T component) where T : Object
         {
             try
             {
-                if (ReferenceEquals(component, null) || component.gameObject == null)
-                    return true;
+                return !component;
             }
             catch
             {
                 return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 判断是否已经销毁
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static bool IsDestroy(this GameObject obj) 
-        {
-            try
-            {
-                if (ReferenceEquals(obj, null) || obj.gameObject == null)
-                    return true;
-            }
-            catch
-            {
-                return true;
-            }
-            return false;
-        }
+            }            
+        }     
 
         public static T DonDestroyOnLoad<T>(this T core) where T : Object
         {

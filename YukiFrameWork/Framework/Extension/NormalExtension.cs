@@ -64,6 +64,6 @@ namespace YukiFrameWork
         /// <param name="obj"></param>
         /// <returns></returns>
         public static bool IsMonoNull(this UnityEngine.Object obj)
-            => IsNull(obj) || obj.ToString() == "null";
+            => obj.IsDestroy();
     }
 }

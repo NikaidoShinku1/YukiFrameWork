@@ -42,7 +42,7 @@ namespace YukiFrameWork
         [LabelText("本地数据配置:"),BoxGroup(groupName)]
         [JsonProperty]
         [ShowInInspector]
-        [DictionaryDrawerSettings(KeyLabel = "唯一标识"),Searchable]       
+        [DictionaryDrawerSettings(KeyLabel = "唯一标识",DisplayMode = DictionaryDisplayOptions.CollapsedFoldout),Searchable]       
         [SerializeField]        
         public YDictionary<string, YDictionary<Language,LocalizationData>> config = new YDictionary<string, YDictionary<Language,LocalizationData>>();
         [JsonIgnore]
