@@ -7,6 +7,8 @@
 
 QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_from=333.337.search-card.all.click&vd_source=8d59e90cf24f9961527733c56cb61575
 
+本框架YukiFrameWork上手教程：https://www.bilibili.com/video/BV14XVEe4ExG/?spm_id_from=333.788&vd_source=8d59e90cf24f9961527733c56cb61575
+
 #### 安装教程
 
 特殊标记: 
