@@ -210,6 +210,8 @@ namespace YukiFrameWork.Extension
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
             }
+            if(PrefabUtility.IsPartOfAnyPrefab(controller))
+                EditorGUILayout.HelpBox("特殊警示:在预制件下生成脚本并不会自动进行挂载跟替换的操作，请自行处理。", MessageType.Warning);
             base.OnInspectorGUI();
             EditorGUILayout.Space();
             EditorGUILayout.BeginVertical("OL box NoExpand");
@@ -397,13 +399,13 @@ namespace YukiFrameWork.Extension
         private bool Update_ScriptFrameWorkConfigData(string path,ViewController controller)
         {           
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);  
-            if(monoScript == null) return false;
+            if(monoScript == null || !PrefabUtility.IsPartOfAnyPrefab(controller)) return false;
             if (controller.IsDestroy()) return false;
             if (!monoScript.GetClass().IsSubclassOf(typeof(ViewController))) return false;
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;            
             currentController.Data = controller.Data;
-            currentController.IsAutoSettingField = controller.IsAutoSettingField;
+            currentController.IsAutoSettingField = controller.IsAutoSettingField;          
             DestroyImmediate(controller);
             currentController.gameObject.name = currentController.Data.ScriptName;
             return true;

@@ -115,7 +115,10 @@ namespace YukiFrameWork.UI
             {
                 EditorGUILayout.HelpBox("Loading...", MessageType.Warning);
                 return;
-            }       
+            }
+            if (PrefabUtility.IsPartOfAnyPrefab(panel))
+                EditorGUILayout.HelpBox("特殊警示:在预制件下生成脚本并不会自动进行挂载跟替换的操作，请自行处理。",MessageType.Warning);
+
             base.OnInspectorGUI();
             EditorGUILayout.Space(10);
             EditorGUILayout.BeginVertical("OL box NoExpand");
@@ -254,13 +257,12 @@ namespace YukiFrameWork.UI
         private bool Update_ScriptFrameWorkConfigData(string path, BasePanel panel)
         {
             MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
-            if (monoScript == null) return false;
-            if (panel.IsDestroy()) return false;
+            if (monoScript == null || PrefabUtility.IsPartOfAnyPrefab(panel)) return false;
             var component = panel.gameObject.AddComponent(monoScript.GetClass());
             BasePanel currentController = component as BasePanel;
 
             currentController.Data = panel.Data;
-            currentController.name = currentController.Data.ScriptName;          
+            currentController.name = currentController.Data.ScriptName;        
             DestroyImmediate(panel);
             return true;
         }
