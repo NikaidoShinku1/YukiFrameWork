@@ -52,6 +52,9 @@ namespace YukiFrameWork.UI
         public static T HidePanel<T>() where T : BasePanel, IPanel
             => Exector.Hide_Internal<T>();
 
+        public static RectTransform GetPrefabRootTransform()
+            => Exector.transform as RectTransform;
+
         /// <summary>
         /// UI模块初始化方法,传入自定义的UI加载模块
         /// </summary>
@@ -476,6 +479,9 @@ namespace YukiFrameWork.UI
         {
             return UIManager.Instance.GetPanelLevel(level).GetComponentsInChildren<T>();
         }
+
+        public static RectTransform GetPanelLevel(UILevel level)
+            => UIManager.Instance.GetPanelLevel(level);
     }
 
     public static class UIGenericExtension

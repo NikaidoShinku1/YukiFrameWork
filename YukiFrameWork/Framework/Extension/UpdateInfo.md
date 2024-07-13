@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.19.12 ActionKit补充注释，UIKit更新获取层级对象的Transform API
+
 V1.19.11 本地化配置新增组件的模式选择
 
 V1.19.10 修复状态机模块的强制切换能直接切到AnyState跟Entry的问题

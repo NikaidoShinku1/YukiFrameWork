@@ -139,7 +139,7 @@ namespace YukiFrameWork.UI
             I.Exector.Hide().Show();
         }
 
-        public Transform GetPanelLevel(UILevel level)
+        public RectTransform GetPanelLevel(UILevel level)
         {
             levelDicts.TryGetValue(level, out var transform);
             return transform;

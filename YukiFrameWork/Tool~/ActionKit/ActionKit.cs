@@ -16,12 +16,25 @@ namespace YukiFrameWork
     [ClassAPI("动作时序管理套件")]
     public static class ActionKit
     {
+        /// <summary>
+        /// 定时回调，延迟触发回调
+        /// </summary>
+        /// <param name="currentTime">延迟的时间(秒)</param>
+        /// <param name="callBack">触发的回调</param>
+        /// <param name="isRealTime">是否不受到Time.timeScale影响</param>
+        /// <returns></returns>
         [MethodAPI("定时回调")]
         public static IActionNode Delay(float currentTime, Action callBack = null,bool isRealTime = false)
         {
             return YukiFrameWork.Delay.Get(currentTime, callBack,isRealTime);
         }
 
+        /// <summary>
+        /// 等待延迟的帧数后触发回调
+        /// </summary>
+        /// <param name="frameCount">需要延迟的帧数</param>
+        /// <param name="callBack">触发的回调</param>
+        /// <returns></returns>
         [MethodAPI("定时帧回调")]
         public static IActionNode DelayFrame(int frameCount, Action callBack = null)
         {
@@ -34,18 +47,39 @@ namespace YukiFrameWork
             return YukiFrameWork.NextFrame.Get(1, callBack);
         }
 
+        /// <summary>
+        /// 计时器，与Delay相似，有持续检测回调
+        /// </summary>
+        /// <param name="maxTime">最大时间</param>
+        /// <param name="CallTemp">计时器运行时持续触发</param>
+        /// <param name="CallBack">计时器结束后触发</param>
+        /// <param name="isConstranit">是否约束0-1</param>
+        /// <param name="isRealTime">是否不受到Time.timeScale影响</param>
+        /// <returns></returns>
         [MethodAPI("计时器启动")]
         public static IActionNode StartTimer(float maxTime, Action<float> CallTemp, Action CallBack = null, bool isConstranit = false,bool isRealTime = false)
         {
             return YukiFrameWork.Timer.Get(maxTime,CallTemp,CallBack,isConstranit,isRealTime);
         }
 
+        /// <summary>
+        /// 事件等待判断：当predicate返回True时，结束该任务
+        /// </summary>
+        /// <param name="predicate">设置的条件事件</param>
+        /// <param name="CallBack">触发的回调</param>
+        /// <returns></returns>
         [MethodAPI("事件判断等待")]
         public static IActionNode ExecuteFrame(Func<bool> predicate, Action CallBack = null)
         {
             return YukiFrameWork.ExecuteFrame.Get(predicate, CallBack);
         }
 
+        /// <summary>
+        /// 将协程转换为以Update来运行的ActionNode
+        /// </summary>
+        /// <param name="enumerator">迭代器本体</param>
+        /// <param name="callBack">协程结束后触发的回调</param>
+        /// <returns></returns>
         [MethodAPI("协程转ActionNode")]
         public static IActionNode Coroutine(IEnumerator enumerator, Action callBack = null)
         {
