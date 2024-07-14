@@ -19,15 +19,15 @@ namespace YukiFrameWork.Buffer
         {
             this.projectName = projectName;
         }
-        public BuffDataBase Load(string path)
+        public TItem Load<TItem>(string path) where TItem : BuffDataBase
         {
-            return AssetBundleManager.LoadAsset<BuffDataBase>(projectName, path);
+            return AssetBundleManager.LoadAsset<TItem>(projectName, path);
         }
 
-        public void LoadAsync(string path, Action<BuffDataBase> callBack)
+        public void LoadAsync<TItem>(string path, Action<TItem> callBack) where TItem : BuffDataBase
         {
-            AssetBundleManager.LoadAssetAsync<BuffDataBase>(projectName, path)
-                .AddCompleteEvent(v => callBack?.Invoke(v.asset as BuffDataBase));
+            AssetBundleManager.LoadAssetAsync<TItem>(projectName, path)
+                .AddCompleteEvent(v => callBack?.Invoke(v.asset as TItem));
         }
     }
 }

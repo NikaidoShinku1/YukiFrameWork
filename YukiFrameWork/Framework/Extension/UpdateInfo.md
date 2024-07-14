@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.19.13 框架Loader抽象化，新增IResLoader接口，优化各个模块的Loader加载器，优化对话系统的使用
+
 V1.19.12 ActionKit补充注释，UIKit更新获取层级对象的Transform API
 
 V1.19.11 本地化配置新增组件的模式选择

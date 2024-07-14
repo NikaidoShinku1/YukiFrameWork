@@ -11,10 +11,8 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Item
 {
-	public interface IItemKitLoader
+	public interface IItemKitLoader : IResLoader<ItemDataBase>
 	{
-		ItemDataBase LoadItemDataBase(string dataBaseName);
-
-        void LoadItemDataBaseAsync(string dataBaseName,Action<ItemDataBase> callBack);
+		
     }
 }

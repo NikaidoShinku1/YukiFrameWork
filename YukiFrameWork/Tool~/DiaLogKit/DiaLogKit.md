@@ -10,7 +10,7 @@
 
 每次在退出运行时，需要保持节点的状态是Waiting，框架内部有UIDiaLog类进行自动管理，下面会提及。
 
-双击配置文件打开编辑器窗口，在网格中右键创建根节点，展开配置文件，将根节点配置拖入Inspector中,如图中标记的部分:
+双击配置文件打开编辑器窗口，在网格中右键创建根节点，展开配置文件，将根节点配置拖入Inspector中,如图中标记的部分,并设置对应配置的nodekey:
 
 ![输入图片说明](Texture/2.png)
 
@@ -43,8 +43,18 @@ public class CustomDiaLogController : MonoBehaviour
     public NodeTree nodeTree;
     void Start()
     {
+        //与其他模块一致，使用框架默认loader加载则传入projectName
+        DiaLogKit.Init(projectName:"");
+
+        //可填写自定义的loader
+        ///public class CustomLoader : IDiaLogLoader
+        ///{  }
+        ///
+        ///
+        ///
+
         //通过DiaLogKit得到对话控制器
-        DiaLog diaLog = DiaLogKit.CreateDiaLog(diaLogKey,nodeTree);
+        DiaLog diaLog = DiaLogKit.CreateDiaLog(nodeTree);
 
         //设置控制器当前的文本语言
         diaLog.NodeCurrentLanguage = Language.English;
@@ -105,7 +115,9 @@ DiaLogKit static API:
 
     - DiaLog GetDiaLogueByKey(string key);;//根据名称得到控制器
 
-    - DiaLog CreateDiaLog(string key,NodeTree nodeTree);//创建控制器，并传入标识以及配置
+    - DiaLog CreateDiaLogue(NodeTree nodeTree);//创建控制器，并传入标识以及配置
+
+    - DiaLog CreateDiaLogue(string name);//根据loader加载数据并配置创建控制器
 
     - bool CheckDiaLogIsActive(string key);//查找DiaLogKit是否缓存的指定标识的DiaLog控制器
 
@@ -201,21 +213,17 @@ public class TestScripts : MonoBehaviour
 {   
     //设置运行时绑定的对话控制器的标识
     public string diaLogKey;
-
-    //对话配置
-    public NodeTree nodeTree;
+   
     void Start()
     {
         UIDiaLog uiDiaLog = GetComponent<UIDiaLog>();
 
-        //初始化
-        uiDiaLog.InitDiaLog(DiaLogKit.CreateDiaLog(diaLogKey,nodeTree));
+        //初始化(默认已经完成DiaLogKit.Init以及对DiaLog的创建后)
+        DiaLogKit.Bind(diaLogKey,uiDiaLog);
 
         //自定义是否触发成功推进的回调
         uiDiaLog.MoveNextCondition += () => Input.GetMouseButtonDown(0);
-
-        //与DiaLog中的MoveNextByIndex的效果一致，但UIDiaLog更好
-        uiDiaLog.UpdateDiaLogByIndex(index:0);
+           
 
         //自动推进没有选择None的情况下，自动条件与MoveNextCondition同时可生效。
 

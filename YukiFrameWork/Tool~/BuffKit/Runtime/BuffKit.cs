@@ -39,7 +39,7 @@ namespace YukiFrameWork.Buffer
 
         public static void LoadBuffDataBase(string dataBasePath)
         {
-            BuffDataBase buffDataBase = loader.Load(dataBasePath);
+            BuffDataBase buffDataBase = loader.Load<BuffDataBase>(dataBasePath);
             LoadBuffDataBase(buffDataBase);
         }
 
@@ -47,7 +47,7 @@ namespace YukiFrameWork.Buffer
         {
             bool isCompleted = false;
 
-            loader.LoadAsync(dataBasePath, dataBase => 
+            loader.LoadAsync<BuffDataBase>(dataBasePath, dataBase => 
             {
                 LoadBuffDataBase(dataBase);
                 isCompleted = true;

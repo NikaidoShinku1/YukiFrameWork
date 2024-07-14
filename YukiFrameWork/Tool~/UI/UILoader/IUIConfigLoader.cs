@@ -14,10 +14,8 @@ using System;
 
 namespace YukiFrameWork.UI
 {
-    public interface IUIConfigLoader
+    public interface IUIConfigLoader : IResLoader<IPanel>
     {             
-        T Load<T>(string name) where T : IPanel;
-
-        void LoadAsync<T>(string name,Action<T> onCompleted) where T : IPanel;
+        
     }
 }

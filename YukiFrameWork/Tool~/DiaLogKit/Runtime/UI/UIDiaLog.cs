@@ -42,13 +42,7 @@ namespace YukiFrameWork.DiaLogue
 
         #endregion
         [LabelText("配置的加载方式"), SerializeField,FoldoutGroup(settingDes)]
-        internal DiaLogLoadType loadType = DiaLogLoadType.Inspector;
-
-        [SerializeField,LabelText("注册对话控制器的标识"), FoldoutGroup(settingDes), InfoBox("该标识用于控制器标记以及同步"),ShowIf(nameof(loadType), DiaLogLoadType.Inspector)]
-        internal string DiaLogKey;
-        [LabelText("对话配置"),ShowIf(nameof(loadType), DiaLogLoadType.Inspector), FoldoutGroup(settingDes), SerializeField]
-        internal NodeTree NodeTree;            
-
+        internal DiaLogLoadType loadType = DiaLogLoadType.Inspector;     
         private bool showTime => playMode == DiaLogPlayMode.Writer;
 
         [SerializeField,LabelText("文字的播放模式:"), FoldoutGroup(settingDes)]
@@ -85,26 +79,7 @@ namespace YukiFrameWork.DiaLogue
         private bool isMoveNext = true;
 
         private Coroutine mCurrentCoroutine;
-        private Action mCurrentCallBack;    
-
-        private void Awake()
-        {
-            if (loadType == DiaLogLoadType.Inspector)
-            {
-                if (NodeTree == null)
-                {
-                    throw new Exception("对话树配置为空，请检查是否正确添加，或者将加载模式改成外部初始化");
-                }
-
-                if (string.IsNullOrEmpty(DiaLogKey))
-                {
-                    throw new Exception("对话控制器绑定标识为空，请检查是否输入，或者将加载模式改成外部初始化");
-                }
-
-                DiaLog diaLog = DiaLogKit.CreateDiaLog(DiaLogKey, NodeTree);
-                InitDiaLog(diaLog);
-            }
-        }
+        private Action mCurrentCallBack;       
 
         private void Start()
         {
@@ -126,6 +101,8 @@ namespace YukiFrameWork.DiaLogue
             {
                 node.IsCompleted = false;
                 mCurrentCallBack = OnFinish;
+                if (mCurrentCoroutine != null)
+                    StopCoroutine(mCurrentCoroutine);
                 mCurrentCoroutine = StartCoroutine(Update_Context(node.GetContext()));
             }
             else
@@ -203,43 +180,13 @@ namespace YukiFrameWork.DiaLogue
             }
         }
 
-        public void UpdateDiaLogByIndex(int index)
-        {
-            if (mCurrentCoroutine != null)           
-                StopCoroutine(mCurrentCoroutine);          
-            mDiaLog.MoveByNodeIndex(index);
-        }
-
-#if UNITY_EDITOR
-        [Button("更新该对话的进度/下标"),InfoBox("可在编辑器进行对该对话树的回档功能/或者强制跳转")]
-        void UpdateDiaLog_Inspector(int loadIndex)
-        {
-            UpdateDiaLogByIndex(loadIndex);
-        }
-#endif
-
-        public DiaLog GetCurrentDiaLog()
-        {
-            if (loadType == DiaLogLoadType.Inspector)
-                return mDiaLog;
-
-            if (mDiaLog == null)
-            {
-                LogKit.E("获取对话控制器失败!当前UIDiaLog不是通过编辑器内部添加的对话树以及标识，请检查是否在外部进行注册");
-                return null;
-            }
-            return mDiaLog;
-         
-        }
-
-        public void InitDiaLog(DiaLog diaLog)
+        internal void InitDiaLog(DiaLog diaLog)
         {
             if (mDiaLog != null)
             {
                 mDiaLog.GlobalRelease();
             }
-            mDiaLog = diaLog;
-            DiaLogKey = diaLog.DiaLogKey;
+            mDiaLog = diaLog;           
             mDiaLog.RegisterWithNodeEnterEvent(Update_UI);
             mDiaLog.Start();
         }

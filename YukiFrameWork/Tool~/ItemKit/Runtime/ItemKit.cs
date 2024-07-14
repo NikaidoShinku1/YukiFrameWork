@@ -120,13 +120,13 @@ namespace YukiFrameWork.Item
 
         public static void LoadItemDataBase(string dataBaseName)
         {
-            LoadItemDataBase(loader.LoadItemDataBase(dataBaseName));           
+            LoadItemDataBase(loader.Load<ItemDataBase>(dataBaseName));           
         }
 
         public static IEnumerator LoadItemDataBaseAsync(string dataBaseName)
         {
             bool loadCompleted = false;
-            loader.LoadItemDataBaseAsync(dataBaseName, v =>
+            loader.LoadAsync<ItemDataBase>(dataBaseName, v =>
             {
                 LoadItemDataBase(v);
                 loadCompleted = true;

@@ -313,15 +313,15 @@ Buff管理套件：BuffKit类，使用如下:
     ///自定义加载器
     public class BuffResourcesLoader : IBuffLoader
     {
-        public BuffDataBase Load(string path)
+        public TItem Load<TItem>(string path) where TItem : BuffDataBase
         {
-            return Resources.Load<BuffDataBase>(path);
+            return Resources.Load<TItem>(path);
         }
 
-        public async void LoadAsync(string path, Action<BuffDataBase> callBack)
+        public async void LoadAsync<TItem>(string path, Action<TItem> callBack) where TItem : BuffDataBase
         {
             //异步加载出值：框架有一套完整的异步流协程工具，使用标准的异步语法糖进行异步的编写，详情请查阅框架拓展工具中的协程拓展。
-            BuffDataBase dataBase = await Resources.LoadAsync<BuffDataBase>(path) as BuffDataBase;
+            TItem dataBase = await Resources.LoadAsync<TItem>(path) as TItem;
             callBack?.Invoke(dataBase);
         }
     }

@@ -21,14 +21,14 @@ namespace YukiFrameWork.Item
             this.projectName = projectName;
         }
 
-        public ItemDataBase LoadItemDataBase(string dataBaseName)
+        public TItem Load<TItem>(string name) where TItem : ItemDataBase
         {
-            return AssetBundleManager.LoadAsset<ItemDataBase>(projectName, dataBaseName);
+            return AssetBundleManager.LoadAsset<TItem>(projectName, name);
         }
 
-        public void LoadItemDataBaseAsync(string dataBaseName, Action<ItemDataBase> callBack)
+        public void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : ItemDataBase
         {
-            AssetBundleManager.LoadAssetAsync<ItemDataBase>(projectName, dataBaseName).AddCompleteEvent(v => callBack?.Invoke(v.asset as ItemDataBase));
-        }
+            AssetBundleManager.LoadAssetAsync<TItem>(projectName,name).AddCompleteEvent(v => onCompleted?.Invoke(v.asset as TItem));
+        }  
     }
 }

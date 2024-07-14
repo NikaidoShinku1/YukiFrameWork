@@ -11,10 +11,8 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Buffer
 {
-	public interface IBuffLoader
+	public interface IBuffLoader : IResLoader<BuffDataBase>
 	{
-		BuffDataBase Load(string path);
-
-		void LoadAsync(string path, Action<BuffDataBase> callBack);
+		
 	}
 }

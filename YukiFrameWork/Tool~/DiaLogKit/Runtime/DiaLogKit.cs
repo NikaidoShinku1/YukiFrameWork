@@ -37,7 +37,8 @@ namespace YukiFrameWork.DiaLogue
         Writer
     }
     public static class DiaLogKit 
-	{	
+	{
+        private static IDiaLogLoader loader;     
         private static Dictionary<string, DiaLog> diaLogController;
 
         static DiaLogKit()
@@ -45,10 +46,49 @@ namespace YukiFrameWork.DiaLogue
             diaLogController = new Dictionary<string, DiaLog>();
         }
 
+        public static void Init(string projectName)
+        {
+            Init(new ABManagerDiaLogLoader(projectName));
+        }
+
+        public static void Init(IDiaLogLoader loader)
+        {
+            DiaLogKit.loader = loader;
+        }
+
+        /// <summary>
+        /// 绑定UI对话组件
+        /// </summary>
+        /// <param name="nodeKey"></param>
+        /// <param name="uiDiaLog"></param>
+        public static void Bind(string nodeKey, UIDiaLog uiDiaLog)
+            => Bind(GetDiaLogueByKey(nodeKey),uiDiaLog);
+
+        public static void Bind(DiaLog diaLog,UIDiaLog uiDiaLog)
+            => uiDiaLog.InitDiaLog(diaLog);
+
+        /// <summary>
+        /// 通过标识得到对话控制器
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static DiaLog GetDiaLogueByKey(string key)
         {
             diaLogController.TryGetValue(key, out DiaLog diaLog);
             return diaLog;
+        }
+
+        /// <summary>
+        /// 创建对话控制器
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static DiaLog CreateDiaLogue(string path)
+            => CreateDiaLogue(loader.Load<NodeTree>(path));
+    
+        public static void CreateDiaLogueAsync(string path, Action<DiaLog> onCompleted)
+        {
+            loader.LoadAsync<NodeTree>(path, tree => onCompleted?.Invoke(CreateDiaLogue(tree)));
         }
 
         /// <summary>
@@ -59,8 +99,9 @@ namespace YukiFrameWork.DiaLogue
         /// <param name="autoRelease">是否自动回收，开启后在结束运行时会将整个对话树初始化</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static DiaLog CreateDiaLog(string key,NodeTree nodeTree)
-        {           
+        public static DiaLog CreateDiaLogue(NodeTree nodeTree)
+        {
+            string key = nodeTree.nodekey;
             if (diaLogController.ContainsKey(key))
             {
                 throw new Exception("当前已经存在该标识的对话控制器 Key：" + key);
@@ -73,10 +114,15 @@ namespace YukiFrameWork.DiaLogue
             return log;
         }
 
-        internal static bool RemoveDiaLog(string key)
+        internal static bool RemoveDiaLogue(string key)
             => diaLogController.Remove(key);
 
-        public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key);
+        /// <summary>
+        /// 检查控制器是否启动
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key) && diaLogController[key].DiaLogTree.treeState == NodeTreeState.Running;
 
         public static bool OnDiaLogRelease(DiaLog diaLog)
             => GlobalObjectPools.GlobalRelease(diaLog);
@@ -185,7 +231,7 @@ namespace YukiFrameWork.DiaLogue
             {
                 DiaLogTree.onEnterCallBack.UnRegisterAllEvent();
                 DiaLogTree.onExitCallBack.UnRegisterAllEvent();
-                DiaLogKit.RemoveDiaLog(DiaLogKey);
+                DiaLogKit.RemoveDiaLogue(DiaLogKey);
                 End();
             }           
             DiaLogTree = null;

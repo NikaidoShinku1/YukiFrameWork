@@ -21,6 +21,9 @@ namespace YukiFrameWork.DiaLogue
     [CreateAssetMenu(fileName = "NodeTree", menuName = "YukiFrameWork/NodeTree")]
     public class NodeTree : ScriptableObject
     {
+        [LabelText("对话树识别标识:"),SerializeField]
+        [InfoBox("不同的对话树标识必须唯一,必须填写"),FoldoutGroup("配置", -2)]
+        internal string nodekey;
         [Button("初始化", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置", -1)]
         void DataInit()
         {
@@ -52,7 +55,7 @@ namespace YukiFrameWork.DiaLogue
         {
             if (treeState == NodeTreeState.Waiting || runningNode == null)
             {
-                Debug.LogError("对话树没有被启动或者分支已经结束，无法推进");
+                LogKit.W("对话树没有被启动或者分支已经结束，无法推进");
                 return MoveNodeState.Failed;
             }
 
