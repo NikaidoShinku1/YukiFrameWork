@@ -1,3 +1,31 @@
+## version 1.12.8 更新内容
+
+1. 优化GameObjectLoader.UnLoad方法!
+
+## version 1.12.7 更新内容
+
+1. 添加方法CustomAsyncOperation.RemoveAllCompleteEvent!
+
+## version 1.12.6 更新内容
+
+1. 优化拓展方法IsDestroy!
+
+## version 1.12.5 更新内容
+
+1. 调整协程启动器初始化选项
+
+## version 1.12.4 更新内容
+
+1. 修复编辑器模式下,关闭重新编译程序集的选项时,导致的协程启动器无法正常工作的问题!
+
+## version 1.12.3 更新内容
+
+1. 优化异步加载场景回调,删除进度渐变逻辑!
+
+## version 1.12.2 更新内容
+
+1. 优化ImageLoader加载大图片卡顿的问题!
+
 ## version 1.12.1 更新内容
 
 1. 修复编辑器模式同步加载场景 AssetBundleManager.LoadScene失败的问题!

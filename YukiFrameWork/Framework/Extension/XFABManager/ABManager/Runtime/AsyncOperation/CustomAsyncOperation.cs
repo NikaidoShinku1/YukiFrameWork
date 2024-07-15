@@ -97,6 +97,12 @@ namespace XFABManager
             _completed -= action;
         }
 
+
+        public void RemoveAllCompleteEvent() 
+        {
+            _completed = null;
+        }
+
     }
 
 }

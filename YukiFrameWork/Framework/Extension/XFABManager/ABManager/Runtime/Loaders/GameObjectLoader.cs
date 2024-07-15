@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using YukiFrameWork;
 namespace XFABManager {
 
     /// <summary>
@@ -104,9 +104,10 @@ namespace XFABManager {
         /// 回收或销毁某一个游戏物体，如果这个游戏物体是通过GameObjectLoader加载的, 则会放到缓存池中回收, 如果不是则会直接销毁
         /// 被回收的游戏物体如果超过五分钟没有使用会被销毁
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">待回收的游戏物体</param>
+        /// <param name="parentStays">是否保持父节点不变</param>
         /// <exception cref="System.Exception"></exception>
-        public static void UnLoad(GameObject obj)
+        public static void UnLoad(GameObject obj, bool parentStays = false)
         {
             if (!EditorApplicationTool.isPlaying) 
                 return;
@@ -117,7 +118,7 @@ namespace XFABManager {
             if (allObjPoolMapping.ContainsKey(key)) { 
                 int pool_key = allObjPoolMapping[key];
                 if (allPools.ContainsKey(pool_key))
-                    allPools[pool_key].UnLoad(obj);
+                    allPools[pool_key].UnLoad(obj, parentStays);
                 else
                     throw new System.Exception(string.Format("未查询到池子:{0}",pool_key));
             }
@@ -308,7 +309,7 @@ namespace XFABManager {
             return obj;
         }
 
-        public void UnLoad(GameObject obj) 
+        public void UnLoad(GameObject obj,bool parentStays = false)
         {
             if (obj == null || obj.IsDestroy()) return;
             int hash = obj.GetHashCode();
@@ -318,7 +319,9 @@ namespace XFABManager {
 
             if (info.IsInUse == false) return; // 说明已经 Unload 了
 
-            info.Obj.transform.SetParent(Parent, false);
+            if(!parentStays)
+                info.Obj.transform.SetParent(Parent, false);
+
             info.Obj.SetActive(false);
             info.IsInUse = false;
             info.UnloadTime = Time.time;
@@ -380,7 +383,7 @@ namespace XFABManager {
             if (!prefab.IsDestroy())
                 AssetBundleManager.UnloadAsset(prefab); 
 
-            if(!_parent.IsEmpty() && !_parent.gameObject.IsDestroy())
+            if(!_parent.IsDestroy() && !_parent.gameObject.IsDestroy())
                 GameObject.Destroy(_parent.gameObject); 
 
             _parent = null;
