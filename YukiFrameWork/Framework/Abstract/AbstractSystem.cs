@@ -16,6 +16,8 @@ namespace YukiFrameWork
     public abstract class AbstractSystem : ISystem
     {
         public abstract void Init();
+
+        public virtual void Destroy() { }
         #region 架构本体
         [NonSerialized]
         private IArchitecture architecture;

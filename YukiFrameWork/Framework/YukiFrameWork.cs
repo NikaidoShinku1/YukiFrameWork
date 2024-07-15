@@ -116,6 +116,11 @@ namespace YukiFrameWork
 
     #endregion
 
+    public interface IDestroy
+    {
+        void Destroy();
+    }
+
     #region Controller
     public interface IController :
         ISendCommand, IGetArchitecture, IGetModel, IGetUtility,
@@ -126,14 +131,14 @@ namespace YukiFrameWork
     #endregion
 
     #region Model
-    public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture
+    public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy
     {                      
         void Init();        
     }
     #endregion
 
     #region System
-    public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture
+    public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy
     {
         void Init();
     }
@@ -210,14 +215,14 @@ namespace YukiFrameWork
             return ArchitectureStartUpRequest.StartUpArchitecture<TCore>();
         }
 
-        public virtual void OnDestroy()
+        public void OnDestroy()
         {
             easyContainer.Clear();
             eventSystem.Clear();
             enumEventSystem.Clear();
             stringEventSystem.Clear();
             IsInited = false;
-        }
+        }     
         public virtual (string, SceneLoadType) DefaultSceneName => default;
 
         #region 架构全局模块，如果想要让架构设置为全局的可以使用这个
@@ -337,7 +342,7 @@ namespace YukiFrameWork
             command.Execute();
         }
 
-        protected TResult ExecuteCommand<TResult>(ICommand<TResult> command)
+        protected virtual TResult ExecuteCommand<TResult>(ICommand<TResult> command)
         {
             command.SetArchitecture(this);
             return command.Execute();         
@@ -379,12 +384,43 @@ namespace YukiFrameWork
         }
 
         public void Remove(Type type)
-        {            
+        {
+#if UNITY_2021_1_OR_NEWER
+            mInstances.Remove(type,out object instance);
+
+            if (instance is IDestroy destroy)
+                destroy.Destroy();
+#else
+            if (mInstances.TryGetValue(type, out object instance) && instance is IDestroy destroy)
+                destroy.Destroy();
             mInstances.Remove(type);
+#endif
         } 
 
         public void Clear()
         {
+            FastList<IModel> models = new FastList<IModel>();
+            FastList<ISystem> systems = new FastList<ISystem>();
+            foreach (var instance in mInstances.Values)
+            {
+                if (instance is IModel model)
+                    models.Add(model);
+                else if (instance is ISystem system)
+                    systems.Add(system);
+            }
+
+            for (int i = 0; i < models.Count; i++)
+            {
+                models[i].Destroy();
+            }
+
+            for (int i = 0; i < systems.Count; i++)
+            {
+                systems[i].Destroy();
+            }
+   
+            models.Clear();
+            systems.Clear();        
             mInstances.Clear();          
         }
        

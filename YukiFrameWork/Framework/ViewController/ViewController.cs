@@ -118,7 +118,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 框架封装AbstractController自带的OnInit初始化方法
         /// </summary>
-        public abstract void OnInit();
+        public abstract void OnInit();     
     }
 
     public partial class ViewController : ISerializedFieldInfo
@@ -202,6 +202,11 @@ namespace YukiFrameWork
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return RuntimeArchitecture;
-        }            
+        }
+
+        protected virtual void OnDestroy()
+        {
+            mArchitecture = null;
+        }
     }
 }
