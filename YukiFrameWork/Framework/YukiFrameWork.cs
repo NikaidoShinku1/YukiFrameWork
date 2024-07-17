@@ -437,157 +437,157 @@ namespace YukiFrameWork
 
         public static EnumEventSystem Global { get; } = new EnumEventSystem();
 
-        public IUnRegister Register(Enum type, Action onEvent)
+        public IUnRegister Register(IConvertible type, Action onEvent)
            => events.GetOrAddEvent<EasyEvent>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T>(Enum type, Action<T> onEvent)
+        public IUnRegister Register<T>(IConvertible type, Action<T> onEvent)
             => events.GetOrAddEvent<EasyEvent<T>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K>(Enum type, Action<T, K> onEvent)
+        public IUnRegister Register<T, K>(IConvertible type, Action<T, K> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q>(Enum type, Action<T, K, Q> onEvent)
+        public IUnRegister Register<T, K, Q>(IConvertible type, Action<T, K, Q> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P>(Enum type, Action<T, K, Q, P> onEvent)
+        public IUnRegister Register<T, K, Q, P>(IConvertible type, Action<T, K, Q, P> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W>(Enum type,Action<T,K,Q,P,W> onEvent)
+        public IUnRegister Register<T, K, Q, P, W>(IConvertible type,Action<T,K,Q,P,W> onEvent)
             => events.GetOrAddEvent<EasyEvent<T,K,Q,P, W>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R>(Enum type, Action<T, K, Q, P, W, R> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R>(IConvertible type, Action<T, K, Q, P, W, R> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S>(Enum type, Action<T, K, Q, P, W, R, S> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S>(IConvertible type, Action<T, K, Q, P, W, R, S> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F>(Enum type, Action<T, K, Q, P, W, R, S,F> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F>(IConvertible type, Action<T, K, Q, P, W, R, S,F> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G>(Enum type, Action<T, K, Q, P, W, R, S, F,G> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G>(IConvertible type, Action<T, K, Q, P, W, R, S, F,G> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(type).RegisterEvent(onEvent);
         
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(type).RegisterEvent(onEvent);
 
-        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z> onEvent)
+        public IUnRegister Register<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(type).RegisterEvent(onEvent);
 
-        public void Send(Enum type)
+        public void Send(IConvertible type)
             => events.GetEvent<EasyEvent>(type)?.SendEvent();
 
-        public void Send<T>(Enum type, T t)
+        public void Send<T>(IConvertible type, T t)
             => events.GetEvent<EasyEvent<T>>(type)?.SendEvent(t);
 
-        public void Send<T, K>(Enum type, T t, K k)
+        public void Send<T, K>(IConvertible type, T t, K k)
             => events.GetEvent<EasyEvent<T, K>>(type)?.SendEvent(t, k);
 
-        public void Send<T, K, Q>(Enum type, T t, K k, Q q)
+        public void Send<T, K, Q>(IConvertible type, T t, K k, Q q)
             => events.GetEvent<EasyEvent<T, K, Q>>(type)?.SendEvent(t, k, q);
 
-        public void Send<T, K, Q, P>(Enum type, T t, K k, Q q, P p)
+        public void Send<T, K, Q, P>(IConvertible type, T t, K k, Q q, P p)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(type)?.SendEvent(t, k, q, p);
 
-        public void Send<T, K, Q, P, W>(Enum type, T t, K k, Q q, P p,W w)
+        public void Send<T, K, Q, P, W>(IConvertible type, T t, K k, Q q, P p,W w)
             => events.GetEvent<EasyEvent<T, K, Q, P, W>>(type)?.SendEvent(t, k, q, p, w);
 
-        public void Send<T, K, Q, P, W, R>(Enum type, T t, K k, Q q, P p, W w, R r)
+        public void Send<T, K, Q, P, W, R>(IConvertible type, T t, K k, Q q, P p, W w, R r)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R>>(type)?.SendEvent(t, k, q, p, w, r);
 
-        public void Send<T, K, Q, P, W, R,S>(Enum type, T t, K k, Q q, P p, W w, R r,S s)
+        public void Send<T, K, Q, P, W, R,S>(IConvertible type, T t, K k, Q q, P p, W w, R r,S s)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R,S>>(type)?.SendEvent(t, k, q, p, w, r,s);
 
-        public void Send<T, K, Q, P, W, R, S,F>(Enum type, T t, K k, Q q, P p, W w, R r, S s,F f)
+        public void Send<T, K, Q, P, W, R, S,F>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s,F f)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S,F>>(type)?.SendEvent(t, k, q, p, w, r, s,f);
 
-        public void Send<T, K, Q, P, W, R, S, F,G>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f,G g)
+        public void Send<T, K, Q, P, W, R, S, F,G>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f,G g)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F,G>>(type)?.SendEvent(t, k, q, p, w, r, s, f,g);
 
-        public void Send<T, K, Q, P, W, R, S, F, G,M>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g,M m)
+        public void Send<T, K, Q, P, W, R, S, F, G,M>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g,M m)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G,M>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g,m);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M,N>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m,N n)
+        public void Send<T, K, Q, P, W, R, S, F, G, M,N>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m,N n)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M,N>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m,n);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M, N,B>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n,B b)
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N,B>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n,B b)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N,B>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n,b);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B,V>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V x)
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B,V>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V x)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,x);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j)
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b, V v, J j)
           => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b, v, j);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J,X>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j,X x)
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J,X>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j,X x)
             => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V,J,X>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,v,j,x);
 
-        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z>(Enum type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j, X x,Z z)
+        public void Send<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X,Z>(IConvertible type, T t, K k, Q q, P p, W w, R r, S s, F f, G g, M m, N n, B b,V v, J j, X x,Z z)
            => events.GetEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B,V, J, X,Z>>(type)?.SendEvent(t, k, q, p, w, r, s, f, g, m, n, b,v, j, x,z);
 
-        public void UnRegister(Enum type, Action onEvent)
+        public void UnRegister(IConvertible type, Action onEvent)
             => events.GetEvent<EasyEvent>(type)?.UnRegister(onEvent);
 
-        public void UnRegister<T>(Enum type, Action<T> onEvent)
+        public void UnRegister<T>(IConvertible type, Action<T> onEvent)
             => events.GetEvent<EasyEvent<T>>(type)?.UnRegister(onEvent);
 
-        public void UnRegister<T, K>(Enum type, Action<T, K> onEvent)
+        public void UnRegister<T, K>(IConvertible type, Action<T, K> onEvent)
             => events.GetEvent<EasyEvent<T, K>>(type)?.UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q>(Enum type, Action<T, K, Q> onEvent)
+        public void UnRegister<T, K, Q>(IConvertible type, Action<T, K, Q> onEvent)
             => events.GetEvent<EasyEvent<T, K, Q>>(type)?.UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P>(Enum type, Action<T, K, Q, P> onEvent)
+        public void UnRegister<T, K, Q, P>(IConvertible type, Action<T, K, Q, P> onEvent)
             => events.GetEvent<EasyEvent<T, K, Q, P>>(type)?.UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W>(Enum type, Action<T, K, Q, P, W> onEvent)
+        public void UnRegister<T, K, Q, P, W>(IConvertible type, Action<T, K, Q, P, W> onEvent)
            => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R>(Enum type, Action<T, K, Q, P, W, R> onEvent)
+        public void UnRegister<T, K, Q, P, W, R>(IConvertible type, Action<T, K, Q, P, W, R> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S>(Enum type, Action<T, K, Q, P, W, R, S> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S>(IConvertible type, Action<T, K, Q, P, W, R, S> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F>(Enum type, Action<T, K, Q, P, W, R, S, F> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F>(IConvertible type, Action<T, K, Q, P, W, R, S, F> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G>(Enum type, Action<T, K, Q, P, W, R, S, F, G> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X>>(type).UnRegister(onEvent);
 
-        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(Enum type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+        public void UnRegister<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>(IConvertible type, Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
             => events.GetOrAddEvent<EasyEvent<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z>>(type).UnRegister(onEvent);
 
 
@@ -992,21 +992,24 @@ namespace YukiFrameWork
 
     public class EnumEasyEvents
     {
-        internal readonly Dictionary<Enum, IEasyEventSystem> events = new Dictionary<Enum, IEasyEventSystem>();
+        internal readonly Dictionary<(int,string), IEasyEventSystem> events = new Dictionary<(int, string), IEasyEventSystem>();
 
-        public T GetOrAddEvent<T>(Enum type) where T : IEasyEventSystem, new()
-        {
-            if (!events.TryGetValue(type, out var easyEvent))
+        public T GetOrAddEvent<T>(IConvertible type) where T : IEasyEventSystem, new()
+        { 
+            var core = (type.ToInt32(null), type.ToString());
+            if (!events.TryGetValue(core, out var easyEvent))
             {
                 easyEvent = new T();
-                events.Add(type, easyEvent);
+
+                events.Add(core, easyEvent);
             }
             return (T)easyEvent;
         }
 
-        public T GetEvent<T>(Enum type) where T : IEasyEventSystem
+        public T GetEvent<T>(IConvertible type) where T : IEasyEventSystem
         {
-            events.TryGetValue(type, out var eventSystem);
+            var core = (type.ToInt32(null), type.ToString());
+            events.TryGetValue(core, out var eventSystem);
             try
             {
                 return (T)eventSystem;
@@ -1017,7 +1020,7 @@ namespace YukiFrameWork
             }
         }
 
-        public void AddEvent<T>(Enum type) where T : IEasyEventSystem, new() => events.Add(type, new T());
+        public void AddEvent<T>(IConvertible type) where T : IEasyEventSystem, new() => events.Add((type.ToInt32(null), type.ToString()), new T());
 
         public void ClearEvent()
         {
