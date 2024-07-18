@@ -992,11 +992,11 @@ namespace YukiFrameWork
 
     public class EnumEasyEvents
     {
-        internal readonly Dictionary<(int,string), IEasyEventSystem> events = new Dictionary<(int, string), IEasyEventSystem>();
+        internal readonly Dictionary<(int,IConvertible), IEasyEventSystem> events = new Dictionary<(int, IConvertible), IEasyEventSystem>();
 
         public T GetOrAddEvent<T>(IConvertible type) where T : IEasyEventSystem, new()
         { 
-            var core = (type.ToInt32(null), type.ToString());
+            var core = (type.ToInt32(null), type);
             if (!events.TryGetValue(core, out var easyEvent))
             {
                 easyEvent = new T();
@@ -1008,7 +1008,7 @@ namespace YukiFrameWork
 
         public T GetEvent<T>(IConvertible type) where T : IEasyEventSystem
         {
-            var core = (type.ToInt32(null), type.ToString());
+            var core = (type.ToInt32(null), type);
             events.TryGetValue(core, out var eventSystem);
             try
             {
@@ -1020,7 +1020,7 @@ namespace YukiFrameWork
             }
         }
 
-        public void AddEvent<T>(IConvertible type) where T : IEasyEventSystem, new() => events.Add((type.ToInt32(null), type.ToString()), new T());
+        public void AddEvent<T>(IConvertible type) where T : IEasyEventSystem, new() => events.Add((type.ToInt32(null), type), new T());
 
         public void ClearEvent()
         {
