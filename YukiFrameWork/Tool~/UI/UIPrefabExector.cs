@@ -51,12 +51,12 @@ namespace YukiFrameWork.UI
 		internal BasePanel defaultPanel;
 
 		[Obsolete("推荐直接使用UIKit.ShowPanel进行临时面板的开启")]
-		public T ShowPanel<T>() where T : BasePanel
+		public T ShowPanel<T>(params object[] param) where T : BasePanel
 		{
-			return Show_Internal<T>();
+			return Show_Internal<T>(param);
         }
 
-        internal T Show_Internal<T>() where T : BasePanel
+        internal T Show_Internal<T>(params object[] param) where T : BasePanel
         {
             IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
             if (panel == null) return null;
@@ -64,9 +64,9 @@ namespace YukiFrameWork.UI
             return panel as T;
         }
 
-		private void Open(IPanel panel)
+		private void Open(IPanel panel, params object[] param)
 		{
-            panel.Enter();
+            panel.Enter(param);
             panel.gameObject.Show().SetAsLastSibling();
             ShowPanelCallBack?.Invoke(panel as BasePanel);
         }

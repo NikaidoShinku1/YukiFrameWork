@@ -41,8 +41,8 @@ namespace YukiFrameWork.UI
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T ShowPanel<T>() where T : BasePanel, IPanel
-            => Exector.Show_Internal<T>();
+        public static T ShowPanel<T>(params object[] param) where T : BasePanel, IPanel
+            => Exector.Show_Internal<T>(param);
 
         /// <summary>
         /// 关闭临时面板,此处关闭的面板必须是位于UIRoot下PrefabRoot层级下面的面板，而非动态加载面板
