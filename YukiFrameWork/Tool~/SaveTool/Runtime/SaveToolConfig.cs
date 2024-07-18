@@ -81,7 +81,7 @@ namespace YukiFrameWork
         [Button("打开文件夹"), BoxGroup("文件路径设置"), HideIf(nameof(IsCustom))]
         private void CheckMouseToPosition2()
         {
-            System.Diagnostics.Process.Start("explorer.exe", saveFolder.Replace("/", "\\"));
+            System.Diagnostics.Process.Start("explorer.exe", saveDirPath.Replace("/", "\\"));
         }
 
         [LabelText("当前所有的存档信息:"),BoxGroup]
