@@ -133,32 +133,32 @@ namespace YukiFrameWork
         #endregion
 
         #region 通过贝塞尔曲线的坐标数量获得沿途所有的路径点
-        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, float t)
+        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, float count)
         {
             List<Vector3> result = new List<Vector3>();
-            for (int i = 0; i < t; i++)
+            for (int i = 0; i < count; i++)
             {
-                result.Add(BezierIntepolate(p0, p1, i / t));
+                result.Add(BezierIntepolate(p0, p1, i / (count - 1)));
             }
             return result;
         }
 
-        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, float t)
+        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, float count)
         {
             List<Vector3> result = new List<Vector3>();
-            for (int i = 0; i < t; i++)
+            for (int i = 0; i < count; i++)
             {
-                result.Add(BezierIntepolate(p0, p1, p2, i / t));
+                result.Add(BezierIntepolate(p0, p1, p2, i / (count - 1)));
             }
             return result;
         }
 
-        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+        public static List<Vector3> GetBezierList(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float count)
         {
             List<Vector3> result = new List<Vector3>();
-            for (int i = 0; i < t; i++)
+            for (int i = 0; i < count; i++)
             {
-                result.Add(BezierIntepolate(p0, p1, p2, p3, i / t));
+                result.Add(BezierIntepolate(p0, p1, p2, p3, i / (count - 1)));
             }
             return result;
         }
