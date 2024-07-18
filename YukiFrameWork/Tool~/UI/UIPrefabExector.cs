@@ -60,7 +60,7 @@ namespace YukiFrameWork.UI
         {
             IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
             if (panel == null) return null;
-			Open(panel);
+			Open(panel,param);
             return panel as T;
         }
 
