@@ -7,10 +7,9 @@ namespace YukiFrameWork.DiaLogue
 {
     [Serializable]
     public class Option
-    {
-        [ReadOnly]
+    {       
         public int childIndex;
-        [LabelText("ÉèÖÃÌõ¼şµÄÎÄ±¾"), DictionaryDrawerSettings(KeyLabel = "ÓïÑÔ", ValueLabel = "Ìõ¼şÎÄ±¾",KeyColumnWidth = 15)]
+        [LabelText("è®¾ç½®æ¡ä»¶çš„æ–‡æœ¬"), DictionaryDrawerSettings(KeyLabel = "è¯­è¨€", ValueLabel = "æ¡ä»¶æ–‡æœ¬",KeyColumnWidth = 15)]
         public YDictionary<Language, string> optionTexts = new YDictionary<Language, string>();
 
         public string this[CompositeNode node]
@@ -18,6 +17,10 @@ namespace YukiFrameWork.DiaLogue
             get => optionTexts[node.currentLanguage];
         }
 
+        /// <summary>
+        /// æ”¹å˜çš„è§¦å‘äº‹ä»¶
+        /// </summary>
+        /// <param name="diaLog"></param>
         public void OnChangeClick(DiaLog diaLog)
         {
             diaLog.MoveByNodeIndex(childIndex);

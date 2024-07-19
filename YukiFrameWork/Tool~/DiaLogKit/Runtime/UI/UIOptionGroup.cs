@@ -10,6 +10,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Collections;
+using XFABManager;
 namespace YukiFrameWork.DiaLogue
 {
 	public class UIOptionGroup : MonoBehaviour
@@ -72,7 +73,8 @@ namespace YukiFrameWork.DiaLogue
                         {
                             for (int i = 0; i < options.Length; i++)
                             {
-                                uIOption.Instantiate(uiOptionRoot).Show().InitUIOption(diaLog, node, options[i]);
+                                 GameObjectLoader.Load(uIOption.gameObject,uiOptionRoot)
+                                .Show().GetComponent<UIOption>().Core(o => o.Option = options[i]).InitUIOption(diaLog, node);
                             }
                         }
                         break;
@@ -81,7 +83,7 @@ namespace YukiFrameWork.DiaLogue
                             for (int i = 0; i < uiOptions.Count; i++)
                             {
                                 var option = options[i];
-                                uiOptions[i].Show().InitUIOption(diaLog,node,option);
+                                uiOptions[i].Show().Core(o => o.Option = option).InitUIOption(diaLog,node);
                             }
                         }
                         break;                   
@@ -91,7 +93,7 @@ namespace YukiFrameWork.DiaLogue
                 switch (optionGenericType)
                 {
                     case UIOptionGenericType.Template:
-                        uiOptionRoot.DestroyChildrenWithCondition(transform => transform.GetComponent<UIOption>());
+                        uiOptionRoot.UnLoadChildrenWithCondition(transform => transform.GetComponent<UIOption>());
                         break;
                     case UIOptionGenericType.OptionExist:
                         uiOptions.Hide();

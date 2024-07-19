@@ -190,9 +190,27 @@ Node生命周期:
 
 分支节点对UI的同步:
 
+//添加分支分组组件UIOptionGroup
 ![输入图片说明](Texture/6.png)
 
-![输入图片说明](Texture/7.png)
+新建自定义UIOption类：
+
+``` csharp
+public class UICustomOption : UIOption
+{
+    //可以访问Option类
+
+    public override void InitUIOption(DiaLog diaLog, CompositeNode node)
+    {
+        //重写初始化Option方法
+
+        //可以在适当的时机调用Option的OnChangeClick方法：
+        Option.OnChangeClick(diaLog);
+    }
+}
+```
+
+完成后挂载到场景的对象。
 
 在UIOptionGroup中输入创建DiaLog所绑定的标识，可以选择绑定模式，有安全模式以及默认模式，安全模式会在Start方法后等待一帧更新，防止生命周期颠倒导致的报错。
 
@@ -223,6 +241,15 @@ public class TestScripts : MonoBehaviour
 
         //自定义是否触发成功推进的回调
         uiDiaLog.MoveNextCondition += () => Input.GetMouseButtonDown(0);
+
+        //代码中绑定事件如下:
+
+        //绑定名称的推进更新
+        uiDiaLog.onNameValueChanged.AddListener(name =>{ });
+        //绑定文本的推进更新
+        uiDiaLog.onContextValueChanged.AddListener(context => { });
+        //绑定精灵的推进更新
+        uiDiaLog.onSpriteValueChanged.AddListener(icon =>{ });
            
 
         //自动推进没有选择None的情况下，自动条件与MoveNextCondition同时可生效。

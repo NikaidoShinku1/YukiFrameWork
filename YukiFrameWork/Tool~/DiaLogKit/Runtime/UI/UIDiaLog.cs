@@ -24,25 +24,14 @@ namespace YukiFrameWork.DiaLogue
         private const string contextDes = "文本组件";
         private const string iconDes = "对应的图片";
 
-        [SerializeField, LabelText("是否自定义文本/名称组件进行文本的接收"), FoldoutGroup(dialogDes)]
-        private bool IsCustomContextAndName;
-         
-        [SerializeField,FoldoutGroup(dialogDes),LabelText(nameDes),HideIf(nameof(IsCustomContextAndName))]
-		internal Text Name;
-        [SerializeField,FoldoutGroup(dialogDes),LabelText(contextDes),HideIf(nameof(IsCustomContextAndName))]
-        internal Text Context;
-
-        [SerializeField, FoldoutGroup(dialogDes), LabelText(nameDes + "回调"), ShowIf(nameof(IsCustomContextAndName))]
-        internal UnityEvent<string> onNameCallBack;
-        [SerializeField, FoldoutGroup(dialogDes), LabelText(contextDes + "回调"), ShowIf(nameof(IsCustomContextAndName))]
-        internal UnityEvent<string> onContextCallBack;
-
-        [SerializeField,FoldoutGroup(dialogDes),LabelText(iconDes)]
-        internal Image Icon;     
-
-        #endregion
-        [LabelText("配置的加载方式"), SerializeField,FoldoutGroup(settingDes)]
-        internal DiaLogLoadType loadType = DiaLogLoadType.Inspector;     
+     
+        [FoldoutGroup(dialogDes), LabelText(nameDes + "回调")]
+        public UnityEvent<string> onNameValueChanged;
+        [FoldoutGroup(dialogDes), LabelText(contextDes + "回调")]
+        public UnityEvent<string> onContextValueChanged;
+        [FoldoutGroup(dialogDes), LabelText(iconDes + "回调")]
+        public UnityEvent<Sprite> onSpriteValueChanged;    
+        #endregion      
         private bool showTime => playMode == DiaLogPlayMode.Writer;
 
         [SerializeField,LabelText("文字的播放模式:"), FoldoutGroup(settingDes)]
@@ -92,11 +81,9 @@ namespace YukiFrameWork.DiaLogue
         private void Update_UI(Node node)
         {
             isMoveNext = false;
-            if (IsCustomContextAndName)           
-                onNameCallBack?.Invoke(node.GetName());           
-            else 
-                Name.text = node.GetName();
-            Icon.sprite = node.GetIcon();
+            onNameValueChanged?.Invoke(node.GetName());
+            onSpriteValueChanged?.Invoke(node.GetIcon());
+
             if (playMode == DiaLogPlayMode.Writer)
             {
                 node.IsCompleted = false;
@@ -121,17 +108,9 @@ namespace YukiFrameWork.DiaLogue
 
         private void InitNodeData(Node node)
         {
-            if (IsCustomContextAndName)
-            {                
-                onContextCallBack?.Invoke(node.GetContext());
-            }
-            else
-            {                
-                Context.text = node.GetContext();
-            }
+            onContextValueChanged?.Invoke(node.GetContext());
         }
         
-
         private IEnumerator Update_Context(string content)
         {
             string current = string.Empty;
@@ -141,10 +120,7 @@ namespace YukiFrameWork.DiaLogue
             while (index < content.Length)
             {
                 current = content.Substring(0, index);
-                if (IsCustomContextAndName)
-                    onContextCallBack?.Invoke(current);
-                else
-                    Context.text = current;              
+                onContextValueChanged?.Invoke(current);
                 yield return CoroutineTool.WaitForSeconds(intervalTime);
                 index++;
             }

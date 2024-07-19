@@ -300,7 +300,7 @@ namespace YukiFrameWork
             {
                 var item = core.transform.GetChild(i);
                 if (condition.Invoke(item))
-                    GameObjectLoader.UnLoad(item.gameObject);
+                    GameObjectLoader.UnLoad(item.gameObject,true);
             }
             return core;
         }

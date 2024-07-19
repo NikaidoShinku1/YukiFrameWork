@@ -229,11 +229,11 @@ namespace YukiFrameWork.DiaLogue
                     {
                         if (this.Context.NodeTree.nodes.Count == 0 || Application.isPlaying)
                         {
-                            genericMenu.AddDisabledItem(new GUIContent($"[Composite-{type.Name}] 创建分支节点"));
+                            genericMenu.AddDisabledItem(new GUIContent($"[Composite-{type.Name}] \"创建分支节点\""));
                         }
                         else
                         { 
-                            genericMenu.AddItem(new GUIContent($"[Composite-{type.Name}] 创建分支节点"), false, () => CreateNode(type));
+                            genericMenu.AddItem(new GUIContent($"[Composite-{type.Name}] \"创建分支节点\""), false, () => CreateNode(type));
                         }
                     }
                     else if (type.IsSubclassOf(typeof(SingleNode)))

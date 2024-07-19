@@ -207,7 +207,7 @@ namespace YukiFrameWork.Pools
 
         public bool Release(IGlobalSign obj)
         {
-            if (obj == null && obj.IsMarkIdle) return false;            
+            if (obj == null || obj.IsMarkIdle) return false;            
             Type type = obj.GetType();
             if (!Instance.pools.TryGetValue(type, out var pool))
             {

@@ -14,35 +14,17 @@ using Sirenix.OdinInspector;
 using UnityEngine.Events;
 namespace YukiFrameWork.DiaLogue
 {
-	public class UIOption : MonoBehaviour
+	public abstract class UIOption : MonoBehaviour
 	{
-		[SerializeField,LabelText("设置按钮")]
-		internal Button onClickBtn;
+		public abstract void InitUIOption(DiaLog diaLog, CompositeNode node);
 
-		[LabelText("设置与按钮配套的文本"),SerializeField,HideIf(nameof(IsCustomContext))]
-		internal Text mTextContext;		
+        public Option Option { get; internal set; }
 
-		public Option Option { get; private set; }
+		protected virtual void OnEnable() { }
 
-		[LabelText("是否自定义按钮对应的文本组件"),SerializeField]
-		internal bool IsCustomContext;
-
-		[InfoBox("自定义分支按钮的对应文本组件接收文本数据(例如TextMeshProUGUI)"),ShowIf(nameof(IsCustomContext))]
-		public UnityEvent<string> mContextCallBack;
-
-		public void InitUIOption(DiaLog diaLog,CompositeNode node,Option option)
+		protected virtual void OnDisable()
 		{
-			this.Option = option;
-            if (IsCustomContext)
-                mContextCallBack?.Invoke(option[node]);
-            else mTextContext.text = option[node];
-			onClickBtn.onClick.RemoveListener(ButtonClick);
-			onClickBtn.onClick.AddListener(ButtonClick);
-            void ButtonClick()
-			{
-				option.OnChangeClick(diaLog);			
-			}
+			Option = null;
 		}
-
-	}
+    }
 }
