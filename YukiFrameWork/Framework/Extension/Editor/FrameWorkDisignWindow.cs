@@ -191,7 +191,7 @@ namespace YukiFrameWork
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical(GUILayout.Width(200));
             Button("LocalizationKit_本地化套件", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md");
-            Button("DiaLogKit_对话系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
+            Button("DiaLogKit_对话系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md");
             Button("BuffKit_框架Buff系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
             Button("LogKit_日志工具", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%97%A5%E5%BF%97%E5%B7%A5%E5%85%B7.md");
             Button("ItemKit_框架背包系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md");
