@@ -21,6 +21,8 @@ namespace YukiFrameWork
             [LabelText("程序集设置")]
             Assembly
         }
+        [LabelText("是否开启视图快捷显示"),ShowInInspector]
+        internal static bool IsShowHerarchy = true;
         [SerializeField, EnumToggleButtons]
         Mode mode;
         [ShowIf(nameof(SelectIndex), 0), LabelText("脚本名称：")]

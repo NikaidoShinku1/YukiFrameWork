@@ -15,7 +15,6 @@ using System.Linq;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 namespace YukiFrameWork
@@ -427,7 +426,7 @@ namespace YukiFrameWork
                     e.Use();
                 }
             }
-        }
+        }  
 
         public static void BindInspector(ISerializedFieldInfo info,Component target, Action GenericCallBack = null)
         {       
@@ -536,6 +535,15 @@ namespace YukiFrameWork
 
                     foreach (var asset in assets)
                     {
+                        try
+                        {
+                            if (info.Find(x => x.target == asset) != null)
+                            {
+                                LogKit.W("选中的对象已经持有YukiBind组件，不需要挂在ViewController充数 Obj Name:" + asset.name);
+                                continue;
+                            }
+                        }
+                        catch { }
                         Undo.RecordObject(target, "Add Data");
                         info.AddFieldData(new SerializeFieldData(asset));
 

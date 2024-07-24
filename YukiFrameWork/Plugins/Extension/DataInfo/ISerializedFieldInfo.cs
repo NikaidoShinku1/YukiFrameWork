@@ -8,6 +8,7 @@ namespace YukiFrameWork
 {
     public interface ISerializedFieldInfo
     {
+        string name { get; set; }
         public void AddFieldData(SerializeFieldData data);
 
         public void RemoveFieldData(SerializeFieldData data);
@@ -16,6 +17,6 @@ namespace YukiFrameWork
 
         public IEnumerable<SerializeFieldData> GetSerializeFields();
 
-        SerializeFieldData Find(Func<SerializeFieldData, bool> func);
+        SerializeFieldData Find(Func<SerializeFieldData, bool> func);      
     }
 }

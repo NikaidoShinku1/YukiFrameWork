@@ -15,7 +15,7 @@ namespace YukiFrameWork
             "protected",           
             "internal",
             "public"
-        };     
+        };
 
         public int fieldLevelIndex = 0;
 

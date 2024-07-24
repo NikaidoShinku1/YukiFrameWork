@@ -135,7 +135,7 @@ namespace YukiFrameWork
         private List<SerializeFieldData> _fields = new List<SerializeFieldData>();
         void ISerializedFieldInfo.AddFieldData(SerializeFieldData data)
             => _fields.Add(data);
-
+        
         void ISerializedFieldInfo.RemoveFieldData(SerializeFieldData data)
             => _fields.Remove(data);
 
