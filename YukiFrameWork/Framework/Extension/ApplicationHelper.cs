@@ -16,9 +16,6 @@ using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEngine.SceneManagement;
 using UnityEditor;
-using UnityEditor.Experimental.SceneManagement;
-using UnityEditor.SceneManagement;
-using static UnityEditor.EditorApplication;
 #endif
 namespace YukiFrameWork.Extension
 {
@@ -30,6 +27,7 @@ namespace YukiFrameWork.Extension
         }
 		public static bool GetRuntimeOrEditor() => Application.isPlaying;
 
+#if UNITY_EDITOR
         [InitializeOnLoadMethod]
         static void Init()
         {
@@ -178,7 +176,7 @@ namespace YukiFrameWork.Extension
             }
             catch {  }
             //预制体预览修改视图下的层级
-        }       
-
+        }
+#endif
     }
 }

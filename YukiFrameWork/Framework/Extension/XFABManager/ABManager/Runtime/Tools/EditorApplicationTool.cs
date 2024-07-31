@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿ 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -33,7 +32,9 @@ namespace XFABManager
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {
+            _isPlaying = true;
 #if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
             EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
 #endif
         }

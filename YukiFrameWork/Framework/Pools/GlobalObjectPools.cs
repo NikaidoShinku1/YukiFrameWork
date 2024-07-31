@@ -32,7 +32,7 @@ namespace YukiFrameWork.Pools
         internal const float RELEASEPOOL_TIMER = 60;
         internal const float MAXRELEASEPOOL_TIMER = 5 * 60;
   
-        internal class GlobalPool
+        internal class GlobalPool : IEnumerable<IGlobalSign>
         {
             public Queue<IGlobalSign> pools = new Queue<IGlobalSign>();
             public Type type;
@@ -85,10 +85,20 @@ namespace YukiFrameWork.Pools
                 pools.Enqueue(obj);
                 return true;
             }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public IEnumerator<IGlobalSign> GetEnumerator()
+            {
+                return pools.GetEnumerator();
+            }
         }
 
         private GlobalObjectPools()
-        {
+        {           
             if (!Application.isPlaying) return;
             MonoHelper.Start(CheckPools());
         }
@@ -183,8 +193,7 @@ namespace YukiFrameWork.Pools
 
         public override void OnDestroy()
         {
-            base.OnDestroy();
-
+            base.OnDestroy();           
             pools.Clear();
         }
 
@@ -197,7 +206,15 @@ namespace YukiFrameWork.Pools
 
         void IPools<IGlobalSign>.Clear(Action<IGlobalSign> clearMethod)
         {
-            
+            foreach (var pool in pools.Values)
+            {
+                foreach (var obj in pool)
+                {
+                    clearMethod?.Invoke(obj);
+                }
+            }
+
+            pools.Clear();
         }
 
         IGlobalSign IPools<IGlobalSign>.Get()

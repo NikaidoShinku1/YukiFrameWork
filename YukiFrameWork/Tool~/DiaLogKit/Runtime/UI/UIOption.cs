@@ -16,7 +16,7 @@ namespace YukiFrameWork.DiaLogue
 {
 	public abstract class UIOption : MonoBehaviour
 	{
-		public abstract void InitUIOption(DiaLog diaLog, CompositeNode node);
+		public abstract void InitUIOption(DiaLog diaLog, Node node);
 
         public Option Option { get; internal set; }
 

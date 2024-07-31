@@ -497,7 +497,7 @@ namespace YukiFrameWork
 
         public static T SetParent<T>(this T core, Transform parent) where T : Component
         {
-            SetParent(core.gameObject, parent);
+            core.transform.SetParent(parent);
             return core;
         }
 

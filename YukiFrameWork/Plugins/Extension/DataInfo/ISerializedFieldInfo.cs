@@ -8,7 +8,7 @@ namespace YukiFrameWork
 {
     public interface ISerializedFieldInfo
     {
-        string name { get; set; }
+        
         public void AddFieldData(SerializeFieldData data);
 
         public void RemoveFieldData(SerializeFieldData data);

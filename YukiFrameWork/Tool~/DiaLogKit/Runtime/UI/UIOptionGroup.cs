@@ -60,21 +60,24 @@ namespace YukiFrameWork.DiaLogue
                 throw new System.Exception("无法进行分支的初始化,请检查DiaLog是否在初始化之前通过DiaLogKit创建 DiaLogKey:" + DiaLogKey);
             }
 
-            if (diaLog.DiaLogTree == null)
+            if (diaLog.tree == null)
             {
                 throw new System.Exception("无法进行分支的初始化,请检查DiaLog是否持有了NodeTree DiaLogKey:" + DiaLogKey);
             }
 
-            diaLog.OnOptionsCompleted((node, options) => 
+            diaLog.RegisterWithNodeCompleteEvent(node =>
             {
+                var options = node.optionItems;
+                Debug.Log(options.Count);
                 switch (optionGenericType)
                 {
                     case UIOptionGenericType.Template:
                         {
-                            for (int i = 0; i < options.Length; i++)
+                            for (int i = 0; i < options.Count; i++)
                             {
+                                int index = i;
                                  GameObjectLoader.Load(uIOption.gameObject,uiOptionRoot)
-                                .Show().GetComponent<UIOption>().Core(o => o.Option = options[i]).InitUIOption(diaLog, node);
+                                .Show().GetComponent<UIOption>().Core(o => o.Option = options[index]).InitUIOption(diaLog, node);
                             }
                         }
                         break;
@@ -88,18 +91,21 @@ namespace YukiFrameWork.DiaLogue
                         }
                         break;                   
                 }              
-            },() => 
-            {
+            }).UnRegisterWaitGameObjectDestroy(this);
+
+            diaLog.RegisterWithNodeExitEvent(node => 
+            {              
                 switch (optionGenericType)
                 {
                     case UIOptionGenericType.Template:
+                        if (uiOptionRoot.childCount == 0) return;
                         uiOptionRoot.UnLoadChildrenWithCondition(transform => transform.GetComponent<UIOption>());
                         break;
-                    case UIOptionGenericType.OptionExist:
+                    case UIOptionGenericType.OptionExist:                      
                         uiOptions.Hide();
-                        break;                 
+                        break;
                 }
-            });
+            }).UnRegisterWaitGameObjectDestroy(this);
         }
     }
 }

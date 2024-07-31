@@ -159,44 +159,59 @@ namespace XFABManager
                     }
                 }
 
+                Texture2D texture2D = null;
 
-                // 从本地读取
-                request_local_file = UnityWebRequestTexture.GetTexture(string.Format("file://{0}", path), true);
-                request_local_file.disposeUploadHandlerOnDispose = true;
-                request_local_file.disposeDownloadHandlerOnDispose = true;
-                request_local_file.timeout = 5;
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    byte[] bytes = File.ReadAllBytes(path);
+                    texture2D = new Texture2D(2, 2);
+                    texture2D.LoadImage(bytes);
+                    texture2D.Apply();
+                }
+                else 
+                { 
+                    // 从本地读取
+                    request_local_file = UnityWebRequestTexture.GetTexture(string.Format("file://{0}", path), true);
+                    request_local_file.disposeUploadHandlerOnDispose = true;
+                    request_local_file.disposeDownloadHandlerOnDispose = true;
+                    request_local_file.timeout = 5;
 
-                UnityWebRequestAsyncOperation operation = request_local_file.SendWebRequest();
+                    UnityWebRequestAsyncOperation operation = request_local_file.SendWebRequest();
 
-                while (!operation.isDone) {
-                    yield return null;
-                    onProgressChange?.Invoke(operation.progress * 0.5f + 0.5f);
+                    while (!operation.isDone) {
+                        yield return null;
+                        onProgressChange?.Invoke(operation.progress * 0.5f + 0.5f);
+                    }
+
+
+                    onProgressChange?.Invoke(1);
+
+    #if UNITY_2020_1_OR_NEWER
+                    if (request_local_file.result == UnityWebRequest.Result.Success && string.IsNullOrEmpty(request_local_file.error))
+    #else
+                    if (string.IsNullOrEmpty(request_local_file.error))
+    #endif
+                    {
+                        DownloadHandlerTexture handler = request_local_file.downloadHandler as DownloadHandlerTexture;
+                        texture2D = handler.texture;
+                        texture2D.name = fileName; 
+                    }
+                    else
+                        Completed($"请求url={imageModel.path}失败，错误{request_local_file.error}");
                 }
 
 
-                onProgressChange?.Invoke(1);
-
-#if UNITY_2020_1_OR_NEWER
-                if (request_local_file.result == UnityWebRequest.Result.Success && string.IsNullOrEmpty(request_local_file.error))
-#else
-                if (string.IsNullOrEmpty(request_local_file.error))
-#endif
-                {
-                    DownloadHandlerTexture handler = request_local_file.downloadHandler as DownloadHandlerTexture;
-                    Texture2D texture2D = handler.texture;
-                    texture2D.name = fileName;
-                      
+                if (texture2D != null) 
+                { 
                     NetworkImage = new ImageData();
                     NetworkImage.key = imageModel.Key;
-                    NetworkImage.texture = texture2D; 
+                    NetworkImage.texture = texture2D;
                     NetworkImage.last_time = Time.time;
                     NetworkImage.native_path = path;
                     NetworkImage.type = imageModel.type;
-                    ImageLoaderManager.images.Add(NetworkImage.key, NetworkImage); 
+                    ImageLoaderManager.images.Add(NetworkImage.key, NetworkImage);
                     Completed();
                 }
-                else
-                    Completed($"请求url={imageModel.path}失败，错误{request_local_file.error}");
 
                 currentDownloadCount--;
             }

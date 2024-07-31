@@ -25,8 +25,11 @@ namespace YukiFrameWork.Extension
     /// </summary>
 	public static class SerializationTool
 	{
-        public static T DeserializedObject<T>(string value)
-            => JsonConvert.DeserializeObject<T>(value);
+        public static T DeserializedObject<T>(string value,JsonSerializerSettings settings = default)
+            => JsonConvert.DeserializeObject<T>(value,settings);
+
+        public static T DeserializedObject<T>(string value,params JsonConverter[] converters)
+          => JsonConvert.DeserializeObject<T>(value,converters);
 
         public static object DeserializedObject(string value, Type type)
           => JsonConvert.DeserializeObject(value, type);

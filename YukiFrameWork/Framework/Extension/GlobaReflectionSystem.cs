@@ -209,7 +209,7 @@ namespace YukiFrameWork
             return type.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic
                 | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Default | BindingFlags.InvokeMethod | BindingFlags.PutDispProperty
                 | BindingFlags.DeclaredOnly | BindingFlags.FlattenHierarchy);
-        }
+        }  
 
         private static MethodInfo GetMethodInfos<T>(string methodName,Type[] types)
         {
@@ -271,8 +271,30 @@ namespace YukiFrameWork
         /// </summary>        
         [MethodAPI("直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter")]
         public static void SetValue(Type type,object target, string parameterName, object value)
-        {
+        {         
             Set(type,target, value, parameterName);
+        }    
+
+        public static bool HasCustomAttribute<T>(this Type type, bool inherit, out T attribute) where T : Attribute
+        {
+            attribute = type.GetCustomAttribute<T>(inherit);
+            return attribute != null;
+        }
+
+        public static bool HasCustomAttribute<T>(this Type type, bool inherit = false) where T : Attribute
+        {
+            return HasCustomAttribute<T>(type, inherit,out _);
+        }
+
+        public static bool HasCustomAttribute<T>(this MemberInfo info, bool inherit, out T attribute) where T : Attribute
+        {
+            attribute = info.GetCustomAttribute<T>(inherit);          
+            return attribute != null;
+        }
+
+        public static bool HasCustomAttribute<T>(this MemberInfo info, bool inherit = false) where T : Attribute
+        {
+            return HasCustomAttribute<T>(info, inherit, out _);
         }
     }
 }

@@ -2,7 +2,8 @@
     "name": "YukiFramework",
     "rootNamespace": "",
     "references": [
-        "GUID:35d17ca44c3f9e0489ba3bd4ba52f23c"
+        "GUID:35d17ca44c3f9e0489ba3bd4ba52f23c",
+        "GUID:b8e24fd1eb19b4226afebb2810e3c19b"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -4,6 +4,9 @@ using System.Reflection;
 using System.Collections;
 using System;
 using YukiFrameWork.Extension;
+using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,34 +27,31 @@ namespace YukiFrameWork.DiaLogue
         [LabelText("对话树识别标识:"),SerializeField]
         [InfoBox("不同的对话树标识必须唯一,必须填写"),FoldoutGroup("配置", -2)]
         internal string nodekey;
+#if UNITY_EDITOR
         [Button("初始化", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置", -1)]
         void DataInit()
         {
             if (treeState == NodeTreeState.Running)
                 OnTreeEnd();
+
+            DiaLogGraphWindow.CloseWindow();
         }
+#endif
         // 对话树的开始 根节点
-        [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] private Node rootNode;
+        [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] internal Node rootNode;
         // 当前正在播放的对话
         public Node runningNode { get; private set; }
         // 对话树当前状态 用于判断是否要开始这段对话
-        [LabelText("对话树当前的状态"), FoldoutGroup("配置")] public NodeTreeState treeState = NodeTreeState.Waiting;
-
-        [SerializeField, LabelText("设置对话树的语言:"), DisableIf(nameof(IsSyncLocalization)), FoldoutGroup("配置")]
-        private Language mCurrentLanguage;
-
-        public Language CurrentLanguage => IsSyncLocalization ? LocalizationKit.LanguageType : mCurrentLanguage;
-
-        [LabelText("语言是否同步本地化配置默认语言"), SerializeField, FoldoutGroup("配置")]
-        private bool IsSyncLocalization;
+        [LabelText("对话树当前的状态"), FoldoutGroup("配置")] public NodeTreeState treeState = NodeTreeState.Waiting;   
 
         // 所有对话内容的存储列表
-        [LabelText("所有对话内容的存储列表"), ReadOnly, FoldoutGroup("配置")]
-        public List<Node> nodes = new List<Node>();
+        [LabelText("所有对话内容的存储列表"),SerializeField, ReadOnly, FoldoutGroup("配置")]
+        internal List<Node> nodes = new List<Node>();
 
+        private Coroutine mEnterCoroutine;
         
         // 判断当前对话树和对话内容都是运行中状态则进行OnUpdate()方法更新
-        internal virtual MoveNodeState MoveNext()
+        internal MoveNodeState MoveNext()
         {
             if (treeState == NodeTreeState.Waiting || runningNode == null)
             {
@@ -64,91 +64,129 @@ namespace YukiFrameWork.DiaLogue
                 return MoveNodeState.Idle;
             }
 
-            if (runningNode.IsDefaultMoveNext)
+            if (runningNode.IsSingle || runningNode.IsRoot)
             {
                 runningNode.OnExit();
-                onExitCallBack.SendEvent(runningNode);              
-                runningNode = runningNode.MoveToNext();
+                onExitCallBack.SendEvent(runningNode);
+                runningNode = runningNode.child;
 
                 if (runningNode == null)
                 {
                     return MoveNodeState.Failed;
                 }
-                MonoHelper.Start(OnStateEnter(runningNode));
+                mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
                 return MoveNodeState.Succeed;
             }
+            else if (runningNode.IsComposite)
+            {
+                return MoveNodeState.Idle;
+            }
+            else if (runningNode.IsRandom)
+            {
+                if (runningNode.RandomItems.Count == 0)
+                {
+                    LogKit.W($"没有为随机节点{runningNode.id} -- {runningNode.name}添加可选分支进行随机变化，请检查");
+                    return MoveNodeState.Idle;
+                }
+                else
+                {
+                    runningNode.OnExit();
+                    onExitCallBack.SendEvent(runningNode);
+                    int random = UnityEngine.Random.Range(0, runningNode.RandomItems.Count);
+                    runningNode = runningNode.RandomItems[random];
 
+                    if (runningNode == null)                  
+                        return MoveNodeState.Failed;
+
+                    mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
+                    return MoveNodeState.Succeed;
+                }
+            }
             return MoveNodeState.Idle;
 
         }
 
-        private IEnumerator OnStateEnter(Node node)
+        internal Vector2 position;
+
+        internal MoveNodeState MoveNextByOption(Option option)
         {
-            onEnterCallBack.SendEvent(node);
-            yield return CoroutineTool.WaitUntil(() => node.IsCompleted);
-            node.OnEnter();            
+            if (treeState == NodeTreeState.Waiting || runningNode == null)
+            {
+                LogKit.W("对话树没有被启动或者分支已经结束，无法推进");
+                return MoveNodeState.Failed;
+            }
+
+            if (option == null)
+            {
+                LogKit.E("条件不存在!");
+                return MoveNodeState.Failed;
+            }
+
+            if (!runningNode.IsComposite)
+            {
+                LogKit.W("当前运行的节点并不是分支节点，不会进行推进");
+                return MoveNodeState.Idle;
+            }
+
+            return Move(option.nextNode);
         }
 
-        /// <summary>
-        /// 根据节点设置的Index位移对话到某一个节点上
-        /// </summary>
-        /// <param name="index">节点下标/ID</param>
-        /// <exception cref="System.Exception"></exception>
-        internal virtual void MoveByNodeIndex(int index)
+        internal MoveNodeState MoveNode(Node node)
+        {            
+            return Move(node);
+
+        }
+
+        private MoveNodeState Move(Node node)
         {
-            if (treeState == NodeTreeState.Waiting)
-            {
-                Debug.LogError("对话树没有被启动，无法推进");
-                return;
-            }
-
-            var node = nodes.Find(x => x.NodeIndex == index);
-
-            if (node == null)
-            {
-                throw new System.Exception("对话节点不存在，请检查Index: -- " + index);
-            }
-
             if (runningNode != null)
             {
+                if (!runningNode.IsCompleted)
+                {
+                    return MoveNodeState.Idle;
+                }
                 runningNode.OnExit();
                 onExitCallBack.SendEvent(runningNode);
             }
-
             runningNode = node;
-            MonoHelper.Start(OnStateEnter(runningNode));            
+
+            if (runningNode == null)
+            {
+                return MoveNodeState.Failed;
+            }
+            mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
+            return MoveNodeState.Succeed;
         }
+
+        internal MoveNodeState MoveNode(string key)
+        {
+            return MoveNode(nodes.Find(x => x.id == key));
+        }
+   
+
+        private IEnumerator OnStateEnter(Node node)
+        {
+            node.IsCompleted = false;
+            onEnterCallBack.SendEvent(node);
+            node.OnEnter();
+            yield return CoroutineTool.WaitUntil(() => node.IsCompleted);
+            onCompletedCallBack.SendEvent(node);
+        }    
 
         // 对话树开始的触发方法
         internal virtual void OnTreeStart()
         {           
             runningNode = rootNode;            
             treeState = NodeTreeState.Running;
-            OnLanguageChange(CurrentLanguage);
-            if (IsSyncLocalization)           
-                LocalizationKit.RegisterLanguageEvent(OnLanguageChange);           
-            
-        }
-
-        private void OnLanguageChange(Language language)
-        {
-            foreach (var node in nodes)
-            {
-                node.currentLanguage = language;            
-            }
-
-            ///如果树正在运行且存在正在运作的节点，则在改变语言后重新触发一次进入
-            if (treeState == NodeTreeState.Running && runningNode != null)
-            {
-                MonoHelper.Start(OnStateEnter(runningNode));
-            }
-        }
+            MonoHelper.Start(OnStateEnter(runningNode));
+        }  
 
         internal readonly EasyEvent<Node> onEnterCallBack = new EasyEvent<Node>();
         internal readonly EasyEvent<Node> onExitCallBack = new EasyEvent<Node>();
+        internal readonly EasyEvent<Node> onCompletedCallBack = new EasyEvent<Node>();
 
         //当对话树推进失败/结束时调用
-        internal readonly EasyEvent onEndCallBack = new EasyEvent();
+        internal readonly EasyEvent onFailedCallBack = new EasyEvent();
         // 对话树结束的触发方法
         internal virtual void OnTreeEnd()
         {
@@ -159,108 +197,117 @@ namespace YukiFrameWork.DiaLogue
                 runningNode.OnExit();
                 onExitCallBack.SendEvent(runningNode);
             }
-            if (IsSyncLocalization)
-                LocalizationKit.UnRegisterLanguageEvent(OnLanguageChange);
+
+            MonoHelper.Stop(mEnterCoroutine);       
+        }
+
+        public void ForEach(Action<Node> each)
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                each?.Invoke(nodes[i]);
+            }
         }
 
 #if UNITY_EDITOR
-
+        
         [HideInInspector]
         public Color connectColor = new Color(0,0,0,1);
 
         [Button("Edit Graph", ButtonHeight = 30)]
         void OpenWindow()
         {
-            DiaLogEditorWindow.OpenWindow();
+            DiaLogGraphWindow.ShowExample(this);
         }
-
+   
         [Button("导出Json配置表", ButtonHeight = 30),InfoBox("该配置表为基本数据的配表，不支持对分支节点中的Option进行配置，应该自行在编辑器设置")]
         void ReImport(string assetPath = "Assets/DiaLogData",string assetName = "DiaLogConfig")
-        {
-            YDictionary<Language,List<DiaLogModel>> diaLogModels = new YDictionary<Language, List<DiaLogModel>>();           
-            for(int i = 0;i < nodes.Count;i++)
-            {
-                var node = nodes[i];
-                if (node == null) continue;
-                foreach (var n in node.nodeDatas.Keys)
-                {
-                    if (!diaLogModels.ContainsKey(n))
-                        diaLogModels[n] = new List<DiaLogModel>();
+        {        
+            foreach (var item in nodes)
+            {                
+                if (item.GetIcon() != null)
+                    item.spritePath = AssetDatabase.GetAssetPath(item.GetIcon());
+                else item.spritePath = string.Empty;
 
-                    diaLogModels[n].Add(new DiaLogModel()
-                    {
-                        Name = node.nodeDatas[n].name,
-                        NodeType = node.GetType().FullName,
-                        positionX = node.rect.x,
-                        positionY = node.rect.y,                      
-                        nodeIndex = node.NodeIndex,
-                        Context = node.nodeDatas[n].dialogueContent,                      
-                        Sprite = AssetDatabase.GetAssetPath(node.nodeDatas[n].icon)
-                    });
-                }              
+                item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
             }
-
-            SerializationTool.SerializedObject(diaLogModels).CreateFileStream(assetPath, assetName, ".json");          
+            string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore,TypeNameHandling = TypeNameHandling.All });                 
+            json.CreateFileStream(assetPath, assetName, ".json");         
         }
 
+     
         [Button("Json配置表导入", ButtonHeight = 30)]
         void Import(TextAsset textAsset,bool nodeClear = true)
         {
-            if (textAsset == null) return;
-            YDictionary<Language, List<DiaLogModel>> diaLogModels = SerializationTool.DeserializedObject<YDictionary<Language, List<DiaLogModel>>>(textAsset.text);
+            List<JObject> models = SerializationTool.DeserializedObject<List<JObject>>(textAsset.text);
 
             if (nodeClear)
             {
-                nodes.Clear();
-            }
-
-            foreach (var key in diaLogModels.Keys)
-            {
-                var model = diaLogModels[key];
-                foreach (var item in model)
+                while (nodes.Count > 0)
                 {
-                    var node = CreateNode(AssemblyHelper.GetType(item.NodeType));
-                    node.nodeDatas[key] = new NodeData()
+                    DeleteNode(nodes[nodes.Count - 1]);
+                }
+            }
+          
+            foreach (var model in models) 
+            {
+                string nodeType = model[nameof(nodeType)].ToString();
+                string title = model["dialogueTitle"].ToString();
+                string context = model["dialogueContext"].ToString();
+                string spritePath = model["spritePath"].ToString();
+                Type type = AssemblyHelper.GetType(nodeType);
+                var node = CreateNode(type,true);
+                node.dialogueTitle = title;
+                node.dialogueContext = context;
+                if(!spritePath.IsNullOrEmpty())
+                    node.icon = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+
+                foreach (var field in type.GetRuntimeFields())
+                {                   
+                    if (field.HasCustomAttribute<DeSerializedNodeFieldAttribute>(true))
                     {
-                        name = item.Name,
-                        dialogueContent = item.Context,
-                        icon = AssetDatabase.LoadAssetAtPath<Sprite>(item.Sprite)
-                    };
-                    node.rect = new Rect(item.positionX, item.positionY,480,120);
-                    node.NodeIndex = item.nodeIndex;
+                        JToken token = model[field.Name];
+                        if (token == null) continue;                        
+                        field.SetValue(node, token.ToObject(field.FieldType));
+                    }
+                }
+
+                foreach (var field in type.GetRuntimeProperties())
+                {
+                    if (field.HasCustomAttribute<DeSerializedNodeFieldAttribute>(true))
+                    {
+                        JToken token = model[field.Name];
+                        if (token == null) continue;
+                        field.SetValue(node, token.ToObject(field.PropertyType));
+                    }
                 }
             }
         }
-
-        [Serializable]
-        class DiaLogModel
-        {
-            public string Name;
-            public float positionX;
-            public float positionY;          
-            public string NodeType;
-            public int nodeIndex;
-            public string Context;
-            public string Sprite;           
-        }  
-        public Node CreateNode(System.Type type)
-        {
+   
+        public Node CreateNode(System.Type type,bool IsCustomPosition = false)
+        {          
             Node node = ScriptableObject.CreateInstance(type) as Node;
             node.name = type.Name;
-            node.guid = GUID.Generate().ToString();
-            node.NodeIndex = nodes.Count;
-            var rootNodeAttribute = type.GetCustomAttribute<RootNodeAttribute>(true);           
-            if (rootNodeAttribute != null && nodes.Count == 0)
-                rootNode = node;
-            Undo.RecordObject(this, "Node Tree (CreateNode)");
+            node.id = GUID.Generate().ToString();
+            node.nodeType = type.FullName;
+            // node.NodeIndex = nodes.Count;
+            if (node.DiscernType == typeof(RootNodeAttribute))
+                rootNode = node;           
+            Undo.RecordObject(this, "Node Tree (CreateNode)");         
 
             nodes.Add(node);
+            if (IsCustomPosition)
+            {
+                node.position = new Vector2(nodes.Count * 100, 0);
+            }
             if (!Application.isPlaying)
             {
                 AssetDatabase.AddObjectToAsset(node, this);
             }
             Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
+           // EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
+            
             return node;
         }
         public Node DeleteNode(Node node)
@@ -270,32 +317,8 @@ namespace YukiFrameWork.DiaLogue
             Undo.DestroyObjectImmediate(node);
             AssetDatabase.SaveAssets();
             return node;
-        }
+        }      
 
-        public void AddChild(Node parent, Node child)
-        {
-            if (parent != null && child != null)
-            {
-                SingleNode singleNode = parent as SingleNode;
-                if (singleNode)
-                {
-                    Undo.RecordObject(singleNode, "Node Tree (AddChild)");
-                    singleNode.child = child;
-                    EditorUtility.SetDirty(singleNode);
-                }
-                CompositeNode compositeNode = parent as CompositeNode;
-                if (compositeNode)
-                {
-                    Undo.RecordObject(compositeNode, "Node Tree (AddChild)");
-                    compositeNode.options.Add(new Option()
-                    {
-                        childIndex = child.NodeIndex,
-                    });
-                    EditorUtility.SetDirty(compositeNode);
-                }
-            }
-        }          
-        
 #endif
 
     }

@@ -9,9 +9,8 @@
 using YukiFrameWork;
 using UnityEngine;
 using System;
-using YukiFrameWork.DiaLogue;
 using XFABManager;
-namespace YukiFrameWork
+namespace YukiFrameWork.DiaLogue
 {
 	public interface IDiaLogLoader : IResLoader<NodeTree>
 	{

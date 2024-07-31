@@ -100,7 +100,17 @@ namespace YukiFrameWork.Extension
         void LoadData()
         {
             TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);
-            data = JsonUtility.FromJson<Data>(text.text);
+            string json = text.text;
+            if (string.IsNullOrEmpty(json))
+            {
+                json = SerializationTool.SerializedObject(new Data()
+                {
+                    develop = 0,
+                    path = "Assets/YukiFramework",
+                    isEN = false,
+                });
+            }
+            data = JsonUtility.FromJson<Data>(json);
             ImportWindowInfo.IsEN = data.isEN;
 
             TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(packagePath + "/package.json");

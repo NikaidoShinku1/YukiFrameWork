@@ -1,14 +1,55 @@
 
+using System;
+
 namespace YukiFrameWork.DiaLogue
 {
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple = false)]
+    public abstract class DiaLogueNodeAttribute : Attribute
+    { 
+    }
     /// <summary>
-    /// 设置对话分支的根节点,设置该特性必须直接继承Node类
+    /// 设置对话的根节点,设置该特性必须直接继承Node类
     /// </summary>
-    public sealed class RootNodeAttribute : System.Attribute
+    public sealed class RootNodeAttribute : DiaLogueNodeAttribute
     {       
         public RootNodeAttribute()
         {
             
         }
+    }
+    /// <summary>
+    /// 设置对话的分支节点，标记后节点属于分支节点
+    /// </summary>
+    public sealed class CompositeNodeAttribute : DiaLogueNodeAttribute
+    {
+        public CompositeNodeAttribute()
+        { 
+
+        }
+    }
+
+    /// <summary>
+    /// 设置对话的随机节点，标记后节点属于随机节点
+    /// </summary>
+    public sealed class RandomNodeAttribute : DiaLogueNodeAttribute
+    {
+        public RandomNodeAttribute() 
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// 单节点标记，标记该特性后节点的类型为默认单分支节点。
+    /// </summary>
+    public sealed class SingleNodeAttribute : DiaLogueNodeAttribute
+    {
+        public SingleNodeAttribute() { }
+    }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public sealed class DeSerializedNodeFieldAttribute : Attribute
+    { 
+
     }
 }

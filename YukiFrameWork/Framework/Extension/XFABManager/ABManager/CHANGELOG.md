@@ -1,3 +1,11 @@
+## version 1.13.0 更新内容
+
+1. 优化 EditorApplicationTool 逻辑!
+
+## version 1.12.9 更新内容
+
+1. 修复ImageLoader在WebGL平台加载网络图片失败!
+
 ## version 1.12.8 更新内容
 
 1. 优化GameObjectLoader.UnLoad方法!
