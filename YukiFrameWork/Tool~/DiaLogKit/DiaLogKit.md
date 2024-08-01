@@ -206,8 +206,8 @@ DiaLog API:
 
 分支节点基本使用以及对UI的同步:
 
-//添加分支分组组件UIOptionGroup
-![输入图片说明](Texture/6.png)
+为分支添加分组集合UIOptionGroup
+![输入图片说明](Texture/8.png)
 
 新建自定义UIOption类：该类继承MonoBehaviour，用于分支UI同步使用(例如选择按钮)
 
@@ -230,8 +230,7 @@ public class UICustomOption : UIOption
 完成后挂载到场景的对象。
 ![输入图片说明](Texture/7.png)
 
-为分支添加分组集合UIOptionGroup
-![输入图片说明](Texture/8.png)
+
 
 在UIOptionGroup中输入创建DiaLog所绑定的标识，可以选择绑定模式，有安全模式以及默认模式，安全模式会在Start方法后等待一帧更新，防止生命周期颠倒导致的报错。
 

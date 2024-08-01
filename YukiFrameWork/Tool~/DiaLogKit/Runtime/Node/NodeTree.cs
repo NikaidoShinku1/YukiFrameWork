@@ -85,7 +85,7 @@ namespace YukiFrameWork.DiaLogue
             {
                 if (runningNode.RandomItems.Count == 0)
                 {
-                    LogKit.W($"没有为随机节点{runningNode.id} -- {runningNode.name}添加可选分支进行随机变化，请检查");
+                    LogKit.W("没有为随机节点{0} -- {1}添加可选分支进行随机变化，请检查", runningNode.id, runningNode.name);
                     return MoveNodeState.Idle;
                 }
                 else
@@ -210,10 +210,7 @@ namespace YukiFrameWork.DiaLogue
         }
 
 #if UNITY_EDITOR
-        
-        [HideInInspector]
-        public Color connectColor = new Color(0,0,0,1);
-
+              
         [Button("Edit Graph", ButtonHeight = 30)]
         void OpenWindow()
         {

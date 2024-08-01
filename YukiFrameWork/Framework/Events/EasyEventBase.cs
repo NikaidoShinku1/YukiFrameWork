@@ -11,7 +11,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork
 {
-    public abstract class EasyEventBase<T> : IEasyEventSystem where T : Delegate
+    public abstract class EasyEventBase<T> : IEasyEvent where T : Delegate
     {
         protected T OnEasyEvent;
         public abstract IUnRegister RegisterEvent(T onEvent);

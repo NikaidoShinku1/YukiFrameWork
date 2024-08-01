@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace YukiFrameWork
 {
-    public abstract class DefaultAPI<T,Action> : MonoBehaviour where T : IEasyEventSystem,new() where Action : System.Delegate
+    public abstract class DefaultAPI<T,Action> : MonoBehaviour where T : IEasyEvent,new() where Action : System.Delegate
     {
         protected T onEvent = new T();
         public abstract IUnRegister Register(Action callBack);

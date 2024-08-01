@@ -71,23 +71,11 @@ namespace YukiFrameWork.DiaLogue
         {
             if (node == null) return;
             Create(node);
-        }
+        }       
 
-        internal bool IsCompositeOrRandom
-        {
-            get
-            {
-                try
-                {
-                    return node.DiscernType == typeof(RandomNodeAttribute) || node.DiscernType == typeof(CompositeNodeAttribute);
-                }
-                catch { return false; }
-            }
-        }
-
-        private void Create(Node item)
+        private void Create(Node item) 
         {                     
-            Port o = InstantiatePort(Orientation.Horizontal, Direction.Output, IsCompositeOrRandom ? Port.Capacity.Multi : Port.Capacity.Single, typeof(bool));
+            Port o = InstantiatePort(Orientation.Horizontal, Direction.Output, (node.IsComposite || node.IsRandom) ? Port.Capacity.Multi : Port.Capacity.Single, typeof(bool));
             o.name = "OutPut";
             o.portName = item.GetContext();
             o.portColor = Color.green;
@@ -113,7 +101,7 @@ namespace YukiFrameWork.DiaLogue
         {
             base.SetPosition(newPos);
 
-            node.position = newPos.min;
+            node.position = new Vector2(newPos.x,newPos.y);
         }
 
         public override void OnSelected()
@@ -130,48 +118,8 @@ namespace YukiFrameWork.DiaLogue
             foreach (var edge in outputport.connections)
             {
                 edge.input.DisconnectAll();
-                backGroundView.RemoveElement(edge); 
-            }          
-            var items = backGroundView.graphElements;
-
-            foreach (var item in items.ToList())
-            {
-                // Debug.Log(item is GraphNodeView);
-                if (node.IsComposite)
-                {
-                    foreach (var option in node.optionItems)
-                    {
-                        if (item is GraphNodeView nodeView)
-                        {
-                            if (nodeView.node != option.nextNode)
-                                continue;
-                            backGroundView.AddElement(outputport.ConnectTo(nodeView.inputPort));
-                        }
-                    }
-                }
-                else if (node.IsRandom)
-                {
-                    foreach (var n in node.randomItems)
-                    {
-                        if (item is GraphNodeView nodeView)
-                        {
-                            if (nodeView.node != n)
-                                continue;
-                            backGroundView.AddElement(outputport.ConnectTo(nodeView.inputPort));
-                        }
-                    }
-                }
-                else
-                {
-                    if (item is GraphNodeView nodeView)
-                    {
-                        if (node.child == nodeView.node)
-                        {
-                            backGroundView.AddElement(outputport.ConnectTo(nodeView.inputPort));
-                        }
-                    }
-                }
-            }
+                backGroundView.RemoveElement(edge);
+            }               
         }
 
         public Port inputPort { get; private set; }

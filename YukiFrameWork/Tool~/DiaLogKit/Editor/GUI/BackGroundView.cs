@@ -41,6 +41,12 @@ namespace YukiFrameWork.DiaLogue
             void Update() { onNodeUpdate?.Invoke(this); }
             DiaLogGraphWindow.onUpdate -= Update;
             DiaLogGraphWindow.onUpdate += Update;
+
+            DiaLogGraphWindow.OnValidate += () => 
+            {
+                Pop(tree);
+            };
+
         } 
        
         public void Pop(NodeTree tree)
@@ -67,12 +73,27 @@ namespace YukiFrameWork.DiaLogue
                 {
                     GraphNodeView parent = FindNodeViewByGUID(x.id);
                     if (parent != null)
-                    {
-                        if (!parent.IsCompositeOrRandom)
+                    {                       
+                        if (parent.node.IsRandom)
                         {
-                            if (x.child != null)
+                            foreach (var item in parent.node.randomItems)
                             {
-                                GraphNodeView child = FindNodeViewByGUID(x.child.id);
+                                GraphNodeView child = FindNodeViewByGUID(item.id);
+                                if (child == null) continue;
+
+                                Port po = parent.outputport;
+
+                                if (po == null) continue;
+
+                                Edge edge = po.ConnectTo(child.inputPort);
+                                AddElement(edge);
+                            }
+                        }
+                        else if (parent.node.IsComposite)
+                        {
+                            foreach (var item in parent.node.optionItems)
+                            {
+                                GraphNodeView child = FindNodeViewByGUID(item.nextNode.id);
                                 if (child != null)
                                 {
                                     Port po = parent.outputport;
@@ -86,9 +107,9 @@ namespace YukiFrameWork.DiaLogue
                         }
                         else
                         {
-                            foreach (var item in parent.node.optionItems)
+                            if (x.child != null)
                             {
-                                GraphNodeView child = FindNodeViewByGUID(item.nextNode.id);
+                                GraphNodeView child = FindNodeViewByGUID(x.child.id);
                                 if (child != null)
                                 {
                                     Port po = parent.outputport;
@@ -194,7 +215,7 @@ namespace YukiFrameWork.DiaLogue
         {
             if (tree == null) return;
 
-            Vector2 pos = evt.mousePosition;
+            Vector2 pos = evt.localMousePosition;
             bool c = false;
             foreach (Type type in TypeCache.GetTypesDerivedFrom<Node>())
             {
@@ -233,7 +254,7 @@ namespace YukiFrameWork.DiaLogue
                     {
                         Node node = tree.CreateNode(type);
                         var item = BuildNodeView(node);
-                        item.transform.position = pos;
+                        item.SetPosition(new Rect(item.contentRect) {x = pos.x,y = pos.y });     
                     }, DropdownMenuAction.Status.Normal);
                 }
             }
@@ -275,7 +296,7 @@ namespace YukiFrameWork.DiaLogue
         {
             graphViewChanged -= OnGraphViewChanged;
             node.ResetBuildOutPutPorts(this);
-            graphViewChanged += OnGraphViewChanged;
+            graphViewChanged += OnGraphViewChanged;          
         }
     }
 }

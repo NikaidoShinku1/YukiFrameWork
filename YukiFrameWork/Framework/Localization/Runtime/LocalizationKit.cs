@@ -102,7 +102,25 @@ namespace YukiFrameWork
                 depend.Init();
             }                                      
             languageType = info.defaultLanguage;        
-        }            
+        }
+
+        /// <summary>
+        /// 手动添加配置
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="config"></param>
+        public static void AddDependConfig(string key, LocalizationConfigBase config)
+        {
+            try
+            {
+                dependConfigs.Add(key, config);
+                config.Init();
+            }
+            catch(Exception ex) 
+            {
+                LogKit.Exception(string.Format("该本地配置已经存在!LocalizationConfig Key -- {0} --- {1}",key,ex));
+            }
+        }
 
         public static ILocalizationData GetContent(string configKey,string key, Language language)
         {

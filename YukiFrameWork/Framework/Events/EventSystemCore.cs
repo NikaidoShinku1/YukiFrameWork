@@ -12,7 +12,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork
 {
-    public interface IEasyEventSystem : IUnRegister
+    public interface IEasyEvent : IUnRegister
     {
 
     }

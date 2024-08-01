@@ -17,7 +17,7 @@ using UnityEditor;
 namespace YukiFrameWork.DiaLogue
 {
 	public class InspectorView : VisualElement
-	{
+    {
 		public new class UxmlFactory : UxmlFactory<InspectorView, UxmlTraits> { }
 
 		private OdinEditor editor = null;
