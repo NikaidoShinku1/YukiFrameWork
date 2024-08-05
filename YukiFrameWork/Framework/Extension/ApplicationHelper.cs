@@ -51,68 +51,34 @@ namespace YukiFrameWork.Extension
                     return;
                 }
         
-                float tagWidth = 100;
-                float layerWidth = 120;
+                //float tagWidth = 100;
+                //float layerWidth = 120;
                 float activeWidth = 20;
-                float buttonWidth = 60;
+               // float buttonWidth = 60;
                 EditorGUI.BeginChangeCheck();
 
-                ISerializedFieldInfo info = current.GetComponentInParent<ISerializedFieldInfo>();
+                GUIStyle style = null;
+                int order = 0;
 
-                if (info == null)
+                foreach (var item in current.GetComponents<Component>())
                 {
-
-                }
-                else
-                {                
-                    Rect btnRect = new Rect(rect);
-                    btnRect.x = (btnRect.xMax - layerWidth - tagWidth - activeWidth - 10 - buttonWidth);
-                    btnRect.width = buttonWidth;
-
-                    if (GUI.Button(btnRect, "Bind"))
-                    {
-                        string[] names = current.GetComponents<Component>().Select(x => x.GetType().FullName).ToArray();
-
-                        List<string> targets = new List<string>();
-                        targets.Add(typeof(GameObject).FullName);
-                        targets.AddRange(names);
-                        var bind = current.GetOrAddComponent<YukiBind>();
-                        EditorUtility.DisplayCustomMenu(btnRect, targets.ToContents(), -1, (data, contents, selectIndex) =>
-                        {
-                            Selection.activeObject = current;
-                            EditorApplication.delayCall += () =>
-                            {
-                                bind._fields.fieldLevelIndex = 0;
-                                bind._fields.fieldTypeIndex = bind._fields.Components.IndexOf(contents[selectIndex]);
-                            };
-                        }, null);
-
-                    }
-
+                    DrawRectIcon(item.GetType(), rect, current, Color.black, ref order, ref style);
                 }
 
-                if (!current.CompareTag("Untagged"))
-                {
-                    Rect tagRect = new Rect(rect);
+                /*if (current.GetComponent<Camera>())               
+                    DrawRectIcon<Camera>(rect, current, Color.cyan, ref order, ref style) ;
 
-                    tagRect.x = (tagRect.xMax - layerWidth -  tagWidth - activeWidth);
-                    tagRect.width = tagWidth;
-                    GUI.Label(tagRect, current.tag);
-                }              
-                if (current.layer != 0)
-                {
-                    Rect layerRect = new Rect(rect);
+                if (current.GetComponent<AudioListener>())
+                    DrawRectIcon<AudioListener>(rect, current, Color.yellow, ref order, ref style);
 
-                    layerRect.x = (layerRect.xMax - layerWidth - activeWidth);
-                    layerRect.width = layerWidth;
-                    GUI.color = Color.cyan;                  
-                    GUI.Label(layerRect, string.Format("[{0}]", LayerMask.LayerToName(current.layer)));
+                if (current.GetComponent<Canvas>())                
+                    DrawRectIcon<Canvas>(rect, current, Color.yellow, ref order, ref style);*/
 
-                    GUI.color = Color.white;
+                Event e = Event.current;
 
-                }
-             
-              
+                
+                
+          
                 Rect activeRect = new Rect(rect);
                 activeRect.x = (activeRect.xMax - activeWidth);
                 activeRect.width = 18;
@@ -127,6 +93,29 @@ namespace YukiFrameWork.Extension
             catch { }
         }
 
+        private static void DrawRectIcon(Type type,Rect selectionRect, GameObject go, Color textColor, ref int order, ref GUIStyle style)
+        {
+            if (go.GetComponent(type))
+            {
+                order += 1;
+                var rect = GetRect(selectionRect, order);
+                DrawIcon(rect,type);
+            }
+        }
+
+        private static Rect GetRect(Rect selectionRect, int index)
+        {
+            Rect rect = new Rect(selectionRect);
+            rect.x += rect.width - 20 - (20 * index);
+            rect.width = 18;
+            return rect;
+        }
+
+        private static void DrawIcon(Rect rect,Type type)
+        {
+            var icon = EditorGUIUtility.ObjectContent(null, type).image;
+            GUI.Label(rect, icon);
+        }
 
         private static void OnPrefabHierarchyGUI(int id, Rect rect,GameObject prefab)
         {

@@ -295,8 +295,7 @@ namespace YukiFrameWork.Extension
             if (target.GetType() != typeof(ViewController))
             {
                 CodeManager.BindInspector(controller, controller, GenericPartialScripts);
-                EditorGUILayout.Space();
-                AddEventCenter(controller);
+                EditorGUILayout.Space();                
             }        
         }
 
@@ -313,35 +312,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Select Architecture:" : "架构选择:", GUILayout.Width(120));
             Data.AutoArchitectureIndex = EditorGUILayout.Popup(Data.AutoArchitectureIndex, list.ToArray());
             EditorGUILayout.EndHorizontal();
-        }
-     
-        private void AddEventCenter(ViewController controller)
-        {
-            RuntimeEventCenter center = controller.GetComponent<RuntimeEventCenter>();
-            EditorGUI.BeginDisabledGroup(center);           
-            if (GUILayout.Button(FrameWorkConfigData.AddEventInfo, GUILayout.Height(30)))
-            {
-                Undo.AddComponent<RuntimeEventCenter>(controller.gameObject);
-            }
-            EditorGUI.EndDisabledGroup();
-
-            if (center)
-            {
-                EditorGUILayout.BeginHorizontal(GUILayout.Width(150));              
-                controller.initialized = (RuntimeInitialized)EditorGUILayout.EnumPopup(controller.initialized);
-                EditorGUILayout.EndHorizontal();
-
-                switch (controller.initialized)
-                {
-                    case RuntimeInitialized.Automation:
-                        GUILayout.Label(FrameWorkConfigData.EventAudioMationInfo);
-                        break;
-                    case RuntimeInitialized.Awake:
-                        GUILayout.Label(FrameWorkConfigData.EventAwakeInfo);
-                        break;                 
-                }
-            }
-        }               
+        }      
 
         private void GenericPartialScripts()
         {

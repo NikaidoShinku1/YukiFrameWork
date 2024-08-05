@@ -14,6 +14,7 @@ using YukiFrameWork.Extension;
 using System.Reflection;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System.Threading.Tasks;
 namespace YukiFrameWork
 {
     public class ArchitectureStartUpRequest : CustomYieldInstruction
@@ -82,11 +83,57 @@ namespace YukiFrameWork
         {
             public T Value;
             public int order;
+
+            public virtual void RegisterAllDyMethod(IArchitecture architecture)
+            {
+                MethodInfo[] methodInfos = Value.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
+                    .ToArray();
+
+                for (int i = 0; i < methodInfos.Length; i++)
+                {
+                    MethodInfo methodInfo = methodInfos[i];
+                    if (methodInfo == null) continue;
+                    var infos = methodInfo.GetParameters();
+
+                    if (infos == null) continue;
+
+                    if (infos.Length != 1) continue;
+
+                    if (!typeof(IEventArgs).IsAssignableFrom(infos[0].ParameterType)) continue;
+
+                    if (!methodInfo.GetRegisterAttribute(out var registerEvent, out var stringRegisterEvent, out var enumRegisterEvent))
+                        continue;
+                    Type parameterType = infos[0].ParameterType;
+
+                    if (registerEvent != null)
+                    {
+                        architecture.SyncDynamicEventSystem.Register(parameterType, methodInfo, Value);
+                    }
+
+                    if (stringRegisterEvent != null)
+                    {
+                        string key = stringRegisterEvent.eventName.IsNullOrEmpty() ? methodInfo.Name : stringRegisterEvent.eventName;
+                        architecture.SyncDynamicEventSystem.Register(key, methodInfo, Value);
+                    }
+                    if (enumRegisterEvent != null)
+                    {
+                        bool IsDepend = Enum.IsDefined(enumRegisterEvent.enumType, enumRegisterEvent.enumId);
+                        if (!IsDepend)
+                        {
+                            Debug.LogWarningFormat("该下标没有指定枚举值---- Type:{0} ---- Id{1}  MethodName:{2}", enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo.Name);
+                            continue;
+                        }
+                        architecture.SyncDynamicEventSystem.Register(enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo, Value);
+                    }
+
+                }
+            }       
+                    
         }
 
         class OrderModel : OrderModule<IModel>
         {
-           
+            
         }
 
         class OrderSystem : OrderModule<ISystem>
@@ -99,7 +146,7 @@ namespace YukiFrameWork
             
         }
 
-        class OrderController : OrderModule<AbstractController>
+        class OrderController : OrderModule<IController>
         {
             
         }
@@ -172,12 +219,12 @@ namespace YukiFrameWork
                             systems.Add(new OrderSystem() {Value = system,order = registration.order });
                         }
                     }
-                    else if (type.IsSubclassOf(typeof(AbstractController)))
+                    else if (typeof(IController).IsAssignableFrom(type) && !type.IsSubclassOf(typeof(UnityEngine.Object)))
                     {
                         InitControllerAttribute initController = type.GetCustomAttribute<InitControllerAttribute>(true);
                         if (initController == null)                       
                             continue;
-                        AbstractController value = Activator.CreateInstance(type) as AbstractController;
+                        IController value = Activator.CreateInstance(type) as IController;
 
                         if (value == null) continue;
 
@@ -200,14 +247,14 @@ namespace YukiFrameWork
                 {
                     model.Value.SetArchitecture(architecture);
                     model.Value.Init();
-                }
-
+                }               
                 var orderSystems = systems
                     .OrderByDescending(s => s.order);
 
                 foreach (var system in orderSystems)
                 {
                     system.Value.SetArchitecture(architecture);
+                    system.RegisterAllDyMethod(architecture);
                     system.Value.Init();
                 }
 
@@ -216,7 +263,9 @@ namespace YukiFrameWork
 
                 foreach (var controller in orderControllers)
                 {
-                    controller.Value.OnInit();
+                    controller.RegisterAllDyMethod(architecture);
+                    if(controller.Value is AbstractController abstractController)
+                        abstractController.OnInit();
                 }
 
                 models.Clear();

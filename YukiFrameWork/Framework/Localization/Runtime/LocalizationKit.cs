@@ -19,6 +19,24 @@ namespace YukiFrameWork
 	{
         private LocalizationKit() { }      
         private static Dictionary<string,LocalizationConfigBase> dependConfigs = new Dictionary<string, LocalizationConfigBase>();
+        private const string DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY = "DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY";
+
+        /// <summary>
+        /// 本地序列化语言器，用于将默认的语言持久化保存,与反序列化器成对,如果自行添加则需要两个一起都实现
+        /// </summary>
+        public static event Action<Language> OnSerializeLanguage = language =>
+        {
+            int value = (int)language;
+            PlayerPrefs.SetInt(DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY, value);         
+        };
+
+        /// <summary>
+        /// 本地反序列化语言器，用于启动时加载默认的语言，与序列化器成对,如果自行添加则需要两个一起都实现
+        /// </summary>
+        public static event Func<Language> OnDeSerializeLanguage = () =>
+        {
+            return Enum.GetValues(typeof(Language)).Cast<Language>().FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
+        };
 
         /// <summary>
         /// 得到框架的配置文件
@@ -42,8 +60,11 @@ namespace YukiFrameWork
             {              
                 if (I.languageType != value)
                 {
+#if UNITY_EDITOR
                     I.framework.defaultLanguage = value;
+#endif
                     I.languageType = value;
+                    OnSerializeLanguage(LanguageType);
                     OnLanguageValueChanged();
                 }
             }
@@ -100,8 +121,13 @@ namespace YukiFrameWork
                     continue;
                 }
                 depend.Init();
-            }                                      
-            languageType = info.defaultLanguage;        
+            }
+#if UNITY_EDITOR
+             languageType = info.defaultLanguage;
+#else
+             languageType = OnDeSerializeLanguage();
+#endif
+
         }
 
         /// <summary>

@@ -1,47 +1,26 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿using Sirenix.OdinInspector;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.Events
 {
+    internal enum EventType
+    {
+        
+        String,
+        Enum
+    }    
     [ClassAPI("运行时事件注册")]
     [GUIDancePath("YukiFrameWork/Framework/Events")]
+    [HideMonoScript]
     public class RuntimeEventCenter : MonoBehaviour
-    {
-        [HideInInspector]
-        public RegisterType registerType = RegisterType.String;
+    {     
+        internal ViewController m_controller => GetComponent<ViewController>();
 
-        [SerializeField]
-        private List<EventCenter> centers = new List<EventCenter>();
-
-        public void AddEventCenter(EventCenter eventCenter)
-            => centers.Add(eventCenter);
-
-        public void RemoveEventCenter(EventCenter eventCenter)
-            => centers.Remove(eventCenter);
-
-        public void RemoveEventCenter(int index)
-            => centers.RemoveAt(index);
-
-        public EventCenter GetEventCenter(int index)
-            => centers[index];         
-
-        public IEnumerable<int> GetEventCenterIndex()
-        {            
-            for (int i = 0; i < centers.Count; i++)
-            {             
-                yield return i;
-            }         
-        }
-
-#if UNITY_EDITOR
-        public void SaveData()
-        {
-            EditorUtility.SetDirty(this);
-            AssetDatabase.SaveAssets();
-        }
-#endif
-
+        [InfoBox("在绑定的ViewController脚本中可编辑器添加由字符串做标识的参数类型为IEventArg的事件注册器 注册器不会与特性标记的事件共享生命周期")]
+        [SerializeField,LabelText("事件设置中心"),ListDrawerSettings()]
+        internal List<EventCenter> centers = new List<EventCenter>();
     }   
 }

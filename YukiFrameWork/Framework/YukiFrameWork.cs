@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System;
 using YukiFrameWork.Extension;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Reflection;
 
 namespace YukiFrameWork
 {
@@ -57,25 +59,62 @@ namespace YukiFrameWork
         void UnRegisterUtility<T>(T utility = default) where T : class,IUtility;
         T GetModel<T>() where T : class, IModel;      
         T GetSystem<T>() where T : class, ISystem;
-        T GetUtility<T>() where T : class,IUtility;            
+        T GetUtility<T>() where T : class,IUtility;
+        #region Event
         IUnRegister RegisterEvent<T>(string eventName, Action<T> onEvent);
-        IUnRegister RegisterEvent<T>(Enum eventEnum, Action<T> onEvent);
+        IUnRegister RegisterEvent<TEnum,T>(TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible;
         IUnRegister RegisterEvent<T>(Action<T> onEvent);
+        IUnRegister RegisterEvent_Async<T>(Func<T, Task> onEvent);
+        IUnRegister RegisterEvent_Async<T>(string name,Func<T, Task> onEvent);
+        IUnRegister RegisterEvent_Async<TEnum, T>(TEnum eventEnum, Func<T, Task> onEvent) where TEnum : IConvertible;
+#if UNITY_2021_1_OR_NEWER
+        IUnRegister RegisterEvent_Async_Unity<T>(Func<T, YieldTask> onEvent);
+        IUnRegister RegisterEvent_Async_Unity<T>(string name, Func<T, YieldTask> onEvent);
+        IUnRegister RegisterEvent_Async_Unity<TEnum, T>(TEnum eventEnum, Func<T, YieldTask> onEvent) where TEnum : IConvertible;
+#endif
         void SendEvent<T>(T t = default);
         void SendEvent<T>(string eventName, T t = default);
-        void SendEvent<T>(Enum eventEnum, T t = default);
+        void SendEvent<TEnum,T>(TEnum eventEnum, T t = default) where TEnum : IConvertible;
+        Task SendEvent_Async<T>(T t = default);
+        Task SendEvent_Async<T>(string name,T t = default);
+        Task SendEvent_Async<TEnum, T>(TEnum eventEnum,T t = default) where TEnum : IConvertible;
+#if UNITY_2021_1_OR_NEWER
+        YieldTask SendEvent_Async_Unity<T>(T t = default);
+        YieldTask SendEvent_Async_Unity<T>(string name,T t = default);
+        YieldTask SendEvent_Async_Unity<TEnum, T>(TEnum eventEnum, T t = default) where TEnum : IConvertible;
+#endif
         void UnRegisterEvent<T>(Action<T> onEvent);
-        void UnRegisterEvent<T>(Enum eventEnum, Action<T> onEvent);
-        void UnRegisterEvent<T>(string eventName, Action<T> onEvent);       
+        void UnRegisterEvent<T>(string eventName, Action<T> onEvent);
+        void UnRegisterEvent<TEnum, T>(TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible;
+        void UnRegisterEvent_Async<T>(Func<T, Task> onEvent);
+        void UnRegisterEvent_Async<T>(string name, Func<T, Task> onEvent);
+        void UnRegisterEvent_Async<TEnum, T>(TEnum eventEnum, Func<T, Task> onEvent) where TEnum : IConvertible;
+#if UNITY_2021_1_OR_NEWER
+        void UnRegisterEvent_Async_Unity<T>(Func<T, YieldTask> onEvent);
+        void UnRegisterEvent_Async_Unity<T>(string name, Func<T, YieldTask> onEvent);
+        void UnRegisterEvent_Async_Unity<TEnum, T>(TEnum eventEnum, Func<T, YieldTask> onEvent) where TEnum : IConvertible;
+#endif
+        #endregion
         void SendCommand<T>(T command) where T : ICommand;
         TResult SendCommand<TResult>(ICommand<TResult> command);
         TResult SendQuery<TResult>(IQuery<TResult> query);
-
+        #region Framework Internal Gettter
         internal EasyContainer Container { get; }  
         
         internal TypeEventSystem TypeEventSystem { get; }
         internal EnumEventSystem EnumEventSystem { get; }
         internal StringEventSystem StringEventSystem { get; }
+        internal AsyncTypeEventSystem AsyncTypeEventSystem { get; }
+        internal AsyncEnumEventSystem AsyncEnumEventSystem { get; }
+        internal AsyncStringEventSystem AsyncStringEventSystem { get; }      
+        internal SyncDynamicEventSystem SyncDynamicEventSystem { get; }
+
+#if UNITY_2021_1_OR_NEWER
+        internal Unity_AsyncTypeEventSystem AsyncTypeEventSystem_Unity { get; }
+        internal Unity_AsyncEnumEventSystem AsyncEnumEventSystem_Unity { get; }
+        internal Unity_AsyncStringEventSystem AsyncStringEventSystem_Unity { get; }
+#endif
+        #endregion
     }
 
     #region 层级规则
@@ -140,7 +179,7 @@ namespace YukiFrameWork
     #region System
     public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy
     {
-        void Init();
+        void Init();      
     }
     #endregion
 
@@ -191,7 +230,16 @@ namespace YukiFrameWork
         private TypeEventSystem eventSystem = new TypeEventSystem();
         private EnumEventSystem enumEventSystem = new EnumEventSystem();
         private StringEventSystem stringEventSystem = new StringEventSystem();
-        #endregion  
+        private AsyncTypeEventSystem asyncTypeEventSystem = new AsyncTypeEventSystem();
+        private AsyncStringEventSystem asyncStringEventSystem = new AsyncStringEventSystem();
+        private AsyncEnumEventSystem asyncEnumEventSystem = new AsyncEnumEventSystem();     
+        private SyncDynamicEventSystem syncDynamicEventSystem = new SyncDynamicEventSystem();
+#if UNITY_2021_1_OR_NEWER
+        private Unity_AsyncTypeEventSystem asyncTypeEventSystem_Unity = new Unity_AsyncTypeEventSystem();
+        private Unity_AsyncStringEventSystem asyncStringEventSystem_Unity = new Unity_AsyncStringEventSystem();
+        private Unity_AsyncEnumEventSystem asyncEnumEventSystem_Unity = new Unity_AsyncEnumEventSystem();
+#endif
+#endregion
 
         internal bool IsInited = false;
 
@@ -200,6 +248,15 @@ namespace YukiFrameWork
         TypeEventSystem IArchitecture.TypeEventSystem => eventSystem;
         EnumEventSystem IArchitecture.EnumEventSystem => enumEventSystem;
         StringEventSystem IArchitecture.StringEventSystem => stringEventSystem;
+#if UNITY_2021_1_OR_NEWER
+        Unity_AsyncTypeEventSystem IArchitecture.AsyncTypeEventSystem_Unity => asyncTypeEventSystem_Unity;
+        Unity_AsyncEnumEventSystem IArchitecture.AsyncEnumEventSystem_Unity { get; }
+        Unity_AsyncStringEventSystem IArchitecture.AsyncStringEventSystem_Unity { get; }      
+#endif
+        SyncDynamicEventSystem IArchitecture.SyncDynamicEventSystem => syncDynamicEventSystem;
+        AsyncTypeEventSystem IArchitecture.AsyncTypeEventSystem => asyncTypeEventSystem;
+        AsyncEnumEventSystem IArchitecture.AsyncEnumEventSystem => asyncEnumEventSystem;
+        AsyncStringEventSystem IArchitecture.AsyncStringEventSystem => asyncStringEventSystem;
 
         void IArchitecture.Init()
         {
@@ -301,28 +358,50 @@ namespace YukiFrameWork
         public IUnRegister RegisterEvent<T>(string eventName, Action<T> onEvent)      
             => stringEventSystem.Register(eventName, onEvent);
 
-        public IUnRegister RegisterEvent<T>(Enum eventEnum, Action<T> onEvent)
+        public IUnRegister RegisterEvent<TEnum,T>(TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible
             => enumEventSystem.Register(eventEnum, onEvent);
 
         public IUnRegister RegisterEvent<T>(Action<T> onEvent) 
             => eventSystem.Register(onEvent);
 
         void IArchitecture.SendEvent<T>(string eventName, T t)
-            => stringEventSystem.Send(eventName, t);
+        {
+            if(t is IEventArgs arg)
+                syncDynamicEventSystem.Send(eventName, arg);
+            stringEventSystem.Send(eventName, t);
+        }
 
-        void IArchitecture.SendEvent<T>(Enum eventEnum, T t)
-            => enumEventSystem.Send(eventEnum, t);
+        void IArchitecture.SendEvent<TEnum, T>(TEnum eventEnum, T t)
+        {
+            if (t is IEventArgs arg)
+                syncDynamicEventSystem.Send(eventEnum, arg);
+            enumEventSystem.Send(eventEnum, t);
+        }
 
-        public void UnRegisterEvent<T>(Enum eventEnum, Action<T> onEvent)
-            => enumEventSystem.UnRegister(eventEnum, onEvent);
+        public void UnRegisterEvent<TEnum, T>(TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible
+        {
+            syncDynamicEventSystem.UnRegister(typeof(TEnum), eventEnum.ToInt32(null), onEvent.Method);
+            enumEventSystem.UnRegister(eventEnum, onEvent);
+        }
 
         public void UnRegisterEvent<T>(string eventName, Action<T> onEvent)
-            => stringEventSystem.UnRegister(eventName, onEvent);
+        {
+            syncDynamicEventSystem.UnRegister(eventName, onEvent.Method);
+            stringEventSystem.UnRegister(eventName, onEvent);
+        }
 
-        void IArchitecture.SendEvent<T>(T arg) => eventSystem.Send(arg);
+        void IArchitecture.SendEvent<T>(T arg)
+        {
+            if (arg is IEventArgs eventArgs)
+                syncDynamicEventSystem.Send(typeof(T), eventArgs);
+            eventSystem.Send(arg);
+        }
 
         public void UnRegisterEvent<T>(Action<T> onEvent = null)
-            => eventSystem.UnRegister(onEvent);
+        {
+            syncDynamicEventSystem.UnRegister(typeof(T),onEvent.Method);
+            eventSystem.UnRegister(onEvent);
+        }
 
         public void SendCommand<T>(T command) where T : ICommand => ExecuteCommand(command);
 
@@ -346,7 +425,107 @@ namespace YukiFrameWork
         {
             command.SetArchitecture(this);
             return command.Execute();         
-        }     
+        }
+
+        public IUnRegister RegisterEvent_Async<T>(Func<T, Task> onEvent)
+        {
+            return asyncTypeEventSystem.Register(onEvent);
+        }
+
+        public IUnRegister RegisterEvent_Async<T>(string name, Func<T, Task> onEvent)
+        {
+            return asyncStringEventSystem.Register(name, onEvent);
+        }
+
+        public IUnRegister RegisterEvent_Async<TEnum, T>(TEnum eventEnum, Func<T, Task> onEvent) where TEnum : IConvertible
+        {
+            return asyncEnumEventSystem.Register(eventEnum, onEvent);
+        }
+
+#if UNITY_2021_1_OR_NEWER
+        public IUnRegister RegisterEvent_Async_Unity<T>(Func<T, YieldTask> onEvent)
+        {
+            return asyncTypeEventSystem_Unity.Register(onEvent);
+        }
+
+        public IUnRegister RegisterEvent_Async_Unity<T>(string name, Func<T, YieldTask> onEvent)
+        {
+            return asyncStringEventSystem_Unity.Register(name, onEvent);
+        }
+
+        public IUnRegister RegisterEvent_Async_Unity<TEnum, T>(TEnum eventEnum, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+        {
+            return asyncEnumEventSystem_Unity.Register(eventEnum, onEvent);
+        }
+#endif
+        public async Task SendEvent_Async<T>(T t = default)
+        {
+            await asyncTypeEventSystem.Send(t);
+        }
+
+        public async Task SendEvent_Async<T>(string name, T t = default)
+        {
+            await asyncStringEventSystem.Send(name,t);
+        }
+
+        public async Task SendEvent_Async<TEnum, T>(TEnum eventEnum, T t = default) where TEnum : IConvertible
+        {
+            await asyncEnumEventSystem.Send(eventEnum, t);
+        }
+
+
+
+#if UNITY_2021_1_OR_NEWER
+        public async YieldTask SendEvent_Async_Unity<T>(T t = default)
+        {        
+            await asyncTypeEventSystem_Unity.Send(t);
+        }
+
+        public async YieldTask SendEvent_Async_Unity<T>(string name, T t = default)
+        {
+            
+            await asyncStringEventSystem_Unity.Send(name, t);
+        }
+
+        public async YieldTask SendEvent_Async_Unity<TEnum, T>(TEnum eventEnum, T t = default) where TEnum : IConvertible
+        {
+           
+            await asyncEnumEventSystem_Unity.Send(eventEnum, t);
+        }
+
+#endif
+
+        public void UnRegisterEvent_Async<T>(Func<T, Task> onEvent)
+        {
+            asyncTypeEventSystem.UnRegister<T>(onEvent);
+        }
+
+        public void UnRegisterEvent_Async<T>(string name, Func<T, Task> onEvent)
+        {
+            asyncStringEventSystem.UnRegister(name, onEvent);
+        }
+
+        public void UnRegisterEvent_Async<TEnum, T>(TEnum eventEnum, Func<T, Task> onEvent) where TEnum : IConvertible
+        {
+            asyncEnumEventSystem.UnRegister(eventEnum, onEvent);
+        }
+
+#if UNITY_2021_1_OR_NEWER
+        public void UnRegisterEvent_Async_Unity<T>(Func<T, YieldTask> onEvent)
+        {
+            asyncTypeEventSystem_Unity.UnRegister(onEvent);
+        }           
+          
+        public void UnRegisterEvent_Async_Unity<T>(string name, Func<T, YieldTask> onEvent)
+        {
+            asyncStringEventSystem_Unity.UnRegister(name, onEvent);
+        }
+
+        public void UnRegisterEvent_Async_Unity<TEnum, T>(TEnum eventEnum, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+        {
+            asyncEnumEventSystem_Unity.UnRegister(eventEnum, onEvent);
+        }
+#endif
     }
 
     public sealed class EasyContainer
@@ -426,6 +605,103 @@ namespace YukiFrameWork
        
     }
 
+    public class DynamicEvents
+    {
+        private Dictionary<Type, IDynamicEvent> typeDynamics = new Dictionary<Type, IDynamicEvent>();
+        private Dictionary<string, IDynamicEvent> stringDynamics = new Dictionary<string, IDynamicEvent>();
+        private Dictionary<(int, Type), IDynamicEvent> enumDynamics = new Dictionary<(int, Type), IDynamicEvent>();
+
+        public T GetOrAdd<T>(Type type) where T : IDynamicEvent,new()
+        {
+            if (!typeDynamics.TryGetValue(type, out IDynamicEvent ev))
+            {
+                ev = new T();
+                typeDynamics.Add(type, ev);
+            }
+
+            return (T)ev;
+        }     
+
+        public T GetOrAdd<T>(string name) where T : IDynamicEvent,new()
+        {
+            if (!stringDynamics.TryGetValue(name, out IDynamicEvent ev))
+            {
+                ev = new T();
+                stringDynamics.Add(name, ev);
+            }
+
+            return (T)ev;
+        }    
+
+        public T GetOrAdd<T>(int enumId,Type enumType) where T : IDynamicEvent,new()
+        {
+            var type = (enumId, enumType);
+            if (!enumDynamics.TryGetValue(type, out IDynamicEvent ev))
+            {
+                ev = new T();
+                enumDynamics.Add(type, ev);
+            }
+
+            return (T)ev;
+        }      
+    }
+
+    internal abstract class DynamicEventSystem<T> where T : IDynamicEvent,new()
+    {        
+        internal readonly DynamicEvents events = new DynamicEvents();
+        public IUnRegister Register(Type type,MethodInfo methodInfo,object target)
+        {         
+            return events.GetOrAdd<T>(type).RegisterEvent_Dynamic(methodInfo,target);
+        }
+
+        public IUnRegister Register(string name, MethodInfo methodInfo, object target)
+        {
+            return events.GetOrAdd<T>(name).RegisterEvent_Dynamic(methodInfo, target);
+        }
+
+        public IUnRegister Register(Type enumType,int enumId,MethodInfo methodInfo, object target)
+        {
+            return events.GetOrAdd<T>(enumId,enumType).RegisterEvent_Dynamic(methodInfo, target);
+        }    
+
+        public void UnRegister(Type type, MethodInfo methodInfo)
+        {
+            events.GetOrAdd<T>(type).UnRegisterEvent_Dynamic(methodInfo);
+        }
+
+        public void UnRegister(string name, MethodInfo methodInfo)
+        {
+            events.GetOrAdd<T>(name).UnRegisterEvent_Dynamic(methodInfo);
+        }
+
+        public void UnRegister(Type enumType, int enumId, MethodInfo methodInfo)
+        {
+            events.GetOrAdd<T>(enumId, enumType).UnRegisterEvent_Dynamic(methodInfo);
+        }
+
+        
+
+    }
+
+    internal class SyncDynamicEventSystem : DynamicEventSystem<SyncDynamicEvent>
+    {
+        public void Send(Type type, IEventArgs arg)
+        {
+            events.GetOrAdd<SyncDynamicEvent>(type)?.SendEvent(arg);
+        }
+
+        public void Send(string name, IEventArgs arg)
+        {
+            events.GetOrAdd<SyncDynamicEvent>(name)?.SendEvent(arg);
+        }
+
+        public void Send<TEnum>(TEnum type, IEventArgs arg) where TEnum : IConvertible
+        {
+            events.GetOrAdd<SyncDynamicEvent>(type.ToInt32(null),typeof(TEnum))?.SendEvent( arg);
+        }
+    }
+
+
     public class EnumEventSystem
     {
         private readonly EnumEasyEvents events = new EnumEasyEvents();
@@ -433,7 +709,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 内部使用
         /// </summary>
-        internal EnumEasyEvents WindowEvents => events;
+        internal EnumEasyEvents Events => events;
 
         public static EnumEventSystem Global { get; } = new EnumEventSystem();
 
@@ -601,7 +877,7 @@ namespace YukiFrameWork
         /// <summary>
         /// 内部使用
         /// </summary>
-        internal StringEasyEvents StringEvents => events;
+        internal StringEasyEvents Events => events;
 
         public static StringEventSystem Global { get; } = new StringEventSystem();
 
@@ -927,7 +1203,155 @@ namespace YukiFrameWork
 
         public void Clear() => events.ClearEvent();
     }
+    #region Async Event System
+    public class AsyncTypeEventSystem
+    {
+        private readonly EasyEvents events = new EasyEvents();
 
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EasyEvents Events => events;
+
+        public static AsyncTypeEventSystem Global { get; } = new AsyncTypeEventSystem();
+
+        public IUnRegister Register<T>(Func<T,Task> onEvent)
+            => events.GetOrAddEvent<AsyncEasyEvent<T>>().RegisterEvent(onEvent);
+      
+        public async Task Send<T>(T t)
+            => await events.GetEvent<AsyncEasyEvent<T>>()?.SendEvent(t);
+
+       
+        public void UnRegister<T>(Func<T, Task> onEvent)
+            => events.GetEvent<AsyncEasyEvent<T>>()?.UnRegister(onEvent); 
+
+        public void Clear() => events.ClearEvent();
+    }
+
+    public class AsyncStringEventSystem
+    {
+        private readonly StringEasyEvents events = new StringEasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal StringEasyEvents Events => events;
+
+        public static AsyncStringEventSystem Global { get; } = new AsyncStringEventSystem();
+
+        public IUnRegister Register<T>(string name,Func<T, Task> onEvent)
+            => events.GetOrAddEvent<AsyncEasyEvent<T>>(name).RegisterEvent(onEvent);
+
+        public async Task Send<T>(string name,T t)
+            => await events.GetEvent<AsyncEasyEvent<T>>(name)?.SendEvent(t);
+
+
+        public void UnRegister<T>(string name,Func<T, Task> onEvent)
+            => events.GetEvent<AsyncEasyEvent<T>>(name)?.UnRegister(onEvent);
+
+        public void Clear() => events.ClearEvent();
+    }
+
+    public class AsyncEnumEventSystem
+    {
+        private readonly EnumEasyEvents events = new EnumEasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EnumEasyEvents Events => events;
+
+        public static AsyncEnumEventSystem Global { get; } = new AsyncEnumEventSystem();
+
+        public IUnRegister Register<TEnum,T>(TEnum e,Func<T, Task> onEvent) where TEnum : IConvertible
+            => events.GetOrAddEvent<AsyncEasyEvent<T>,TEnum>(e).RegisterEvent(onEvent);
+
+        public async Task Send<TEnum,T>(TEnum e,T t) where TEnum : IConvertible
+            => await events.GetEvent<AsyncEasyEvent<T>, TEnum>(e)?.SendEvent(t);
+
+
+        public void UnRegister<TEnum,T>(TEnum e,Func<T, Task> onEvent) where TEnum : IConvertible
+            => events.GetEvent<AsyncEasyEvent<T>, TEnum>(e)?.UnRegister(onEvent);
+
+        public void Clear() => events.ClearEvent();
+    }
+    #endregion
+
+    #region Unity Async Event System
+#if UNITY_2021_1_OR_NEWER
+    public class Unity_AsyncTypeEventSystem
+    {
+        private readonly EasyEvents events = new EasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EasyEvents Events => events;
+
+        public static Unity_AsyncTypeEventSystem Global { get; } = new Unity_AsyncTypeEventSystem();
+
+        public IUnRegister Register<T>(Func<T, YieldTask> onEvent)
+            => events.GetOrAddEvent<Unity_AsyncEasyEvent<T>>().RegisterEvent(onEvent);
+
+        public async YieldTask Send<T>(T t)
+            => await events.GetEvent<Unity_AsyncEasyEvent<T>>()?.SendEvent(t);
+
+
+        public void UnRegister<T>(Func<T, YieldTask> onEvent)
+            => events.GetEvent<Unity_AsyncEasyEvent<T>>()?.UnRegister(onEvent);
+
+        public void Clear() => events.ClearEvent();
+    }
+
+    public class Unity_AsyncStringEventSystem
+    {
+        private readonly StringEasyEvents events = new StringEasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal StringEasyEvents Events => events;
+
+        public static Unity_AsyncStringEventSystem Global { get; } = new Unity_AsyncStringEventSystem();
+
+        public IUnRegister Register<T>(string name, Func<T, YieldTask> onEvent)
+            => events.GetOrAddEvent<Unity_AsyncEasyEvent<T>>(name).RegisterEvent(onEvent);
+
+        public async Task Send<T>(string name, T t)
+            => await events.GetEvent<Unity_AsyncEasyEvent<T>>(name)?.SendEvent(t);
+
+
+        public void UnRegister<T>(string name, Func<T, YieldTask> onEvent)
+            => events.GetEvent<Unity_AsyncEasyEvent<T>>(name)?.UnRegister(onEvent);
+
+        public void Clear() => events.ClearEvent();
+    }
+
+    public class Unity_AsyncEnumEventSystem
+    {
+        private readonly EnumEasyEvents events = new EnumEasyEvents();
+
+        /// <summary>
+        /// 内部使用
+        /// </summary>
+        internal EnumEasyEvents Events => events;
+
+        public static Unity_AsyncEnumEventSystem Global { get; } = new Unity_AsyncEnumEventSystem();
+
+        public IUnRegister Register<TEnum, T>(TEnum e, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+            => events.GetOrAddEvent<Unity_AsyncEasyEvent<T>, TEnum>(e).RegisterEvent(onEvent);
+
+        public async Task Send<TEnum, T>(TEnum e, T t) where TEnum : IConvertible
+            => await events.GetEvent<Unity_AsyncEasyEvent<T>, TEnum>(e)?.SendEvent(t);
+
+
+        public void UnRegister<TEnum, T>(TEnum e, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+            => events.GetEvent<Unity_AsyncEasyEvent<T>, TEnum>(e)?.UnRegister(onEvent);
+
+        public void Clear() => events.ClearEvent();
+    }
+#endif
+    #endregion
     public class EasyEvents
     {
         internal readonly Dictionary<Type, IEasyEvent> events = new Dictionary<Type, IEasyEvent>();
@@ -994,14 +1418,23 @@ namespace YukiFrameWork
     {
         internal readonly Dictionary<(int,Type), IEasyEvent> events = new Dictionary<(int, Type), IEasyEvent>();
 
+        internal T GetOrAddEvent_Internal<T>(IConvertible type) where T : IEasyEvent, new()
+        {
+            return GetOrAdd<T>(type.ToInt32(null), type.GetType());
+        }
+
         public T GetOrAddEvent<T,TEnum>(TEnum type) where T : IEasyEvent, new() where TEnum : IConvertible
         { 
-            var core = (type.ToInt32(null),typeof(TEnum));
-            if (!events.TryGetValue(core, out var easyEvent))
+            return GetOrAdd<T>(type.ToInt32(null),typeof(TEnum));         
+        }
+
+        private T GetOrAdd<T>(int id,Type type) where T : IEasyEvent,new()
+        {         
+            if (!events.TryGetValue((id,type), out var easyEvent))
             {
                 easyEvent = new T();
 
-                events.Add(core, easyEvent);
+                events.Add((id, type), easyEvent);
             }
             return (T)easyEvent;
         }
@@ -1051,10 +1484,30 @@ namespace YukiFrameWork
         public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent)
             => registerEvent.GetArchitecture().RegisterEvent(onEvent);
 
+        public static IUnRegister RegisterEvent_Async<T>(this IGetRegisterEvent registerEvent, Func<T,Task> onEvent)
+            => registerEvent.GetArchitecture().RegisterEvent_Async(onEvent);
+
+        public static IUnRegister RegisterEvent_Async<T>(this IGetRegisterEvent registerEvent,string name, Func<T, Task> onEvent)
+            => registerEvent.GetArchitecture().RegisterEvent_Async(name,onEvent);
+
+        public static IUnRegister RegisterEvent_Async<TEnum,T>(this IGetRegisterEvent registerEvent,TEnum e, Func<T, Task> onEvent) where TEnum : IConvertible
+            => registerEvent.GetArchitecture().RegisterEvent_Async(e,onEvent);
+
+
+#if UNITY_2021_1_OR_NEWER
+        public static IUnRegister RegisterEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, Func<T, YieldTask> onEvent)
+            => registerEvent.GetArchitecture().RegisterEvent_Async_Unity(onEvent);
+
+        public static IUnRegister RegisterEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, string name, Func<T, YieldTask> onEvent)
+            => registerEvent.GetArchitecture().RegisterEvent_Async_Unity(name, onEvent);
+
+        public static IUnRegister RegisterEvent_Async_Unity<TEnum, T>(this IGetRegisterEvent registerEvent, TEnum e, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+            => registerEvent.GetArchitecture().RegisterEvent_Async_Unity(e, onEvent);
+#endif
         public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, string eventName, Action<T> onEvent)
             => registerEvent.GetArchitecture().RegisterEvent(eventName, onEvent);
 
-        public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
+        public static IUnRegister RegisterEvent<TEnum,T>(this IGetRegisterEvent registerEvent, TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible
             => registerEvent.GetArchitecture().RegisterEvent(eventEnum, onEvent);
 
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent = null)
@@ -1063,8 +1516,29 @@ namespace YukiFrameWork
         public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, string eventName, Action<T> onEvent)
             => registerEvent.GetArchitecture().UnRegisterEvent(eventName, onEvent);
 
-        public static void UnRegisterEvent<T>(this IGetRegisterEvent registerEvent, Enum eventEnum, Action<T> onEvent)
+        public static void UnRegisterEvent<TEnum,T>(this IGetRegisterEvent registerEvent, TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible
             => registerEvent.GetArchitecture().UnRegisterEvent(eventEnum, onEvent);
+
+        public static void UnRegisterEvent_Async<T>(this IGetRegisterEvent registerEvent, Func<T, Task> onEvent)
+            => registerEvent.GetArchitecture().UnRegisterEvent_Async(onEvent);
+
+        public static void UnRegisterEvent_Async<T>(this IGetRegisterEvent registerEvent,string name, Func<T, Task> onEvent)
+           => registerEvent.GetArchitecture().UnRegisterEvent_Async(name,onEvent);
+
+        public static void UnRegisterEvent_Async<TEnum,T>(this IGetRegisterEvent registerEvent,TEnum e, Func<T, Task> onEvent) where TEnum : IConvertible
+           => registerEvent.GetArchitecture().UnRegisterEvent_Async(e,onEvent);
+
+#if UNITY_2021_1_OR_NEWER
+        public static void UnRegisterEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, Func<T, YieldTask> onEvent)
+            => registerEvent.GetArchitecture().UnRegisterEvent_Async_Unity(onEvent);
+
+        public static void UnRegisterEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, string name, Func<T, YieldTask> onEvent)
+           => registerEvent.GetArchitecture().UnRegisterEvent_Async_Unity(name, onEvent);
+
+        public static void UnRegisterEvent_Async_Unity<TEnum, T>(this IGetRegisterEvent registerEvent, TEnum e, Func<T, YieldTask> onEvent) where TEnum : IConvertible
+           => registerEvent.GetArchitecture().UnRegisterEvent_Async_Unity(e, onEvent);
+#endif
+
 
         public static void SendEvent<T>(this ISendEvent SendEvent,T arg = default)
             => SendEvent.GetArchitecture().SendEvent(arg);
@@ -1072,8 +1546,28 @@ namespace YukiFrameWork
         public static void SendEvent<T>(this ISendEvent SendEvent,string eventName, T arg = default)
             => SendEvent.GetArchitecture().SendEvent(eventName,arg);
 
-        public static void SendEvent<T>(this ISendEvent SendEvent, Enum eventEnum, T arg = default)
+        public static void SendEvent<TEnum,T>(this ISendEvent SendEvent, TEnum eventEnum, T arg = default) where TEnum : IConvertible
             => SendEvent.GetArchitecture().SendEvent(eventEnum, arg);
+
+        public static async Task SendEvent_Async<T>(this IGetRegisterEvent registerEvent, T t = default)
+            => await registerEvent.GetArchitecture().SendEvent_Async(t);
+
+        public static async Task SendEvent_Async<T>(this IGetRegisterEvent registerEvent,string name, T t = default)
+            => await registerEvent.GetArchitecture().SendEvent_Async(name,t);
+
+        public static async Task SendEvent_Async<TEnum, T>(this IGetRegisterEvent registerEvent,TEnum e, T t = default) where TEnum : IConvertible
+            => await registerEvent.GetArchitecture().SendEvent_Async(e,t);
+
+#if UNITY_2021_1_OR_NEWER
+        public static async YieldTask SendEvent_Async_Unity<TEnum,T>(this IGetRegisterEvent registerEvent,TEnum e, T t = default) where TEnum : IConvertible
+            => await registerEvent.GetArchitecture().SendEvent_Async_Unity(e,t);
+
+        public static async YieldTask SendEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, T t = default)
+          => await registerEvent.GetArchitecture().SendEvent_Async_Unity(t);
+
+        public static async YieldTask SendEvent_Async_Unity<T>(this IGetRegisterEvent registerEvent, string name, T t = default)
+            => await registerEvent.GetArchitecture().SendEvent_Async_Unity(name, t);
+#endif
     }
 
     /// <summary>

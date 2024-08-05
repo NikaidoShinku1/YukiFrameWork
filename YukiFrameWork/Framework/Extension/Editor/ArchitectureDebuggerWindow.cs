@@ -34,17 +34,8 @@ namespace YukiFrameWork
             [LabelText("Utility注册收集")]
             Utility,
             [LabelText("Controller标记收集")]
-            Controller,
-            [LabelText("运行时事件收集")]
-            Event
-        }
-
-        internal enum EventType
-        {
-            Type,
-            String,
-            Enum
-        }
+            Controller,         
+        } 
 
         internal enum SelectType
         {
@@ -132,12 +123,9 @@ namespace YukiFrameWork
         internal static Title mtitle;
 
 
-        [LabelText("检索类型"), PropertySpace(10), HideIf(nameof(mtitle), Title.Event), ShowInInspector, BoxGroup]
+        [LabelText("检索类型"), PropertySpace(10), ShowInInspector, BoxGroup]
         internal static SelectType selectType;
 
-        [EnumToggleButtons, ShowIf(nameof(mTitle), ArchitectureDebuggerWindow.Title.Event), PropertySpace(10),ShowInInspector]
-        private ArchitectureDebuggerWindow.EventType eventType { get; set; }
-       
         private string eventSearch;
         private IArchitecture architecture;       
         private ArchitectureDebuggerWindow editorWindow;
@@ -302,18 +290,7 @@ namespace YukiFrameWork
                     }
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
-                    break;
-                case ArchitectureDebuggerWindow.Title.Event:
-                    eventPosition = EditorGUILayout.BeginScrollView(eventPosition,GUILayout.Height(editorWindow.position.height - 300));
-                    EditorGUILayout.BeginVertical(roldStyle,GUILayout.Height(editorWindow.position.height - 300));
-                    EditorGUILayout.LabelField("运行时架构事件标记EventSystem", fontStyle);
-                    {
-                        DrawEventSystem();
-                        //EventSystem信息收集ToDo
-                    }
-                    EditorGUILayout.EndVertical();
-                    EditorGUILayout.EndScrollView();
-                    break;              
+                    break;             
             }
             EditorGUILayout.Space(50);
             if (IsRunning)
@@ -433,54 +410,6 @@ namespace YukiFrameWork
                 EditorGUILayout.Space();
             }
         }
-
-        void DrawEventSystem()
-        {
-            if (!IsRunning) return;
-
-            if (architecture == null) return;
-            IDictionary dictionary = null;
-
-            eventSearch = EditorGUILayout.TextField(string.Empty, eventSearch, "ToolbarSearchTextField");
-
-            switch (eventType)
-            {
-                case ArchitectureDebuggerWindow.EventType.Type:
-                    dictionary = architecture.TypeEventSystem.Events.events;                  
-                    break;
-                case ArchitectureDebuggerWindow.EventType.String:
-                    dictionary = architecture.StringEventSystem.StringEvents.events;                    
-                    break;
-                case ArchitectureDebuggerWindow.EventType.Enum:
-                    dictionary = architecture.EnumEventSystem.WindowEvents.events;
-                    break;              
-            }
-
-            foreach (var key in dictionary.Keys)
-            {
-                box = box.IsNullOrEmpty() ? "Wizard Box" : box;
-                string info = "已注册事件---->标识:" + key.ToString();
-                if (!eventSearch.IsNullOrEmpty())
-                {
-                    if (!info.Contains(eventSearch))
-                        continue;
-                }
-                var tRect = EditorGUILayout.BeginHorizontal();
-                var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(40));
-                EditorGUILayout.LabelField(EditorGUIUtility.IconContent("d_console.infoicon"), GUILayout.Width(20));
-                EditorGUILayout.BeginVertical();
-               
-                GUILayout.Label(info);
-                GUILayout.Label("参数类型:" + dictionary[key]);
-
-                EditorGUILayout.EndVertical();
-
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.Space();
-            }
-        }
-
         void DrawInfos(Rule rule)
         {
             foreach (var info in rolds[rule])

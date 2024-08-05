@@ -192,4 +192,33 @@ Component API:
     ///初始化解析器，可以自行传入解析器来完成同步的回调
     - void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver);
 
+本地序列化器:
+
+``` csharp
+        /// <summary>
+        /// 本地序列化语言器，用于将默认的语言持久化保存,与反序列化器成对,如果自行添加则需要两个一起都实现
+        /// </summary>
+        public static event Action<Language> OnSerializeLanguage;    
+
+        /// <summary>
+        /// 本地反序列化语言器，用于启动时加载默认的语言，与序列化器成对,如果自行添加则需要两个一起都实现
+        /// </summary>
+        public static event Func<Language> OnDeSerializeLanguage;
+       
+```
+
+``` csharp
+public class TestScripts : MonoBehaviour
+{
+    void Start()
+    {
+        //如需对序列化器改动，则必须在任何LocalizationKit与LocalizationComponent的调用之前，对两个事件进行编写:
+
+       // 如:
+
+       LocalizationKit.OnSerializeLanguage += language =>{ };
+       LocalizationKit.OnDeSerializeLanguage += () => { return Language.Chinese;  }//返回你通过自己的方式加载的语言枚举。
+    }
+}
+```
 

@@ -6,9 +6,12 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
-using YukiFrameWork;
-using UnityEngine;
 using System;
+using System.Threading.Tasks;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 namespace YukiFrameWork
 {
     public class EasyEvent : EasyEventBase<Action>
@@ -25,25 +28,6 @@ namespace YukiFrameWork
         }
 
         public override void UnRegister(Action onEvent)
-        {
-            OnEasyEvent -= onEvent;
-        }
-    }
-
-    public class EasyEvent<T> : EasyEventBase<Action<T>>
-    {
-        public override IUnRegister RegisterEvent(Action<T> onEvent)
-        {
-            OnEasyEvent += onEvent;
-            return this;
-        }
-
-        public void SendEvent(T t)
-        {
-            OnEasyEvent?.Invoke(t);
-        }
-
-        public override void UnRegister(Action<T> onEvent)
         {
             OnEasyEvent -= onEvent;
         }
@@ -298,6 +282,196 @@ namespace YukiFrameWork
           => OnEasyEvent?.Invoke(t, k, q, p, w, r, s, f, g, m, n, b, v, j, x, z);
 
         public override void UnRegister(Action<T, K, Q, P, W, R, S, F, G, M, N, B, V, J, X, Z> onEvent)
+        {
+            OnEasyEvent -= onEvent;
+        }
+    }
+
+    public class EasyEvent<T> : EasyEventBase<Action<T>>
+    {
+        public override IUnRegister RegisterEvent(Action<T> onEvent)
+        {
+            OnEasyEvent += onEvent;
+            return this;
+        }
+
+        public void SendEvent(T t)
+        {
+            OnEasyEvent?.Invoke(t);
+        }
+
+        public override void UnRegister(Action<T> onEvent)
+        {
+            OnEasyEvent -= onEvent;
+        }
+    }
+
+    public class AsyncEasyEvent<T> : EasyEventBase<Func<T, Task>>
+    {
+        private List<Func<T, Task>> onAsyncEvent = new List<Func<T, Task>>();
+        public override IUnRegister RegisterEvent(Func<T, Task> onEvent)
+        {
+            onAsyncEvent.Add(onEvent);
+            return this;
+        }    
+    
+        public override void UnRegister(Func<T, Task> onEvent)
+        {
+            onAsyncEvent.Remove(onEvent);            
+        }
+
+        public async Task SendEvent(T arg)
+        {
+            foreach (Func<T,Task> ev in onAsyncEvent)
+            {
+                if (ev == null) continue;
+                var task = ev.Invoke(arg);
+                if (task == null) continue;
+                await task;
+            }
+        }
+
+        public override void UnRegisterAllEvent()
+        {
+            onAsyncEvent.Clear();          
+        } 
+    }
+#if UNITY_2021_1_OR_NEWER
+    public class Unity_AsyncEasyEvent<T> : EasyEventBase<Func<T, YieldTask>>
+    {
+        private List<Func<T, YieldTask>> onAsyncEvent = new List<Func<T, YieldTask>>();
+        public override IUnRegister RegisterEvent(Func<T, YieldTask> onEvent)
+        {
+            onAsyncEvent.Add(onEvent);
+            return this;
+        }
+        
+        public override void UnRegister(Func<T, YieldTask> onEvent)
+        {
+            onAsyncEvent.Remove(onEvent);
+        }
+        
+        public async YieldTask SendEvent(T arg)
+        {          
+            foreach (Func<T, YieldTask> ev in onAsyncEvent)
+            {
+                if (ev == null) continue;
+                var task = ev.Invoke(arg);
+                if (task == null) continue;
+                await task;
+            }
+        }
+
+        public override void UnRegisterAllEvent()
+        {
+            onAsyncEvent.Clear();
+        }
+
+    }
+#endif
+
+    internal class DynamicEvent<T>  where T : Delegate
+    {
+        private List<DynamicEventInfo<T>> dynamics
+             = new List<DynamicEventInfo<T>>();
+
+        internal DynamicEventInfo<T> RegisterEvent_Dynamic(MethodInfo methodInfo, object target,params Type[] types)
+        {
+            T onEvent = methodInfo
+                .CreateDelegate(typeof(T).MakeGenericType(types), target) as T;
+
+            DynamicEventInfo<T> info = new DynamicEventInfo<T>();
+            info.onEvent = onEvent;
+            info.methodInfo = methodInfo;
+            dynamics.Add(info);
+            return info;
+        }
+
+        internal void UnRegister_Dynamic(T onEvent,Action<T> unRegister)
+        {
+            if (onEvent.Method == null) return;
+
+            IEnumerable<DynamicEventInfo<T>> eventInfos = dynamics.Where(x => x.methodInfo == onEvent.Method);
+
+            foreach (var item in eventInfos)
+            {
+                unRegister(item.onEvent);
+            }
+        }
+
+        internal void Clear() => dynamics.Clear();
+    }
+
+    public abstract class DynamicEventBase<T> : EasyEventBase<T>, IDynamicEvent where T : Delegate
+    {
+        public abstract Type BaseDelegateType { get; }
+        protected class DynamicActionInfo
+        {
+            public T onEvent;
+            public MethodInfo methodInfo;
+        }
+        protected FastList<DynamicActionInfo> actionInfos = new FastList<DynamicActionInfo>();       
+
+        public virtual IUnRegister RegisterEvent_Dynamic(MethodInfo methodInfo, object target)
+        {
+            Type parameterType = methodInfo.GetParameters()[0].ParameterType;
+            T onEvent = GetLambda(parameterType,Expression.Constant(target),methodInfo);
+            actionInfos.Add(new DynamicActionInfo() 
+            {
+                onEvent = onEvent,
+                methodInfo = methodInfo
+            });
+            return RegisterEvent(onEvent);
+        }
+
+        protected T GetLambda(Type parameterType,ConstantExpression constant,MethodInfo methodInfo)
+        {         
+            ParameterExpression parameter = Expression.Parameter(typeof(IEventArgs), "arg");
+            UnaryExpression unaryParameter = Expression.Convert(parameter, parameterType);
+            MethodCallExpression methodCall = Expression.Call(constant, methodInfo, unaryParameter);
+            LambdaExpression lambda = Expression.Lambda<T>(methodCall, parameter);
+            T onEvent = (T)lambda.Compile();
+            return onEvent;
+        }
+
+        public virtual void UnRegisterEvent_Dynamic(MethodInfo methodInfo)
+        {
+            if (methodInfo == null) return;
+            DynamicActionInfo info = actionInfos.FirstOrDefault(x => x.methodInfo == methodInfo);
+
+            if (info == null) return;
+            UnRegister(info.onEvent);
+        }
+    }
+
+    public class SyncDynamicEvent : DynamicEventBase<Action<IEventArgs>>
+    {
+        public override Type BaseDelegateType => typeof(Action<>);
+        public override IUnRegister RegisterEvent(Action<IEventArgs> onEvent)
+        {
+            OnEasyEvent += onEvent;
+            return this;
+        }
+
+        internal IUnRegister RegisterEvent_Dynamic(MethodInfo methodInfo, object target,Action<IEventArgs> onAdd)
+        {
+            Type parameterType = methodInfo.GetParameters()[0].ParameterType;
+            Action<IEventArgs> onEvent = GetLambda(parameterType, Expression.Constant(target), methodInfo);
+            onEvent += onAdd;
+            actionInfos.Add(new DynamicActionInfo()
+            {
+                onEvent = onEvent,
+                methodInfo = methodInfo
+            });
+            return RegisterEvent(onEvent);
+        }
+
+        public void SendEvent(IEventArgs arg)
+        {
+            OnEasyEvent?.Invoke(arg);
+        }
+
+        public override void UnRegister(Action<IEventArgs> onEvent)
         {
             OnEasyEvent -= onEvent;
         }

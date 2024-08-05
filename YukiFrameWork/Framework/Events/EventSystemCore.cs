@@ -10,6 +10,7 @@
 
 using UnityEngine;
 using System;
+using System.Reflection;
 namespace YukiFrameWork
 {
     public interface IEasyEvent : IUnRegister
@@ -17,8 +18,19 @@ namespace YukiFrameWork
 
     }
 
+    public interface IEventArgs
+    {
+        
+    }
+
     public interface IUnRegister
     {
         void UnRegisterAllEvent();
     }
+
+    public interface IDynamicEvent : IEasyEvent 
+    {
+        IUnRegister RegisterEvent_Dynamic(MethodInfo methodInfo, object target);
+        void UnRegisterEvent_Dynamic(MethodInfo methodInfo);    
+    }  
 }

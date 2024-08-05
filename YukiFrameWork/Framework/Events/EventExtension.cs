@@ -1,9 +1,32 @@
 using System;
+using System.Reflection;
+using System.Threading.Tasks;
 namespace YukiFrameWork
 {
     public static class EventExtension 
     {
         #region AddListener
+
+        public static IUnRegister AddListener_Async<T>(this object user, Func<T, Task> call)
+            => AsyncTypeEventSystem.Global.Register(call);
+
+        public static IUnRegister AddListener_Async<T>(this object user, string name, Func<T, Task> call)
+            => AsyncStringEventSystem.Global.Register(name, call);
+
+        public static IUnRegister AddListener_Async<TEnum,T>(this object user, TEnum name, Func<T, Task> call) where TEnum : IConvertible
+            => AsyncEnumEventSystem.Global.Register(name, call);
+
+#if UNITY_2021_1_OR_NEWER
+        public static IUnRegister AddListener_Async_Unity<T>(this object user, Func<T, YieldTask> call)
+           => Unity_AsyncTypeEventSystem.Global.Register(call);
+
+        public static IUnRegister AddListener_Async_Unity<T>(this object user, string name, Func<T, YieldTask> call)
+            => Unity_AsyncStringEventSystem.Global.Register(name, call);
+
+        public static IUnRegister AddListener_Async_Unity<TEnum, T>(this object user, TEnum name, Func<T, YieldTask> call) where TEnum : IConvertible
+            => Unity_AsyncEnumEventSystem.Global.Register(name, call);
+#endif
+
         public static IUnRegister AddListener(this object user, Action call)
             => TypeEventSystem.Global.Register(call);
         public static IUnRegister AddListener<T>(this object user,Action<T> call)
@@ -112,6 +135,20 @@ namespace YukiFrameWork
         #endregion
 
         #region SendEvent
+
+        public static async Task SendGlobalEvent_Async<T>(this object user, T t = default)
+            => await AsyncTypeEventSystem.Global.Send(t);
+
+        public static async Task SendStringGlobalEvent_Async<T>(this object user,string name, T t = default)
+            => await AsyncStringEventSystem.Global.Send(name,t);
+
+        public static async Task SendEnumGlobalEvent_Async<TEnum,T>(this object user,TEnum e, T t = default) where TEnum : IConvertible
+            => await AsyncEnumEventSystem.Global.Send(e,t);
+
+#if UNITY_2021_1_OR_NEWER
+        public static async YieldTask SendGlobalEvent_Async_Unity<T>(this object user, T t = default)
+           => await Unity_AsyncTypeEventSystem.Global.Send(t);
+#endif
         public static void SendGlobalEvent(this object user)
             => TypeEventSystem.Global.Send();
         public static void SendGlobalEvent<T>(this object user,T arg1)
@@ -219,6 +256,26 @@ namespace YukiFrameWork
         #endregion
 
         #region RemoveListener
+
+        public static void RemoveListener_Async<T>(this object user, Func<T, Task> call)
+            => AsyncTypeEventSystem.Global.UnRegister(call);
+
+        public static void RemoveListener_Async<T>(this object user,string name, Func<T, Task> call)
+            => AsyncStringEventSystem.Global.UnRegister(name,call);
+
+        public static void RemoveListener_Async<TEnum, T>(this object user, TEnum e, Func<T, Task> call) where TEnum : IConvertible
+            => AsyncEnumEventSystem.Global.UnRegister(e,call);
+
+#if UNITY_2021_1_OR_NEWER
+        public static void RemoveListener_Async_Unity<T>(this object user, Func<T, YieldTask> call)
+            => Unity_AsyncTypeEventSystem.Global.UnRegister(call);
+
+        public static void RemoveListener_Async_Unity<T>(this object user, string name, Func<T, YieldTask> call)
+            => Unity_AsyncStringEventSystem.Global.UnRegister(name, call);
+
+        public static void RemoveListener_Async_Unity<TEnum, T>(this object user, TEnum e, Func<T, YieldTask> call) where TEnum : IConvertible
+            => Unity_AsyncEnumEventSystem.Global.UnRegister(e, call);
+#endif
         public static void RemoveListener(this object user, Action call)
             => TypeEventSystem.Global.UnRegister(call);
         public static void RemoveListener<T>(this object user, Action<T> call)
@@ -325,5 +382,15 @@ namespace YukiFrameWork
         public static void RemoveListener<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z> call)
             => EnumEventSystem.Global.UnRegister(name, call);
         #endregion
+
+
+        public static bool GetRegisterAttribute(this MethodInfo methodInfo, out RegisterEventAttribute registerEvent, out StringRegisterEventAttribute stringRegisterEvent, out EnumRegisterEventAttribute enumRegisterEvent)
+        {
+            registerEvent = methodInfo.GetCustomAttribute<RegisterEventAttribute>();
+            stringRegisterEvent = methodInfo.GetCustomAttribute<StringRegisterEventAttribute>();
+            enumRegisterEvent = methodInfo.GetCustomAttribute<EnumRegisterEventAttribute>();
+
+            return registerEvent != null || stringRegisterEvent != null || enumRegisterEvent != null;
+        }
     }
 }

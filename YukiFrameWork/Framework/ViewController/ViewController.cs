@@ -124,11 +124,7 @@ namespace YukiFrameWork
     public partial class ViewController : ISerializedFieldInfo
     {
         [HideInInspector]
-        public CustomData Data = new CustomData();
-
-        [HideInInspector]
-        public RuntimeInitialized initialized = RuntimeInitialized.Automation;
-
+        public CustomData Data = new CustomData();   
         #region ISerializedFieldInfo
         [HideInInspector]
         [SerializeField]
@@ -159,19 +155,20 @@ namespace YukiFrameWork
         #endregion
     }
 
+    [RequireComponent(typeof(RuntimeEventCenter))]
     public partial class ViewController : YMonoBehaviour, IController
     {
         private object _object = new object();
         private IArchitecture mArchitecture;
 
+        internal bool IsEventInited = false;
         
         protected override void Awake()
         {
             base.Awake();
             try
-            {              
-                if (initialized == RuntimeInitialized.Awake)
-                    RuntimeEventInitializationFactory.Initialization(this);
+            {                
+                RuntimeEventInitializationFactory.Initialization(this);
             }
             catch
             {
@@ -192,13 +189,18 @@ namespace YukiFrameWork
                     {
                         (this as IYMonoBehaviour).InitAllFields();
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);
-                        if(mArchitecture != null && initialized == RuntimeInitialized.Automation)
+                        if(mArchitecture != null)
                             RuntimeEventInitializationFactory.Initialization(this);                     
                     }
                     return mArchitecture;
                 }
             }
-        }      
+        }
+
+        /// <summary>
+        /// 仅用于框架内部使用，禁止外部访问
+        /// </summary>
+        internal IArchitecture GetArchitectureByInternal => RuntimeArchitecture;
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return RuntimeArchitecture;
