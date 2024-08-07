@@ -453,7 +453,7 @@ namespace YukiFrameWork
     {
         public ActionUpdateNode Action { get; set; }    
 
-        public IActionUpdateNode Register(Action<long> OnEvent)
+        public IActionUpdateNode Register(Action<float> OnEvent)
         {
             Action.Register(OnEvent);
             return Action;

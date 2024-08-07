@@ -74,7 +74,7 @@ namespace YukiFrameWork
     public interface IActionUpdateNode
     {
         UpdateStatus UpdateStatus { get; }     
-        IActionUpdateNode Register(Action<long> OnEvent);
+        IActionUpdateNode Register(Action<float> OnEvent);
         bool OnExecute(float delta);
         void OnFinish();
     }
@@ -82,7 +82,7 @@ namespace YukiFrameWork
     public interface IActionUpdateCondition
     {
         ActionUpdateNode Action { get; }
-        IActionUpdateNode Register(Action<long> onEvent);
+        IActionUpdateNode Register(Action<float> onEvent);
         IActionUpdateCondition Where(Func<bool> condition);        
     }
 
@@ -161,10 +161,8 @@ namespace YukiFrameWork
             = new SimpleObjectPools<ActionUpdateNode>(() => new ActionUpdateNode(), null, 10);
 
         public UpdateStatus UpdateStatus { get; private set; }
-
-        protected long data;       
         
-        protected Action<long> onEvent;        
+        protected Action<float> onEvent;        
 
         public ActionUpdateNode(UpdateStatus updateStatus)
         {
@@ -191,9 +189,8 @@ namespace YukiFrameWork
             {
                 IsPaused = !action.OnExecute(delta);
             }          
-            if (IsPaused) return false;
-            data++;
-            onEvent?.Invoke(data);
+            if (IsPaused) return false;          
+            onEvent?.Invoke(delta);
             return false;
         }
 
@@ -201,13 +198,13 @@ namespace YukiFrameWork
         {
             IsInit = false;                   
             IsCompleted = true;
-            data = 0;
+           
             onEvent = null;
             IsPaused = false;
             simpleObjectPools.Release(this);
         }
 
-        public IActionUpdateNode Register(Action<long> onEvent)
+        public IActionUpdateNode Register(Action<float> onEvent)
         {
             this.onEvent = onEvent;                     
             return this;
@@ -222,8 +219,7 @@ namespace YukiFrameWork
 
         public override void OnInit()
         {
-            IsInit = true;
-            data = 0;
+            IsInit = true;           
             IsCompleted = false;
         }
     }

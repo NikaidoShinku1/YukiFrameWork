@@ -56,10 +56,12 @@ namespace YukiFrameWork
         {
             get => value;
             set
-            {
+            {              
+
                 if (!Equals(this.value,value))
                 {
                     this.value = value;
+                    if (value == null) return;
                     onValueChange?.SendEvent(value);
                 }
             }
