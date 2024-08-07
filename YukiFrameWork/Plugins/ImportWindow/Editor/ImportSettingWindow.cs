@@ -92,9 +92,9 @@ namespace YukiFrameWork.Extension
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",
-            ["DoTween"] = packagePath + "/Tool~/DoTween",
+          /*  ["DoTween"] = packagePath + "/Tool~/DoTween",
             ["UniRx"] = packagePath + "/Tool~/UniRx",
-            ["UniTask"] = packagePath + "/Tool~/UniTask",         
+            ["UniTask"] = packagePath + "/Tool~/UniTask",         */
         };             
 
         void LoadData()
@@ -215,14 +215,14 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
             , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", packagePath + "/Tool~/ItemKit");
 
-            DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
+          /*  DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
                 , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.UniRxInfo
                 , MessageType.Info, string.Format("{0}/UniRx",  data.path), "UniRx", packagePath + "/Tool~/UniRx");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.UniTaskInfo
-                , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");
+                , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");*/
 
             EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();
