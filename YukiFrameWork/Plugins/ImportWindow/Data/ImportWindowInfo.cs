@@ -25,7 +25,9 @@ namespace YukiFrameWork.Extension
 
         public static string SaveToolInfo => !IsEN ? "框架存档工具，可用于数据的保存以及持久化" : "Framework SaveTool, which can be used for data preservation and persistence";
 
-        public static string StateMechineInfo => !IsEN ? "状态机模块,可以实现对于状态的管理等操作,或者基础动作游戏设计,编辑器可视化" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization";
+        public static string StateMechineInfo => !IsEN ? "(旧)状态机模块,可以实现对于状态的管理等操作,编辑器可视化(已停止更新,除非项目已经使用旧状态机开发，否则推荐使用新状态机StateManager模块!)" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization(Updates have stopped, and unless the project has been developed using the old state machine, the new StateManager module is recommended!)";
+
+        public static string StateManagerInfo => !IsEN ? "全新状态机模块，在旧状态机之上，全面支持对于动作状态的设计，可完美兼容实现基础动作游戏设计，编辑器可视化" : "The new state machine module, on top of the old state machine, fully supports the design of the action state, which can be perfectly compatible with the basic action game design and editor visualization";
 
         public static string IOCInfo => !IsEN ? "IOC容器,可以完整实现控制反转的结构思想,DI注入等操作" : "IOC container can realize the structure idea of inversion of control,DI injection and other operations";
 

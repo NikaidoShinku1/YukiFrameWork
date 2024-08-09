@@ -228,7 +228,7 @@ namespace YukiFrameWork.DiaLogue
 
                 item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
             }
-            string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore,TypeNameHandling = TypeNameHandling.All });                 
+            string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore });                 
             json.CreateFileStream(assetPath, assetName, ".json");         
         }
 

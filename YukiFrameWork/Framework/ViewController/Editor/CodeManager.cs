@@ -15,10 +15,111 @@ using System.Linq;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
 
+
 #if UNITY_EDITOR
 using UnityEditor;
 namespace YukiFrameWork
 {
+    public interface ICodeGenerator
+    {
+        StringBuilder BuildFile(params object[] arg);       
+    }
+
+    public class ViewControllerGenerator : ICodeGenerator
+    {
+        public StringBuilder BuildFile(params object[] arg)
+        {
+            CustomData Data = arg[0] as CustomData;
+
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("///=====================================================");
+            builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
+            builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
+            builder.AppendLine("/// - Description:   框架自定ViewController");
+            builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  All Rights Reserved.");
+            builder.AppendLine("///=====================================================");
+
+            bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
+            builder.AppendLine("using YukiFrameWork;");
+            builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using System;");
+            if (!notnameSpace)
+            {
+                builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                builder.AppendLine("{");
+            }
+            if (Data.AutoArchitectureIndex != 0)
+                builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({Data?.AutoInfos[Data.AutoArchitectureIndex]}),true)]");
+            builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : {Data.Parent[Data.SelectIndex]}");
+            builder.AppendLine("\t{");
+            builder.AppendLine("");
+            builder.AppendLine("\t}");
+
+            if (!notnameSpace)
+                builder.AppendLine("}");
+
+            return builder;
+        }
+    }
+
+    public class BasePanelGenerator : ICodeGenerator
+    {
+        public StringBuilder BuildFile(params object[] arg)
+        {
+            GenericDataBase Data = arg[0] as GenericDataBase;
+            bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("///=====================================================");
+            builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
+            builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
+            builder.AppendLine("/// - Description:   框架自定BasePanel");
+            builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  All Rights Reserved.");
+            builder.AppendLine("///=====================================================");
+
+            builder.AppendLine("using YukiFrameWork.UI;");
+            builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using UnityEngine.UI;");
+            if (!notnameSpace)
+            {
+                builder.AppendLine($"namespace {Data?.ScriptNamespace}");
+                builder.AppendLine("{");
+            }
+            builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : BasePanel");
+            builder.AppendLine("\t{");
+            builder.AppendLine("\t\tpublic override void OnInit()");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\tbase.OnInit();");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t\tpublic override void OnEnter(params object[] param)");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\tbase.OnEnter(param);");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t\tpublic override void OnPause()");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\tbase.OnPause();");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t\tpublic override void OnResume()");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\tbase.OnResume();");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("\t\tpublic override void OnExit()");
+            builder.AppendLine("\t\t{");
+            builder.AppendLine("\t\t\tbase.OnExit();");
+            builder.AppendLine("\t\t}");
+            builder.AppendLine("");
+            builder.AppendLine("\t}");
+
+            if (!notnameSpace)
+                builder.AppendLine("}");
+
+            return builder;
+        }
+    }
+
     public enum FunctionType
     {
         None,
@@ -145,7 +246,9 @@ namespace YukiFrameWork
         public static CodeCore CreateCodeCore() => objectPools.Get();
     }
     public static class CodeManager
-	{           
+	{
+        private static ICodeGenerator viewControllerGenerator = new ViewControllerGenerator();
+        private static ICodeGenerator panelGenerator = new BasePanelGenerator();
         public static void GenericControllerScripts(CustomData Data)
         {
             string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
@@ -153,40 +256,14 @@ namespace YukiFrameWork
             if (!File.Exists(scriptFilePath))
             {
                 if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
-                {
-                    StringBuilder builder = new StringBuilder();                 
-                    builder.AppendLine("///=====================================================");
-                    builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
-                    builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
-                    builder.AppendLine("/// - Description:   框架自定ViewController");
-                    builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-                    builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
-                    builder.AppendLine("/// -  All Rights Reserved.");
-                    builder.AppendLine("///=====================================================");
-
-                    bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
-                    builder.AppendLine("using YukiFrameWork;");
-                    builder.AppendLine("using UnityEngine;");
-                    builder.AppendLine("using System;");
-                    if (!notnameSpace)
-                    {
-                        builder.AppendLine($"namespace {Data?.ScriptNamespace}");
-                        builder.AppendLine("{");
-                    }
-                    if (Data.AutoArchitectureIndex != 0)
-                        builder.AppendLine($"\t[RuntimeInitializeOnArchitecture(typeof({Data?.AutoInfos[Data.AutoArchitectureIndex]}),true)]");
-                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : {Data.Parent[Data.SelectIndex]}");
-                    builder.AppendLine("\t{");
-                    builder.AppendLine("");
-                    builder.AppendLine("\t}");
-
-                    if (!notnameSpace)
-                        builder.AppendLine("}");
+                {                   
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                         return;
                     }
+
+                    StringBuilder builder = viewControllerGenerator.BuildFile(Data);
 
                     if (!Directory.Exists(Data.ScriptPath))
                     {
@@ -198,8 +275,7 @@ namespace YukiFrameWork
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
                         return;
-                    }
-
+                    }                  
                     using (FileStream fileStream = new FileStream(scriptFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
                     {
                         StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8);
@@ -255,58 +331,12 @@ namespace YukiFrameWork
             {
                 if (GUILayout.Button(FrameWorkConfigData.GenerateScriptBtn, GUILayout.Height(30)))
                 {
-                    bool notnameSpace = Data.ScriptNamespace.IsNullOrEmpty();
-                    StringBuilder builder = new StringBuilder();
-                    builder.AppendLine("///=====================================================");
-                    builder.AppendLine("/// - FileName:      " + Data?.ScriptName + ".cs");
-                    builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
-                    builder.AppendLine("/// - Description:   框架自定BasePanel");
-                    builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-                    builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
-                    builder.AppendLine("/// -  All Rights Reserved.");
-                    builder.AppendLine("///=====================================================");
-
-                    builder.AppendLine("using YukiFrameWork.UI;");
-                    builder.AppendLine("using UnityEngine;");
-                    builder.AppendLine("using UnityEngine.UI;");
-                    if (!notnameSpace)
-                    {
-                        builder.AppendLine($"namespace {Data?.ScriptNamespace}");
-                        builder.AppendLine("{");
-                    }
-                    builder.AppendLine($"\tpublic partial class {Data?.ScriptName} : BasePanel");
-                    builder.AppendLine("\t{");
-                    builder.AppendLine("\t\tpublic override void OnInit()");
-                    builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnInit();");
-                    builder.AppendLine("\t\t}");
-                    builder.AppendLine("\t\tpublic override void OnEnter(params object[] param)");
-                    builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnEnter(param);");
-                    builder.AppendLine("\t\t}");
-                    builder.AppendLine("\t\tpublic override void OnPause()");
-                    builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnPause();");
-                    builder.AppendLine("\t\t}");
-                    builder.AppendLine("\t\tpublic override void OnResume()");
-                    builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnResume();");
-                    builder.AppendLine("\t\t}");
-                    builder.AppendLine("\t\tpublic override void OnExit()");
-                    builder.AppendLine("\t\t{");
-                    builder.AppendLine("\t\t\tbase.OnExit();");
-                    builder.AppendLine("\t\t}");
-                    builder.AppendLine("");
-                    builder.AppendLine("\t}");
-
-                    if(!notnameSpace)
-                    builder.AppendLine("}");
                     if (string.IsNullOrEmpty(Data.ScriptPath))
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                         return;
                     }
-
+                    StringBuilder builder = panelGenerator.BuildFile(Data);
                     if (!Directory.Exists(Data.ScriptPath))
                     {
                         Directory.CreateDirectory(Data.ScriptPath);
@@ -408,7 +438,7 @@ namespace YukiFrameWork
             AssetDatabase.SaveAssets();
         }
 
-        public static void DragObject(Rect rect, out string path)
+        public static bool DragObject(Rect rect, out string path)
         {
             Event e = Event.current;
             path = string.Empty;
@@ -421,12 +451,14 @@ namespace YukiFrameWork
                     var assets = DragAndDrop.objectReferences;
                     if (assets[0].GetType().Equals(typeof(DefaultAsset)))
                     {
-                        path = AssetDatabase.GetAssetPath(assets[0]);
+                        path = AssetDatabase.GetAssetPath(assets[0]);                       
                     }
                     e.Use();
                 }
             }
-        }  
+
+            return !path.IsNullOrEmpty();
+        }
 
         public static void BindInspector(ISerializedFieldInfo info,Component target, Action GenericCallBack = null)
         {       
@@ -535,15 +567,6 @@ namespace YukiFrameWork
 
                     foreach (var asset in assets)
                     {
-                        try
-                        {
-                            if (info.Find(x => x.target == asset) != null)
-                            {
-                                LogKit.W("选中的对象已经持有YukiBind组件，不需要挂在ViewController充数 Obj Name:" + asset.name);
-                                continue;
-                            }
-                        }
-                        catch { }
                         Undo.RecordObject(target, "Add Data");
                         info.AddFieldData(new SerializeFieldData(asset));
 

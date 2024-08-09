@@ -86,15 +86,13 @@ namespace YukiFrameWork.Extension
             ["Bezier"] = packagePath + "/Tool~/Bezier",
             ["SaveTool"] = packagePath + "/Tool~/SaveTool",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
+            ["StateManager"] = packagePath + "Tool~/StateManager",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
             ["BuffKit"] = packagePath + "/Tool~/BuffKit",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
-            ["ItemKit"] = packagePath + "/Tool~/ItemKit",
-          /*  ["DoTween"] = packagePath + "/Tool~/DoTween",
-            ["UniRx"] = packagePath + "/Tool~/UniRx",
-            ["UniTask"] = packagePath + "/Tool~/UniTask",         */
+            ["ItemKit"] = packagePath + "/Tool~/ItemKit",         
         };             
 
         void LoadData()
@@ -194,8 +192,8 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.SaveToolInfo
             , MessageType.Info, string.Format("{0}/SaveTool", data.path), "SaveTool", packagePath + "/Tool~/SaveTool");
 
-            DrawBoxGUI(Color.white, ImportWindowInfo.StateMechineInfo
-           , MessageType.Info, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
+            DrawBoxGUI(Color.white, ImportWindowInfo.StateManagerInfo
+            ,MessageType.Info, string.Format("{0}/StateManager",data.path), "StateManager", packagePath + "/Tool~/StateManager");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
             , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit");
@@ -215,14 +213,17 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
             , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", packagePath + "/Tool~/ItemKit");
 
-          /*  DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
-                , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
+            DrawBoxGUI(Color.yellow, ImportWindowInfo.StateMechineInfo
+          , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
 
-            DrawBoxGUI(Color.white, ImportWindowInfo.UniRxInfo
-                , MessageType.Info, string.Format("{0}/UniRx",  data.path), "UniRx", packagePath + "/Tool~/UniRx");
+            /*  DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
+                  , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
 
-            DrawBoxGUI(Color.white, ImportWindowInfo.UniTaskInfo
-                , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");*/
+              DrawBoxGUI(Color.white, ImportWindowInfo.UniRxInfo
+                  , MessageType.Info, string.Format("{0}/UniRx",  data.path), "UniRx", packagePath + "/Tool~/UniRx");
+
+              DrawBoxGUI(Color.white, ImportWindowInfo.UniTaskInfo
+                  , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");*/
 
             EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();
@@ -310,7 +311,10 @@ namespace YukiFrameWork.Extension
         {         
             GUI.color = color;
             EditorGUILayout.HelpBox(message, ImportWindowInfo);
-            DrawButtonGUI(path, name,copyPath);
+            EditorGUILayout.BeginHorizontal();           
+            DrawButtonGUI(path, name,copyPath);          
+            EditorGUILayout.EndHorizontal();
+            GUI.color = Color.white;
         }
 
         private void DrawButtonGUI(string path,string name,string copyPath)
@@ -360,7 +364,7 @@ namespace YukiFrameWork.Extension
         {
             if (!Directory.Exists(copyPath))
             {
-                Debug.LogError(ImportWindowInfo.IsEN ? "Path lost! Check the Package root directory and be sure to manually add the framework package.json!" : "路径丢失！请检查包根目录以及确保在PackageManager手动添加框架Package.json!");
+                Debug.LogError(ImportWindowInfo.IsEN ? string.Format("Path lost! Check the Package root directory and be sure to manually add the framework package.json! path:{0}",copyPath) : string.Format("路径丢失！请检查包根目录以及确保在PackageManager手动添加框架Package.json! 路径:{0}",copyPath));
                 GUIUtility.ExitGUI();
                 return;
             }

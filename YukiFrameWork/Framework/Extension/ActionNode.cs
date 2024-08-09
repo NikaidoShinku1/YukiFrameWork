@@ -64,11 +64,12 @@ namespace YukiFrameWork
     {
 
     }
+   // [Flags]
     public enum UpdateStatus
     {
-        OnUpdate = 0,
-        OnFixedUpdate,
-        OnLateUpdate
+        OnUpdate = 1,
+        OnFixedUpdate = 2,
+        OnLateUpdate = 4,
     }
 
     public interface IActionUpdateNode

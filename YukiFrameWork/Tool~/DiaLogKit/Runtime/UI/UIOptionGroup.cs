@@ -67,8 +67,7 @@ namespace YukiFrameWork.DiaLogue
 
             diaLog.RegisterWithNodeCompleteEvent(node =>
             {
-                var options = node.optionItems;
-                Debug.Log(options.Count);
+                var options = node.optionItems;              
                 switch (optionGenericType)
                 {
                     case UIOptionGenericType.Template:
