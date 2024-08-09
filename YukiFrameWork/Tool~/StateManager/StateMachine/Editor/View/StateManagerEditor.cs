@@ -121,8 +121,6 @@ namespace YukiFrameWork.ActionStates
             EditorGUILayout.Space();
         }
 
-        private PluginLanguage language;
-
         protected override void OnDrawAnimationField()
         {
             var view = (StateMachineMono)Self;
