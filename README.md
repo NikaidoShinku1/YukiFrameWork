@@ -3,7 +3,7 @@
 <img src="YukiFrameWork/Framework/Texture/YukiLogo.jpg" alt="Yuki Logo" width="300">
 
 #### 介绍
-"YukiFrameWork是一款基于QFrameWork的思想规则而衍生的架构分层开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块。本地化配置管理、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)。
+"YukiFrameWork是一款基于QFrameWork的思想规则而衍生的架构分层开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、存档系统、消息广播系统、声音管理模块。本地化配置管理、单例模式、命令层、数据强化BindableProperty以及对象池模块，对协程有相对强大的拓展，具备场景管理工具以及协程性能工具(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)
 
 QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_from=333.337.search-card.all.click&vd_source=8d59e90cf24f9961527733c56cb61575
 
@@ -59,7 +59,9 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 - 动作时序模块:ActionKit[ActionKit介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md)
 
-- 状态机模块:State[状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md)
+- (旧版(请查看新版))状态机模块:State[状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md)
+
+- 新动作设计状态机模块:StateManager[全新状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateMachine/s.StateManager.md)
  
 - 框架拓展工具:Extension [拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
 
@@ -72,12 +74,6 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 - 贝塞尔曲线拓展模块:BezierUtility[拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md)
 
 - 资源管理模块:ABManager(模块原作者：弦小风,[模块详细信息](https://gitee.com/xianfengkeji/xfabmanager.git))
-
-- 框架支持插件:[UniRx](https://github.com/neuecc/UniRx.git)
-
-- 框架支持插件:[UniTask](https://github.com/Cysharp/UniTask.git);
-
-- 框架支持插件:[DoTween](https://dotween.demigiant.com/);
 
 - 框架支持插件:[Odin](https://odininspector.com/);
 
