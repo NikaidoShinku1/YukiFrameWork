@@ -26,12 +26,6 @@ namespace YukiFrameWork.ActionStates
         /// 可播放导演动画
         /// </summary>
         public PlayableDirector director;
-#if SHADER_ANIMATED
-        /// <summary>
-        /// shader动画组件
-        /// </summary>
-        public ShaderMeshAnimator meshAnimator;
-#endif
 
         // 旧版本兼容问题，如果去掉这个字段，之前的状态会全部丢失！
 #if UNITY_2020_1_OR_NEWER
@@ -112,22 +106,6 @@ namespace YukiFrameWork.ActionStates
             }
             if (director == null)
                 director = root.GetComponentInChildren<PlayableDirector>();
-#if SHADER_ANIMATED
-            if (stateMachine.meshAnimator == null)
-                stateMachine.meshAnimator = root.GetComponentInChildren<ShaderMeshAnimator>();
-            if (stateMachine.meshAnimator != null)
-            {
-                var clips = stateMachine.meshAnimator.animations;
-                if (stateMachine.clipNames.Count != clips.Length)
-                {
-                    stateMachine.ClipNames.Clear();
-                    foreach (var clip in clips)
-                    {
-                        stateMachine.ClipNames.Add(clip.AnimationName);
-                    }
-                }
-            }
-#endif
         }
 
         public override void OnScriptReload()

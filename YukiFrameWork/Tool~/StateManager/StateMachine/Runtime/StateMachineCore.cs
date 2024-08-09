@@ -72,7 +72,7 @@ namespace YukiFrameWork.ActionStates
         /// 当前状态
         /// </summary>
 		public State CurrState => states[stateId];
-#if UNITY_EDITOR
+#if UNITY_EDITOR    
         /// <summary>
         /// 选择的状态
         /// </summary>
@@ -157,7 +157,7 @@ namespace YukiFrameWork.ActionStates
                 return;
             foreach (var state in states)
                 state.Init(this);
-            if (DefaultState.actionSystem)
+            if (Parent == null)
                 DefaultState.Enter(0);    
         }
 
@@ -213,6 +213,18 @@ namespace YukiFrameWork.ActionStates
                 nextId = stateId;
                 nextActionId = actionId;
             }
+        }
+
+        /// <summary>
+        /// 切换子状态
+        /// </summary>
+        /// <param name="stateId"></param>
+        /// <param name="actionId"></param>
+        public void ChangeChildState(int stateId, int actionId = 0)
+        {
+            states[stateId].Enter(actionId);
+            nextId = this.stateId = stateId;
+            nextActionId = actionId;
         }
 
         public void OnDestroy()

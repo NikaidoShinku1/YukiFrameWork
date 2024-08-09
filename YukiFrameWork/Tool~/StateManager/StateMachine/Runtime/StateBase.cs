@@ -31,7 +31,7 @@ namespace YukiFrameWork.ActionStates
         State[] States { get; set; }
 #if UNITY_EDITOR
         State SelectState { get; set; }
-        List<int> SelectStates { get; set; }
+        List<int> SelectStates { get; set; }    
 #endif
         State DefaultState { get; set; }
         int StateId { get; set; }
@@ -59,6 +59,7 @@ namespace YukiFrameWork.ActionStates
         /// <param name="stateId"></param>
         /// <param name="force"></param>
         void ChangeState(int stateId, int actionId = 0, bool force = false);
+        void ChangeChildState(int stateId, int actionId);
         void UpdateStates();
     }   
 

@@ -100,7 +100,7 @@ namespace YukiFrameWork.ActionStates
                 guiStyle.Draw(rect, GUIContent.none, 0);
             if (GUI.Button(rect, content, style))
             {
-                stateMachine = layers[index].stateMachine;
+                stateMachine = layers[index].stateMachine;              
                 support.UpdateEditStateMachine(stateMachine.Id);
                 layers.RemoveRange(index + 1, layers.Count - 1 - index);
             }
@@ -274,7 +274,7 @@ namespace YukiFrameWork.ActionStates
                 style = state.Type == StateType.None ? Styles.defaultAndRuntimeIndexStyle : Styles.defaultAndRuntimeIndexStyleSpecial;
             else if (state == stateMachine.DefaultState)
                 style = state.Type == StateType.None ? Styles.stateInDefaultStyle : Styles.stateInDefaultStyleSpecial;
-            else if (stateMachine.StateId == state.ID && Application.isPlaying)
+            else if (stateMachine.StateId == state.ID && Application.isPlaying && state.IsPlaying)
                 style = state.Type == StateType.None ? Styles.indexInRuntimeStyle : Styles.indexInRuntimeStyleSpecial;
             else if (state == stateMachine.SelectState)
                 style = state.Type == StateType.None ? Styles.selectStateStyle : Styles.selectStateStyleSpecial;

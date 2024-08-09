@@ -188,9 +188,9 @@ namespace YukiFrameWork.ActionStates
                     if (states[i].Type == StateType.Parent)
                     {
                         if (states[i].transitions.Length > 0)
-                            subStateMachine.ChangeState(states[i].transitions[0].nextStateID);
+                            subStateMachine.ChangeChildState(states[i].transitions[0].nextStateID);
                         else
-                            subStateMachine.ChangeState(subStateMachine.DefaultState.ID);
+                            subStateMachine.ChangeChildState(subStateMachine.DefaultState.ID);
                         break;
                     }
                 }
@@ -206,9 +206,9 @@ namespace YukiFrameWork.ActionStates
                     if (states[i].subStateMachine == stateMachine)
                     {
                         if (states[i].transitions.Length > 0)
-                            stateMachine.Parent.ChangeState(states[i].transitions[0].nextStateID);
+                            stateMachine.Parent.ChangeChildState(states[i].transitions[0].nextStateID,0);
                         else
-                            stateMachine.Parent.ChangeState(stateMachine.Parent.DefaultState.ID);
+                            stateMachine.Parent.ChangeChildState(stateMachine.Parent.DefaultState.ID,0);
                         break;
                     }
                 }
@@ -242,6 +242,7 @@ namespace YukiFrameWork.ActionStates
                 return;
             if (Type == StateType.Parent)
                 return;
+            IsPlaying = false;
             for (int i = 0; i < behaviours.Length; i++)
             {
                 var behaviour = behaviours[i] as StateBehaviour;
