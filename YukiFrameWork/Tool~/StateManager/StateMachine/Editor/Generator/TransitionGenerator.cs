@@ -6,6 +6,7 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
+#if UNITY_EDITOR
 using YukiFrameWork;
 using UnityEngine;
 using System;
@@ -68,3 +69,4 @@ namespace YukiFrameWork.ActionStates
         }
     }
 }
+#endif

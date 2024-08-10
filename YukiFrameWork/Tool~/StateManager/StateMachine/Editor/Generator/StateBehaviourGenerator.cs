@@ -6,11 +6,11 @@
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
+#if UNITY_EDITOR
 using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Text;
-using static YukiFrameWork.Extension.ImportSettingWindow;
 using System.Collections.Generic;
 namespace YukiFrameWork.ActionStates
 {
@@ -79,3 +79,4 @@ namespace YukiFrameWork.ActionStates
         }
     }
 }
+#endif

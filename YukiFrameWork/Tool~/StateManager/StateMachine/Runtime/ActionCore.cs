@@ -74,7 +74,7 @@ namespace YukiFrameWork.ActionStates
         /// <summary>
         /// 是否已到达事件时间或超过事件时间，到为true，没到为flase
         /// </summary>
-		[HideField]
+		[HideInInspector]
         protected bool eventEnter;
 
         public override void OnEnter(StateAction action)

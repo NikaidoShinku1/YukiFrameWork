@@ -6,7 +6,8 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using YukiFrameWork.Extension;
-
+using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 namespace YukiFrameWork.ActionStates
 {
     [CanEditMultipleObjects]
@@ -113,7 +114,7 @@ namespace YukiFrameWork.ActionStates
         }
 
         protected override void OnDrawPreField()
-        {
+        {            
             EditorGUILayout.PropertyField(serializedObject.FindProperty("support"), new GUIContent(StateMachineSetting.StateMechineController));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("initMode"), new GUIContent(StateMachineSetting.InitMode));
             StateMachineSetting.Language = (PluginLanguage)EditorGUILayout.EnumPopup(StateMachineSetting.SelectLanguageEditor, StateMachineSetting.Language);

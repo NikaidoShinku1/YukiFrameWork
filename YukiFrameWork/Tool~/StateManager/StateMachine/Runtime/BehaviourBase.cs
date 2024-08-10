@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using UnityEngine;
@@ -268,11 +269,6 @@
         }
     }
 
-    /// <summary>
-    /// 状态机脚本不显示的字段
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class HideField : Attribute { }
 
     /// <summary>
     /// 状态行为基类
@@ -280,22 +276,21 @@
     [Serializable]
     public class BehaviourBase : AbstractController
     {
-        [HideField]
+        [HideInInspector]
         public string name;
-        [HideField]
+        [HideInInspector]
         public int ID;
         /// <summary>
         /// 展开编辑器检视面板
-        /// </summary>
-        [HideField]
+        /// </summary>       
         [HideInInspector]
         public bool show = true;
         /// <summary>
         /// 脚本是否启用?
         /// </summary>
-        [HideField]
+        [HideInInspector]
         public bool Active = true;
-        [HideField]
+        [HideInInspector]
         public List<Metadata> metadatas;
         public List<Metadata> Metadatas
         {
@@ -324,12 +319,10 @@
         public void InitMetadatas(Type type)
         {
             name = type.ToString();
-            var fields = type.GetFields();
+            var fields = type.GetRuntimeFields().Where(field => !(field.IsStatic | field.HasCustomAttribute<HideInInspector>() | !field.IsPublic) || field.HasCustomAttribute<SerializeField>());
             Metadatas.Clear();
             foreach (var field in fields)
-            {
-                if (field.IsStatic | field.GetCustomAttribute<HideField>() != null)
-                    continue;
+            {     
                 InitField(field);
             }
         }
