@@ -90,6 +90,7 @@ namespace YukiFrameWork.Extension
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
             ["BuffKit"] = packagePath + "/Tool~/BuffKit",
+            ["SkillKit"] = packagePath + "/Tool~/SkillKit",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",         
@@ -196,10 +197,13 @@ namespace YukiFrameWork.Extension
             ,MessageType.Info, string.Format("{0}/StateManager",data.path), "StateManager", packagePath + "/Tool~/StateManager");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
-            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit");
+            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit"); 
 
             DrawBoxGUI(Color.white, ImportWindowInfo.BuffKitInfo
                 , MessageType.Info, string.Format("{0}/BuffKit", data.path), "BuffKit", packagePath + "/Tool~/BuffKit");
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.SkillInfo
+               , MessageType.Info, string.Format("{0}/SkillKit", data.path), "SkillKit", packagePath + "/Tool~/SkillKit");
 
             DrawBoxGUI(Color.white, ImportWindowInfo.IOCInfo
             , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", packagePath + "/Tool~/IOCContainer");
@@ -215,15 +219,6 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.yellow, ImportWindowInfo.StateMechineInfo
           , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
-
-            /*  DrawBoxGUI(Color.white, ImportWindowInfo.DoTweenInfo
-                  , MessageType.Info, string.Format("{0}/DoTween", data.path), "DoTween", packagePath + "/Tool~/DoTween");
-
-              DrawBoxGUI(Color.white, ImportWindowInfo.UniRxInfo
-                  , MessageType.Info, string.Format("{0}/UniRx",  data.path), "UniRx", packagePath + "/Tool~/UniRx");
-
-              DrawBoxGUI(Color.white, ImportWindowInfo.UniTaskInfo
-                  , MessageType.Info, string.Format("{0}/UniTask", data.path), "UniTask", packagePath + "/Tool~/UniTask");*/
 
             EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();

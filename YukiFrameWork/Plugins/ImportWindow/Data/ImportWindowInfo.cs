@@ -41,11 +41,7 @@ namespace YukiFrameWork.Extension
 
         public static string KnapsackInfo => !IsEN ? "背包系统,基础通用式背包系统,拥有一键式分组管理以及独立生命周期，自定义加载以及Excel配表,可自由拓展" : "Backpack system, basic universal backpack system, with one-click group management and independent life cycle, custom loading and Excel table, ";
 
-        public static string DoTweenInfo => !IsEN ? "插件集成：DoTween,一个用于Unity的快速、高效、完全类型安全的面向对象动画引擎" : "Plugin Integration: DoTween, a fast, efficient, fully type-safe object-oriented animation engine for Unity";
-
-        public static string UniTaskInfo => !IsEN ? "插件集成：UniTask,是一种用于异步编程的 C# 库，它扩展了 .NET 中的 Task 和 await/async 模式,Unity轻量级异步编程框架" : "Plug-in Integration: UniTask, a C# library for asynchronous programming that extends the Task and await/async patterns in.NET,Unity Lightweight asynchronous programming framework";
-
-        public static string UniRxInfo => !IsEN ? "插件集成：UniRx,一个响应式框架 (链式编程),Unity编程框架,专注于解决时间上的异步" : "Plugin Integration: UniRx, a responsive framework (chain programming),Unity programming framework, focused on solving asynchronous time";
+        public static string SkillInfo => !IsEN ? "纯数据技能系统，基于MVC打造的基础通用式技能系统。(测试阶段暂没有文档)" : "Pure data skill system, based on MVC to build a basic universal skill system. (Test phase)";
         #endregion
 
         public static string ImportAllModuleInfo => !IsEN ? "一键导入所有模块" : "Import all modules";
