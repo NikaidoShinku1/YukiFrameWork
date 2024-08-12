@@ -17,6 +17,50 @@ using System.Linq;
 using System.Threading.Tasks;
 namespace YukiFrameWork
 {
+    internal static class ArchitectureStartUpExtension
+    {
+        public static void InitAllEventMethod(this MethodInfo[] methodInfos,object Value, IArchitecture architecture)
+        {
+            for (int i = 0; i < methodInfos.Length; i++)
+            {
+                MethodInfo methodInfo = methodInfos[i];
+                if (methodInfo == null) continue;
+                var infos = methodInfo.GetParameters();
+
+                if (infos == null) continue;
+
+                if (infos.Length != 1) continue;
+
+                if (!typeof(IEventArgs).IsAssignableFrom(infos[0].ParameterType)) continue;
+
+                if (!methodInfo.GetRegisterAttribute(out var registerEvent, out var stringRegisterEvent, out var enumRegisterEvent))
+                    continue;
+                Type parameterType = infos[0].ParameterType;
+
+                if (registerEvent != null)
+                {
+                    architecture.SyncDynamicEventSystem.Register(parameterType, methodInfo, Value);
+                }
+
+                if (stringRegisterEvent != null)
+                {
+                    string key = stringRegisterEvent.eventName.IsNullOrEmpty() ? methodInfo.Name : stringRegisterEvent.eventName;
+                    architecture.SyncDynamicEventSystem.Register(key, methodInfo, Value);
+                }
+                if (enumRegisterEvent != null)
+                {
+                    bool IsDepend = Enum.IsDefined(enumRegisterEvent.enumType, enumRegisterEvent.enumId);
+                    if (!IsDepend)
+                    {
+                        Debug.LogWarningFormat("该下标没有指定枚举值---- Type:{0} ---- Id{1}  MethodName:{2}", enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo.Name);
+                        continue;
+                    }
+                    architecture.SyncDynamicEventSystem.Register(enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo, Value);
+                }
+
+            }
+        }
+    }
     public class ArchitectureStartUpRequest : CustomYieldInstruction
     {
         public override bool keepWaiting => !_isDone;
@@ -88,45 +132,7 @@ namespace YukiFrameWork
             {
                 MethodInfo[] methodInfos = Value.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
                     .ToArray();
-
-                for (int i = 0; i < methodInfos.Length; i++)
-                {
-                    MethodInfo methodInfo = methodInfos[i];
-                    if (methodInfo == null) continue;
-                    var infos = methodInfo.GetParameters();
-
-                    if (infos == null) continue;
-
-                    if (infos.Length != 1) continue;
-
-                    if (!typeof(IEventArgs).IsAssignableFrom(infos[0].ParameterType)) continue;
-
-                    if (!methodInfo.GetRegisterAttribute(out var registerEvent, out var stringRegisterEvent, out var enumRegisterEvent))
-                        continue;
-                    Type parameterType = infos[0].ParameterType;
-
-                    if (registerEvent != null)
-                    {
-                        architecture.SyncDynamicEventSystem.Register(parameterType, methodInfo, Value);
-                    }
-
-                    if (stringRegisterEvent != null)
-                    {
-                        string key = stringRegisterEvent.eventName.IsNullOrEmpty() ? methodInfo.Name : stringRegisterEvent.eventName;
-                        architecture.SyncDynamicEventSystem.Register(key, methodInfo, Value);
-                    }
-                    if (enumRegisterEvent != null)
-                    {
-                        bool IsDepend = Enum.IsDefined(enumRegisterEvent.enumType, enumRegisterEvent.enumId);
-                        if (!IsDepend)
-                        {
-                            Debug.LogWarningFormat("该下标没有指定枚举值---- Type:{0} ---- Id{1}  MethodName:{2}", enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo.Name);
-                            continue;
-                        }
-                        architecture.SyncDynamicEventSystem.Register(enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo, Value);
-                    }
-
-                }
+                methodInfos.InitAllEventMethod(Value, architecture);
             }       
                     
         }
@@ -262,8 +268,7 @@ namespace YukiFrameWork
                     .OrderByDescending(c => c.order);
 
                 foreach (var controller in orderControllers)
-                {
-                    controller.RegisterAllDyMethod(architecture);
+                {                   
                     if(controller.Value is AbstractController abstractController)
                         abstractController.OnInit();
                 }

@@ -9,7 +9,6 @@
 /// -  All Rights Reserved.
 ///======================================================
 
-using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +18,6 @@ using YukiFrameWork.Events;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {
-    public enum RuntimeInitialized
-    {
-        Automation,
-        Awake,        
-    }
-
     [System.Serializable]
     public class CustomData : GenericDataBase
     {
@@ -91,8 +84,7 @@ namespace YukiFrameWork
     public abstract class AbstractController : IController
     {
         private object _object = new object();
-        private IArchitecture mArchitecture;
-
+        private IArchitecture mArchitecture;      
         /// <summary>
         /// 可重写的架构属性,不使用特性初始化时需要重写该属性
         /// </summary>
@@ -104,16 +96,25 @@ namespace YukiFrameWork
                 {
                     if (mArchitecture == null)
                     {            
-                        mArchitecture = ArchitectureConstructor.I.Enquene(this);                     
+                        mArchitecture = ArchitectureConstructor.I.Enquene(this);
+
+                        if (mArchitecture != null)
+                        {
+                            MethodInfo[] methodInfos = this.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
+                                .ToArray();
+                            methodInfos.InitAllEventMethod(this,mArchitecture);
+                        }
+
                     }
                     return mArchitecture;
                 }
             }
         }
+     
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return RuntimeArchitecture;
-        }
+        }       
 
         /// <summary>
         /// 框架封装AbstractController自带的OnInit初始化方法
