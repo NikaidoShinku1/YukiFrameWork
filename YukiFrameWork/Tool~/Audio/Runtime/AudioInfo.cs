@@ -33,7 +33,15 @@ namespace YukiFrameWork.Audio
 			IgnorePosition,
 			AudioManager
 		}
-		private const string info = "使用AudioInfo进行音频加载无需执行AudioKit的Init方法!";
+
+		internal enum AudioType
+		{
+			[LabelText("默认音频选择")]
+			Single,
+			[LabelText("随机音频处理")]
+            Random				
+        }
+        private const string info = "使用AudioInfo进行音频加载无需执行AudioKit的Init方法!";
 
         private bool isPlaying => ApplicationHelper.GetRuntimeOrEditor();
 		[BoxGroup(info)]
@@ -47,7 +55,7 @@ namespace YukiFrameWork.Audio
 		public bool PlayOnAwake { get; set; } = false;
         [field: BoxGroup(info)]
         [field: LabelText("是否循环?")]
-        [field: SerializeField, DisableIf(nameof(isPlaying))]
+        [field: SerializeField, DisableIf(nameof(isPlaying)),ShowIf(nameof(audioType),AudioType.Single)]
         public bool Loop { get; set; } = false;
         [field: BoxGroup(info)]
         [field: LabelText("不受时间缩放影响?"), DisableIf(nameof(isPlaying))]
@@ -57,15 +65,36 @@ namespace YukiFrameWork.Audio
 		[SerializeField,LabelText("音频的资源加载类型"), BoxGroup(info)]
 		private LoadType loadType = LoadType.XFABManager;
 
-		[SerializeField,ShowIf(nameof(loadType),LoadType.Resources), BoxGroup(info)]
+		[SerializeField, LabelText("音频的播放形式:"), BoxGroup(info)]
+		internal AudioType audioType = AudioType.Single;
+
+		[SerializeField,ShowIf(nameof(resSingle)) , BoxGroup(info)]
 		private string resourcesPath;
         [SerializeField, ShowIf(nameof(loadType), LoadType.XFABManager), BoxGroup(info)]
         private string projectName;
-        [SerializeField, ShowIf(nameof(loadType), LoadType.XFABManager), BoxGroup(info)]
+        [SerializeField, ShowIf(nameof(abSingle)), BoxGroup(info)]
         private string assetName;
-        [field: BoxGroup(info)]
-        [field:SerializeField,LabelText("音频资源:"),DisableIf(nameof(isPlaying)), ShowIf(nameof(loadType), LoadType.Clip)]
-		public AudioClip Clip { get;private set; }
+
+		[SerializeField,ShowIf(nameof(res)),BoxGroup(info)]
+		[InfoBox("随机选择一个音频进行播放，随机音频是不允许循环播放的\n如果是XFABManager加载，请输入音频名称,如果是Resources，请自行处理")]
+		private string[] assetOrResName;
+
+		[BoxGroup(info)]
+		[SerializeField, LabelText("音频资源:"), DisableIf(nameof(isPlaying)), ShowIf(nameof(s)), BoxGroup(info)]
+		private AudioClip clip;
+
+		public AudioClip Clip => audioType == AudioType.Single ? clip : (Clips == null || Clips.Length == 0) ? null : Clips[Random.Range(0,Clips.Length)];
+
+        #region Condition
+        private bool s => loadType == LoadType.Clip && audioType == AudioType.Single;
+        private bool cs => loadType == LoadType.Clip && audioType == AudioType.Random;
+		private bool res => loadType != LoadType.Clip && audioType == AudioType.Random;
+		private bool abSingle => loadType == LoadType.XFABManager && audioType == AudioType.Single;
+		private bool resSingle => loadType == LoadType.Resources && audioType == AudioType.Single;
+		#endregion
+
+		[SerializeField, LabelText("音频资源:"), DisableIf(nameof(isPlaying)), ShowIf(nameof(cs)), BoxGroup(info)]
+		private AudioClip[] Clips;
 
 		[SerializeField,LabelText("音频管理的节点"), BoxGroup(info),ShowIf(nameof(playType),PlayType.Sound)]
 		internal Position position;
@@ -75,16 +104,45 @@ namespace YukiFrameWork.Audio
         [BoxGroup(info)]
         [InfoBox("结束/切换播放时的事件注册器", InfoMessageType.Warning)]
 		public UnityEvent<float> onEndCallBack;
+
+		internal string currentClipName;
         private void Awake()
         {
-			switch (loadType)
+			if (audioType == AudioType.Single)
 			{
-				case LoadType.XFABManager:
-					Clip = AssetBundleManager.LoadAsset<AudioClip>(projectName, assetName);
-					break;
-				case LoadType.Resources:
-					Clip = Resources.Load<AudioClip>(resourcesPath);
-					break;			
+				switch (loadType)
+				{
+					case LoadType.XFABManager:
+						clip = AssetBundleManager.LoadAsset<AudioClip>(projectName, assetName);
+						break;
+					case LoadType.Resources:
+						clip = Resources.Load<AudioClip>(resourcesPath);
+						break;
+				}
+			}
+			else
+			{
+				switch (loadType)
+				{
+					case LoadType.XFABManager:
+						if (assetOrResName == null || assetOrResName.Length == 0)						
+							return;
+						Clips = new AudioClip[assetOrResName.Length];
+						for (int i = 0; i < Clips.Length; i++)						
+							Clips[i] = AssetBundleManager.LoadAsset<AudioClip>(projectName, assetOrResName[i]);
+						
+						break;
+					case LoadType.Resources:
+                        if (assetOrResName == null || assetOrResName.Length == 0)
+                            return;
+                        Clips = new AudioClip[assetOrResName.Length];
+                        for (int i = 0; i < Clips.Length; i++)
+                            Clips[i] = Resources.Load<AudioClip>(assetOrResName[i]);
+                        break;
+					case LoadType.Clip:
+						break;					
+				}
+
 			}
 			if (PlayOnAwake)
 			{
@@ -107,6 +165,23 @@ namespace YukiFrameWork.Audio
                     break;
             }
         }
+
+		public void Stop()
+		{
+			switch (playType)
+			{
+				case PlayType.Music:			
+					AudioKit.StopMusic();
+					break;
+				case PlayType.Voice:
+					AudioKit.StopVoice();
+					break;
+				case PlayType.Sound:
+					AudioKit.StopSound(currentClipName);
+					break;				
+			}
+
+		}
     }
 
 }

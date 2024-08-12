@@ -34,6 +34,11 @@ namespace YukiFrameWork.Audio
             set => mAudioSource.mute = value;
         }
 
+        public string ClipName
+        {
+            get => mAudioSource.clip.name;
+        }
+
         public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader)
         {
             if (mAudioSource == null)

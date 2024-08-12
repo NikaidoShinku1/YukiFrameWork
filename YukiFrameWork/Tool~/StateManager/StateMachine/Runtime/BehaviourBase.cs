@@ -269,6 +269,12 @@
         }
     }
 
+    /// <summary>
+    /// 状态机脚本不显示的字段
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public class HideField : Attribute { }
+
 
     /// <summary>
     /// 状态行为基类
@@ -276,9 +282,9 @@
     [Serializable]
     public class BehaviourBase : AbstractController
     {
-        [HideInInspector]
+        [HideField]
         public string name;
-        [HideInInspector]
+        [HideField]
         public int ID;
         /// <summary>
         /// 展开编辑器检视面板
@@ -288,9 +294,9 @@
         /// <summary>
         /// 脚本是否启用?
         /// </summary>
-        [HideInInspector]
+        [HideField]
         public bool Active = true;
-        [HideInInspector]
+        [HideField]
         public List<Metadata> metadatas;
         public List<Metadata> Metadatas
         {
@@ -317,9 +323,11 @@
             InitMetadatas(type);
         }
         public void InitMetadatas(Type type)
-        {
+        {          
             name = type.ToString();
-            var fields = type.GetRuntimeFields().Where(field => !(field.IsStatic | field.HasCustomAttribute<HideInInspector>() | !field.IsPublic) || field.HasCustomAttribute<SerializeField>());
+            var fields = type.GetRuntimeFields()
+                .Where(field => !(field.IsStatic | field.HasCustomAttribute<HideInInspector>() | !field.IsPublic | field.HasCustomAttribute<HideField>()) 
+                || field.HasCustomAttribute<SerializeField>());
             Metadatas.Clear();
             foreach (var field in fields)
             {     

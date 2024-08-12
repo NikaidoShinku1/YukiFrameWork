@@ -233,12 +233,14 @@ namespace YukiFrameWork.Audio
 
         public static AudioPlayer PlaySound(AudioInfo audioInfo)
         {
+            audioInfo.currentClipName = string.Empty;
             //if (!Setting.IsMusicOn.Value) return null;
             AudioClip clip = audioInfo.Clip;
 
             if (clip == null)
                 throw new Exception("AudioInfo没有正确添加音频资源，请检查!");
             if (!CheckPlaySound(clip.name)) return null;
+            audioInfo.currentClipName = clip.name;
             var audioMgr = AudioManager.Instance;          
 
             return PlaySoundExecute(null,audioMgr, clip
@@ -397,6 +399,24 @@ namespace YukiFrameWork.Audio
                     players[i].Stop();
                 }
             }
+        }
+
+        public static void StopSound(string name)
+        {
+            if (name.IsNullOrEmpty()) return;
+            try
+            {
+                foreach (var players in soundActivities.Values)
+                {
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        if (players[i].ClipName == name)
+                            players[i].Stop();
+                    }
+                }
+            }
+            catch 
+            { }
         }
 
         public static void SetAllSoundMute(bool mute)
