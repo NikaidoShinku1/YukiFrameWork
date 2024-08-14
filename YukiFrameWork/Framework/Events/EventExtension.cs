@@ -100,37 +100,37 @@ namespace YukiFrameWork
 
         public static IUnRegister AddListener<TEnum>(this object user, TEnum name, Action call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T>(this object user, IConvertible name, Action<T> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T>(this object user, TEnum name, Action<T> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K>(this object user, IConvertible name, Action<T, K> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K>(this object user, TEnum name, Action<T, K> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q>(this object user, IConvertible name, Action<T, K, Q> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q>(this object user, TEnum name, Action<T, K, Q> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R>(this object user, IConvertible name, Action<T, K, Q, R> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R>(this object user, TEnum name, Action<T, K, Q, R> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W>(this object user, IConvertible name, Action<T, K, Q, R, W> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W>(this object user, TEnum name, Action<T, K, Q, R, W> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P>(this object user, IConvertible name, Action<T, K, Q, R, W, P> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P>(this object user, TEnum name, Action<T, K, Q, R, W, P> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S>(this object user, TEnum name, Action<T, K, Q, R, W, P, S> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N, B> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
-        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z>(this object user, IConvertible name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z> call) where TEnum : IConvertible
+        public static IUnRegister AddListener<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z>(this object user, TEnum name, Action<T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z> call) where TEnum : IConvertible
             => EnumEventSystem.Global.Register(name, call);
         #endregion
 
@@ -221,37 +221,37 @@ namespace YukiFrameWork
 
         public static void SendEnumGlobalEvent<TEnum>(this object user, TEnum name) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name);
-        public static void SendEnumGlobalEvent<TEnum,T>(this object user, IConvertible name, T arg1) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T>(this object user, TEnum name, T arg1) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1);
-        public static void SendEnumGlobalEvent<TEnum,T, K>(this object user, IConvertible name, T arg1, K arg2) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K>(this object user, TEnum name, T arg1, K arg2) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q>(this object user, IConvertible name, T arg1, K arg2, Q arg3) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q>(this object user, TEnum name, T arg1, K arg2, Q arg3) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14, X arg15) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14, X arg15) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
-        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z>(this object user, IConvertible name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14, X arg15, Z arg16) where TEnum : IConvertible
+        public static void SendEnumGlobalEvent<TEnum,T, K, Q, R, W, P, S, F, G, M, N, B, V, J, X, Z>(this object user, TEnum name, T arg1, K arg2, Q arg3, R arg4, W arg5, P arg6, S arg7, F arg8, G arg9, M arg10, N arg11, B arg12, V arg13, J arg14, X arg15, Z arg16) where TEnum : IConvertible
             => EnumEventSystem.Global.Send(name, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16);
         #endregion
 
