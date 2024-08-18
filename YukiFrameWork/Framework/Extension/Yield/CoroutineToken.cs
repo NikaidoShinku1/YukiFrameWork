@@ -72,17 +72,13 @@ namespace YukiFrameWork
 		
         void IDisposable.Dispose()
         {
-			actions = null;
+			actions.Clear();
 			states = TokenStates.Cancel;
         }
 
 		internal void Invoke()
-		{
-			var temp = this.actions;
-
-			this.actions = null;
-
-			foreach (var action in temp)
+		{			
+			foreach (var action in actions)
 			{
 				action?.Invoke();
 			}

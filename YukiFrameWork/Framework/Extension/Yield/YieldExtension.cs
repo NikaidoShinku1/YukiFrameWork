@@ -409,6 +409,7 @@ namespace YukiFrameWork
            where CoroutineCompletion : ICoroutineCompletion
         {
             awaitable.Token = Token;
+            if (Token == null) return awaitable;
             Token.Register(() =>
             {
                 if (awaitable?.Coroutine != null)

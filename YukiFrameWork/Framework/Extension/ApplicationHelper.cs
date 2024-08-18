@@ -113,8 +113,11 @@ namespace YukiFrameWork.Extension
 
         private static void DrawIcon(Rect rect,Type type)
         {
+           
             var icon = EditorGUIUtility.ObjectContent(null, type).image;
-            GUI.Label(rect, icon);
+            if (!type.Assembly.FullName.StartsWith("UnityEngine") && !type.Assembly.FullName.StartsWith("UnityEditor") && type.IsSubclassOf(typeof(MonoBehaviour)))
+                GUI.Label(rect, EditorGUIUtility.IconContent("cs Script Icon"));         
+            GUI.Label(rect, icon);     
         }
 
         private static void OnPrefabHierarchyGUI(int id, Rect rect,GameObject prefab)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -1255,6 +1256,29 @@ namespace YukiFrameWork
 
             layerMask = LayerMask.GetMask(layers.ToArray());
         }
-        #endregion
+        #endregion       
+    }
+
+    public static class MonoAPIExtension
+    {
+        public static RectTransform GetRectTransform(this Canvas canvas)
+           => canvas.transform as RectTransform;
+
+#if UNITY_2021_1_OR_NEWER
+        public async static void EasyTimer(this object user, float time, Action<float> timeTemp, Action callBack = null, bool isConstraint = false, bool isRealTime = false,CoroutineToken token = default)
+        {
+            float timer = 0;
+            await CoroutineTool.WaitUntil(() => 
+            {
+                timer += isRealTime ? Time.unscaledDeltaTime : Time.deltaTime;
+
+                timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
+
+                return timer > time;
+            })?.Token(token);
+            timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
+            callBack?.Invoke();
+        }
+#endif
     }
 }
