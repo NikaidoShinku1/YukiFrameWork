@@ -1264,7 +1264,6 @@ namespace YukiFrameWork
         public static RectTransform GetRectTransform(this Canvas canvas)
            => canvas.transform as RectTransform;
 
-#if UNITY_2021_1_OR_NEWER
         public async static void EasyTimer(this object user, float time, Action<float> timeTemp, Action callBack = null, bool isConstraint = false, bool isRealTime = false,CoroutineToken token = default)
         {
             float timer = 0;
@@ -1272,13 +1271,11 @@ namespace YukiFrameWork
             {
                 timer += isRealTime ? Time.unscaledDeltaTime : Time.deltaTime;
 
-                timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
-
+                timeTemp?.Invoke(isConstraint ? (timer / time) : timer);               
                 return timer > time;
-            })?.Token(token);
+            }).Token(token);
             timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
             callBack?.Invoke();
         }
-#endif
     }
 }

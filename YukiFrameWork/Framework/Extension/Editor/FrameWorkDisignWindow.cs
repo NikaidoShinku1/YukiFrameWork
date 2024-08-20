@@ -197,6 +197,7 @@ namespace YukiFrameWork
             Button("ItemKit_框架背包系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md");
             Button("SerializationTool_框架序列化工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/%E5%BA%8F%E5%88%97%E5%8C%96%E5%B7%A5%E5%85%B7.md");
             Button("SaveTool_框架存档工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/%E5%AD%98%E6%A1%A3%E7%B3%BB%E7%BB%9F.md");
+            Button("框架引导工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/PilotKit/PilotKit.md");
             Button("Singleton_框架万能单例介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Singleton/9.%E5%8D%95%E4%BE%8B.md");
             Button("EventSystem_框架广播系统介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Events/7.%E6%B6%88%E6%81%AF%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%9D%97.md");
             Button("UIKit_框架UI模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md");

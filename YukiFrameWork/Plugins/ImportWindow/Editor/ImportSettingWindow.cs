@@ -86,14 +86,15 @@ namespace YukiFrameWork.Extension
             ["Bezier"] = packagePath + "/Tool~/Bezier",
             ["SaveTool"] = packagePath + "/Tool~/SaveTool",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
-            ["StateManager"] = packagePath + "Tool~/StateManager",
+            ["StateManager"] = packagePath + "/Tool~/StateManager",
             ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
             ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
             ["BuffKit"] = packagePath + "/Tool~/BuffKit",
             ["SkillKit"] = packagePath + "/Tool~/SkillKit",
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
-            ["ItemKit"] = packagePath + "/Tool~/ItemKit",         
+            ["ItemKit"] = packagePath + "/Tool~/ItemKit",
+            ["PilotKit"] = packagePath + "/Tool~/PilotKit"
         };             
 
         void LoadData()
@@ -185,40 +186,43 @@ namespace YukiFrameWork.Extension
             scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);         
 
             DrawBoxGUI(Color.white, ImportWindowInfo.ActionKitInfo
-                , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", packagePath + "/Tool~/ActionKit");
+                , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", moduleInfo["ActionKit"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.BezierInfo
-            , MessageType.Info, string.Format("{0}/Bezier", data.path), "Bezier", packagePath + "/Tool~/Bezier");
+            , MessageType.Info, string.Format("{0}/Bezier", data.path), "Bezier", moduleInfo["Bezier"]);
             
             DrawBoxGUI(Color.white, ImportWindowInfo.SaveToolInfo
-            , MessageType.Info, string.Format("{0}/SaveTool", data.path), "SaveTool", packagePath + "/Tool~/SaveTool");
+            , MessageType.Info, string.Format("{0}/SaveTool", data.path), "SaveTool", moduleInfo["SaveTool"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.StateManagerInfo
-            ,MessageType.Info, string.Format("{0}/StateManager",data.path), "StateManager", packagePath + "/Tool~/StateManager");
+            ,MessageType.Info, string.Format("{0}/StateManager",data.path), "StateManager", moduleInfo["StateManager"]);
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.GuideInfo
+                , MessageType.Info, string.Format("{0}/PilotKit", data.path), "PilotKit", moduleInfo["PilotKit"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
-            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", packagePath + "/Tool~/DiaLogKit"); 
+            , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", moduleInfo["DiaLogKit"]); 
 
             DrawBoxGUI(Color.white, ImportWindowInfo.BuffKitInfo
-                , MessageType.Info, string.Format("{0}/BuffKit", data.path), "BuffKit", packagePath + "/Tool~/BuffKit");
+                , MessageType.Info, string.Format("{0}/BuffKit", data.path), "BuffKit", moduleInfo["BuffKit"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.SkillInfo
-               , MessageType.Info, string.Format("{0}/SkillKit", data.path), "SkillKit", packagePath + "/Tool~/SkillKit");
+               , MessageType.Info, string.Format("{0}/SkillKit", data.path), "SkillKit", moduleInfo["SkillKit"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.IOCInfo
-            , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", packagePath + "/Tool~/IOCContainer");
+            , MessageType.Info, string.Format("{0}/IOCContainer", data.path), "IOCContainer", moduleInfo["IOCContainer"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.UIInfo
-           , MessageType.Info, string.Format("{0}/UI",data.path), "UI", packagePath + "/Tool~/UI");
+           , MessageType.Info, string.Format("{0}/UI",data.path), "UI", moduleInfo["UI"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.AudioInfo
-           , MessageType.Info, string.Format("{0}/Audio", data.path), "Audio", packagePath + "/Tool~/Audio");
+           , MessageType.Info, string.Format("{0}/Audio", data.path), "Audio", moduleInfo["Audio"]);
             
             DrawBoxGUI(Color.white, ImportWindowInfo.KnapsackInfo
-            , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", packagePath + "/Tool~/ItemKit");
+            , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", moduleInfo["ItemKit"]);
 
             DrawBoxGUI(Color.yellow, ImportWindowInfo.StateMechineInfo
-          , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", packagePath + "/Tool~/StateMechine");
+          , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", moduleInfo["StateMechine"]);
 
             EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();

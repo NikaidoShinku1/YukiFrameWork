@@ -89,19 +89,32 @@ namespace YukiFrameWork.Extension
                 }
             }
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            for (int j = 0; j < assemblies.Length; j++)
+            Type AllLoad(Type[] types)
             {
-                Type[] types = assemblies[j].GetTypes();
                 for (int i = 0; i < types.Length; i++)
                 {
-                    if (types[i].FullName == typeName)
+                    if (types[i].ToString() == typeName)
                     {
                         typeDict.Add(typeName, types[i]);
                         return types[i];
                     }
                 }
+                return null;
+            }
+
+            if (assembly != default)
+            {
+                return AllLoad(assembly.GetTypes());
+            }
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            for (int j = 0; j < assemblies.Length; j++)
+            {
+                Type[] types = assemblies[j].GetTypes();
+                Type current = AllLoad(types);
+                if (current != null)
+                    return current;
             }
 
             return null;
