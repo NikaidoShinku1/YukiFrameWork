@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.23.2框架优化ViewController与UI模块的BasePanel，现在可以为这两种类的派生类，进行自定义的编辑器拓展，重写OnInspectorGUI方法即可
+
 V1.23.1框架更新引导系统，优化细节。
 
 V1.22.3 优化细节，新增EasyTimer方法，所有的类都可以通过this.EasyTimer访问，简单计时器使用，修复Token注册事件异常的问题。

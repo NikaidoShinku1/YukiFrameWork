@@ -180,7 +180,12 @@ namespace YukiFrameWork.UI
             AssetDatabase.SaveAssets();
         }
 #endif
-
+#if UNITY_EDITOR || DEBUG || DEBUG
+        public virtual bool OnInspectorGUI()
+        {
+            return false; //默认返回False，如果需要自定义编辑器拓展则在这里写逻辑后返回True即可;
+        }
+#endif
         #region ISerializedFieldInfo
         [HideInInspector]
         [SerializeField]

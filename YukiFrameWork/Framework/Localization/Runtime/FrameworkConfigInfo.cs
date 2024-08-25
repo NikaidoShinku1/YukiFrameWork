@@ -9,6 +9,36 @@ using UnityEditor;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {
+    public class LocalScriptGenerator : ICodeGenerator
+    {
+        public StringBuilder BuildFile(params object[] arg)
+        {
+            string scriptName = (string)arg[0];
+            string nameSpace = (string)arg[1];
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("///=====================================================");
+            builder.AppendLine("/// - FileName:      " + scriptName + ".cs");
+            builder.AppendLine("/// - NameSpace:     " + nameSpace);
+            builder.AppendLine("/// - Description:   通过本地的代码生成器创建的脚本");
+            builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  All Rights Reserved.");
+            builder.AppendLine("///=====================================================");
+
+            builder.AppendLine("using YukiFrameWork;");
+            builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using System;");
+            builder.AppendLine($"namespace {nameSpace}");
+            builder.AppendLine("{");
+            builder.AppendLine($"\tpublic class {scriptName}");
+            builder.AppendLine("\t{");
+            builder.AppendLine("");
+            builder.AppendLine("\t}");
+
+            builder.AppendLine("}");
+            return builder;
+        }
+    }
     [HideMonoScript]
     public class FrameworkConfigInfo : ScriptableObject
     {
@@ -44,7 +74,7 @@ namespace YukiFrameWork
         public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();
       
         public int SelectIndex => (int)mode;
- 
+        private LocalScriptGenerator generator = new LocalScriptGenerator();
         [Button("生成脚本",ButtonHeight = 35),PropertySpace, ShowIf(nameof(SelectIndex), 0)]
         private void Generic()
         {
@@ -53,28 +83,8 @@ namespace YukiFrameWork
                 Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                 return;
             }
-            StringBuilder builder = new StringBuilder();
-            builder.AppendLine("///=====================================================");
-            builder.AppendLine("/// - FileName:      " + scriptName + ".cs");
-            builder.AppendLine("/// - NameSpace:     " + nameSpace);
-            builder.AppendLine("/// - Description:   通过本地的代码生成器创建的脚本");
-            builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
-            builder.AppendLine("/// -  All Rights Reserved.");
-            builder.AppendLine("///=====================================================");
 
-            builder.AppendLine("using YukiFrameWork;");
-            builder.AppendLine("using UnityEngine;");
-            builder.AppendLine("using System;");
-            builder.AppendLine($"namespace {nameSpace}");
-            builder.AppendLine("{");
-            builder.AppendLine($"\tpublic class {scriptName}");
-            builder.AppendLine("\t{");
-            builder.AppendLine("");
-            builder.AppendLine("\t}");
-
-            builder.AppendLine("}");
-
+            StringBuilder builder = generator.BuildFile(scriptName,nameSpace);
             if (!Directory.Exists(genericPath))
             {
                 Directory.CreateDirectory(genericPath);

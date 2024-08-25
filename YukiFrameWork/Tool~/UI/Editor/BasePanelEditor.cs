@@ -118,8 +118,8 @@ namespace YukiFrameWork.UI
             }
             if (PrefabUtility.IsPartOfAnyPrefab(panel))
                 EditorGUILayout.HelpBox("特殊警示:在预制件下生成脚本并不会自动进行挂载跟替换的操作，请自行处理。",MessageType.Warning);
-
-            base.OnInspectorGUI();
+            if(!panel.OnInspectorGUI())
+                base.OnInspectorGUI();
             EditorGUILayout.Space(10);
             EditorGUILayout.BeginVertical("OL box NoExpand");
             GUIStyle style = new GUIStyle("AM HeaderStyle")

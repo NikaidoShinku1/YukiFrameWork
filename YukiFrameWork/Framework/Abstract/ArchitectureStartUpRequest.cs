@@ -308,7 +308,7 @@ namespace YukiFrameWork
                         break;                  
                 }
             }
-            architecture.Init();
+            architecture.Init();          
             MonoHelper.Destroy_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
         }

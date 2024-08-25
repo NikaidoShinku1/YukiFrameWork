@@ -150,4 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 028daa0dadadefb4a89a6d9c657e68e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabInfos: []
+  ShowPanelCallBack:
+    m_PersistentCalls:
+      m_Calls: []
+  HidePanelCallBack:
+    m_PersistentCalls:
+      m_Calls: []
+  defaultPanel: {fileID: 0}
