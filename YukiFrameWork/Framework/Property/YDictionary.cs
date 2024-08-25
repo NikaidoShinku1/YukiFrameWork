@@ -46,7 +46,7 @@ namespace YukiFrameWork
 #endif
     }   
     [Serializable]    
-    public class YDictionary<TKey, TValue> : YDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>,IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>
+    public class YDictionary<TKey, TValue> : YDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>,IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,IBindableProperty<KeyValuePair<TKey,TValue>>
     {
         [Serializable]
         public struct Y_KeyValuePair
@@ -204,7 +204,27 @@ namespace YukiFrameWork
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-       
+
+        public IUnRegister Register(Action<KeyValuePair<TKey, TValue>> action)
+        {
+            return onDictValueChanged.RegisterEvent(action);
+        }
+
+        public IUnRegister RegisterWithInitValue(Action<KeyValuePair<TKey, TValue>> action)
+        {
+            foreach (var item in list)
+            {
+                action?.Invoke(new KeyValuePair<TKey, TValue>(item._key,item._value));
+            }
+            return onDictValueChanged.RegisterEvent(action);
+        }
+
+        public void UnRegisterAllEvent()
+        {
+            onDictValueChanged.UnRegisterAllEvent();
+        }
+
+        private EasyEvent<KeyValuePair<TKey, TValue>> onDictValueChanged = new EasyEvent<KeyValuePair<TKey, TValue>>();
     }
 
     public static class YDictionaryExtension

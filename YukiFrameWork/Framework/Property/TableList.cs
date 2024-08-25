@@ -13,7 +13,7 @@ using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     [Serializable]
-    public abstract class TableKit<TItemKey,TItem> : IEnumerable<KeyValuePair<TItemKey,List<TItem>>>, IDisposable
+    public abstract class TableKit<TItemKey, TItem> : IEnumerable<KeyValuePair<TItemKey, List<TItem>>>, IDisposable, IBindableProperty<KeyValuePair<TItemKey, List<TItem>>>
     {
         public abstract IDictionary<TItemKey, List<TItem>> Table { get; }
         public ICollection<TItemKey> Keys => Table.Keys;      
@@ -43,12 +43,14 @@ namespace YukiFrameWork
                 items.Add(item);
                 Table.Add(key, items);
             }
+            onTableValueChanged.SendEvent(new KeyValuePair<TItemKey, List<TItem>>(key,items));
         }
 
         public bool Remove(TItemKey key, TItem item)
         {
             if (TryGetValue(key, out var items))
-            {                          
+            {
+                onTableValueChanged.SendEvent(new KeyValuePair<TItemKey, List<TItem>>(key, items));
                 return items.Remove(item);
             }
             return false;
@@ -90,5 +92,26 @@ namespace YukiFrameWork
         {
             return GetEnumerator();
         }
+
+        public IUnRegister Register(Action<KeyValuePair<TItemKey, List<TItem>>> action)
+        {
+            return onTableValueChanged.RegisterEvent(action);
+        }
+
+        public IUnRegister RegisterWithInitValue(Action<KeyValuePair<TItemKey, List<TItem>>> action)
+        {
+            foreach (var item in Table)
+            {
+                action?.Invoke(item);
+            }
+            return onTableValueChanged.RegisterEvent(action);
+        }
+
+        public void UnRegisterAllEvent()
+        {
+            onTableValueChanged.UnRegisterAllEvent();
+        }
+
+        private EasyEvent<KeyValuePair<TItemKey, List<TItem>>> onTableValueChanged = new EasyEvent<KeyValuePair<TItemKey, List<TItem>>>();
     }   
 }
