@@ -65,7 +65,7 @@ namespace YukiFrameWork
                     onValueChange?.SendEvent(value);
                 }
             }
-        }     
+        }        
 
         public BindableProperty(T value)
         {

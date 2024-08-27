@@ -10,20 +10,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using YukiFrameWork.Pools;
+using Newtonsoft.Json;
 namespace YukiFrameWork
 {
     [Serializable]
     public abstract class TableKit<TItemKey, TItem> : IEnumerable<KeyValuePair<TItemKey, List<TItem>>>, IDisposable, IBindableProperty<KeyValuePair<TItemKey, List<TItem>>>
     {
+        [JsonIgnore]
         public abstract IDictionary<TItemKey, List<TItem>> Table { get; }
-        public ICollection<TItemKey> Keys => Table.Keys;      
-
+        public ICollection<TItemKey> Keys => Table.Keys;
+        [JsonIgnore]
         public int Count => Table.Count;
-
+        [JsonIgnore]
         public bool IsReadOnly => false;
-
+        [JsonIgnore]
         public ICollection<List<TItem>> Values => Table.Values;
-
+        [JsonIgnore]
         public List<TItem> this[TItemKey key] { get => Table[key]; set => Table[key] = value; }
 
         public void Dispose()

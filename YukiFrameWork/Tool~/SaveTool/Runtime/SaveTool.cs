@@ -461,7 +461,7 @@ namespace YukiFrameWork
                 string folder = GetSavePath(saveID, false);
                 if (string.IsNullOrEmpty(folder))
                 {
-                    throw new Exception("无法读取存档数据，请检查文件夹是否正确或者是否已经保存了存档!");
+                    throw new Exception("无法读取存档数据，请检查文件夹是否正确或者存在存档信息但确认是否已经保存了存档数据!");
                 }
                 string targetPath = $@"{folder}/{name}";
                 if (!File.Exists(targetPath))
