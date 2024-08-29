@@ -45,6 +45,11 @@ namespace YukiFrameWork
                 EditorUtility.DisplayDialog("提示", "Example是框架提供的示例模块,不能删除!", "确定");
                 return AssetDeleteResult.FailedDelete;
             }
+            /*else if (assetPath.EndsWith(".json") || assetPath.EndsWith(".JSON") || assetPath.EndsWith(".Json"))
+            {
+                JsonSerializaConfig.Remove_Json_Object(AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath).GetHashCode());
+                return AssetDeleteResult.DidDelete;
+            }*/
             else
                 return AssetDeleteResult.DidNotDelete;
         }

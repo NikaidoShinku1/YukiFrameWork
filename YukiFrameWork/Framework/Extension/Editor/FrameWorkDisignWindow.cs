@@ -13,11 +13,10 @@ using YukiFrameWork.Extension;
 using YukiFrameWork.ExampleRule;
 using Sirenix.OdinInspector;
 using System;
-using Object = UnityEngine.Object;
 using System.Reflection;
-
 #if UNITY_EDITOR
 using UnityEditor;
+using YukiFrameWork.JsonInspector;
 using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork
 {
@@ -38,6 +37,11 @@ namespace YukiFrameWork
         private int selectIndex;
         private FrameworkConfigInfo config;
 
+        private void Awake()
+        {
+            Instance = this; 
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -49,6 +53,7 @@ namespace YukiFrameWork
         protected override void OnDisable()
         {
             base.OnDisable();
+            JsonSerializeEditor.instance.OnDestroy();
             Instance = null;
         }
 
@@ -99,6 +104,7 @@ namespace YukiFrameWork
 
                 { $"框架序列化工具/C#转文件流",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
                 { $"框架序列化工具/Excel转Json工具",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
+                { $"框架序列化工具/Json可视化器",JsonSerializeEditor.instance,SdfIconType.ViewList}
             };
 
             foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
@@ -230,7 +236,9 @@ namespace YukiFrameWork
             GUI.color = Color.white;
             GUILayout.Space(5);
         }
+       
     }
+
 
     public static class UnityEngineSavingExtension
     {

@@ -9,6 +9,7 @@ using UnityEditor;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {
+#if UNITY_EDITOR
     public class LocalScriptGenerator : ICodeGenerator
     {
         public StringBuilder BuildFile(params object[] arg)
@@ -39,6 +40,7 @@ namespace YukiFrameWork
             return builder;
         }
     }
+#endif
     [HideMonoScript]
     public class FrameworkConfigInfo : ScriptableObject
     {
@@ -74,7 +76,10 @@ namespace YukiFrameWork
         public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();
       
         public int SelectIndex => (int)mode;
+#if UNITY_EDITOR
         private LocalScriptGenerator generator = new LocalScriptGenerator();
+#endif
+#if UNITY_EDITOR
         [Button("生成脚本",ButtonHeight = 35),PropertySpace, ShowIf(nameof(SelectIndex), 0)]
         private void Generic()
         {
@@ -83,8 +88,9 @@ namespace YukiFrameWork
                 Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
                 return;
             }
-
+#if UNITY_EDITOR
             StringBuilder builder = generator.BuildFile(scriptName,nameSpace);
+
             if (!Directory.Exists(genericPath))
             {
                 Directory.CreateDirectory(genericPath);
@@ -116,6 +122,8 @@ namespace YukiFrameWork
 #endif
 
         }
+#endif
+#endif
 #if UNITY_EDITOR
         [Button("为配置生成代码"), ShowIf(nameof(SelectIndex), 1)]
         [InfoBox("生成的代码为配置的标识,类名为Localization,请注意:配置标识跟配置内对应文本的标识不能出现一致的情况，否则会出问题")]
@@ -167,5 +175,4 @@ namespace YukiFrameWork
         }
 #endif
     }
-
 }

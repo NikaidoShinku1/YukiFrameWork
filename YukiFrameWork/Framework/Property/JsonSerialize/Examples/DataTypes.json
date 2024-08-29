@@ -1,0 +1,14 @@
+{
+  "Object": {
+    "Integer": 100,
+    "Float": 3.14,
+    "String": "Hello World",
+    "Boolean": true
+  },
+  "Array": [
+    -100,
+    -3.14,
+    "Goodbye World",
+    false
+  ]
+}

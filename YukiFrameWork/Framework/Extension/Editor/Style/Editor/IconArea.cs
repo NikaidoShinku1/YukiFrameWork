@@ -58,15 +58,15 @@ namespace YukiFrameWork.Extension
 
         protected override void OnTitleGUI()
         {
+           
             EditorGUI.BeginChangeCheck();
-            toolbarIndex = GUILayout.Toolbar(toolbarIndex, new string[2] { "Small", "Big" });
+            toolbarIndex = GUILayout.Toolbar(toolbarIndex, new string[2] { "Small", "Big" },GUILayout.Width(200));
             if (EditorGUI.EndChangeCheck())
             {
                 selectedIconIndex = -1;
                 selectedIcon = null;
-            }
-            GUILayout.FlexibleSpace();
-            searchString = searchField.OnGUI(searchString, GUILayout.Width(200));
+            }         
+            searchString = searchField.OnGUI(searchString, GUILayout.Width(200));           
         }
 
         protected override void OnBodyGUI()

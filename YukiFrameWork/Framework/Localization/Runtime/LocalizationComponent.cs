@@ -11,9 +11,11 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace YukiFrameWork
-{   
+{
+   
     [Serializable]
     public class LocalizationComponentItem
     {
@@ -29,7 +31,6 @@ namespace YukiFrameWork
         public UnityEvent<string> stringReceiver;
         [SerializeField, LabelText("精灵事件接收"), ShowIf(nameof(eventReceiver))]
         public UnityEvent<Sprite> spriteReceiver;
-
     }
 	public class LocalizationComponent : MonoBehaviour
     {
@@ -52,8 +53,7 @@ namespace YukiFrameWork
         private LocalizationComponentItem[] items;       
 
         [LabelText("配置项的标识"), SerializeField]
-        private string configKey;
-
+        private string configKey;     
         /// <summary>
         /// 组件解析器
         /// </summary>

@@ -1,0 +1,26 @@
+{
+  "Helmet": {
+    "Name": "Glass Helmet",
+    "Defense": 20,
+    "Rare": true
+  },
+  "Boots": {
+    "Name": "Boots of Flight",
+    "Speed": 5.4,
+    "Effects": [
+      "WaterWalk",
+      "AvoidPits"
+    ]
+  },
+  "Sword": {
+    "Name": "Wooden Sword",
+    "Attack": 11.7,
+    "SellPrice": 2
+  },
+  "Shield": {
+    "Name": "Heavy Shield",
+    "Weight": 1045.2,
+    "Defense": 56,
+    "PurchasePrice": 503
+  }
+}

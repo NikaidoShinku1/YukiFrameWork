@@ -61,11 +61,11 @@ namespace YukiFrameWork.Character2D
 
         // 是否在空中 用于自动控制旋转角度
         private bool inTheAir = false;
-
+#if UNITY_EDITOR
         [SerializeField]
         [InfoBox("是否绘制调试的线条?如果开启，可以在场景中看到接触点的法线，角度等信息"), BoxGroup(DEFAULT)]
         private bool showDebugLine = true;
-
+#endif
         [InfoBox("是否检测角色当前是否在地面上(默认检测)"), BoxGroup(GROUND), PropertySpace(15)]
         [SerializeField]
         private bool isCheckGround = true;
