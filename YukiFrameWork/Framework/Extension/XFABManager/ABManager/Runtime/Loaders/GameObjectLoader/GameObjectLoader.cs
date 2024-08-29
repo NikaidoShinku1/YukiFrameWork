@@ -197,11 +197,7 @@ namespace XFABManager {
         /// 存放某一个预制体 创建的所有实例  key : obj hash code 
         /// </summary>
         private Dictionary<int,GameObjectInfo> allObjs = new Dictionary<int, GameObjectInfo>(); 
-        private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器
-        
-        private static Dictionary<int,GameObject> sceneRoot = new Dictionary<int, GameObject>();
-
-        private static List<GameObject> rootObjects = new List<GameObject>();
+        private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器         
 
         private GameObject prefab;
 
@@ -286,26 +282,10 @@ namespace XFABManager {
                 GameObjectInfo info = new GameObjectInfo(obj);
                 allObjs.Add(info.Hash,info);
             }
-            else 
-            {
-
-                if (parent == null)
-                { 
-                    // 找到当前活跃的场景 
-                    GameObject root = GetActiveSceneRoot();
-                    if (root != null) 
-                        obj.transform.SetParent(root.transform);
-                    obj.transform.SetParent(null);
-                }
-                else 
-                {
-                    obj.transform.SetParent(parent, false);
-                }
-
-                obj.transform.localEulerAngles = Vector3.zero;
-                obj.transform.localPosition = Vector3.zero;
-                obj.SetActive(true);
-            } 
+            obj.transform.SetParent(parent, false);
+            obj.transform.localEulerAngles = Vector3.zero;
+            obj.transform.localPosition = Vector3.zero;
+            obj.SetActive(true);
             return obj;
         }
 
@@ -391,37 +371,7 @@ namespace XFABManager {
 
         public bool ContainsObject(int obj_hash_code) {
             return allObjs.ContainsKey(obj_hash_code);
-        }
-
-        private static GameObject GetActiveSceneRoot() 
-        {
-
-            Scene scene = SceneManager.GetActiveScene();
-            if (!scene.IsValid()) return null;
-
-            int key = scene.GetHashCode();
-
-            if (sceneRoot.ContainsKey(key) && sceneRoot[key] != null && !sceneRoot[key].IsDestroy())
-                return sceneRoot[key];
-            
-            if(sceneRoot.ContainsKey(key))
-                sceneRoot.Remove(key);
-
-            rootObjects.Clear();
-            scene.GetRootGameObjects(rootObjects);
-
-            GameObject root = null;
-
-            if (rootObjects.Count == 0)
-                root = new GameObject("root");
-            else 
-                root = rootObjects[0];
-             
-            sceneRoot.Add(key, root);
-            rootObjects.Clear();
-            return root;
-        }
-
+        }   
     }
 
     public struct GameObjectInfo 

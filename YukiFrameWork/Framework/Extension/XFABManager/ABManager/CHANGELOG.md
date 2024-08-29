@@ -1,3 +1,23 @@
+## version 1.13.5 更新内容
+
+1. 优化场景进度!
+
+## version 1.13.4 更新内容
+
+1. 优化AssetBundle异步加载速度!
+
+## version 1.13.3 更新内容
+
+1. 优化GameObjectLoader加载逻辑!
+
+## version 1.13.2 更新内容
+
+1. 删除 Texture 和 Texture2D 类型资源加载的警告提示!
+
+## version 1.13.1 更新内容
+
+1. 添加脚本Unload，可用于回收通过GameObjectLoader加载的游戏物体！
+
 ## version 1.13.0 更新内容
 
 1. 优化 EditorApplicationTool 逻辑!

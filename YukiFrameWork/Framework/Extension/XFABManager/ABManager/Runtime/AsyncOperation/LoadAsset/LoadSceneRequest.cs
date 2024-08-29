@@ -31,7 +31,9 @@ namespace XFABManager
 
         internal IEnumerator LoadSceneAsyncInternal(string projectName , string sceneName, LoadSceneMode mode)
         {
-
+#if YukiFrameWork_DEBUGINFO
+            float time = Time.time; 
+#endif
             while (IsHaveSameNameRequest(sceneName))
             {
                 yield return null;
@@ -112,7 +114,7 @@ namespace XFABManager
             while (!operation.isDone)
             {
                 yield return null;  
-                progress = operation.progress;
+                progress = 0.5f + operation.progress *  0.5f;
             } 
 
             progress = 1;
@@ -130,6 +132,9 @@ namespace XFABManager
                 AssetBundleManager.AddAssetCache(projectName, bundleName, s);
             }
 
+#if YukiFrameWork_DEBUGINFO
+            Debug.LogFormat("异步加载场景:{0}/{1}/{2} 耗时:{3}", projectName, sceneName, mode,Time.time - time);
+#endif
             if (Scene.IsValid())
             { 
                 Completed();

@@ -26,13 +26,14 @@ namespace XFABManager
 
         #region 变量
 
-        string[] toolbar_labels = new string[3] { "AssetBundles", "Build", "Info" };
-        Mode currentMode;
-        AssetBundlesPanel assetBundlesPanel;
-        AssetBundleBuildPanel buildPanel;
-        InfoPanel infoPanel;
+        private static readonly string[] toolbar_labels = new string[3] { "AssetBundles", "Build", "Info" };
 
-        XFABProject project;            // 当前打开的 AB 项目
+        private Mode currentMode;
+        private AssetBundlesPanel assetBundlesPanel;
+        private AssetBundleBuildPanel buildPanel;
+        private InfoPanel infoPanel;
+
+        private XFABProject project;            // 当前打开的 AB 项目
 
         public Action onDestroy;
 

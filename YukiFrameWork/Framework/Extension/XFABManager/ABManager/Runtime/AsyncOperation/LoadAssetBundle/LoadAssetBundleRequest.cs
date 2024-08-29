@@ -52,39 +52,43 @@ namespace XFABManager
             //need_load_bundle.Add(bundleName);        // 加载自己
             //need_load_bundle.AddRange(dependences);  // 加载依赖项目
 
+            ExecuteMultipleAsyncOperation<LoadAssetBundleDependRequest> load_assetbundle_requests = new ExecuteMultipleAsyncOperation<LoadAssetBundleDependRequest>(100);
+
+            Queue<string> need_load_dependences = new Queue<string>(dependences);
+
+            int loaded_count = 0;
+
             // 加载依赖的 AssetBundle
-            for (int i = 0; i < dependences.Length; i++)
+            while (need_load_dependences.Count > 0 || !load_assetbundle_requests.IsDone())
             {
-
-                if (AssetBundleManager.IsLoadedAssetBundle(projectName, dependences[i])) {
-                    AssetBundleManager.AddDependencesBundles(AssetBundleManager.AssetBundles[projectName][dependences[i]], projectName, bundleName, dependences[i]);
-                    continue;
-                }
-                string bundlePath = AssetBundleManager.GetAssetBundlePath(projectName, dependences[i], suffix);
-                AssetBundleCreateRequest request = AssetBundleManager.LoadAssetBundleFromFilePathAsync(bundlePath,projectName);
-                 
-                //yield return request;
-                while (request != null && !request.isDone) {
-                    yield return null;
-                    progress = (float)(i + request.progress) / (dependences.Length + 1);  // 更新进度
-                }
-
-                if (request != null && request.assetBundle != null)
+                // 可以下载
+                while (load_assetbundle_requests.CanAdd() && need_load_dependences.Count > 0)
                 {
-                    // 加载成功
-                    AssetBundleManager.AssetBundles[projectName].Add(dependences[i], request.assetBundle);
-                    // 添加依赖信息
-                    AssetBundleManager.AddDependencesBundles(request.assetBundle, projectName, bundleName, dependences[i]);
+                    string depend = need_load_dependences.Dequeue();
+
+                    LoadAssetBundleDependRequest request = LoadAssetBundleDependRequest.LoadAssetBundle(projectName, bundleName, depend, suffix);
+
+                    request.AddCompleteEvent((r) =>
+                    {
+                        loaded_count++;
+                    });
+
+                    // 保存正在下载的请求 (如果需要中断，需要用到) 
+                    load_assetbundle_requests.Add(request);
                 }
-                else {
-                    if(File.Exists(bundlePath))
-                        Completed(string.Format("AssetBundle:{0}加载失败,请检测文件是否损坏或密钥是否填写正确!", bundlePath));
-                    else
-                        Completed(string.Format("AssetBundle:{0}加载失败!", bundlePath));
-                    yield break;
+
+                float p = loaded_count;
+
+                foreach (var item in load_assetbundle_requests.InExecutionAsyncOperations)
+                {
+                    p += item.progress;
                 }
-                
+
+                progress = p / (dependences.Length + 1);
+
+                yield return null;
             }
+
 
             // 加载Bundle
             string bundle_path = AssetBundleManager.GetAssetBundlePath(projectName, bundleName, suffix);
