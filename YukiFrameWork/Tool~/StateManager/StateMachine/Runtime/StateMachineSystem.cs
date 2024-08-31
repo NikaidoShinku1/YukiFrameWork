@@ -17,7 +17,7 @@ namespace YukiFrameWork.ActionStates
         private void FixedUpdate()
         {
             for (int i = 0; i < stateMachines._size; i++)
-            {
+            {              
                 if ((stateMachines._items[i].UpdateStatus & UpdateStatus.OnFixedUpdate) != 0)
                     stateMachines._items[i].Execute(UpdateStatus.OnFixedUpdate);
             }

@@ -288,7 +288,8 @@ namespace YukiFrameWork.ActionStates
                 subStateMachine.Handler = stateMachine.Handler;
                 subStateMachine.Init();           
             }
-            this.stateMachine = stateMachine;         
+            this.stateMachine = stateMachine;  
+            
             for (int i = 0; i < behaviours.Length; i++)
             {               
                 var behaviour = behaviours[i].InitBehaviour(stateMachine);                        

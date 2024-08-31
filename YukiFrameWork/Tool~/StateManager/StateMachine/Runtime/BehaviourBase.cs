@@ -457,12 +457,19 @@
                 metadata.target = runtimeBehaviour;
                 field.SetValue(runtimeBehaviour, value);
             }
-
             var lateUpdateMethod = type.GetMethod("OnLateUpdate");
             var fixedUpdateMethod = type.GetMethod("OnFixedUpdate");
-            stateMachine.UpdateStatus |= (lateUpdateMethod.DeclaringType == type) ? UpdateStatus.OnLateUpdate : UpdateStatus.OnUpdate;
-            stateMachine.UpdateStatus |= (fixedUpdateMethod.DeclaringType == type) ? UpdateStatus.OnFixedUpdate : UpdateStatus.OnUpdate;
-
+            var root = stateMachine;
+            while (root != null)
+            {
+                if (root.Parent == null) //最后一层
+                    break;
+                root = root.Parent;
+            }
+            if ((lateUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnLateUpdate) == 0)
+                root.UpdateStatus |= UpdateStatus.OnLateUpdate;
+            if ((fixedUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnFixedUpdate) == 0)
+                root.UpdateStatus |= UpdateStatus.OnFixedUpdate;    
             return runtimeBehaviour;
         }
     }
