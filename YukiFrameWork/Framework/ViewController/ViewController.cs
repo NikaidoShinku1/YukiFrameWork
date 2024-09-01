@@ -84,7 +84,12 @@ namespace YukiFrameWork
     public abstract class AbstractController : IController
     {
         private object _object = new object();
-        private IArchitecture mArchitecture;      
+        private IArchitecture mArchitecture;
+
+        /// <summary>
+        /// 是否开启自动注册事件，开启后，可使用特性进行事件的注册
+        /// </summary>
+        public virtual bool IsAutoRegisterAttributeEvent => true;
         /// <summary>
         /// 可重写的架构属性,不使用特性初始化时需要重写该属性
         /// </summary>
@@ -98,7 +103,7 @@ namespace YukiFrameWork
                     {            
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);
 
-                        if (mArchitecture != null)
+                        if (mArchitecture != null && IsAutoRegisterAttributeEvent)
                         {
                             MethodInfo[] methodInfos = this.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
                                 .ToArray();
@@ -161,7 +166,10 @@ namespace YukiFrameWork
     {
         private object _object = new object();
         private IArchitecture mArchitecture;
-
+        /// <summary>
+        /// 是否开启自动注册事件，开启后，可使用特性进行事件的注册
+        /// </summary>
+        public virtual bool IsAutoRegisterAttributeEvent => true;
         internal bool IsEventInited = false;
         
         protected override void Awake()

@@ -13,62 +13,64 @@ namespace YukiFrameWork.Events
         {
             if (viewController == null || !viewController || viewController.IsEventInited) return;
             
-            viewController.IsEventInited = true;         
-            MethodInfo[] methodInfos = viewController.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void) && x.HasCustomAttribute<BaseRegisterEvent>(true))
-                    .ToArray();
-
-            for (int i = 0; i < methodInfos.Length; i++)
+            viewController.IsEventInited = true;
+            if (viewController.IsAutoRegisterAttributeEvent)
             {
-                MethodInfo methodInfo = methodInfos[i];
-                if (methodInfo == null) continue;
-                var infos = methodInfo.GetParameters();
+                MethodInfo[] methodInfos = viewController.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void) && x.HasCustomAttribute<BaseRegisterEvent>(true))
+                        .ToArray();
 
-                if (infos == null) continue;
-
-                if (infos.Length != 1) continue;
-
-                if (!typeof(IEventArgs).IsAssignableFrom(infos[0].ParameterType)) continue;
-
-                if (!methodInfo.GetRegisterAttribute(out var registerEvent, out var stringRegisterEvent, out var enumRegisterEvent))
-                    continue;
-                Type parameterType = infos[0].ParameterType;
-
-                if (registerEvent != null)
+                for (int i = 0; i < methodInfos.Length; i++)
                 {
-                    var ev =  viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(parameterType, methodInfo, viewController);
-                    if (registerEvent.unRegisterType == UnRegisterType.OnDisable)
-                        ev.UnRegisterWaitGameObjectDisable(viewController);
-                    else if (registerEvent.unRegisterType == UnRegisterType.OnDestroy)
-                        ev.UnRegisterWaitGameObjectDestroy(viewController);
-                }
+                    MethodInfo methodInfo = methodInfos[i];
+                    if (methodInfo == null) continue;
+                    var infos = methodInfo.GetParameters();
 
-                if (stringRegisterEvent != null)
-                {
-                    string key = stringRegisterEvent.eventName.IsNullOrEmpty() ? methodInfo.Name : stringRegisterEvent.eventName;
-                    var ev =  viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(key, methodInfo, viewController);
+                    if (infos == null) continue;
 
-                    if (stringRegisterEvent.unRegisterType == UnRegisterType.OnDisable)
-                        ev.UnRegisterWaitGameObjectDisable(viewController);
-                    else if (stringRegisterEvent.unRegisterType == UnRegisterType.OnDestroy)
-                        ev.UnRegisterWaitGameObjectDestroy(viewController);
-                }
-                if (enumRegisterEvent != null)
-                {
-                    bool IsDepend = Enum.IsDefined(enumRegisterEvent.enumType, enumRegisterEvent.enumId);
-                    if (!IsDepend)
-                    {
-                        Debug.LogWarningFormat("该下标没有指定枚举值---- Type:{0} ---- Id{1}  MethodName:{2}", enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo.Name);
+                    if (infos.Length != 1) continue;
+
+                    if (!typeof(IEventArgs).IsAssignableFrom(infos[0].ParameterType)) continue;
+
+                    if (!methodInfo.GetRegisterAttribute(out var registerEvent, out var stringRegisterEvent, out var enumRegisterEvent))
                         continue;
+                    Type parameterType = infos[0].ParameterType;
+
+                    if (registerEvent != null)
+                    {
+                        var ev = viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(parameterType, methodInfo, viewController);
+                        if (registerEvent.unRegisterType == UnRegisterType.OnDisable)
+                            ev.UnRegisterWaitGameObjectDisable(viewController);
+                        else if (registerEvent.unRegisterType == UnRegisterType.OnDestroy)
+                            ev.UnRegisterWaitGameObjectDestroy(viewController);
                     }
-                    var ev =  viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo, viewController);
-                    if (enumRegisterEvent.unRegisterType == UnRegisterType.OnDisable)
-                        ev.UnRegisterWaitGameObjectDisable(viewController);
-                    else if (enumRegisterEvent.unRegisterType == UnRegisterType.OnDestroy)
-                        ev.UnRegisterWaitGameObjectDestroy(viewController);
+
+                    if (stringRegisterEvent != null)
+                    {
+                        string key = stringRegisterEvent.eventName.IsNullOrEmpty() ? methodInfo.Name : stringRegisterEvent.eventName;
+                        var ev = viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(key, methodInfo, viewController);
+
+                        if (stringRegisterEvent.unRegisterType == UnRegisterType.OnDisable)
+                            ev.UnRegisterWaitGameObjectDisable(viewController);
+                        else if (stringRegisterEvent.unRegisterType == UnRegisterType.OnDestroy)
+                            ev.UnRegisterWaitGameObjectDestroy(viewController);
+                    }
+                    if (enumRegisterEvent != null)
+                    {
+                        bool IsDepend = Enum.IsDefined(enumRegisterEvent.enumType, enumRegisterEvent.enumId);
+                        if (!IsDepend)
+                        {
+                            Debug.LogWarningFormat("该下标没有指定枚举值---- Type:{0} ---- Id{1}  MethodName:{2}", enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo.Name);
+                            continue;
+                        }
+                        var ev = viewController.GetArchitectureByInternal.SyncDynamicEventSystem.Register(enumRegisterEvent.enumType, enumRegisterEvent.enumId, methodInfo, viewController);
+                        if (enumRegisterEvent.unRegisterType == UnRegisterType.OnDisable)
+                            ev.UnRegisterWaitGameObjectDisable(viewController);
+                        else if (enumRegisterEvent.unRegisterType == UnRegisterType.OnDestroy)
+                            ev.UnRegisterWaitGameObjectDestroy(viewController);
+                    }
+
                 }
-
             }
-
             var eventCenter = viewController.GetComponent<RuntimeEventCenter>();
             if (eventCenter == null) return;
 

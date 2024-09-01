@@ -34,7 +34,7 @@ namespace YukiFrameWork
             [LabelText("Utility注册收集")]
             Utility,
             [LabelText("Controller标记收集")]
-            Controller,         
+            Controller,          
         } 
 
         internal enum SelectType
@@ -290,7 +290,7 @@ namespace YukiFrameWork
                     }
                     EditorGUILayout.EndVertical();
                     EditorGUILayout.EndScrollView();
-                    break;             
+                    break;              
             }
             EditorGUILayout.Space(50);
             if (IsRunning)
@@ -331,6 +331,7 @@ namespace YukiFrameWork
             EditorGUILayout.EndVertical();    
 
         }
+    
         //private GUIStyle runningStyleBG = new GUIStyle("MeLivePlayBackground");
         private GUIStyle runningStyle;
      
@@ -437,15 +438,23 @@ namespace YukiFrameWork
                 EditorGUILayout.LabelField(EditorGUIUtility.IconContent("cs Script Icon"), GUILayout.Width(20));
                 GUILayout.Label(info.type.FullName,GUILayout.Width(400));
                 EditorGUILayout.Space(20);
-                if (registration == null)
+                if (info.type.IsAbstract)
                 {
-                    GUI.color = Color.yellow;
-                    GUILayout.Label("未标记自动获取",GUILayout.Width(550));
+                    GUI.color = Color.cyan;
+                    GUILayout.Label("该类属于抽象类，不属于注册范畴");
                 }
                 else
                 {
-                    GUI.color = GetButtonColor();                   
-                    GUILayout.Label("已标记自动获取 标记架构:" + registration.architectureType + ">>order:" + registration.order,GUILayout.Width(550));                    
+                    if (registration == null)
+                    {
+                        GUI.color = Color.yellow;
+                        GUILayout.Label("未标记自动获取", GUILayout.Width(550));
+                    }
+                    else
+                    {
+                        GUI.color = GetButtonColor();
+                        GUILayout.Label("已标记自动获取 标记架构:" + registration.architectureType + ">>order:" + registration.order, GUILayout.Width(550));
+                    }
                 }
                 GUI.color = Color.white;
                 OpenScript(info.type);
