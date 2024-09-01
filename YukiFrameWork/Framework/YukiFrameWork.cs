@@ -22,11 +22,12 @@ using System.Reflection;
 
 namespace YukiFrameWork
 {
+
     public enum SceneLoadType
     {
         Local,
         XFABManager
-    }
+    } 
     /// <summary>
     /// 框架体系结构
     /// </summary>
@@ -37,7 +38,6 @@ namespace YukiFrameWork
         /// <para>外部使用静态的ProjectName属性进行访问即可,例如World.ProjectName,World为架构</para>
         /// </summary>
         string OnProjectName { get; }
-
         /// <summary>
         /// 使用XFABManager打包场景进ab包或者已经有场景直接添加在Buil时，可以重写该方法，输入场景名称以及加载方式，当架构模块完全加载完以后会自动进入场景
         /// 
@@ -60,6 +60,9 @@ namespace YukiFrameWork
         T GetModel<T>() where T : class, IModel;      
         T GetSystem<T>() where T : class, ISystem;
         T GetUtility<T>() where T : class,IUtility;
+
+        ArchitectureTableConfig TableConfig { get; }
+
         #region Event
         IUnRegister RegisterEvent<T>(string eventName, Action<T> onEvent);
         IUnRegister RegisterEvent<TEnum,T>(TEnum eventEnum, Action<T> onEvent) where TEnum : IConvertible;
@@ -153,6 +156,11 @@ namespace YukiFrameWork
         
     }
 
+    public interface IGetConfig : IGetArchitecture
+    {
+        
+    }
+
     #endregion
 
     public interface IDestroy
@@ -170,11 +178,12 @@ namespace YukiFrameWork
     #endregion
 
     #region Model
-    public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy
+    public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy,IGetConfig
     {                      
         void Init();        
     }
     #endregion
+
 
     #region System
     public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy
@@ -216,7 +225,7 @@ namespace YukiFrameWork
         IArchitecture GetArchitecture();
     }
 
-    public interface ISetArchitecture
+    public interface ISetArchitecture 
     {
         void SetArchitecture(IArchitecture architecture);
     }
@@ -234,6 +243,7 @@ namespace YukiFrameWork
         private AsyncStringEventSystem asyncStringEventSystem = new AsyncStringEventSystem();
         private AsyncEnumEventSystem asyncEnumEventSystem = new AsyncEnumEventSystem();     
         private SyncDynamicEventSystem syncDynamicEventSystem = new SyncDynamicEventSystem();
+        private ArchitectureTableConfig config;
 #if UNITY_2021_1_OR_NEWER
         private Unity_AsyncTypeEventSystem asyncTypeEventSystem_Unity = new Unity_AsyncTypeEventSystem();
         private Unity_AsyncStringEventSystem asyncStringEventSystem_Unity = new Unity_AsyncStringEventSystem();
@@ -257,14 +267,35 @@ namespace YukiFrameWork
         AsyncTypeEventSystem IArchitecture.AsyncTypeEventSystem => asyncTypeEventSystem;
         AsyncEnumEventSystem IArchitecture.AsyncEnumEventSystem => asyncEnumEventSystem;
         AsyncStringEventSystem IArchitecture.AsyncStringEventSystem => asyncStringEventSystem;
+        ArchitectureTableConfig IArchitecture.TableConfig
+        {
+            get
+            {
+                if (config == null)
+                    throw new Exception("没有对配表的预加载进行配置，请在架构中重写BuildArchitectureTable方法,否则无法进行对配表的引用");
+                return config;
+            }
+        }
 
         void IArchitecture.Init()
         {
             if (IsInited) return;
 
+            ArchitectureTable table = BuildArchitectureTable();
+
+            if (table != null)
+            {
+                table.projectName = ProjectName;
+                config = new ArchitectureTableConfig(table);                     
+            }
+
             OnInit();
             IsInited = true;
         }
+
+        /// <summary>
+        /// V1.25.1以后，在架构准备完成，开始自动化注册各个模块之前就会调用架构的初始化方法
+        /// </summary>
         public abstract void OnInit();
 
         public static ArchitectureStartUpRequest StartUp()
@@ -281,6 +312,13 @@ namespace YukiFrameWork
             IsInited = false;
         }     
         public virtual (string, SceneLoadType) DefaultSceneName => default;
+
+       
+        /// <summary>
+        /// 构建架构配表器方法，如需让Model层可顺利访问配表层，必须要重写该方法进行配表器构建
+        /// </summary>
+        /// <returns></returns>
+        protected virtual ArchitectureTable BuildArchitectureTable() => null;
 
         #region 架构全局模块，如果想要让架构设置为全局的可以使用这个
         private static TCore mGlobal = null;
@@ -1606,8 +1644,21 @@ namespace YukiFrameWork
         }
     }
 
-    public static class ArchitectureExtension
+    public static class ConfigExtension
     {
-        
+        public static T GetConfig<T>(this IGetConfig getconfig,string path) where T : UnityEngine.Object
+        {
+            return GetConfig(getconfig,path) as T;
+        }
+
+        public static UnityEngine.Object GetConfig(this IGetConfig getconfig, string path)
+        {
+            return getconfig.GetArchitecture().TableConfig.GetConfig(path);
+        }
+
+        public static string GetConfigByFile(this IGetConfig getConfig, string path)
+        {
+            return getConfig.GetArchitecture().TableConfig.GetConfigByFile(path);
+        }
     }
 }

@@ -466,6 +466,7 @@
                     break;
                 root = root.Parent;
             }
+           
             if ((lateUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnLateUpdate) == 0)
                 root.UpdateStatus |= UpdateStatus.OnLateUpdate;
             if ((fixedUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnFixedUpdate) == 0)

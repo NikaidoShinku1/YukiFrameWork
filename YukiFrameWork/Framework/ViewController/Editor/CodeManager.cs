@@ -82,6 +82,7 @@ namespace YukiFrameWork
 
             builder.AppendLine("using YukiFrameWork.UI;");
             builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using YukiFrameWork;");
             builder.AppendLine("using UnityEngine.UI;");
             if (!notnameSpace)
             {

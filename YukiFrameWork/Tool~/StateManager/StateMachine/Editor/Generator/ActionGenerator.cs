@@ -34,6 +34,7 @@ namespace YukiFrameWork.ActionStates
 
             builder.AppendLine("using YukiFrameWork.ActionStates;");
             builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using YukiFrameWork;");
             builder.AppendLine($"namespace {nameSpace}");
             builder.AppendLine("{");
             if (list.Count != 0)

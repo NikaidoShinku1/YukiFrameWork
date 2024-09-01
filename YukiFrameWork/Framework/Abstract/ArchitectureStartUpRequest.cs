@@ -246,6 +246,7 @@ namespace YukiFrameWork
 
             try
             {
+                architecture.Init();
                 var orderModels = models
                     .OrderByDescending(m => m.order);
 
@@ -307,8 +308,7 @@ namespace YukiFrameWork
                         }
                         break;                  
                 }
-            }
-            architecture.Init();          
+            }                
             MonoHelper.Destroy_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
         }
