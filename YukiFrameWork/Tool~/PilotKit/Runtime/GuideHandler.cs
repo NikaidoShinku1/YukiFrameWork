@@ -109,7 +109,7 @@ namespace YukiFrameWork.Pilot
             if(!current)    
                 return true;
 
-            return !RectTransformUtility.RectangleContainsScreenPoint(current, sp, root.worldCamera);
+            return !RectTransformUtility.RectangleContainsScreenPoint(current, sp, root.worldCamera) || !IsCurrentCompleted;
         }
     }
 }
