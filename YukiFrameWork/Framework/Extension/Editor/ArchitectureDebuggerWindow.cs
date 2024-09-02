@@ -47,7 +47,7 @@ namespace YukiFrameWork
             NoAttribute
         }
         [MenuItem("YukiFrameWork/Architecture Debugger",false,-1000)]
-        static void OpenWindow()
+        internal static void OpenWindow()
         {
             var window = GetWindow<ArchitectureDebuggerWindow>();
             window.titleContent = new GUIContent("架构调试器");
