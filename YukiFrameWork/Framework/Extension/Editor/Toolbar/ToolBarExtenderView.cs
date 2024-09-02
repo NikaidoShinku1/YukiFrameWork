@@ -42,7 +42,13 @@ namespace YukiFrameWork.ToolBar
     [InitializeOnLoad]
     public class ToolbarExtenderView
     {
-        private static List<(string sceneName,string scenePath)> current_Scenes = new List<(string, string)>();
+        class SceneData
+        {
+            public string sceneName;
+            public string scenePath;
+            public string sceneDisplay;
+        }
+        private static List<SceneData> current_Scenes = new List<SceneData>();
         private static string[] sceneNames;     
         static ToolbarExtenderView()
         {
@@ -56,7 +62,15 @@ namespace YukiFrameWork.ToolBar
                     string path = AssetDatabase.GUIDToAssetPath(guids[i]);
 
                     string sceneName = Path.GetFileNameWithoutExtension(path);
-                    current_Scenes.Add((sceneName, path));
+
+                    string[] dis = path.Split("/");
+                    string display = string.Format("{0}/{1}", dis[dis.Length - 2], sceneName);
+                    current_Scenes.Add(new SceneData()
+                    {
+                        sceneName = sceneName,
+                        scenePath = path,
+                        sceneDisplay = display
+                    });
                 }
 
                 Scene scene = SceneManager.GetActiveScene();
@@ -64,12 +78,9 @@ namespace YukiFrameWork.ToolBar
                 sceneNames = new string[current_Scenes.Count];
                 for (int i = 0; i < current_Scenes.Count; i++)
                 {
-                    (string, string) current = current_Scenes[i];
+                    var current = current_Scenes[i];               
 
-                    string lastPath = current.Item2.Split("/").LastOrDefault();
-
-                    sceneNames[i] =  current.Item1;
-
+                    sceneNames[i] =  current.sceneDisplay;
                     if (SceneManager.GetActiveScene().name == sceneNames[i])
                         selectIndex = i;
                 }
@@ -108,36 +119,36 @@ namespace YukiFrameWork.ToolBar
         [Toolbar(OnGUISide.Right,0)]
         static void OnToolbarGUIRight()
         {
-            Scene scene = SceneManager.GetActiveScene();
-            if (selectIndex >= sceneNames.Length || selectIndex < 0 || scene.name != sceneNames[selectIndex])
-            {               
-                string sceneName = sceneNames.FirstOrDefault(x => x == scene.name);
-                if (sceneName.IsNullOrEmpty())
-                    selectIndex = 0;
-                else selectIndex = Array.IndexOf(sceneNames, sceneName);               
-            }
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField("Active Scene:",GUILayout.Width(100));
-            selectIndex = EditorGUILayout.Popup(selectIndex,sceneNames);
-            GUI.color = Color.yellow;
-            EditorGUILayout.LabelField("使用该可视化场景选择请遵守命名唯一的规则，不应该出现两个相同名称的场景", GUI.skin.box);
-            GUI.color = Color.white;
-            if (EditorGUI.EndChangeCheck())
+            try
             {
-                if (scene == null) return;
-                if (scene.isDirty)
+                Scene scene = SceneManager.GetActiveScene();
+                if (selectIndex >= sceneNames.Length || selectIndex < 0 || scene.name != current_Scenes[selectIndex].sceneName)
                 {
-                    bool save = EditorUtility.DisplayDialog("保存场景提示:", "该场景还没有保存，是否需要进行保存后再跳转?", "保存", "取消");
-
-                    if (save)
-                    {
-                        EditorSceneManager.SaveScene(scene);
-                    }
+                    var data = current_Scenes.FirstOrDefault(x => x.sceneName == scene.name && x.scenePath == scene.path);
+                    if (data == null || data.sceneName.IsNullOrEmpty())
+                        selectIndex = -1;
+                    else selectIndex = Array.IndexOf(current_Scenes.ToArray(), data);
                 }
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.LabelField("Active Scene:", GUILayout.Width(100));
+                selectIndex = EditorGUILayout.Popup(selectIndex, sceneNames);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (scene == null) return;
+                    if (scene.isDirty)
+                    {
+                        bool save = EditorUtility.DisplayDialog("保存场景提示:", "该场景还没有保存，是否需要进行保存后再跳转?", "保存", "取消");
 
-                EditorSceneManager.OpenScene(current_Scenes[selectIndex].scenePath);
+                        if (save)
+                        {
+                            EditorSceneManager.SaveScene(scene);
+                        }
+                    }
+
+                    EditorSceneManager.OpenScene(current_Scenes[selectIndex].scenePath);
+                }
             }
-
+            catch { }
            
         }
     }
