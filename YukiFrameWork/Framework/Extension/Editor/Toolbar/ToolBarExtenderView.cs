@@ -131,7 +131,9 @@ namespace YukiFrameWork.ToolBar
                 }
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayout.LabelField("Active Scene:", GUILayout.Width(100));
+                GUI.enabled = !Application.isPlaying;
                 selectIndex = EditorGUILayout.Popup(selectIndex, sceneNames);
+                GUI.enabled = true;
                 if (EditorGUI.EndChangeCheck())
                 {
                     if (scene == null) return;

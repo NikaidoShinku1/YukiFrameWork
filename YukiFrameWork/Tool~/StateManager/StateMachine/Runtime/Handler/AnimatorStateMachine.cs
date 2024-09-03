@@ -4,7 +4,7 @@ namespace YukiFrameWork.ActionStates
 {
     public class AnimatorStateMachine : IAnimationHandler
     {
-        private readonly Animator animator;
+        private Animator animator;
 
         public AnimatorStateMachine(Animator animator)
         {
@@ -13,6 +13,11 @@ namespace YukiFrameWork.ActionStates
 
         public void OnInit()
         {
+        }
+
+        public void SetParams(params object[] args)
+        {
+            animator = args[0] as Animator;
         }
 
         public void OnPlayAnimation(State state, StateAction stateAction)

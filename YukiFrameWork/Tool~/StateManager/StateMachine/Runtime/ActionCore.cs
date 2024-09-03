@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using XFABManager;
 
 namespace YukiFrameWork.ActionStates
 {
@@ -115,14 +116,16 @@ namespace YukiFrameWork.ActionStates
         /// 粒子物体生成模式
         /// </summary>
 		public ActiveMode activeMode = ActiveMode.Instantiate;
+
+        /// <summary>
+        /// 已经生成的粒子特效池
+        /// </summary>
+        [HideField]
+        public List<GameObject> objects_Pools = new List<GameObject>();
         /// <summary>
         /// 粒子物体销毁或关闭时间
         /// </summary>
-		public float hideTime = 1f;
-        /// <summary>
-        /// 粒子物体对象池
-        /// </summary>
-		public List<GameObject> objectPool = new List<GameObject>();
+		public float hideTime = 1f;          
         /// <summary>
         /// 粒子位置设置
         /// </summary>
@@ -139,7 +142,7 @@ namespace YukiFrameWork.ActionStates
         /// 粒子角度
         /// </summary>
         public Vector3 rotation;
-
+       
         public override void OnAnimationEvent(StateAction action)
         {
             if (effect == null)
@@ -147,32 +150,12 @@ namespace YukiFrameWork.ActionStates
             if (activeMode == ActiveMode.Instantiate)
                 Object.Destroy(InstantiateSpwan(), hideTime);
             else if (activeMode == ActiveMode.ObjectPool)
-            {
-                bool active = false;
-                for (int i = 0; i < objectPool.Count; i++)
-                {
-                    var obj = objectPool[i];
-                    if (obj == null)
-                    {
-                        objectPool.RemoveAt(i);
-                        break;
-                    }
-                    if (!obj.activeSelf)
-                    {
-                        obj.SetActive(true);
-                        obj.transform.SetParent(null);
-                        SetPosition(obj);
-                        active = true;
-                        HideSpwanTime(obj);
-                        break;
-                    }
-                }
-                if (!active)
-                {
-                    var go = InstantiateSpwan();
-                    objectPool.Add(go);
-                    HideSpwanTime(go);
-                }
+            {               
+                var obj = GameObjectLoader.Load(effect);
+                objects_Pools.Add(obj);
+                obj.transform.SetParent(null);
+                SetPosition(obj);
+                HideSpwanTime(obj);
             }
             else
             {
@@ -184,8 +167,11 @@ namespace YukiFrameWork.ActionStates
         private async void HideSpwanTime(GameObject gameObject)
         {
             await CoroutineTool.WaitForSeconds(hideTime);
-            if (gameObject != null)
-                gameObject.SetActive(false);
+            if (gameObject != null)              
+            {
+                objects_Pools.Remove(gameObject);
+                GameObjectLoader.UnLoad(gameObject);
+            }
         }
 
         /// <summary>
@@ -238,9 +224,9 @@ namespace YukiFrameWork.ActionStates
 
         public override void OnDestroy()
         {
-            foreach (var obj in objectPool)
+            foreach (var obj in objects_Pools)
             {
-                Object.Destroy(obj);
+                GameObjectLoader.UnLoad(obj);
             }
         }
     }

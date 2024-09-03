@@ -20,6 +20,11 @@ namespace YukiFrameWork.ActionStates
 
         public List<string> architectures = new List<string>();
 
+        public string createScriptName = "NewStateBehaviour";
+        public string stateActionScriptPath = "Assets/Scripts/StateManager/Actions";
+        public string stateBehaviourScriptPath = "Assets/Scripts/StateManager/StateBehaviours";
+        public string transitionScriptPath = "Assets/Scripts/StateManager/Transitions";
+
         public virtual void Init()
         {
         }    

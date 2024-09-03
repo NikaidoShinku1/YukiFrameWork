@@ -18,10 +18,26 @@ namespace YukiFrameWork.ActionStates
     public abstract class StateMachineViewEditor : Editor
     {
         protected virtual StateMachineView Self { get; set; }
-        public static string createScriptName = "NewStateBehaviour";
-        public static string stateActionScriptPath = "Assets/Scripts/StateManager/Actions";
-        public static string stateBehaviourScriptPath = "Assets/Scripts/StateManager/StateBehaviours";
-        public static string transitionScriptPath = "Assets/Scripts/StateManager/Transitions";
+        public string createScriptName
+        {
+            get => Self == null ? "NewStateBehaviour" : Self.createScriptName;
+            set => Self.createScriptName = value;
+        }
+        public string stateActionScriptPath
+        {
+            get => Self == null ? "Assets/Scripts/StateManager/Actions" : Self.stateActionScriptPath;
+            set => Self.stateActionScriptPath = value;
+        }
+        public string stateBehaviourScriptPath
+        {
+            get => Self == null ? "Assets/Scripts/StateManager/StateBehaviours" : Self.stateBehaviourScriptPath;
+            set => Self.stateBehaviourScriptPath = value;
+        }
+        public string transitionScriptPath
+        {
+            get => Self == null ? "Assets/Scripts/StateManager/Transitions" : Self.transitionScriptPath;
+            set => Self.transitionScriptPath = value;
+        }
         protected StateBase addBehaviourState;
         protected StateAction animAction;
         private static bool compiling;
@@ -68,12 +84,12 @@ namespace YukiFrameWork.ActionStates
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies)
             {
-                var types1 = assembly.GetTypes().Where(t => t.IsSubclassOf(type)).ToArray();
+                var types1 = assembly.GetTypes().Where(t => t.IsSubclassOf(type) && !t.IsAbstract).ToArray();
                 types.AddRange(types1);
             }
         }
 
-        public override void OnInspectorGUI()
+        public override void OnInspectorGUI() 
         {
             if (Self == null)
             {

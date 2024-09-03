@@ -12,6 +12,10 @@ namespace YukiFrameWork.ActionStates
         {
         }
 
+        public void SetParams(params object[] args)
+        {
+        }
+
         public void OnPlayAnimation(State state, StateAction stateAction)
         {
             stateAction.animTime = 0f;

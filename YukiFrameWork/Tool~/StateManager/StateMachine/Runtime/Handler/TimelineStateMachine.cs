@@ -5,8 +5,8 @@ namespace YukiFrameWork.ActionStates
 {
     public class TimelineStateMachine : IAnimationHandler
     {
-        private readonly Animator animator;
-        private readonly PlayableDirector director;
+        private Animator animator;
+        private PlayableDirector director;
 
         public TimelineStateMachine(Animator animator, PlayableDirector director)
         {
@@ -16,6 +16,11 @@ namespace YukiFrameWork.ActionStates
 
         public void OnInit()
         {
+        }
+        public void SetParams(params object[] args)
+        {
+            animator = args[0] as Animator;
+            director = args[1] as PlayableDirector;
         }
 
         public void OnPlayAnimation(State state, StateAction stateAction)

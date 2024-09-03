@@ -4,7 +4,7 @@ namespace YukiFrameWork.ActionStates
 {
     public class AnimationStateMachine : IAnimationHandler
     {
-        private readonly Animation animation;
+        private Animation animation;
 
         public AnimationStateMachine(Animation animation)
         {
@@ -35,6 +35,11 @@ namespace YukiFrameWork.ActionStates
                 animState.time = 0f;
             }
 
+        }
+
+        public void SetParams(params object[] args)
+        {
+            animation = args[0] as Animation;
         }
 
         public bool OnAnimationUpdate(State state, StateAction stateAction,UpdateStatus updateStatus)

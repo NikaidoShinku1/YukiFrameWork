@@ -9,7 +9,7 @@ namespace YukiFrameWork.ActionStates
     /// 状态机 v2017/12/6
     /// </summary>
     public class StateMachineMono : StateMachineView
-    {
+    {       
         /// <summary>
         /// 动画选择模式
         /// </summary>

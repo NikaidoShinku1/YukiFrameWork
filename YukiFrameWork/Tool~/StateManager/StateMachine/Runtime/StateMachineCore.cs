@@ -178,7 +178,7 @@ namespace YukiFrameWork.ActionStates
                 states[currIdTemo].Exit();
                 states[nextIdTemp].Enter(nextActionId);
                 return; //有时候你调用Play时，并没有直接更新动画时间，而是下一帧才会更新动画时间，如果Play后直接执行下面的Update计算动画时间会导致鬼畜现象的问题
-            }
+            }         
             CurrState.Update(updateStatus);
         }
 

@@ -82,7 +82,8 @@ namespace YukiFrameWork.ActionStates
         /// <summary>
         /// 动作索引
         /// </summary>
-		internal int actionIndex = -1;
+		[HideInInspector]
+        public int actionIndex = -1;
         /// <summary>
         /// 动画速度
         /// </summary>
