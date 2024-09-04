@@ -144,7 +144,7 @@ namespace YukiFrameWork
             }
             catch(Exception ex) 
             {
-                LogKit.Exception(string.Format("该本地配置已经存在!LocalizationConfig Key -- {0} --- {1}",key,ex));
+                LogKit.Exception(new Exception(string.Format("该本地配置已经存在!LocalizationConfig Key -- {0} --- {1}", key, ex)));
             }
         }
 

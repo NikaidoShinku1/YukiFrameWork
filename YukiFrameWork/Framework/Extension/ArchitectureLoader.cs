@@ -13,15 +13,23 @@ using XFABManager;
 using System.Collections.Generic;
 using YukiFrameWork.Extension;
 using System.IO;
+using System.Collections;
 namespace YukiFrameWork
 {
-    public enum ArchitecTableLoadType
+    public enum ArchitectureTableLoadType
     {       
 #if UNITY_EDITOR
         Editor,
 #endif
         Resources,
         XFABManager
+    }
+
+    internal class TableInfo
+    {
+        public ArchitectureTableLoadType loadType;            
+        public Type type;
+        public UnityEngine.Object obj;
     }
 
     public sealed class ArchitectureTableConfig
@@ -31,11 +39,7 @@ namespace YukiFrameWork
         {
             this.architectureTable = architectureTable;
             architectureTable.Init();
-        }
-        public IDictionary<string, UnityEngine.Object> Configs => architectureTable.Table;
-
-        internal IDictionary<string, Type> Datas => architectureTable.Table_Data;
-
+        }      
         /// <summary>
         /// 获取文件配置，当配置为Json或Xml等Unity可识别TextAssets时，可使用该API获取对应的文本内容
         /// </summary>
@@ -45,10 +49,10 @@ namespace YukiFrameWork
         {
             if (architectureTable.Table.TryGetValue(path, out var value))
             {
-                if (!value)
+                if (value == null || !value.obj)
                     throw new Exception($"路径{path}存在，但匹配的配表丢失，请重试! value is Null");
 
-                if (value is TextAsset textAsset)
+                if (value.obj is TextAsset textAsset)
                 {
                     return textAsset.text;
                 }
@@ -79,9 +83,9 @@ namespace YukiFrameWork
         {
             if (architectureTable.Table.TryGetValue(path, out var value))
             {
-                if (!value)
+                if (value == null || !value.obj)
                     throw new Exception($"路径{path}存在，但匹配的配表丢失，请重试! value is Null");
-                return value;
+                return value.obj;
             }
             throw new Exception("丢失指定路径/名称的资源配置，无法取得对应Config Path:" + path);
         }
@@ -90,43 +94,82 @@ namespace YukiFrameWork
     [ClassAPI("架构配表收集")]
     public class ArchitectureTable
     {
-        private ArchitecTableLoadType loadType;
-        private event Func<string, Type, UnityEngine.Object> ResLoader;
-        /// <summary>
-        /// 配表收集
-        /// <para>Key:收集的资源名称/路径</para>
-        /// <para>Value:收集的资源类型</para>
-        /// </summary>
-        private Dictionary<string, Type> table;
-
-        private Dictionary<string, UnityEngine.Object> tableRes_Dicts = new Dictionary<string, UnityEngine.Object>();
-
         internal string projectName;
+        /// <summary>
+        /// 全局的加载方式，如果没有为配表信息指定加载方式，则默认使用该属性判断
+        /// </summary>
+        public ArchitectureTableLoadType LocalLoadType { get; set; } = ArchitectureTableLoadType.XFABManager;
+        public Func<string, Type, UnityEngine.Object> ResLoader { get; set; }
 
-        internal IDictionary<string, UnityEngine.Object> Table => tableRes_Dicts;
+        private Dictionary<string,TableInfo> infos = new Dictionary<string, TableInfo>();
 
-        internal IDictionary<string, Type> Table_Data => table;
+        internal IDictionary<string, TableInfo> Table => infos;
 
-        public ArchitectureTable(Dictionary<string, Type> table, ArchitecTableLoadType tableLoadType = ArchitecTableLoadType.XFABManager)
+        /// <summary>
+        /// 添加配表的路径以及类型信息
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pathOrName"></param>
+        public void Add<T>(string pathOrName) where T : UnityEngine.Object
         {
-            this.table = table;
-            this.loadType = tableLoadType;
+            Add(pathOrName, typeof(T));
+        }   
+
+        /// <summary>
+        ///  添加配表的路径以及类型信息
+        /// </summary>
+        /// <param name="pathOrName"></param>
+        /// <param name="type"></param>
+        public void Add(string pathOrName, Type type)
+        {
+            Add(pathOrName, type, LocalLoadType);
         }
-        public ArchitectureTable(Dictionary<string, Type> table, Func<string, Type, UnityEngine.Object> ResLoader)
+
+        /// <summary>
+        ///  添加配表的路径以及类型信息，还有指定加载方式
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pathOrName"></param>
+        /// <param name="loadType"></param>
+        public void Add<T>(string pathOrName,ArchitectureTableLoadType loadType) where T : UnityEngine.Object
         {
-            this.table = table;
-            this.ResLoader = ResLoader;
+            Add(pathOrName, typeof(T),loadType);
+        }
+
+        /// <summary>
+        /// 添加配表的路径以及类型信息，还有指定加载方式
+        /// </summary>
+        /// <param name="pathOrName"></param>
+        /// <param name="type"></param>
+        /// <param name="loadType"></param>
+        /// <exception cref="Exception"></exception>
+        public void Add(string pathOrName, Type type,ArchitectureTableLoadType loadType)
+        {
+            if (!typeof(UnityEngine.Object).IsAssignableFrom(type))
+            {
+                throw new Exception("Obj is Not UnityEngine.Object");
+            }
+
+            infos.Add(pathOrName, new TableInfo()
+            {
+                type = type,
+                loadType = loadType
+            });
         }
 
 
         internal void Init()
         {
-            if (table == null)
+            if (infos == null)
                 throw new Exception("配表丢失");
+
+            if (infos.Count == 0) return;
            
-            foreach (var item in table)
+            foreach (var item in infos)
             {
-                Type type = item.Value;
+                TableInfo info = item.Value;
+                Type type = info.type;
+                ArchitectureTableLoadType loadType = info.loadType;
                 UnityEngine.Object current = null;
                 if (this.ResLoader != null)
                     current = this.ResLoader.Invoke(item.Key, type);
@@ -135,19 +178,19 @@ namespace YukiFrameWork
                     switch (loadType)
                     {
 #if UNITY_EDITOR
-                        case ArchitecTableLoadType.Editor:
+                        case ArchitectureTableLoadType.Editor:
                             current = UnityEditor.AssetDatabase.LoadAssetAtPath(item.Key, type);
                             break;
 #endif
-                        case ArchitecTableLoadType.Resources:
+                        case ArchitectureTableLoadType.Resources:
                             current = UnityEngine.Resources.Load(item.Key, type);
                             break;
-                        case ArchitecTableLoadType.XFABManager:
+                        case ArchitectureTableLoadType.XFABManager:
                             current = AssetBundleManager.LoadAsset(projectName, item.Key, type);
                             break;
                     }
                 }
-                tableRes_Dicts.Add(item.Key, current);
+                info.obj = current;
             }
         }
     }

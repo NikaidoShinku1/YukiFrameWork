@@ -212,15 +212,11 @@ namespace YukiFrameWork
             LogToFile();
         }
 
-        public static void Exception(Exception e)
+        public static void Exception(Exception ex)
         {
-            Debug.LogException(e);
+            throw new Exception(string.Format("{0}\n------------> \nReal StackTrace(捕捉时机堆栈坐标) --> \n{1}\n\n------------------\n Default StackTrace(Unity 默认捕捉) ", ex.Message, ex.StackTrace));
         }
-
-        public static void Exception(object message)
-        {
-            Exception(new System.Exception(message.ToString()));
-        }
+       
         static StringBuilder stackBuilder = new StringBuilder();
         private static void OnLogByUnity(string condition, string stackTrace, LogType type)
         {
@@ -306,11 +302,6 @@ namespace YukiFrameWork
             LogKit.Exception(core);
         }
 
-        public static void LogException<T>(this object core)
-        {
-            LogKit.Exception(core);
-        }
     }
-
 
 }

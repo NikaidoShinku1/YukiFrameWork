@@ -277,6 +277,8 @@ namespace YukiFrameWork
             }
         }
 
+        protected ArchitectureTableConfig TableConfig => (this as IArchitecture).TableConfig;
+
         void IArchitecture.Init()
         {
             if (IsInited) return;

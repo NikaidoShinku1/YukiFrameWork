@@ -280,7 +280,7 @@ namespace YukiFrameWork
             }
             catch(Exception ex)
             {
-                OnCompleted(ex.ToString());
+                OnCompleted(string.Format("{0}\n------------> \nReal StackTrace(捕捉时机堆栈坐标) --> \n{1}\n\n------------------\n Default StackTrace(Unity 默认捕捉) ",ex.Message,ex.StackTrace));
                 yield break;
             }
 

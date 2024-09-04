@@ -63,7 +63,7 @@ namespace YukiFrameWork.ToolBar
 
                     string sceneName = Path.GetFileNameWithoutExtension(path);
 
-                    string[] dis = path.Split("/");
+                    string[] dis = path.Split('/');
                     string display = string.Format("{0}/{1}", dis[dis.Length - 2], sceneName);
                     current_Scenes.Add(new SceneData()
                     {
