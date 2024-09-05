@@ -11,11 +11,9 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
-using YukiFrameWork.Extension;
 using System.Linq;
-using Newtonsoft.Json.Converters;
+using System.Collections;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -23,6 +21,7 @@ using UnityEditor;
 namespace YukiFrameWork.Skill
 {  
     [Serializable]
+    [HideMonoScript]
     public class SkillData : ScriptableObject, ISkillData
     {
         
@@ -39,7 +38,7 @@ namespace YukiFrameWork.Skill
         public string GetSkillName => SkillKit.UseLocalizationConfig 
             ? SkillKit.GetContent(GetSkillKey).Context.Split(SkillKit.Spilt)[0] : SkillName;
 
-        [SerializeField,LabelText("技能介绍"),JsonProperty,TextArea]
+        [SerializeField,LabelText("技能介绍"),JsonProperty(),TextArea]
         private string Description;
 
         [JsonIgnore]
@@ -112,10 +111,16 @@ namespace YukiFrameWork.Skill
         [JsonProperty]
         internal string SKillType;
 
-        [field:SerializeField,LabelText("在该技能释放期间可以同时释放的技能标识"),ValueDropdown(nameof(names))]
+        [field:SerializeField,LabelText("在该技能释放期间可以同时释放的技能标识"),ValueDropdown(nameof(list))]
         [JsonProperty]
         public string[] SimultaneousSkillKeys{ get; set; }
 
+       
+        [JsonIgnore]
+        internal SkillDataBase root;
+
+        [JsonIgnore]
+        IEnumerable list => root.SkillDataConfigs.Where(x => x != this).Select(x => new ValueDropdownItem(x.GetSkillName, x.GetSkillKey));
         public static SkillData CreateInstance(string skillName, Type type)
         {
             SkillData skillData = ScriptableObject.CreateInstance(type) as SkillData;
@@ -126,7 +131,14 @@ namespace YukiFrameWork.Skill
 
         public SkillData Clone() => GameObject.Instantiate(this);     
       
-        [JsonIgnore]
-        internal ValueDropdownList<string> names = new ValueDropdownList<string>();    
+        [Button("打开脚本",ButtonHeight = 40),PropertySpace(20)]
+        void OpenScript()
+        {
+#if UNITY_EDITOR
+            AssetDatabase.OpenAsset(AssetDatabase.FindAssets("t:monoScript").Select(x => AssetDatabase.GUIDToAssetPath(x))
+                .Select(x => AssetDatabase.LoadAssetAtPath<MonoScript>(x))
+                .FirstOrDefault(x => x?.GetClass() == this.GetType()));
+#endif
+        }
     }
 }

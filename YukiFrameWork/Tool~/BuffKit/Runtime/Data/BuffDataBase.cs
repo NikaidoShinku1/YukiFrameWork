@@ -32,6 +32,8 @@ namespace YukiFrameWork.Buffer
         private string nameSpace = "YukiFrameWork.Buffer";
 
 #if UNITY_EDITOR
+        [HideInInspector, SerializeField]
+        public int selectIndex;
         [Button("生成Buff代码"), GUIColor("green"), FoldoutGroup("代码设置")]
         void CreateCode()
         {
@@ -105,26 +107,13 @@ namespace YukiFrameWork.Buffer
         void CreateTable()
         {
             SerializationTool.SerializedObject(buffConfigs).CreateFileStream(jsonPath,jsonName,".json");
-        }
-
-        [Button("打开编辑器配置窗口",ButtonHeight = 30)]
-        [PropertySpace(20)]
-        void OpenWindow()
-        {
-            BuffDesignerWindow.OpenWindow();
-        }
+        }      
 #endif
         
         private void OnValidate()
         {          
             for (int i = 0; i < buffConfigs.Count; i++)
-            {
-                if (buffConfigs[i] == null)
-                {
-                    buffConfigs.RemoveAt(i);
-                    i--;
-                    continue;
-                }                                       
+            {              
                 buffConfigs[i].dataBase = this;
             }
         }
@@ -132,10 +121,9 @@ namespace YukiFrameWork.Buffer
         internal void CreateBuff(Type buffType)
         {           
             Buff buff = Buff.CreateInstance(buffType.Name, buffType);
-           
-            buff.dataBase = this;
+                      
             buffConfigs.Add(buff);
-
+            OnValidate();
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(buff,this);
             this.Save();
@@ -149,8 +137,7 @@ namespace YukiFrameWork.Buffer
             buffConfigs.RemoveAt(index);
 
 #if UNITY_EDITOR
-            AssetDatabase.RemoveObjectFromAsset(buff);
-            OnValidate();
+            AssetDatabase.RemoveObjectFromAsset(buff);           
             this.Save();
 #endif
         }

@@ -18,6 +18,7 @@ using YukiFrameWork.Extension;
 namespace YukiFrameWork.Skill
 {
 	[CreateAssetMenu(fileName = "SkillDataBase",menuName = "YukiFrameWork/Skill Data Base")]
+    [HideMonoScript]
 	public class SkillDataBase : ScriptableObject
 	{
         [FoldoutGroup("代码设置"), SerializeField]
@@ -29,7 +30,10 @@ namespace YukiFrameWork.Skill
         [FoldoutGroup("代码设置"), SerializeField]
         private string nameSpace = "YukiFrameWork.Skill";
 
+
 #if UNITY_EDITOR
+        [HideInInspector, SerializeField]
+        public int selectIndex;
         [Button("生成Skill代码"), GUIColor("green"), FoldoutGroup("代码设置")]
         void CreateCode()
         {
@@ -49,10 +53,11 @@ namespace YukiFrameWork.Skill
             codeCore
                 .Using("System")
                 .Using("UnityEngine")
+                .Using("YukiFrameWork.Skill")
                 .Descripton(fileName, nameSpace, "自动化代码生成的Skill派生类");
 
             codeCore.CodeSetting(nameSpace, fileName, nameof(SkillData), null).Create(fileName, filePath);
-        }
+        }        
 
         [Button("生成标识代码"), GUIColor("green"), PropertySpace(15), FoldoutGroup("代码设置")]
         [InfoBox("标识代码则为所有配置的标识以及SkillData的快捷获取，类名为SkillInfos,仅在配置完毕且没有标识为空的时候使用")]
@@ -74,6 +79,7 @@ namespace YukiFrameWork.Skill
             codeCore
                .Using("System")
                .Using("UnityEngine")
+               .Using("YukiFrameWork.Skilll")
                .Descripton("SkillInfos", nameSpace, "自动化代码生成的SkillData标识类");
             CodeWriter writer = new CodeWriter();
             foreach (var item in SkillDataConfigs)
@@ -117,13 +123,7 @@ namespace YukiFrameWork.Skill
                 NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
             }).CreateFileStream(jsonPath, jsonName, ".json");
         }
-
-        [Button("打开编辑器配置窗口", ButtonHeight = 30)]
-        [PropertySpace(20)]
-        void OpenWindow()
-        {
-            SkillDesignerWindow.OpenWindow();
-        }
+    
 #endif     
 
         internal void CreateSkillData(Type SkillDataType)
@@ -131,7 +131,7 @@ namespace YukiFrameWork.Skill
             SkillData SkillData = SkillData.CreateInstance(SkillDataType.Name, SkillDataType);
        
             SkillDataConfigs.Add(SkillData);
-          
+            OnValidate();
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(SkillData, this);
             this.Save();
@@ -143,12 +143,19 @@ namespace YukiFrameWork.Skill
             var SkillData = SkillDataConfigs[index];
 
             SkillDataConfigs.RemoveAt(index);
-
+          
 #if UNITY_EDITOR
-            AssetDatabase.RemoveObjectFromAsset(SkillData);
-            //OnValidate();
+            AssetDatabase.RemoveObjectFromAsset(SkillData);          
             this.Save();
 #endif
+        }
+
+        private void OnValidate()
+        {
+            foreach (var c in SkillDataConfigs)
+            {
+                c.root = this;
+            }
         }
     }
 }

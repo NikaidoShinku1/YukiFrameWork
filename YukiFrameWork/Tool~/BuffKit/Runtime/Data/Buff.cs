@@ -10,8 +10,8 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
+using System.Linq;
 using System.Collections;
-using System.Collections.Generic;
 namespace YukiFrameWork.Buffer
 {
     [Serializable,HideMonoScript]
@@ -130,15 +130,24 @@ namespace YukiFrameWork.Buffer
         public Sprite BuffIcon { get; set; }
       
         [field:JsonProperty,SerializeField,ShowIf(nameof(IsAutoBuffIcon))]
-        public string Sprite { get; set; }       
+        public string Sprite { get; set; }
 
+        [Button("打开脚本", ButtonHeight = 40), PropertySpace(20)]
+        void OpenScript()
+        {
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.OpenAsset(UnityEditor.AssetDatabase.FindAssets("t:monoScript").Select(x => UnityEditor.AssetDatabase.GUIDToAssetPath(x))
+                .Select(x => UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.MonoScript>(x))
+                .FirstOrDefault(x => x?.GetClass() == this.GetType()));
+#endif
+        }
         [JsonIgnore]
         internal BuffDataBase dataBase;
 
         #region Buff自带依赖ID转换于编辑器显示
         [Searchable]
         [JsonIgnore]
-        internal ValueDropdownList<string> names = new ValueDropdownList<string>();       
+        internal IEnumerable names => dataBase.buffConfigs.Where(x => x != this).Select(x => new ValueDropdownItem(x.GetBuffName, x.GetBuffKey));
         #endregion
     }
 }

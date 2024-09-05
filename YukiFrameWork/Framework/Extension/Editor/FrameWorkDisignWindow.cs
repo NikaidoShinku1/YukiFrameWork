@@ -109,9 +109,46 @@ namespace YukiFrameWork
 
             foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
             {
-                tree.Add($"LocalizationConfig/{item.name}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
+                tree.Add($"LocalizationConfig/{item.name}_{item.GetInstanceID()}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
             }
+            try
+            {
+                Type type = AssemblyHelper.GetType("YukiFrameWork.Item.ItemDataBase");
+                if (type != null)
+                {
+                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    {
+                        tree.Add($"ItemDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.Calendar2PlusFill);
+                    }
+                }
+            }
+            catch { }
 
+            try
+            {
+                Type type = AssemblyHelper.GetType("YukiFrameWork.Skill.SkillDataBase");
+                if (type != null)
+                {
+                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    {
+                        tree.Add($"SkillDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.StickiesFill);
+                    }
+                }
+            }
+            catch { }
+
+            try
+            {
+                Type type = AssemblyHelper.GetType("YukiFrameWork.Buffer.BuffDataBase");
+                if (type != null)
+                {
+                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    {
+                        tree.Add($"BuffDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.BagCheckFill);
+                    }
+                }
+            }
+            catch { }
             try
             {
                 LogConfig config = Resources.Load<LogConfig>(nameof(LogConfig));
