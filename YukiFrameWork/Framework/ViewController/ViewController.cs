@@ -81,6 +81,7 @@ namespace YukiFrameWork
 
     }
 
+
     public abstract class AbstractController : IController
     {
         private object _object = new object();
@@ -99,28 +100,32 @@ namespace YukiFrameWork
             {
                 lock (_object)
                 {
-                    if (mArchitecture == null)
-                    {            
-                        mArchitecture = ArchitectureConstructor.I.Enquene(this);
-
-                        if (mArchitecture != null && IsAutoRegisterAttributeEvent)
-                        {
-                            MethodInfo[] methodInfos = this.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
-                                .ToArray();
-                            methodInfos.InitAllEventMethod(this,mArchitecture);
-                        }
-
-                    }
+                    if(mArchitecture == null)
+                        Build();
                     return mArchitecture;
                 }
             }
-        }
-     
+        }       
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return RuntimeArchitecture;
-        }       
+        }
+       
+       internal void Build()
+        {
+            if (mArchitecture == null)
+            {
+                mArchitecture = ArchitectureConstructor.I.Enquene(this);
 
+                if (mArchitecture != null && IsAutoRegisterAttributeEvent)
+                {
+                    MethodInfo[] methodInfos = this.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
+                        .ToArray();
+                    methodInfos.InitAllEventMethod(this, mArchitecture);
+                }
+
+            }            
+        }
         /// <summary>
         /// 框架封装AbstractController自带的OnInit初始化方法
         /// </summary>

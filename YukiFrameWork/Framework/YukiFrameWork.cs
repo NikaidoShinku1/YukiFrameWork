@@ -1516,7 +1516,17 @@ namespace YukiFrameWork
             => actor.GetArchitecture().GetSystem<T>();
 
         public static T GetUtility<T>(this IGetUtility actor) where T : class, IUtility
-            => actor.GetArchitecture().GetUtility<T>();           
+            => actor.GetArchitecture().GetUtility<T>();
+
+        /// <summary>
+        /// AbstractController会出现自动化事件注册因懒汉获取架构的方式没有执行注册，故提供该方法，在需要时可以使用
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        public static void BuildController<T>(this T t) where T : AbstractController
+        {
+            t.Build();        
+        }
     }
 
     /// <summary>

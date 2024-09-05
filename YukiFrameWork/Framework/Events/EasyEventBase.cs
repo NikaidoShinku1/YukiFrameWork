@@ -28,7 +28,7 @@ namespace YukiFrameWork
     }
 
     /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数TypeEventSystem
+    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数TypeEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
     /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
     /// <para>仅能使用于同步且返回值为Void的事件注册</para>
     /// </summary>
@@ -46,7 +46,7 @@ namespace YukiFrameWork
     }
 
     /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数StringEventSystem
+    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数StringEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
     /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
     /// <para>仅能使用于同步且返回值为Void的事件注册</para>
     /// </summary>
@@ -70,7 +70,7 @@ namespace YukiFrameWork
     }
 
     /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数EnumEventSystem
+    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数EnumEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
     /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
     /// <para>仅能使用于同步且返回值为Void的事件注册</para>    
     /// </summary>
