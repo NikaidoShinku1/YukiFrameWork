@@ -16,8 +16,7 @@ namespace YukiFrameWork
     [Serializable]
     public abstract class AbstractModel : IModel
     {       
-        public abstract void Init();
-
+        public abstract void Init();      
         /// <summary>
         /// 注销时触发销毁方法
         /// </summary>

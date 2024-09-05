@@ -114,6 +114,11 @@ namespace YukiFrameWork
             onTableValueChanged.UnRegisterAllEvent();
         }
 
+        void IBindableProperty.SetValue(params object[] args)
+        {
+            
+        }
+
         private EasyEvent<KeyValuePair<TItemKey, List<TItem>>> onTableValueChanged = new EasyEvent<KeyValuePair<TItemKey, List<TItem>>>();
     }   
 }

@@ -14,7 +14,7 @@ using YukiFrameWork.Extension;
 using System.Reflection;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 namespace YukiFrameWork
 {
     internal static class ArchitectureStartUpExtension
@@ -253,6 +253,9 @@ namespace YukiFrameWork
                 foreach (var model in orderModels)
                 {
                     model.Value.SetArchitecture(architecture);
+                    if (model.Value.GetType().HasCustomAttribute<AutoInjectConfigAttribute>())                    
+                        InjectAllFieldByModel(model.Value);
+                    
                     model.Value.Init();
                 }               
                 var orderSystems = systems
@@ -311,6 +314,93 @@ namespace YukiFrameWork
             }                
             MonoHelper.Destroy_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
+        }
+
+        private void InjectAllFieldByModel(IModel value)
+        {
+            Type type = value.GetType();
+            
+            MemberInfo[] memberInfos = type.GetRuntimeMemberInfos().ToArray();
+            for (int i = 0; i < memberInfos.Length; i++)
+            {
+                MemberInfo memberInfo = memberInfos[i];
+
+                if (!memberInfo.HasCustomAttribute(true, out ConfigDeSerializeFieldAttribute configSerializeField))
+                    continue;
+
+                configSerializeField.fieldName = configSerializeField.fieldName.IsNullOrEmpty() ? memberInfo.Name : configSerializeField.fieldName;
+                
+                if (memberInfo is PropertyInfo propertyInfo)
+                {
+                    object target = null;
+                    bool IsAssignableFromBindableProperty = typeof(IBindableProperty).IsAssignableFrom(propertyInfo.PropertyType);
+                    if (architecture.TableConfig.CheckConfigByFile(configSerializeField.pathOrName, out var config))
+                    {
+                        string info = (config as TextAsset).text;
+                        JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
+                        JToken token = jObj[configSerializeField.fieldName];
+
+                        target = token.ToObject(IsAssignableFromBindableProperty
+                            ? propertyInfo.PropertyType.GetGenericArguments()[0] : propertyInfo.PropertyType);
+                       
+                    }
+                    else
+                    {                       
+                        if(configSerializeField.property)
+                            target = config.GetType().GetProperty(configSerializeField.fieldName).GetValue(config);
+                        else target = config.GetType().GetField(configSerializeField.fieldName).GetValue(config);                       
+                    }
+
+                    if (IsAssignableFromBindableProperty)
+                    {
+                        IBindableProperty current = propertyInfo.GetValue(value) as IBindableProperty;
+                        if (current == null)
+                        {
+                            current = Activator.CreateInstance(propertyInfo.PropertyType) as IBindableProperty;
+                            propertyInfo.SetValue(value,current);
+                        }
+                        current.SetValue(target);
+                    }
+                    else
+                        propertyInfo.SetValue(value, target);
+
+                }
+                else if (memberInfo is FieldInfo fieldInfo)
+                {
+                    object target = null;
+                    bool IsAssignableFromBindableProperty = typeof(IBindableProperty).IsAssignableFrom(fieldInfo.FieldType);
+                    if (architecture.TableConfig.CheckConfigByFile(configSerializeField.pathOrName, out var config))
+                    {
+                        string info = (config as TextAsset).text;
+                        JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
+                        JToken token = jObj[configSerializeField.fieldName];
+                        target = token.ToObject(IsAssignableFromBindableProperty
+                             ? fieldInfo.FieldType.GetGenericArguments()[0] : fieldInfo.FieldType);
+                    }
+                    else
+                    {                        
+                        if (configSerializeField.property)
+                            target = config.GetType().GetProperty(configSerializeField.fieldName).GetValue(config);
+                        else target = config.GetType().GetField(configSerializeField.fieldName).GetValue(config);
+
+                        
+                    }
+
+                    if (IsAssignableFromBindableProperty)
+                    {
+                        IBindableProperty current = fieldInfo.GetValue(value) as IBindableProperty;
+                        if (current == null)
+                        {
+                            current = Activator.CreateInstance(fieldInfo.FieldType) as IBindableProperty;
+                            fieldInfo.SetValue(value,current);
+                        }
+                        current.SetValue(target);
+                    }
+                    else
+                        fieldInfo.SetValue(value, target);                  
+                }
+               
+            }
         }
 
         private bool CheckArchitectureRegister(Type type)

@@ -15,25 +15,8 @@ namespace YukiFrameWork
     public interface IBindableProperty
     {
         void UnRegisterAllEvent();
-    }
-
-    public interface IBindableProperty<T1, T2, T3, T4> : IBindableProperty
-    {
-        IUnRegister Register(Action<T1, T2, T3, T4> action);
-        IUnRegister RegisterWithInitValue(Action<T1, T2, T3, T4> action);
-    }
-
-    public interface IBindableProperty<T1, T2, T3> : IBindableProperty
-    {
-        IUnRegister Register(Action<T1, T2, T3> action);
-        IUnRegister RegisterWithInitValue(Action<T1, T2, T3> action);
-    }
-
-    public interface IBindableProperty<T1, T2> : IBindableProperty
-    {
-        IUnRegister Register(Action<T1,T2> action);
-        IUnRegister RegisterWithInitValue(Action<T1,T2> action);
-    }
+        void SetValue(params object[] args);
+    }  
 
     public interface IBindableProperty<T> : IBindableProperty
     {
@@ -65,8 +48,7 @@ namespace YukiFrameWork
                     onValueChange?.SendEvent(value);
                 }
             }
-        }        
-
+        }      
         public BindableProperty(T value)
         {
             this.value = value;
@@ -120,55 +102,10 @@ namespace YukiFrameWork
         {
             onValueChange.UnRegisterAllEvent();
         }
-    }
 
-    public class BindableProperty<T1, T2> : IBindableProperty<T1, T2>
-    {
-        [NonSerialized]
-        protected EasyEvent<T1, T2> onValueChanged = new EasyEvent<T1, T2>();
-        public IUnRegister Register(Action<T1, T2> action)
+        void IBindableProperty.SetValue(params object[] args)
         {
-            return onValueChanged.RegisterEvent(action);
-        }
-
-        private T1 value1;
-        private T2 value2;
-
-        public T1 Value1
-        {
-            get => value1;
-            set
-            {
-                if (!Equals(value, value1))
-                {
-                    value1 = value;
-                    onValueChanged.SendEvent(value1,value2);
-                }
-            }
-        }
-
-        public T2 Value2
-        {
-            get => value2;
-            set
-            {
-                if (!Equals(value, value2))
-                {
-                    value2 = value;
-                    onValueChanged.SendEvent(value1, value2);
-                }
-            }
-        }
-
-        public IUnRegister RegisterWithInitValue(Action<T1, T2> action)
-        {
-            action.Invoke(value1,value2);
-            return onValueChanged.RegisterEvent(action);
-        }
-
-        public void UnRegisterAllEvent()
-        {
-            onValueChanged.UnRegisterAllEvent();
+            Value = (T)args[0];
         }
     }
 

@@ -225,6 +225,11 @@ namespace YukiFrameWork
         }
 
         private EasyEvent<KeyValuePair<TKey, TValue>> onDictValueChanged = new EasyEvent<KeyValuePair<TKey, TValue>>();
+
+        void IBindableProperty.SetValue(params object[] args)
+        {
+            
+        }
     }
 
     public static class YDictionaryExtension

@@ -942,7 +942,12 @@ namespace YukiFrameWork
         {
             easyEvent.UnRegisterAllEvent();
         }
-       
+
+        void IBindableProperty.SetValue(params object[] args)
+        {
+            
+        }
+
         public T[] _items;
          
         [UnityEngine.HideInInspector]public int _size;

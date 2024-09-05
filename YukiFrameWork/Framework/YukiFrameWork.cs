@@ -180,6 +180,9 @@ namespace YukiFrameWork
     #region Model
     public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy,IGetConfig
     {                      
+        /// <summary>
+        /// 是否自动注入字段开启，开启后可以使用ConfigSerializeFieldAttribute特性进行自动配表注入。
+        /// </summary>      
         void Init();        
     }
     #endregion
@@ -1662,5 +1665,46 @@ namespace YukiFrameWork
         {
             return getConfig.GetArchitecture().TableConfig.GetConfigByFile(path);
         }
+    }   
+
+    /// <summary>
+    /// 配表自动反序列化，当Model层的实体类标记AutoInjectConfig特性后，Model可进行自动反序列化，同步配表，在架构中重写BuildArchitectureTable添加对应数据后，可使用该特性进行自动化处理
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public sealed class ConfigDeSerializeFieldAttribute : Attribute
+    {
+        internal string pathOrName;
+        internal string fieldName;
+        internal bool property;
+
+        /// <summary>
+        /// 标记该特性，进行反序列化
+        /// </summary>
+        /// <param name="pathOrName">配表路径/标识(应与架构配置一致)</param>
+        /// <param name="property">配表的参数是否是属性?</param>
+        public ConfigDeSerializeFieldAttribute(string pathOrName, bool property = false) 
+        {
+            this.pathOrName = pathOrName;
+            this.property = property;
+        }
+
+        /// <summary>
+        /// 标记该特性，进行反序列化
+        /// </summary>
+        /// <param name="fieldName">如果配表字段名称与Model里面的标记字段不同，请输入配表的字段名称</param>
+        /// <param name="pathOrName">配表路径/标识(应与架构配置一致)</param>
+        /// <param name="property">配表的参数是否是属性?</param>
+        public ConfigDeSerializeFieldAttribute(string fieldName, string pathOrName,bool property) : this(pathOrName,property)
+        {
+            this.fieldName = fieldName;
+        }
+    }
+
+    /// <summary>
+    /// 标记该特性，Model将自动标记为可自动进行配表反序列化的实体类
+    /// </summary>
+    public sealed class AutoInjectConfigAttribute : Attribute
+    { 
+
     }
 }

@@ -39,7 +39,7 @@ namespace YukiFrameWork
         {
             this.architectureTable = architectureTable;
             architectureTable.Init();
-        }      
+        }
         /// <summary>
         /// 获取文件配置，当配置为Json或Xml等Unity可识别TextAssets时，可使用该API获取对应的文本内容
         /// </summary>
@@ -71,6 +71,12 @@ namespace YukiFrameWork
         public T GetConfig<T>(string path) where T : UnityEngine.Object
         {
             return GetConfig(path) as T;
+        }
+
+        internal bool CheckConfigByFile(string path, out UnityEngine.Object config)
+        {
+            config = GetConfig(path);
+            return typeof(TextAsset).IsAssignableFrom(config.GetType());
         }
 
         /// <summary>

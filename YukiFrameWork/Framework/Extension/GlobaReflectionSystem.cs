@@ -11,9 +11,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using YukiFrameWork.Extension;
+using YukiFrameWork.Pools;
 
 namespace YukiFrameWork
 {
@@ -204,11 +206,17 @@ namespace YukiFrameWork
             return null;
         }
 
-        public static IEnumerable<MemberInfo> GetRuntimeMemberInfos(this Type type)
+        public static IEnumerable<MemberInfo> GetRuntimeMemberInfos(this Type type,bool IsAddMethod = false)
         {
-            return type.GetMembers(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic
-                | BindingFlags.GetProperty | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Default | BindingFlags.InvokeMethod | BindingFlags.PutDispProperty
-                | BindingFlags.DeclaredOnly | BindingFlags.FlattenHierarchy);
+            IEnumerable<FieldInfo> fieldInfos = type.GetRuntimeFields();
+            IEnumerable<PropertyInfo> propertyInfos = type.GetRuntimeProperties();
+            IEnumerable<MethodInfo> methodInfos = IsAddMethod ? type.GetRuntimeMethods() : default;
+            List<MemberInfo> memberInfos = new List<MemberInfo>(fieldInfos.Count() + propertyInfos.Count() + (methodInfos == null ? 0 : methodInfos.Count()));
+            memberInfos.AddRange(fieldInfos);
+            memberInfos.AddRange(propertyInfos);
+            if (IsAddMethod)
+                memberInfos.AddRange(methodInfos);
+            return memberInfos;
         }  
 
         private static MethodInfo GetMethodInfos<T>(string methodName,Type[] types)
