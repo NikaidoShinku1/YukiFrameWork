@@ -53,14 +53,15 @@ namespace YukiFrameWork.Buffer
             codeCore
                 .Using("System")
                 .Using("UnityEngine")
+                .Using("YukiFrameWork.Buffer")
                 .Descripton(fileName, nameSpace, "自动化代码生成的Buff派生类");
 
             codeCore.CodeSetting(nameSpace, fileName, nameof(Buff), null).Create(fileName, filePath);
         }
 
         [Button("生成标识代码"), GUIColor("green"),PropertySpace(15), FoldoutGroup("代码设置")]
-        [InfoBox("标识代码则为所有配置的标识以及Buff的快捷获取，类名为Buffs,仅在配置完毕且没有标识为空的时候使用")]
-        void CreateDefaultCode()
+        [InfoBox("标识代码则为所有配置的标识以及Buff的快捷获取，仅在配置完毕且没有标识为空的时候使用")]
+        void CreateDefaultCode(string buffInfoScriptNames = "Buffs")
         {          
             if (string.IsNullOrEmpty(nameSpace))
             {
@@ -78,7 +79,8 @@ namespace YukiFrameWork.Buffer
             codeCore
                .Using("System")
                .Using("UnityEngine")
-               .Descripton("Buffs", nameSpace, "自动化代码生成的Buff标识类");
+               .Using("YukiFrameWork.Buffer")
+               .Descripton(buffInfoScriptNames, nameSpace, "自动化代码生成的Buff标识类");
             CodeWriter writer = new CodeWriter();
             foreach (var item in buffConfigs)
             {
@@ -88,7 +90,7 @@ namespace YukiFrameWork.Buffer
                 writer.CustomCode($"public static string {item.GetBuffKey}_Key = \"{item.GetBuffKey}\";");
                 writer.CustomCode($"public static IBuff {item.GetBuffKey} => BuffKit.GetBuffByKey(\"{item.GetBuffKey}\");");
             }
-            codeCore.CodeSetting(nameSpace, "Buffs", string.Empty, writer).Create("Buffs", filePath);
+            codeCore.CodeSetting(nameSpace, buffInfoScriptNames, string.Empty, writer).Create(buffInfoScriptNames, filePath);
         }
 #endif
        

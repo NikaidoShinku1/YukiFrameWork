@@ -147,13 +147,33 @@ namespace YukiFrameWork.Skill
 			yield return CoroutineTool.WaitUntil(() => completed);
 		}
 
-		/// <summary>
-		/// 释放技能(拓展)
-		/// </summary>
-		/// <param name="executor"></param>
-		/// <param name="controller"></param>
-		/// <returns></returns>
-		public static ReleaseSkillStatus ReleaseKill(this ISkillExecutor executor, ISkillController controller, params object[] param)
+		public static void AddSkills(this ISkillExecutor executor, params string[] skillKeys)
+		{
+			executor.Handler.AddSkills(executor, skillKeys);
+		}
+
+        public static void AddSkills(this ISkillExecutor executor, params ISkillData[] skills)
+        {
+            executor.Handler.AddSkills(executor, skills);
+        }
+
+        public static void AddSkill(this ISkillExecutor executor, string skillKey)
+        {
+			executor.Handler.AddSkill(skillKey, executor);
+        }
+
+        public static void AddSkill(this ISkillExecutor executor, ISkillData skill)
+        {
+            executor.Handler.AddSkill(skill, executor);
+        }
+
+        /// <summary>
+        /// 释放技能(拓展)
+        /// </summary>
+        /// <param name="executor"></param>
+        /// <param name="controller"></param>
+        /// <returns></returns>
+        public static ReleaseSkillStatus ReleaseKill(this ISkillExecutor executor, ISkillController controller, params object[] param)
 		{
 			return executor.Handler.ReleaseSkill(controller.SkillData.GetSkillKey,param);
 		}

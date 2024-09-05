@@ -49,7 +49,7 @@ namespace YukiFrameWork.Skill
 
         public ISkillExecutor Player { get;private set; }
 
-        public SkillHandler Handler => Player.Handler;
+        public SkillHandler Handler => Player.Handler;      
 
         public ISkillData SkillData { get; set; }    
 

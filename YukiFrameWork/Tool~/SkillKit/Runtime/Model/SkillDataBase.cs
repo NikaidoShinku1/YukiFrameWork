@@ -60,8 +60,8 @@ namespace YukiFrameWork.Skill
         }        
 
         [Button("生成标识代码"), GUIColor("green"), PropertySpace(15), FoldoutGroup("代码设置")]
-        [InfoBox("标识代码则为所有配置的标识以及SkillData的快捷获取，类名为SkillInfos,仅在配置完毕且没有标识为空的时候使用")]
-        void CreateDefaultCode()
+        [InfoBox("标识代码则为所有配置的标识以及SkillData的快捷获取，仅在配置完毕且没有标识为空的时候使用")]
+        void CreateDefaultCode(string InfoScriptNames = "SkillInfos")
         {
             if (string.IsNullOrEmpty(nameSpace))
             {
@@ -79,8 +79,8 @@ namespace YukiFrameWork.Skill
             codeCore
                .Using("System")
                .Using("UnityEngine")
-               .Using("YukiFrameWork.Skilll")
-               .Descripton("SkillInfos", nameSpace, "自动化代码生成的SkillData标识类");
+               .Using("YukiFrameWork.Skill")
+               .Descripton(InfoScriptNames, nameSpace, "自动化代码生成的SkillData标识类");
             CodeWriter writer = new CodeWriter();
             foreach (var item in SkillDataConfigs)
             {
@@ -90,7 +90,7 @@ namespace YukiFrameWork.Skill
                 writer.CustomCode($"public static string {item.GetSkillKey}_Key = \"{item.GetSkillKey}\";");
                 writer.CustomCode($"public static ISkillData {item.GetSkillKey} => SkillKit.GetSkillDataByKey(\"{item.GetSkillKey}\");");
             }
-            codeCore.CodeSetting(nameSpace, "SkillInfos", string.Empty, writer,false,true).Create("SkillInfos", filePath);
+            codeCore.CodeSetting(nameSpace, InfoScriptNames, string.Empty, writer,false,true).Create(InfoScriptNames, filePath);
         }
 #endif
 
