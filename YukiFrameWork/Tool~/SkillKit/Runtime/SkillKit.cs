@@ -173,9 +173,9 @@ namespace YukiFrameWork.Skill
         /// <param name="executor"></param>
         /// <param name="controller"></param>
         /// <returns></returns>
-        public static ReleaseSkillStatus ReleaseKill(this ISkillExecutor executor, ISkillController controller, params object[] param)
+        public static ReleaseSkillStatus ReleaseSKill(this ISkillExecutor executor, string skillKey, params object[] param)
 		{
-			return executor.Handler.ReleaseSkill(controller.SkillData.GetSkillKey,param);
+			return executor.Handler.ReleaseSkill(skillKey,param);
 		}
 
 		/// <summary>
@@ -183,9 +183,9 @@ namespace YukiFrameWork.Skill
 		/// </summary>
 		/// <param name="executor"></param>
 		/// <param name="controller"></param>
-		public static void CancelSkill(this ISkillExecutor executor, ISkillController controller)
+		public static void CancelSkill(this ISkillExecutor executor, string skillKey)
 		{
-			executor.Handler.CancelSkill(controller.SkillData.GetSkillKey);
+			executor.Handler.CancelSkill(skillKey);
 		}
 
 		/// <summary>
@@ -193,9 +193,9 @@ namespace YukiFrameWork.Skill
 		/// </summary>
 		/// <param name="executor"></param>
 		/// <param name="controller"></param>
-		public static void InterruptionSkill(this ISkillExecutor executor, ISkillController controller)
+		public static void InterruptionSkill(this ISkillExecutor executor, string skillKey)
 		{
-			executor.Handler.InterruptionSkill(controller.SkillData.GetSkillKey);
+			executor.Handler.InterruptionSkill(skillKey);
 		}
 
 		/// <summary>
@@ -203,9 +203,9 @@ namespace YukiFrameWork.Skill
 		/// </summary>
 		/// <param name="executor"></param>
 		/// <param name="controller"></param>
-		public static void ResetSkillReleasingTime(this ISkillExecutor executor, ISkillController controller)
+		public static void ResetSkillReleasingTime(this ISkillExecutor executor, string skillKey)
 		{
-			executor.Handler.ResetSkillReleasingTime(controller.SkillData.GetSkillKey);
+			executor.Handler.ResetSkillReleasingTime(skillKey);
 		}
 
 		/// <summary>
@@ -213,9 +213,9 @@ namespace YukiFrameWork.Skill
 		/// </summary>
 		/// <param name="executor"></param>
 		/// <param name="controller"></param>
-		public static void ResetSkillCoolingTime(this ISkillExecutor executor, ISkillController controller)
+		public static void ResetSkillCoolingTime(this ISkillExecutor executor, string skillKey)
 		{
-			executor.Handler.ResetSkillCoolingTime(controller.SkillData.GetSkillKey);
+			executor.Handler.ResetSkillCoolingTime(skillKey);
 		}
 
 		/// <summary>
@@ -223,9 +223,9 @@ namespace YukiFrameWork.Skill
 		/// </summary>
 		/// <param name="executor"></param>
 		/// <param name="controller"></param>
-		public static void RemoveSkill(this ISkillExecutor executor, ISkillController controller)
+		public static void RemoveSkill(this ISkillExecutor executor, string skillKey)
 		{
-			executor.Handler.RemoveSkill(controller.SkillData.GetSkillKey);
+			executor.Handler.RemoveSkill(skillKey);
 		}
 
         public static void DependLocalizationConfig(string configKey, char spilt = ':')
