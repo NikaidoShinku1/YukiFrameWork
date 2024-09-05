@@ -119,7 +119,7 @@ namespace YukiFrameWork
         {
             trigger = null;
 
-            if(mToken.GlobalRelease())
+            if(mToken?.GlobalRelease() == true)
                 mToken = null;         
         }
  
