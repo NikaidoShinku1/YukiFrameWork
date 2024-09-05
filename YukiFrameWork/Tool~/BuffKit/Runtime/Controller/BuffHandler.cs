@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 using System;
+using Sirenix.OdinInspector;
 namespace YukiFrameWork.Buffer
 {	
 	public class BuffHandler : MonoBehaviour
@@ -19,16 +20,18 @@ namespace YukiFrameWork.Buffer
 		private List<IBuffController> release = new List<IBuffController>();		
 		private UIBuffHandlerGroup handlerGroup;
 
-		/// <summary>
-		/// Buff添加时触发的回调，只要调用AddBuffer没有添加失败而改变了Buff的状态，则统一会调用该方法。并且可以拿到Controller
-		/// </summary>
-		public readonly EasyEvent<IBuffController> onBuffAddCallBack = new EasyEvent<IBuffController>();
-
-
         /// <summary>
-        /// Buff移除时触发的回调，并且可以拿到Controller
+        /// Buff添加时触发的回调，只要调用AddBuffer没有添加失败而改变了Buff的状态，则统一会调用该方法。并且可以拿到Controller
         /// </summary>
-        public readonly EasyEvent<IBuffController> onBuffRemoveCallBack = new EasyEvent<IBuffController>();	
+        [LabelText("Buff添加时会触发的回调")]
+        public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffAddCallBack;
+
+
+		/// <summary>
+		/// Buff移除时触发的回调，并且可以拿到Controller
+		/// </summary>
+		[LabelText("Buff移除时会触发的回调")]
+        public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffRemoveCallBack;	
 
 		public void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
 		{
@@ -61,7 +64,7 @@ namespace YukiFrameWork.Buffer
                                 item.RemainingTime = buff.BuffTimer;
                                 if (item.UIBuffer != null)
                                     item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
-                                onBuffAddCallBack.SendEvent(item);
+                                onBuffAddCallBack?.Invoke(item);
                             }
                             break;
                         case BuffRepeatAdditionType.Multiple:
@@ -72,7 +75,7 @@ namespace YukiFrameWork.Buffer
                                 item.OnBuffStart();
                                 if (item.UIBuffer != null)
                                     item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
-                                onBuffAddCallBack.SendEvent(item);
+                                onBuffAddCallBack?.Invoke(item);
                             }
                             break;
                         case BuffRepeatAdditionType.MultipleAndReset:
@@ -84,7 +87,7 @@ namespace YukiFrameWork.Buffer
                                 item.OnBuffStart();
                                 if (item.UIBuffer != null)
                                     item.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
-                                onBuffAddCallBack.SendEvent(item);
+                                onBuffAddCallBack?.Invoke(item);
 
                             }
                             break;
@@ -98,7 +101,7 @@ namespace YukiFrameWork.Buffer
                                 {
                                     controller.UIBuffer = handlerGroup.CreateBuffer();
                                     controller.UIBuffer.OnBuffStart(buff, buff.GetBuffKey, item.BuffLayer);
-                                    onBuffAddCallBack.SendEvent(controller);
+                                    onBuffAddCallBack?.Invoke(controller);
                                 }
                             }
                             break;
@@ -243,7 +246,7 @@ namespace YukiFrameWork.Buffer
 				uiBuffer.OnBuffStart(buffController.Buffer, buffController.BuffKey,buffController.BuffLayer);
 				buffController.UIBuffer = uiBuffer;
 			}
-            onBuffAddCallBack.SendEvent(buffController);
+            onBuffAddCallBack?.Invoke(buffController);
         }
 
         private void Update()
@@ -309,7 +312,7 @@ namespace YukiFrameWork.Buffer
                 controller.RemainingTime = controller.Buffer.BuffTimer;
 			}
 			controller.OnBuffRemove();
-			onBuffRemoveCallBack.SendEvent(controller);
+			onBuffRemoveCallBack?.Invoke(controller);
 			if (controller.UIBuffer != null)
 				controller.UIBuffer.OnBuffRemove(controller.BuffLayer);
             if (controller.BuffLayer <= 0 || !controller.Buffer.IsBuffRemoveBySlowly)
@@ -358,25 +361,21 @@ namespace YukiFrameWork.Buffer
 						if (handlerGroup != null)
 							handlerGroup.ReleaseBuffer(controller.UIBuffer);
 #if YukiFrameWork_DEBUGFULL
-                        LogKit.I("回收的控制器类型:" + controller.GetType());
+						LogKit.I("回收的控制器类型:" + controller.GetType());
 #endif
-                    }
+					}
 
-                    BuffController.Release(controller);
+					BuffController.Release(controller);
 				}
 			}
 			release.Clear();
-            mTable.Clear();
-        }
-		bool IsRelease = false;
-
-        private void OnEnable()
-        {
-			IsRelease = false;
-        }        
+			mTable.Clear();
+		}	      
 
         private void OnDestroy()
         {
+			onBuffRemoveCallBack.RemoveAllListeners();
+			onBuffAddCallBack.RemoveAllListeners();
             StopAllBuffController();
             mTable.Dispose();
         }
