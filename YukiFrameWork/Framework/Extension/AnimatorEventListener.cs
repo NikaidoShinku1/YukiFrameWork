@@ -17,12 +17,19 @@ namespace YukiFrameWork
 	{ }
 	public class AnimatorEventListener : MonoBehaviour
 	{
-		public AnimatorEvent onAnimatorEvent = new AnimatorEvent();
+		[SerializeField]
+		private AnimatorEvent onAnimatorEvent = new AnimatorEvent();
 
 		public void OnAnimatorEvent(string name)
 			=> onAnimatorEvent?.Invoke(name);
 
 		public void AddListener(UnityAction<string> action)
 			=> onAnimatorEvent.AddListener(action);
+
+		public void RemoveListener(UnityAction<string> action)
+			=> onAnimatorEvent.RemoveListener(action);
+
+		public void RemoveAllListeners()
+			=> onAnimatorEvent.RemoveAllListeners();
 	}
 }
