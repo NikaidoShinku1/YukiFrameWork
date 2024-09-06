@@ -56,13 +56,10 @@ namespace XFABManager {
         /// <returns></returns>
 
         public static GameObject Load(string projectName, string assetName, Transform parent = null)
-        {
-
-            if (!EditorApplicationTool.isPlaying) return null;
-
+        {          
             // 加载预制体
             GameObject prefab = AssetBundleManager.LoadAssetWithoutTips<GameObject>(projectName, assetName);
-            if (prefab == null) return null;
+          
             return Load(prefab,parent);
         }
 
@@ -74,9 +71,7 @@ namespace XFABManager {
         /// <returns></returns>
         public static GameObject Load(GameObject prefab, Transform parent = null)
         {
-            if (!EditorApplicationTool.isPlaying) return null;
-            if (prefab == null) return null;
-
+            if (!prefab) return null;
             GameObjectPool pool = GetOrCreatePool(prefab);
 
             GameObject obj = pool.Load(parent);
@@ -109,10 +104,20 @@ namespace XFABManager {
         /// <exception cref="System.Exception"></exception>
         public static void UnLoad(GameObject obj, bool parentStays = false)
         {
-            if (!EditorApplicationTool.isPlaying) 
+#if UNITY_EDITOR
+
+            if (!EditorApplicationTool.isPlaying)
+            {
+                // 如果是编辑器非运行模式 直接销毁
+                if (obj)
+                    GameObject.Destroy(obj);
                 return;
+            }
+
+#endif
+
             // 如果为空 或者 已经被销毁了，可以不用处理
-            if (obj == null || obj.IsDestroy())
+            if (!obj)
                 return;
             int key = obj.GetHashCode();
             if (allObjPoolMapping.ContainsKey(key)) { 

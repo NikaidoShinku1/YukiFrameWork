@@ -11,6 +11,8 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
+using System.Reflection;
 namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
@@ -304,9 +306,24 @@ namespace YukiFrameWork.Pools
                     type = type,
                     lastTime = Time.time,
                 };
-                for (int i = 0; i < (InitializePoolCount > maxSize ? maxSize : InitializePoolCount); i++)
+              
+                if (InitializePoolCount > 0)
                 {
-                    pool.Release(Activator.CreateInstance(type) as IGlobalSign);
+                    ConstructorInfo constructorInfo = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(x => x.GetParameters()?.Length == 0);
+                    if (constructorInfo != null)
+                    {
+                        for (int i = 0; i < (InitializePoolCount > maxSize ? maxSize : InitializePoolCount); i++)
+                        {
+                            try
+                            {
+                                pool.Release(constructorInfo.Invoke(null) as IGlobalSign);
+                            }
+                            catch
+                            {
+                                pool.Release(constructorInfo.Invoke(null) as IGlobalSign);
+                            }
+                        }
+                    }
                 }
                 Instance.pools.Add(type, pool);
             }

@@ -30,6 +30,8 @@ namespace YukiFrameWork.Buffer
 
         private bool isGeneraicScript;
         private int configCount;
+
+        private Type[] types;
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -79,21 +81,24 @@ namespace YukiFrameWork.Buffer
             if (isGeneraicScript == false && GUILayout.Button("创建新的Buff"))
             {
                 isGeneraicScript = true;
+                types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(Buff)) && !x.IsAbstract);
             }
             GUI.color = Color.white;
             if (isGeneraicScript)
             {
-                var types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(Buff)));
 
-                for (int i = 0; i < types.Length; i++)
+                if (types != null)
                 {
-                    int index = i;
-                    if (GUILayout.Button(types[i].ToString()))
+                    for (int i = 0; i < types.Length; i++)
                     {
-                        dataBase.CreateBuff(types[index]);
-                        Repaint();
-                        isGeneraicScript = false;
-                    };
+                        int index = i;
+                        if (GUILayout.Button(types[i].ToString()))
+                        {
+                            dataBase.CreateBuff(types[index]);
+                            Repaint();
+                            isGeneraicScript = false;
+                        };
+                    }
                 }
             }
             if (isGeneraicScript && GUILayout.Button("取消"))

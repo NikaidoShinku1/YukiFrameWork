@@ -27,6 +27,8 @@ namespace YukiFrameWork.Skill
 
         private bool isGeneraicScript;
         private int configCount;
+
+        private Type[] types;
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -78,22 +80,24 @@ namespace YukiFrameWork.Skill
             GUI.color = Color.cyan;
             if (isGeneraicScript == false && GUILayout.Button("创建新的技能"))
             {
-                isGeneraicScript = true;                               
+                isGeneraicScript = true;
+                types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(SkillData)) && !x.IsAbstract);
             }
             GUI.color = Color.white;
             if (isGeneraicScript)
             {
-                var types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(SkillData)));
-
-                for (int i = 0; i < types.Length; i++)
+                if (types != null)
                 {
-                    int index = i;
-                    if(GUILayout.Button(types[i].ToString()))
+                    for (int i = 0; i < types.Length; i++)
                     {
-                        dataBase.CreateSkillData(types[index]);
-                        Repaint();
-                        isGeneraicScript = false;
-                    };
+                        int index = i;
+                        if (GUILayout.Button(types[i].ToString()))
+                        {
+                            dataBase.CreateSkillData(types[index]);
+                            Repaint();
+                            isGeneraicScript = false;
+                        };
+                    }
                 }
             }
             if (isGeneraicScript && GUILayout.Button("取消"))
