@@ -173,7 +173,7 @@ namespace YukiFrameWork.Skill
         /// <param name="executor"></param>
         /// <param name="controller"></param>
         /// <returns></returns>
-        public static ReleaseSkillStatus ReleaseSKill(this ISkillExecutor executor, string skillKey, params object[] param)
+        public static ReleaseSkillStatus ReleaseSkill(this ISkillExecutor executor, string skillKey, params object[] param)
 		{
 			return executor.Handler.ReleaseSkill(skillKey,param);
 		}

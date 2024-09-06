@@ -33,10 +33,8 @@ namespace YukiFrameWork.Extension
         class JsonData
         {
             [LabelText("Excel的文件路径"),Sirenix.OdinInspector.FilePath]
-            public string excelPath;
-            [LabelText("文件路径"),HorizontalGroup("Json文件的路径设置")]
-            public string jsonPath;
-            [LabelText("文件名称"),HorizontalGroup("Json文件的路径设置")]
+            public string excelPath;           
+            [LabelText("Json文件名称"),HorizontalGroup("Json文件的路径设置")]
             public string jsonName;
             [InfoBox("判断多少行是表头")]
             [LabelText("表头")]
@@ -102,8 +100,16 @@ namespace YukiFrameWork.Extension
                 if (string.IsNullOrEmpty(excelPath))
                     continue;
 
-                string json = SerializationTool.ExcelToJson(excelPath, data.header, data.ex_suffix);
-                json.CreateFileStream(data.jsonPath,data.jsonName,".json");
+                string json = SerializationTool.ExcelToJson(excelPath, data.header, data.ex_suffix,true);
+                string[] strings = excelPath.Split('/');
+                string targetPath = string.Empty;
+                for (int i = 0; i < strings.Length; i++)
+                {
+                    if (i == strings.Length - 1) break;
+
+                    targetPath += strings[i] + "/";
+                }
+                json.CreateFileStream(targetPath, data.jsonName,".json");
             }
         }
 

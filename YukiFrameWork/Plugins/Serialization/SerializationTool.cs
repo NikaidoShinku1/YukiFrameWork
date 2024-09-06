@@ -99,7 +99,7 @@ namespace YukiFrameWork.Extension
         /// <param name="header">表中几行表头</param>
         /// <param name="exclude_prefix">导出时，过滤掉包含指定前缀的列</param>
         /// <returns>返回Json的字符串</returns>
-        public static string ExcelToJson(string excelPath, int header, string exclude_prefix = "")
+        public static string ExcelToJson(string excelPath, int header, string exclude_prefix = "",bool cellJson = false,bool allString = false)
         {
             if (!File.Exists(excelPath))
             {
@@ -107,7 +107,7 @@ namespace YukiFrameWork.Extension
             }
 
             ExcelLoader loader = new ExcelLoader(excelPath, header);
-            JsonExporter exporter = new JsonExporter(loader, false, true, string.Empty, false, header, exclude_prefix, false, false);
+            JsonExporter exporter = new JsonExporter(loader, false, true, string.Empty, false, header, exclude_prefix, cellJson, allString);
             return exporter.context;
         }
 

@@ -769,7 +769,7 @@ namespace YukiFrameWork.ActionStates
             else if (metadata.type == TypeCode.Double)
                 metadata.value = EditorGUILayout.DoubleField(metadata.name, (double)metadata.value);
             else if (metadata.type == TypeCode.String)
-                metadata.value = EditorGUILayout.TextField(metadata.name, metadata.value.ToString());
+                metadata.value = EditorGUILayout.TextField(metadata.name, (string)metadata.value);
             else if (metadata.type == TypeCode.Enum)
                 metadata.value = EditorGUILayout.EnumPopup(metadata.name, (Enum)metadata.value);
             else if (metadata.type == TypeCode.Vector2)

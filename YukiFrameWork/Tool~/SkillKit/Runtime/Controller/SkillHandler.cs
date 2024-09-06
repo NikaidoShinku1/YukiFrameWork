@@ -415,8 +415,7 @@ namespace YukiFrameWork.Skill
         {
             bool contains = true;
             foreach (var item in skills.Values)
-            {              
-                LogKit.I("技能释放" + item.SkillData.GetSkillKey + "是否:" + item.IsSkillRelease + "拥有可释放技能:" + item.SimultaneousSkillKeys.Count);
+            {                            
                 if (!item.IsSkillRelease) 
                     continue;
 

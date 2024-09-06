@@ -345,6 +345,7 @@ namespace YukiFrameWork.UI
         /// <param name="panel"></param>
         public static void ClosePanel(IPanel panel)
         {
+            if (panel == null) return;
             PanelInfo info = new PanelInfo();
             info.panelName = panel.gameObject.name;
             info.level = panel.Level;

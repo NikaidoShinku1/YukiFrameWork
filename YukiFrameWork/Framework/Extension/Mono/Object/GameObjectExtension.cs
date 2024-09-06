@@ -972,9 +972,9 @@ namespace YukiFrameWork
         }
 
         public static FastList<T> ToFastList<T>(this IEnumerable<T> list)
-            => new FastList<T>(list); 
+            => new FastList<T>(list);
 
-        #endregion
+        #endregion  
 
         #region Action
         public static Action ToSystemAction(this UnityEvent uEvent)
