@@ -49,6 +49,7 @@ namespace YukiFrameWork
                 }
             }
         }      
+      
         public BindableProperty(T value)
         {
             this.value = value;

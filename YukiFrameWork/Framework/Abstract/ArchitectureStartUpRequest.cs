@@ -337,12 +337,21 @@ namespace YukiFrameWork
                     if (architecture.TableConfig.CheckConfigByFile(configSerializeField.pathOrName, out var config))
                     {
                         string info = (config as TextAsset).text;
-                        JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
-                        JToken token = jObj[configSerializeField.fieldName];
+                        JToken token = null;
 
+                        if (configSerializeField.jObjectType == JObjectType.Object)
+                        {
+                            JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
+                            token = jObj[configSerializeField.fieldName];
+                        }
+                        else
+                        {
+                            JArray jArray = SerializationTool.DeserializedObject<JArray>(info);
+                            token = jArray;
+                        }
                         target = token.ToObject(IsAssignableFromBindableProperty
-                            ? propertyInfo.PropertyType.GetGenericArguments()[0] : propertyInfo.PropertyType);
-                       
+                               ? propertyInfo.PropertyType.GetGenericArguments()[0] : propertyInfo.PropertyType);
+
                     }
                     else
                     {                       
@@ -372,10 +381,19 @@ namespace YukiFrameWork
                     if (architecture.TableConfig.CheckConfigByFile(configSerializeField.pathOrName, out var config))
                     {
                         string info = (config as TextAsset).text;
-                        JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
-                        JToken token = jObj[configSerializeField.fieldName];
+                        JToken token = null;
+                        if (configSerializeField.jObjectType == JObjectType.Object)
+                        {
+                            JObject jObj = SerializationTool.DeserializedObject<JObject>(info);
+                            token = jObj[configSerializeField.fieldName];                            
+                        }
+                        else
+                        {
+                            JArray jArray = SerializationTool.DeserializedObject<JArray>(info);
+                            token = jArray;
+                        }
                         target = token.ToObject(IsAssignableFromBindableProperty
-                             ? fieldInfo.FieldType.GetGenericArguments()[0] : fieldInfo.FieldType);
+                                 ? fieldInfo.FieldType.GetGenericArguments()[0] : fieldInfo.FieldType);
                     }
                     else
                     {                        

@@ -1686,16 +1686,18 @@ namespace YukiFrameWork
         internal string pathOrName;
         internal string fieldName;
         internal bool property;
+        internal JObjectType jObjectType;
 
         /// <summary>
         /// 标记该特性，进行反序列化
         /// </summary>
         /// <param name="pathOrName">配表路径/标识(应与架构配置一致)</param>
         /// <param name="property">配表的参数是否是属性?</param>
-        public ConfigDeSerializeFieldAttribute(string pathOrName, bool property = false) 
+        public ConfigDeSerializeFieldAttribute(string pathOrName, bool property = false,JObjectType jObjectType = JObjectType.Object) 
         {
             this.pathOrName = pathOrName;
             this.property = property;
+            this.jObjectType = jObjectType;
         }
 
         /// <summary>
@@ -1704,10 +1706,16 @@ namespace YukiFrameWork
         /// <param name="fieldName">如果配表字段名称与Model里面的标记字段不同，请输入配表的字段名称</param>
         /// <param name="pathOrName">配表路径/标识(应与架构配置一致)</param>
         /// <param name="property">配表的参数是否是属性?</param>
-        public ConfigDeSerializeFieldAttribute(string fieldName, string pathOrName,bool property) : this(pathOrName,property)
+        public ConfigDeSerializeFieldAttribute(string fieldName, string pathOrName,bool property, JObjectType jObjectType = JObjectType.Object) : this(pathOrName,property,jObjectType)
         {
             this.fieldName = fieldName;
         }
+    }
+
+    public enum JObjectType
+    {
+        Array,
+        Object
     }
 
     /// <summary>

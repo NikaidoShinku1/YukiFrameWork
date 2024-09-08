@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     public class EasyEvent : EasyEventBase<Action>
@@ -420,7 +421,7 @@ namespace YukiFrameWork
             {
                 onEvent = onEvent,
                 methodInfo = methodInfo
-            });
+            });        
             return RegisterEvent(onEvent);
         }
 
