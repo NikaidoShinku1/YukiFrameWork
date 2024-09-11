@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.26.2 优化SkillKit与BuffKit，移除对UI的适配，添加新的委托进行外部的逻辑注册。更新BuffKit的文档，AudioKit中AudioInfo组件新增Enable时播放
+
 V1.26.1 框架新增RandomKit类，拓展封装UnityEngine的Random类作为随机套件使用。优化细节，配表自动反序列化修复数组导致异常的问题
 
 V1.25.8 修复全局对象池如果预加载的对象的构造函数是私有化导致异常的问题。优化SkillKit与BuffKit的编辑器性能

@@ -63,14 +63,15 @@ public class TestScripts : MonoBehaviour,IBuffExecutor
 
 BuffHandler API:
 
-	//Buff添加时触发的回调，只要调用AddBuffer没有添加失败而改变了Buff的状态，则统一会调用该方法。并且可以拿到Controller
-	- EasyEvent<BuffController> onBuffAddCallBack; //handler.onBuffAddCallBack.RegisterEvent(controller => { });
+	- /// <summary>
+    - /// Buff添加时触发的回调,该回调与BuffAwake同属周期，仅首次添加调用，如果是添加多个且不可叠加的buff，则每一个新Buff都触发
+    - /// </summary>
+    - public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffAddCallBack;
 
-	//Buff移除时触发的回调，并且可以拿到Controller   
-    - EasyEvent<BuffController> onBuffRemoveCallBack;handler.onBuffRemoveCallBack.RegisterEvent(controller => { });
-
-	//设置UIBuffHandlerGroup组件，该API对应下方介绍使用UI同步时采用
-	- void SetUIBuffHandlerGroup(UIBuffHandlerGroup handlerGroup)
+	- // <summary>
+	- // Buff移除时触发的回调，并且可以拿到Controller
+	- // </summary>	
+    - public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffDestroyCallBack ;		
 
 	//添加Buff，传递一个Buff以及玩家对象Player
 	- void AddBuffer(IBuff buff,IBufferExecutor player)
@@ -148,15 +149,23 @@ BuffController专门处理Buff逻辑以及生命周期。
 
 BuffController API: 希望BuffController完全自定义可以继承IBuffController接口，正常情况下使用框架提供的BuffController足够。
 
+
+      //每一次Buff启动或者叠加的时候都会调用的回调,同时会得到层级
+    - Action<int> onBuffStart { get; set; } 
+
+	
+	  //Buff正在执行时会持续触发的回调,参数是Buff的剩余进度(1-0)
+	- Acion<float> onBuffReleasing { get; set; }
+
+      
+      //每一次Buff移除的时候执行，如果Buff是叠加了多层的且开启了缓慢减少，则每次减少一层都会调用一次该回调,同时会得到移除Buff后的层级
+    - Action<int> onBuffRemove { get; set; }
    
     //Controller执行期间的Buff
     - IBuff Buffer { get; }
 
     //BuffKey属性定义。
     - string BuffKey => Buffer.GetBuffKey;
-
-    //UI同步时的组件，该Buffer在BuffHandler绑定UIBuffHandlerGroup时，会自动为Controller添加。
-    - UIBuffer UIBuffer { get; }
 
     //当前Buff的层数
     - int BuffLayer { get; }
@@ -221,63 +230,6 @@ BuffController API: 希望BuffController完全自定义可以继承IBuffControll
     	//ToDo
     }
 ```
-
-
-UI同步，为设置好的面板挂载UIBuffHandlerGroup类，如图所示:
-
-![输入图片说明](Texture/6.png)
-
-创建自定义的UIBuffer类，示例如下:
-
-``` csharp
-    public class CustomUIBuffer : UIBuffer
-    {
-     
-        public override void OnBuffDestroy()
-        {
-            
-        }
-
-        public override void OnBuffRemove(int buffLayer)
-        {
-            
-        }
-
-        public override void OnBuffStart(IBuff buff, string buffKey, int buffLayer)
-        {
-
-        }
-
-        public override void OnBuffUpdate(float remainingTime,float remainingProgress)
-        {
-            
-        }
-
-        public override void OnDispose()
-        {
-            
-        }
-    }
-```
-
-创建好并挂到某一个设定好的UI之后，则将其制作成预制体拖入UIBuffHandlerGroup中，并设置根节点。
-
-UIBuffer API：
-
-    //每次Buff的状态被成功改变或者添加成功时，该方法也会跟随调用。
-    - void OnBuffStart(IBuff buff, string buffKey, int buffLayer)；
-
-    //同步执行的Update更新方法作用于UIBuffer。
-    - void OnBuffUpdate(float remainingTime)；
-
-    //当Buff被移除时也会同步调用。
-    - void OnBuffRemove(int buffLayer);
-
-    //当Buff被完全销毁时同步调用
-    - void OnBuffDestroy();
-
-    //在UIBuffHandlerGroup中有一套对象池进行对该组件的管理,OnDispose则为回收时会执行的方法。
-    - void OnDispose()
 
 Buff管理套件：BuffKit类，使用如下:
 

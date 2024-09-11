@@ -1256,7 +1256,6 @@ namespace XFABManager
         // 加载资源
         internal static UnityEngine.Object LoadAssetInternal(string projectName, string bundleName, string assetName, Type type)
         {
-
             if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(bundleName) || string.IsNullOrEmpty(assetName))
             {
                 return null;

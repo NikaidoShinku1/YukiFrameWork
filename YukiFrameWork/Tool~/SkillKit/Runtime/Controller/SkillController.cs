@@ -43,8 +43,7 @@ namespace YukiFrameWork.Skill
         float ISkillController.ReleasingTime { get => ReleasingTime; set => ReleasingTime = value; }
         bool ISkillController.IsSkillCoolDown { get => IsSkillCoolDown; set => IsSkillCoolDown = value; }
         float ISkillController.CoolDownTime { get => CoolDownTime; set => CoolDownTime = value; }
-        int ISkillController.SkillLevel { get => SkillLevel; set => SkillLevel = value; }
-        UISkill ISkillController.UISkill { get => UISkill; set => UISkill = value; }        
+        int ISkillController.SkillLevel { get => SkillLevel; set => SkillLevel = value; }       
         #endregion
 
         public ISkillExecutor Player { get;private set; }
@@ -55,9 +54,7 @@ namespace YukiFrameWork.Skill
 
         public bool IsSkillRelease { get; private set; }     
 
-        public float ReleasingTime { get; private set; }      
-
-        public UISkill UISkill { get; internal set; }
+        public float ReleasingTime { get; private set; }           
 
         public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();
 
@@ -86,9 +83,7 @@ namespace YukiFrameWork.Skill
                     {
                         skillLevel = value;
                         onLevelChanged?.Invoke(skillLevel);
-                        OnLevelChanged(skillLevel);
-                        if (UISkill != null)
-                            UISkill.OnSkillLevelChanged(value);
+                        OnLevelChanged(skillLevel);                    
                     }
                     
                 }

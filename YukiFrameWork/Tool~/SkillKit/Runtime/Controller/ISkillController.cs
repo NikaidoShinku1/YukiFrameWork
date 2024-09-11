@@ -28,11 +28,6 @@ namespace YukiFrameWork.Skill
         SkillHandler Handler { get; }
 
 		/// <summary>
-		/// 技能UI同步器
-		/// </summary>
-		UISkill UISkill { get; set; }
-
-		/// <summary>
 		/// 冷却中触发的回调
 		/// </summary>
 		Action<float> onCooling { get; set; }

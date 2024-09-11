@@ -15,14 +15,28 @@ namespace YukiFrameWork.Buffer
 	public interface IBuffController : IController, IGlobalSign
     {
 		IBuff Buffer { get; internal set; }
-		string BuffKey { get; }
-		UIBuffer UIBuffer { get;internal set; }
+		string BuffKey { get; }		
 		int BuffLayer { get;internal set; }
 		IBuffExecutor Player { get;internal set; }
 		BuffHandler Handler { get; }
         float MaxTime { get; }
         float RemainingTime { get;internal set; }
 		float RemainingProgress { get; }
+
+        /// <summary>
+        /// 每一次Buff启动或者叠加的时候都会调用的回调,同时会得到层级
+        /// </summary>
+        Action<int> onBuffStart { get; set; } 
+
+		/// <summary>
+		/// Buff正在执行时会持续触发的回调,参数是Buff的剩余进度(1-0)
+		/// </summary>
+		Action<float> onBuffReleasing { get; set; }
+
+        /// <summary>
+        ///  每一次Buff移除的时候执行，如果Buff是叠加了多层的且开启了缓慢减少，则每次减少一层都会调用一次该回调,同时会得到移除Buff后的层级
+        /// </summary>
+        Action<int> onBuffRemove { get; set; }
 
         /// <summary>
         /// 内部的Buff添加条件，默认为True，当需要内部处理添加Buff的逻辑或者比如希望自己手动限制叠加的层数时可以使用
@@ -69,11 +83,17 @@ namespace YukiFrameWork.Buffer
 
         public BuffHandler Handler => Player.Handler;
 
+		public Action<float> onBuffReleasing { get; set; }
+		public Action<int> onBuffStart { get; set; }
+		public Action<int> onBuffRemove { get; set; }	
+
 		void IGlobalSign.Release()
-		{
-			UIBuffer = null;
+		{			
 			Player = null;
-			Buffer = null;			
+			Buffer = null;
+			onBuffReleasing = null;
+			onBuffStart = null;
+			onBuffRemove = null;
 		}
 		
 		internal static bool Release(IBuffController controller) 
@@ -87,11 +107,7 @@ namespace YukiFrameWork.Buffer
 
 		IBuff IBuffController.Buffer { get => Buffer; set => Buffer = value; }
 
-		public string BuffKey => Buffer.GetBuffKey;
-
-		public UIBuffer UIBuffer { get; internal set; }
-
-		UIBuffer IBuffController.UIBuffer { get => UIBuffer;set => UIBuffer = value; }
+		public string BuffKey => Buffer.GetBuffKey;		
 
         public int BuffLayer { get; internal set; }
 
@@ -125,6 +141,9 @@ namespace YukiFrameWork.Buffer
 			}
 		}
 
+		/// <summary>
+		/// Buff的剩余进度(1-0)
+		/// </summary>
 		public float RemainingProgress
 		{
 			get => Buffer.SurvivalType == BuffSurvivalType.Timer ? Mathf.Clamp01(RemainingTime / Buffer.BuffTimer) : 1;

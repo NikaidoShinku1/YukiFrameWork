@@ -58,11 +58,6 @@ namespace YukiFrameWork.Skill
         private Dictionary<string, ISkillController> skills = new Dictionary<string, ISkillController>();
 
         /// <summary>
-        /// 绑定技能UI分组
-        /// </summary>
-        internal UISkillGroup SkillGroup;
-
-        /// <summary>
         /// 添加技能时触发的回调，可以拿到技能控制器
         /// </summary>
         [LabelText("添加技能时触发的回调，可以拿到技能控制器")]
@@ -72,22 +67,7 @@ namespace YukiFrameWork.Skill
         /// 移除技能时触发的回调，可以拿到技能控制器
         /// </summary>
         [LabelText(" 移除技能时触发的回调，可以拿到技能控制器")]
-        public UnityEvent<ISkillController> onRemoveSkillEvent = new UnityEvent<ISkillController>();
-
-
-        public void SetUISkillGroup(UISkillGroup skillGroup)
-        {
-            this.SkillGroup = skillGroup;
-            this.SkillGroup.LogWarning();
-            if (this.SkillGroup != null)
-            {
-                foreach (var item in skills.Values)
-                {
-                    if (item.UISkill == null)
-                        item.UISkill = this.SkillGroup.CreateUISkill(item.SkillData.GetSkillKey);
-                }
-            }
-        }
+        public UnityEvent<ISkillController> onRemoveSkillEvent = new UnityEvent<ISkillController>();     
 
         /// <summary>
         /// 添加多个技能
@@ -146,11 +126,7 @@ namespace YukiFrameWork.Skill
 
         private void Add(ISkillController controller)
         {
-            skills[controller.SkillData.GetSkillKey] = controller;
-            if (SkillGroup != null)
-            {
-                controller.UISkill = SkillGroup.CreateUISkill(controller.SkillData.GetSkillKey);
-            }
+            skills[controller.SkillData.GetSkillKey] = controller;         
             controller.OnAwake();
             onAddSkillEvent?.Invoke(controller);       
         }
@@ -210,8 +186,7 @@ namespace YukiFrameWork.Skill
             controller.ReleasingTime = 0;
             controller.IsSkillCoolDown = false;
             controller.IsSkillRelease = true;
-            controller.OnRelease(param);
-            controller.UISkill?.OnRelease();
+            controller.OnRelease(param);          
             return ReleaseSkillStatus.Success;
         }
 
@@ -288,11 +263,7 @@ namespace YukiFrameWork.Skill
             //触发销毁方法
             controller.OnDestroy();
             skills.Remove(controller.SkillData.GetSkillKey);
-            onRemoveSkillEvent?.Invoke(controller);
-            if (SkillGroup != null)
-            {
-                SkillGroup.UnLoadUISkill(controller.SkillData.GetSkillKey);
-            }
+            onRemoveSkillEvent?.Invoke(controller);         
             SkillController.ReleaseController(controller);
         }
 
@@ -404,7 +375,7 @@ namespace YukiFrameWork.Skill
             controller.OnInterruption();
             controller.onReleaseComplete?.Invoke();
             controller.OnReleaseComplete();
-            controller.UISkill?.OnReleaseComplete();
+          
         }
 
         /// <summary>
@@ -470,7 +441,7 @@ namespace YukiFrameWork.Skill
                                 controller.onReleasing?.Invoke(controller.ReleasingProgress);
                                 controller.OnUpdate();
 
-                                controller.UISkill?.OnReleaseUpdate(controller.ReleasingTime, controller.ReleasingProgress);
+                               
 
                                 if (controller.ReleasingTime >= skillData.RealeaseTime && controller.IsComplete())
                                 {
@@ -478,7 +449,7 @@ namespace YukiFrameWork.Skill
                                     controller.IsSkillRelease = false;
                                     controller.onReleaseComplete?.Invoke();
                                     controller.OnReleaseComplete();
-                                    controller.UISkill?.OnReleaseComplete();
+                                    
                                 }
                             }
                             else
@@ -487,8 +458,7 @@ namespace YukiFrameWork.Skill
                                 {
                                     controller.CoolDownTime += Time.deltaTime;
                                     controller.onCooling?.Invoke(controller.CoolDownProgress);
-                                    controller.OnCooling();
-                                    controller.UISkill?.OnCoolingUpdate(controller.CoolDownTime,controller.CoolDownProgress);
+                                    controller.OnCooling();                              
 
                                     if (controller.CoolDownTime >= skillData.CoolDownTime)
                                     {
@@ -496,7 +466,7 @@ namespace YukiFrameWork.Skill
                                         controller.CoolDownTime = 0;
                                         controller.onCoolingComplete?.Invoke();
                                         controller.OnCoolingComplete();
-                                        controller.UISkill?.OnCoolingComplete();
+                                        
                                     }
                                 }
                             }
@@ -506,8 +476,7 @@ namespace YukiFrameWork.Skill
                         {
                             if (controller.IsSkillRelease)
                             {
-                                controller.OnFixedUpdate();
-                                controller.UISkill?.OnReleaseFixedUpdate(controller.ReleasingTime, controller.ReleasingProgress);
+                                controller.OnFixedUpdate();                       
                             }
                         }
                         break;
@@ -515,8 +484,7 @@ namespace YukiFrameWork.Skill
                         {
                             if (controller.IsSkillRelease)
                             {
-                                controller.OnLateUpdate();
-                                controller.UISkill?.OnReleaseLateUpdate(controller.ReleasingTime, controller.ReleasingProgress);
+                                controller.OnLateUpdate();                       
                             }
                         }
                         break;

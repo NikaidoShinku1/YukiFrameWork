@@ -53,6 +53,8 @@ namespace YukiFrameWork.Audio
         [field: LabelText("是否在运行时自动播放")]
 		[field: SerializeField,DisableIf(nameof(isPlaying))]		
 		public bool PlayOnAwake { get; set; } = false;
+		[field:SerializeField,LabelText("是否在对象激活时自动播放"),DisableIf(nameof(isPlaying)), BoxGroup(info)]
+		public bool PlayOnEnable { get; set; } = false;
         [field: BoxGroup(info)]
         [field: LabelText("是否循环?")]
         [field: SerializeField, DisableIf(nameof(isPlaying)),ShowIf(nameof(audioType),AudioType.Single)]
@@ -150,7 +152,13 @@ namespace YukiFrameWork.Audio
 			}
         }
 
-		public void Play()
+        private void OnEnable()
+        {
+			if (PlayOnEnable)
+				Play();
+        }
+
+        public void Play()
 		{
             switch (playType)
             {
