@@ -16,4 +16,10 @@ namespace YukiFrameWork
 	{
 
 	}
+
+	[AttributeUsage(AttributeTargets.Method)]
+	public class DisableEnumeratorWarningAttribute : Attribute
+	{
+		
+	}
 }
