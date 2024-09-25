@@ -13,6 +13,7 @@ using UnityEngine.UI;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork.Item
 {
+    [DisableViewWarning]
 	public class UIItemTip : MonoBehaviour
 	{		
 		[SerializeField,LabelText("物品的Icon组件")]

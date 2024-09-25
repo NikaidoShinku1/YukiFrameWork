@@ -20,6 +20,7 @@ namespace YukiFrameWork
     }
 
     [Serializable]
+    [DisableViewWarning]
     public partial class BezierVisualTool : MonoBehaviour
     {       
 

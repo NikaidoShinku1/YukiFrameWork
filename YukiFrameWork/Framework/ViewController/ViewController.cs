@@ -86,11 +86,7 @@ namespace YukiFrameWork
     {
         private object _object = new object();
         private IArchitecture mArchitecture;
-
-        /// <summary>
-        /// 是否开启自动注册事件，开启后，可使用特性进行事件的注册
-        /// </summary>
-        public virtual bool IsAutoRegisterAttributeEvent => true;
+     
         /// <summary>
         /// 可重写的架构属性,不使用特性初始化时需要重写该属性
         /// </summary>
@@ -116,14 +112,6 @@ namespace YukiFrameWork
             if (mArchitecture == null)
             {
                 mArchitecture = ArchitectureConstructor.I.Enquene(this);
-
-                if (mArchitecture != null && IsAutoRegisterAttributeEvent)
-                {
-                    MethodInfo[] methodInfos = this.GetType().GetRuntimeMethods().Where(x => x.ReturnType == typeof(void))
-                        .ToArray();
-                    methodInfos.InitAllEventMethod(this, mArchitecture);
-                }
-
             }            
         }
         /// <summary>
@@ -165,31 +153,11 @@ namespace YukiFrameWork
         }
         #endregion
     }
-
-    [RequireComponent(typeof(RuntimeEventCenter))]
+   
     public partial class ViewController : YMonoBehaviour, IController
     {
         private object _object = new object();
-        private IArchitecture mArchitecture;
-        /// <summary>
-        /// 是否开启自动注册事件，开启后，可使用特性进行事件的注册
-        /// </summary>
-        public virtual bool IsAutoRegisterAttributeEvent => true;
-        internal bool IsEventInited = false;
-        
-        protected override void Awake()
-        {
-            base.Awake();
-            try
-            {                
-                RuntimeEventInitializationFactory.Initialization(this);
-            }
-            catch
-            {
-                throw new System.NullReferenceException($"无法在Awake下注册事件，请检查是否在{GetType()}中正确实现了架构!");
-            }
-            
-        }     
+        private IArchitecture mArchitecture;                   
         /// <summary>
         /// 可重写的架构属性,不使用特性初始化时需要重写该属性
         /// </summary>
@@ -202,9 +170,7 @@ namespace YukiFrameWork
                     if (mArchitecture == null)
                     {
                         (this as IYMonoBehaviour).InitAllFields();
-                        mArchitecture = ArchitectureConstructor.I.Enquene(this);
-                        if(mArchitecture != null)
-                            RuntimeEventInitializationFactory.Initialization(this);                     
+                        mArchitecture = ArchitectureConstructor.I.Enquene(this);                                  
                     }
                     return mArchitecture;
                 }

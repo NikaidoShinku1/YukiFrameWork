@@ -13,6 +13,7 @@ using YukiFrameWork.Extension;
 using XFABManager;
 namespace YukiFrameWork.Audio
 {
+	[DisableViewWarning]
 	public class AudioInfo : MonoBehaviour
 	{
 		enum PlayType

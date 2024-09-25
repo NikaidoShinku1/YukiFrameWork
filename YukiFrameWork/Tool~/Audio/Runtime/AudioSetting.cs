@@ -54,6 +54,6 @@ namespace YukiFrameWork.Audio
                 IsVoiceOn.Value = value;
                 IsSoundOn.Value = value;
             });
-        }
+        }       
     }
 }

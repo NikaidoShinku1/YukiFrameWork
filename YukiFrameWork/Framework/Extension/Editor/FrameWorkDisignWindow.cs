@@ -252,7 +252,8 @@ namespace YukiFrameWork
             Button("PoolsKit_框架设置简易对象池", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md");
             Button("BindableProperty强化数据绑定类", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md");
             Button("BezierUtility_框架贝塞尔曲线拓展", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md");
-            Button("XFABManager插件教程官网", "https://gitee.com/xianfengkeji/xfabmanager");
+            Button("XFABManager插件官网地址", "https://gitee.com/xianfengkeji/xfabmanager");
+            Button("2d NavMeshPlus 插件官网地址:", "https://github.com/h8man/NavMeshPlus/tree/master");
 
             GUILayout.EndVertical();     
             GUILayout.BeginVertical(GUILayout.Width(400));     

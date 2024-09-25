@@ -15,6 +15,7 @@ using XFABManager;
 
 namespace YukiFrameWork.Item
 {
+    [DisableViewWarning]
 	public class UISlotGroup : MonoBehaviour
 	{
         public enum UISlotGenericType

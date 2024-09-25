@@ -15,7 +15,11 @@ namespace XFABManager
         public IEnumerator LoadAsync(string projectName, string assetName, Transform parent = null)
         { 
             LoadAssetRequest request = AssetBundleManager.LoadAssetAsyncWithoutTips<GameObject>(projectName, assetName);
-            yield return request;
+            while (request != null && !request.isDone)
+            {
+                yield return null;
+                progress = request.progress;
+            }
             if (request != null && string.IsNullOrEmpty(request.error))
             {
                 Obj = GameObjectLoader.Load(request.asset as GameObject, parent);

@@ -10,7 +10,8 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 #endif
 namespace YukiFrameWork.IOC
-{  
+{
+    [DisableViewWarning]
     public class LifeTimeScope : MonoBehaviour,IDisposable
     {
         [SerializeField]

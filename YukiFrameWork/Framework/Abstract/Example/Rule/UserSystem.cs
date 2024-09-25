@@ -11,12 +11,26 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.ExampleRule.ExampleFrameWork
 {
+    public class MyCustomArg : IEventArgs
+    {
+        public bool IsMarkIdle { get ; set ; }
+
+        public void Init()
+        {
+            
+        }
+
+        public void Release()
+        {
+            
+        }
+    }
     [Registration(typeof(UserSystem))]//自动注册特性，非Controller层级都应该标记该特性
     public class UserSystem : AbstractSystem
     {
-        public override void Init()
+        public override void Init() 
         {
-            this.RegisterEvent<EventArgs>(Example.UserEventKey, _ => 
+            this.RegisterEvent<MyCustomArg>(Example.UserEventKey, _ => 
             {
                 var model = this.GetModel<UserModel>();
                 Debug.Log($"这是System注册的事件 --- Model --- Name:{model.Name} Age:{model.Age}");        

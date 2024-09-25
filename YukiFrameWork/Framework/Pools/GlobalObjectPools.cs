@@ -17,8 +17,17 @@ namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
     {
+        /// <summary>
+        /// 对象是否处于闲置(回收)状态
+        /// </summary>
         bool IsMarkIdle { get; set; }
+        /// <summary>
+        /// 当对象从全局池取出时调用的初始化方法
+        /// </summary>
         void Init();
+        /// <summary>
+        /// 当对象通过全局池回收时触发的方法
+        /// </summary>
         void Release();
     }
     public static class GlobalPoolsExtension

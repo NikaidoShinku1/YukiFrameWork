@@ -80,7 +80,7 @@ namespace YukiFrameWork.Extension
         /// <summary>
         /// Key:Name  Value:Path
         /// </summary>
-        private readonly Dictionary<string, string> moduleInfo = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> moduleInfo = new Dictionary<string, string>()
         {
             ["ActionKit"] = packagePath + "/Tool~/ActionKit",
             ["Bezier"] = packagePath + "/Tool~/Bezier",
@@ -94,8 +94,9 @@ namespace YukiFrameWork.Extension
             ["UI"] = packagePath + "/Tool~/UI",
             ["Audio"] = packagePath + "/Tool~/Audio",
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",
-            ["PilotKit"] = packagePath + "/Tool~/PilotKit"
-        };             
+            ["PilotKit"] = packagePath + "/Tool~/PilotKit",
+            ["NavMeshPlus"] = packagePath + "/Tool~/NavMeshPlus"
+        };    
 
         void LoadData()
         {
@@ -183,8 +184,8 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
             EditorGUILayout.EndVertical();
             EditorGUILayout.BeginVertical("GroupBox");
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);         
-
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition,false,true);
+           
             DrawBoxGUI(Color.white, ImportWindowInfo.ActionKitInfo
                 , MessageType.Info, string.Format("{0}/ActionKit", data.path), "ActionKit", moduleInfo["ActionKit"]);
 
@@ -196,6 +197,9 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.white, ImportWindowInfo.StateManagerInfo
             ,MessageType.Info, string.Format("{0}/StateManager",data.path), "StateManager", moduleInfo["StateManager"]);
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.NavMeshPlusInfo
+                , MessageType.Info, string.Format("{0}/NavMeshPlus", data.path), "NavMeshPlus", moduleInfo["NavMeshPlus"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.GuideInfo
                 , MessageType.Info, string.Format("{0}/PilotKit", data.path), "PilotKit", moduleInfo["PilotKit"]);

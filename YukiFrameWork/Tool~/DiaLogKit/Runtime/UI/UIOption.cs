@@ -14,6 +14,7 @@ using Sirenix.OdinInspector;
 using UnityEngine.Events;
 namespace YukiFrameWork.DiaLogue
 {
+	[DisableViewWarning]
 	public abstract class UIOption : MonoBehaviour
 	{
 		public abstract void InitUIOption(DiaLog diaLog, Node node);

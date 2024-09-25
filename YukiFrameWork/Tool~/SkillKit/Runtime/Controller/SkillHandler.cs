@@ -48,7 +48,7 @@ namespace YukiFrameWork.Skill
         [LabelText("释放失败,该技能正在冷却中")]
         InCooling,       
     }
-
+    [DisableViewWarning]
     public class SkillHandler : MonoBehaviour
     {       
         /// <summary>

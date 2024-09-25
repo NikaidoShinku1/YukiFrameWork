@@ -10,9 +10,9 @@ namespace YukiFrameWork
         public abstract IUnRegister Register(Action callBack);
 
         //激活生命周期开关
-        private void Start()
+        protected virtual void Start()
         {
-            
+           
         }
 
         public void Clear()

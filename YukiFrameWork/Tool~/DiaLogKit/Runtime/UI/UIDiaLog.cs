@@ -15,6 +15,7 @@ using YukiFrameWork.Pools;
 using UnityEngine.Events;
 namespace YukiFrameWork.DiaLogue
 {
+    [DisableViewWarning]
 	public class UIDiaLog : MonoBehaviour
 	{
         #region TipField

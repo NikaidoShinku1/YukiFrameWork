@@ -31,6 +31,8 @@ namespace YukiFrameWork.Extension
 
         public static string StateManagerInfo => !IsEN ? "全新状态机模块，在旧状态机之上，全面支持对于动作状态的设计，可完美兼容实现基础动作游戏设计，编辑器可视化" : "The new state machine module, on top of the old state machine, fully supports the design of the action state, which can be perfectly compatible with the basic action game design and editor visualization";
 
+        public static string NavMeshPlusInfo => !IsEN ? "Unity 导航网格plus集成，该插件可以让NavMeshAgent支持2d TileMap的使用(限2021以上使用)" : "Unity Navigation Grid plus integration, which enables NavMeshAgent to support the use of 2d TileMap";
+
         public static string IOCInfo => !IsEN ? "IOC容器,可以完整实现控制反转的结构思想,DI注入等操作" : "IOC container can realize the structure idea of inversion of control,DI injection and other operations";
 
         public static string DiaLogInfo => !IsEN ? "对话系统，具有完整编辑器拓展可支持本地化配置的对话系统。可用于视觉小说等需要对话的项目(适合2021以上版本使用)" : "Dialog system, a dialog system with a full editor extension to support localized configuration. It can be used for projects that require dialogue, such as visual novels((Suitable for 2021 and above))";

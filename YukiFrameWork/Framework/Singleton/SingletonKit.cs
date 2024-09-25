@@ -43,6 +43,11 @@ namespace YukiFrameWork
     public static class SingletonFectory
     {
         private static readonly Dictionary<Type,ISingletonKit> singletonInstance = DictionaryPools<Type,ISingletonKit>.Get();
+
+        static SingletonFectory()
+        {
+            singletonInstance.Clear();
+        }
         #region 创建实例
         public static T CreateSingleton<T>() where T : class, ISingletonKit
         {
@@ -75,12 +80,12 @@ namespace YukiFrameWork
             return instance;
         }
 
-        public static T CreateMonoSingleton<T>(bool IsDonDestoryLoad = false) where T : Component, ISingletonKit
+        public static T CreateMonoSingleton<T>(bool IsDonDestoryLoad = false) where T : MonoBehaviour, ISingletonKit
         {
             return CreateMonoConstructorObject(typeof(T),IsDonDestoryLoad) as T;
         }
-        public static ISingletonKit CreateMonoSingleton(Type type)
-            => CreateMonoConstructorObject(type);
+        public static ISingletonKit CreateMonoSingleton(Type type, bool IsDonDestoryLoad = false)
+            => CreateMonoConstructorObject(type, IsDonDestoryLoad);
         private static ISingletonKit CreateMonoConstructorObject(Type type, bool IsDonDestoryLoad = false)
         {
             if (singletonInstance.TryGetValue(type, out var instance))
@@ -144,91 +149,8 @@ namespace YukiFrameWork
         #endregion
         #endregion
         #region 获取实例
-        public static T GetSingleton<T>() where T : class, ISingletonKit
-        {
-            return GetSingleton(typeof(T)) as T;
-        }
 
-        public static ISingletonKit GetSingleton(Type type)
-        {
-            singletonInstance.TryGetValue(type, out var instance);
-            if (instance == null)
-            {
-                instance = CreateNoPublicConstructorObject(type);
-                if (instance == null)                
-                    Debug.LogError("创建单例失败，请检查单例是否继承ISingletonKit接口!");
-                else
-                    instance.OnInit();
-            }           
-            return instance;
-        }
-
-        public static T GetMonoSingleton<T>(bool isDonDestoryLoad = false) where T : Component, ISingletonKit
-        {
-            return GetMonoSingleton(typeof(T), isDonDestoryLoad) as T;
-        }
-
-        public static ISingletonKit GetMonoSingleton(Type type, bool isDonDestoryLoad = false)
-        {
-            singletonInstance.TryGetValue(type, out var instance);
-            if (instance == null)
-            {
-                instance = CreateMonoConstructorObject(type,isDonDestoryLoad);
-                if (instance == null)
-                    Debug.LogError("创建单例失败，请检查单例是否继承ISingletonKit接口!");
-                else
-                    instance.OnInit();
-            }
-           
-            return instance;
-        }     
-        public static T GetScriptableSingleton<T>() where T : ScriptableObject, ISingletonKit
-        {
-            return GetScriptableSingleton(typeof(T)) as T;
-        }
-
-        public static ISingletonKit GetScriptableSingleton(Type type)      
-        {
-            singletonInstance.TryGetValue(type, out var instance);
-            if (instance == null)
-            {
-                instance = CreateScriptableConstructorObject(type);
-                if (instance == null)
-                    Debug.LogError("创建单例失败，请检查单例是否继承ISingletonKit接口!");
-                else
-                    instance.OnInit();
-            }          
-
-            return instance;
-        }
         #endregion
-    }
-
-    public class SingletonMonoProperty<T>  where T : Component,ISingletonKit
-    {        
-        private static T instance;
-
-        private static object mLock = new object();
-
-        /// <summary>
-        /// 获取实例，参数IsDonDestroyLoad仅第一次获取且场景不存在该对象时有效
-        /// </summary>
-        /// <param name="IsDonDestroyLoad"></param>
-        /// <returns></returns>
-        public static T GetInstance(bool IsDonDestroyLoad = true)
-        {
-            lock (mLock)
-            {
-                if (instance == null)
-                {
-                    instance = SingletonFectory.CreateMonoSingleton<T>(IsDonDestroyLoad);
-                    instance.OnInit();
-                }
-                return instance;
-            }
-        }
-
-        public static T Instance => GetInstance();
     }
 
     public class SingletonProperty<T> where T :class, ISingletonKit
@@ -243,15 +165,17 @@ namespace YukiFrameWork
         public static T GetInstance()
         {
             lock (mLock)
-            {
-                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(T) == typeof(UnityEngine.Object))
-                {
-                    throw new Exception("对于派生自UnityEngine.Object的单例，应使用SingletonMonoProperty Type:" + typeof(T));
-                }
-
+            {               
                 if (instance == null)
                 {
-                    instance = SingletonFectory.CreateSingleton<T>();
+                    if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))                  
+                        instance = SingletonFectory.CreateMonoSingleton(typeof(T), true) as T;
+                    
+                    else if (typeof(T).IsSubclassOf(typeof(ScriptableObject)))                    
+                        instance = SingletonFectory.CreateScriptableObjectSingleton(typeof(T)) as T;                   
+                    else
+                        instance = SingletonFectory.CreateSingleton<T>();
+
                     instance.OnInit();
                 }
                 return instance;

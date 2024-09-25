@@ -140,16 +140,14 @@ namespace YukiFrameWork
     public class XFABManagerSceneTool
     {
         private string projectName;
-        private bool isInited = false;
+        private bool isInited => !projectName.IsNullOrEmpty();
         [MethodAPI("XFABManager的场景加载封装拓展工具")]
         public void Init(string projectName)
-        {
-            if (isInited) return;
-            isInited = true;
+        {         
             this.projectName = projectName;
         }
 
-        public void LoadScene(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public void LoadScene(string sceneName, LoadSceneMode mode = LoadSceneMode.Single)
         {
             if (!isInited) return;
             AssetBundleManager.LoadScene(projectName, sceneName, mode);

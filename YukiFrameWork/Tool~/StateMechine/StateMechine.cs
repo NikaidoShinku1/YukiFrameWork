@@ -22,6 +22,7 @@ namespace YukiFrameWork.States
         }
     }
     [System.Serializable]
+    [DisableViewWarning]
     public class StateMechine : MonoBehaviour
     {
 

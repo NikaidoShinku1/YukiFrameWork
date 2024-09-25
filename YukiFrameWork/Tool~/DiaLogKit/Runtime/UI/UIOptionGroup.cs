@@ -13,6 +13,7 @@ using System.Collections;
 using XFABManager;
 namespace YukiFrameWork.DiaLogue
 {
+    [DisableViewWarning]
 	public class UIOptionGroup : MonoBehaviour
 	{
         public enum UIOptionGenericType

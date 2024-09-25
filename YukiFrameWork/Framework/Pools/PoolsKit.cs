@@ -14,7 +14,11 @@ using UnityEngine;
 
 namespace YukiFrameWork.Pools
 {
-    public interface IPools<T>
+    public interface IPools
+    {
+        
+    }
+    public interface IPools<T> : IPools
     {
         T Get();
 

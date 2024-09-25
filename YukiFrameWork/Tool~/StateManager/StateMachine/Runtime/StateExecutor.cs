@@ -6,6 +6,7 @@ using FSG.MeshAnimator.ShaderAnimated;
 
 namespace YukiFrameWork.ActionStates
 {
+    [DisableViewWarning]
     public sealed class StateExecutor : MonoBehaviour
     {
         public StateMachineView support = null;

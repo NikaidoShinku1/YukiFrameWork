@@ -13,6 +13,7 @@ using UnityEngine.EventSystems;
 using System;
 namespace YukiFrameWork.Item
 {
+    [DisableViewWarning]
 	public class UISlot : MonoBehaviour
 	{
         public Image Icon;

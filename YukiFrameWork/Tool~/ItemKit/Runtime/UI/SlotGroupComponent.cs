@@ -12,7 +12,8 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 namespace YukiFrameWork.Item
-{	
+{
+	[DisableViewWarning]
 	public class SlotGroupComponent : MonoBehaviour
 	{	 
 		[Serializable]

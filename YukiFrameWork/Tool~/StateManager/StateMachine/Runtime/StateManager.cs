@@ -25,6 +25,7 @@ namespace YukiFrameWork.ActionStates
     /// <summary>
     /// 状态执行管理类   
     /// </summary>
+    [DisableViewWarning]
     public sealed class StateManager : MonoBehaviour
     {
         public StateMachineMono support = null;

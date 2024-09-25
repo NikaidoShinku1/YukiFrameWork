@@ -309,9 +309,7 @@ namespace YukiFrameWork.UI
         /// <param name="name"></param>
         public static void ClosePanel(string name)
         {
-            var core = UIManager.Instance.GetPanelCore(name);
-
-            core ??= UIManager.Instance.Exector.prefabInfos.Find(x => x.name == name);
+            var core = UIManager.Instance.GetPanelCore(name);        
             if (core == null) return;
 
             PanelInfo info = new PanelInfo();
@@ -328,8 +326,7 @@ namespace YukiFrameWork.UI
         /// <typeparam name="T"></typeparam>
         public static void ClosePanel<T>() where T : class, IPanel
         {
-            var core = UIManager.Instance.GetPanelCore<T>();
-            core ??= UIManager.Instance.Exector.prefabInfos.Find(x => x.GetType() == typeof(T)) as T;
+            var core = UIManager.Instance.GetPanelCore<T>();          
             if (core == null) return;
 
             PanelInfo info = new PanelInfo();
@@ -403,9 +400,8 @@ namespace YukiFrameWork.UI
         {
             name = name.IsNullOrEmpty() ? typeof(T).Name : name;
             T panel;         
-            for (int i = 0; i < (int)UILevel.System; i++)
-            {
-                UILevel level = (UILevel)Enum.GetValues(typeof(UILevel)).GetValue(i);
+            for (UILevel level = UILevel.BG; level <= UILevel.Top; level++)
+            {               
                 panel = GetPanel<T>(level);
 
                 if (panel != null)
@@ -470,6 +466,25 @@ namespace YukiFrameWork.UI
             return root.GetComponentInChildren<T>(true);
         }
 
+
+        /// <summary>
+        /// 检索所有的层级，获得第一个找到的指定的面板
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T FindPanelByType<T>() where T : BasePanel
+        {
+            for (UILevel level = UILevel.BG; level <= UILevel.Top; level++)
+            {
+                T panel = FindPanelByType<T>(level);
+
+                if (panel)
+                    return panel;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// 通过层级查找场景中存在的面板实例集合，特供于寻找对象本身
         /// </summary>
@@ -479,7 +494,7 @@ namespace YukiFrameWork.UI
         public static T[] FindPanelsByType<T>(UILevel level) where T : BasePanel
         {
             return UIManager.Instance.GetPanelLevel(level).GetComponentsInChildren<T>();
-        }
+        }       
 
         public static RectTransform GetPanelLevel(UILevel level)
             => UIManager.Instance.GetPanelLevel(level);

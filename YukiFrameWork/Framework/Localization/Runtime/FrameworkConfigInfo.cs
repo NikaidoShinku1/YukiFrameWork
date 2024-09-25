@@ -2,6 +2,8 @@
 using Sirenix.OdinInspector;
 using System.IO;
 using System.Text;
+using YukiFrameWork.Events;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -49,9 +51,10 @@ namespace YukiFrameWork
             [LabelText("脚本生成设置")]
             Tool,
             [LabelText("本地化配置")]
-            Script,
+            Script,          
             [LabelText("程序集设置")]
-            Assembly
+            Assembly,          
+
         }
         [LabelText("是否开启视图快捷显示"),ShowInInspector]
         internal static bool IsShowHerarchy = true;
@@ -77,7 +80,7 @@ namespace YukiFrameWork
       
         public int SelectIndex => (int)mode;
 #if UNITY_EDITOR
-        private LocalScriptGenerator generator = new LocalScriptGenerator();
+        private LocalScriptGenerator generator = new LocalScriptGenerator();       
 #endif
 #if UNITY_EDITOR
         [Button("生成脚本",ButtonHeight = 35),PropertySpace, ShowIf(nameof(SelectIndex), 0)]
@@ -155,9 +158,9 @@ namespace YukiFrameWork
             .builder.CreateFileStream(codePath, "Localization", ".cs");
 
         }
-
+       
         [InitializeOnLoadMethod]
-        static void CreateConfig()
+        internal static void CreateConfig()
         {
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
 

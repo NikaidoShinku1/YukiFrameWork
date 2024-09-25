@@ -10,6 +10,7 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using YukiFrameWork.Events;
 namespace YukiFrameWork
 { 
     //注销标识类型
@@ -26,79 +27,52 @@ namespace YukiFrameWork
         public abstract void UnRegister(T onEvent);
         public virtual void UnRegisterAllEvent() => OnEasyEvent = null;  
     }
-
-    /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数TypeEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
-    /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
-    /// <para>仅能使用于同步且返回值为Void的事件注册</para>
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public sealed class RegisterEventAttribute : BaseRegisterEvent
+    public abstract class ListenerAttribute : Attribute
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="unRegisterType">如果是ViewController，可设置注销生命周期</param>
-        public RegisterEventAttribute(UnRegisterType unRegisterType = UnRegisterType.None) : base(unRegisterType)
+        public bool OnlyMonoEnable = false;
+        public ListenerAttribute(bool onlyMonoEnable)
         {
-
+            OnlyMonoEnable = onlyMonoEnable;
         }
     }
 
     /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数StringEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
-    /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
-    /// <para>仅能使用于同步且返回值为Void的事件注册</para>
+    /// 自动化事件注册，为参数类型派生自IEventArgs且是唯一参数的方法标记该特性，可取代EventManager.AddListener的调用，进行自动注册的效果
+    /// <para>特性参数:bool onlyMonoEnable ---> 是否开启Mono激活检测，开启后，当组件/对象失活时，无法进行指定参数的调用</para>
+    /// <para>使用方式: 当你有一个继承IEventArgs的参数类MyCustomArg</para>
+    /// [AddListener]
+    /// <para>public void Test(MyCustomArg arg)</para>
+    /// {
+    /// <para>...</para>
+    /// <para>}</para>
+    /// Tip:使用该特性注册的事件，不建议Awake中发送事件，当对象直接置于场景时，Awake的周期可能会导致事件发送失败。
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public sealed class StringRegisterEventAttribute : BaseRegisterEvent  
-    {
-        internal string eventName;
-        /// <summary>
-        /// 自定义事件标识
-        /// </summary>
-        /// <param name="name"></param>
-        /// /// <param name="unRegisterType">如果是ViewController，可设置注销生命周期</param>
-        public StringRegisterEventAttribute(string name, UnRegisterType unRegisterType = UnRegisterType.None) : base(unRegisterType)
+    public sealed class AddListenerAttribute : ListenerAttribute
+    {       
+        public AddListenerAttribute(bool onlyMonoEnable = false) : base(onlyMonoEnable)
         {
-            eventName = name;
         }
-        /// <summary>
-        /// 仅用方法名作为标识
-        /// </summary>
-        public StringRegisterEventAttribute(UnRegisterType unRegisterType = UnRegisterType.None) : base(unRegisterType){ }
     }
 
     /// <summary>
-    /// 自动注册特性，所有层级在内，标记该特性且有所属架构时，会自动将标记的方法全部注册,仅支持单参数EnumEventSystem,如果在AbstractController使用，但没有触发，请调用this.BuildController方法
-    /// <para>事件的注册类型为IEasyArgs,可通过自行定义结构体/类继承该接口后使用，调用也必须是IEasyArgs类型，通过架构规则ISendEvent接口下拓展的的this.SendEvent方法调用</para>
-    /// <para>仅能使用于同步且返回值为Void的事件注册</para>    
+    /// 自动化事件注销，为任意一个无参方法标记该特性。那么当该方法在运行时被调用后，会自动同步对该特性所标记的已经注册的指定类型的事件进行清空
+    /// ，如需单独注销某一个事件请手动使用EventManager.RemoveListener方法。
+    /// <para>特性参数:params Type[] argTypes ---> 传递指定继承IEventArgs的类型，在指定方法被调用后，会同时处理传递类型的事件清空</para>
+    /// <para>使用方式: 当你有一个继承IEventArgs的参数类MyCustomArg</para>
+    /// [RemoveAllListeners(typeof(MyCustomArg))]
+    /// <para>public void OnDestroy()</para>
+    /// {
+    /// <para>///假设这个是MonoBehaviour的销毁方法，那么当生命周期执行OnDestroy时，会自动进行事件注销，无需手动的代码编写</para>
+    /// <para>}</para>   
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class EnumRegisterEventAttribute : BaseRegisterEvent
+    public sealed class RemoveAllListenersAttribute : Attribute
     {
-        internal int enumId;
-        internal Type enumType;
-        /// <summary>
-        /// 枚举自动特性必须单独传递枚举类型以及对应的枚举int值。
-        /// </summary>
-        /// <param name="enumId"></param>
-        /// <param name="type"></param>
-        /// <param name="unRegisterType">如果是ViewController，可设置注销生命周期</param>
-        public EnumRegisterEventAttribute(int enumId,Type type, UnRegisterType unRegisterType = UnRegisterType.None) : base(unRegisterType)
+        internal Type[] argTypes;
+        public RemoveAllListenersAttribute(params Type[] argTypes)
         {
-            this.enumId = enumId;
-            this.enumType = type;
-        }
-    }
-
-    public abstract class BaseRegisterEvent : Attribute
-    {
-        internal UnRegisterType unRegisterType = UnRegisterType.None;
-
-        public BaseRegisterEvent(UnRegisterType unRegisterType = UnRegisterType.None) 
-        {
-            this.unRegisterType = unRegisterType;
+            this.argTypes = argTypes;
         }
     }
 }

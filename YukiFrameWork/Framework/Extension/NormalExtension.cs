@@ -9,6 +9,9 @@
 using YukiFrameWork;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace YukiFrameWork
 {
 	public static class NormalExtension
@@ -40,7 +43,7 @@ namespace YukiFrameWork
         }
 
 
-
+        public static string Color(this string content, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{content}</color>";
         /// <summary>
         /// 把 0 -1 转换成 0% - 100%
         /// </summary>
@@ -65,5 +68,40 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static bool IsMonoNull(this UnityEngine.Object obj)
             => obj.IsDestroy();
+
+        public static void Sort<T>(this IList<T> list)
+        {
+            if (list is List<T>)
+            {
+                ((List<T>)list).Sort();
+                return;
+            }
+            List<T> current = new List<T>(list);
+            current.Sort();
+
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i] = current[i];
+            }
+        }
+
+        public static void Sort<T>(this IList<T> list, Comparison<T> comparison)
+        {
+
+            if (list is List<T>)
+            {
+                ((List<T>)list).Sort(comparison);
+                return;
+            }
+            List<T> current = new List<T>(list);
+            current.Sort(comparison);
+
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i] = current[i];
+            }
+        }
     }
 }

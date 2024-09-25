@@ -293,11 +293,15 @@ namespace YukiFrameWork.Extension
             }
             EditorGUILayout.EndVertical();
 
-            if (target.GetType() != typeof(ViewController))
+            try
             {
-                CodeManager.BindInspector(controller, controller, GenericPartialScripts);
-                EditorGUILayout.Space();                
-            }        
+                if (target.GetType() != typeof(ViewController))
+                {
+                    CodeManager.BindInspector(controller, controller, GenericPartialScripts);
+                    EditorGUILayout.Space();
+                }
+            }
+            catch { }
         }
 
         private void SelectParentClass(CustomData data)

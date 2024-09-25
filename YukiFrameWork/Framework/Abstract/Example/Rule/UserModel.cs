@@ -28,7 +28,7 @@ namespace YukiFrameWork.ExampleRule.ExampleFrameWork
             get => age;
             set
             {
-                this.SendEvent<EventArgs>(Example.UserEventKey);
+                this.SendEvent<MyCustomArg>(Example.UserEventKey);
                 Debug.Log("age被改变:" + value);
                 age = value;
             }
@@ -42,7 +42,7 @@ namespace YukiFrameWork.ExampleRule.ExampleFrameWork
             get => name;
             set
             {
-                this.SendEvent<EventArgs>(Example.UserEventKey);
+                this.SendEvent<MyCustomArg>(Example.UserEventKey);
                 Debug.Log("name被改变:" + value);
                 name = value;
             }

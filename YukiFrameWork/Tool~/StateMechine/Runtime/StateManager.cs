@@ -27,6 +27,7 @@ namespace YukiFrameWork
 }
 namespace YukiFrameWork.States
 {
+    [DisableViewWarning]
     public class StateManager : MonoBehaviour,IState
     {
         private const string defaultSystem = "设置";    

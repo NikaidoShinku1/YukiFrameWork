@@ -107,14 +107,21 @@ namespace YukiFrameWork.Extension
                 return AllLoad(assembly.GetTypes());
             }
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            for (int j = 0; j < assemblies.Length; j++)
+            try
             {
-                Type[] types = assemblies[j].GetTypes();
-                Type current = AllLoad(types);
-                if (current != null)
-                    return current;
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+                for (int j = 0; j < assemblies.Length; j++)
+                {
+                    Type[] types = assemblies[j].GetTypes();
+                    Type current = AllLoad(types);
+                    if (current != null)
+                        return current;
+                }
+            }
+            catch 
+            {
+                
             }
 
             return null;

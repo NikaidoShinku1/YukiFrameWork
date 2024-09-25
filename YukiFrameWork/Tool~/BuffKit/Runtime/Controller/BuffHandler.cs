@@ -13,7 +13,8 @@ using System.Collections;
 using System;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork.Buffer
-{	
+{
+	[DisableViewWarning]
 	public class BuffHandler : MonoBehaviour
 	{      
 		private BuffControllerTable mTable = new BuffControllerTable();

@@ -74,6 +74,14 @@ namespace YukiFrameWork.Audio
             PlayMusicExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
         }
 
+        public static void PlayMusic(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        {
+            if (!clip) return;
+            //if (!Setting.IsMusicOn.Value) return;
+            var audioMgr = AudioManager.Instance;         
+            PlayMusicExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
+        }
+
         public static void PlayMusic(AudioInfo audioInfo)
         {
             //if (!Setting.IsMusicOn.Value) return;
@@ -141,6 +149,14 @@ namespace YukiFrameWork.Audio
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
             PlayVoiceExecute(loader, audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
          
+        }
+
+        public static void PlayVoice(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        {
+            if (!clip) return;
+            //if (!Setting.IsMusicOn.Value) return;
+            var audioMgr = AudioManager.Instance;
+            PlayVoiceExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
         }
 
         public static void PlayVoice(AudioInfo audioInfo)
@@ -234,6 +250,14 @@ namespace YukiFrameWork.Audio
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
 
             return PlaySoundExecute(loader,audioMgr,clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
+        }
+
+        public static void PlaySound(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        {
+            if (!clip) return;
+            //if (!Setting.IsMusicOn.Value) return;
+            var audioMgr = AudioManager.Instance;
+            PlaySoundExecute(null, audioMgr, clip, loop, null, onStartCallback,onEndCallback, isRealTime);
         }
 
         public static AudioPlayer PlaySound(AudioInfo audioInfo)
@@ -341,7 +365,7 @@ namespace YukiFrameWork.Audio
             return player;
         }
 
-        private static IAudioLoader GetOrAddAudioLoader(string name)
+        internal static IAudioLoader GetOrAddAudioLoader(string name)
         {
             if (!audioLoaderDict.TryGetValue(name, out var loader))
             {

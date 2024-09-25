@@ -307,6 +307,11 @@ namespace YukiFrameWork
         }
         #endregion
 
+        public static bool IsSceneObj(MonoBehaviour mono)
+        {
+            return !mono.gameObject.scene.isLoaded;
+        }
+
         #region Info
         public static T SetName<T>(this T core,string name) where T : Object
         {
@@ -1143,7 +1148,7 @@ namespace YukiFrameWork
         /// 注销事件，并且绑定当前场景
         /// </summary>
         /// <param name="gameObject">GameObject</param>
-        public static void UnRegisterWaitSceneUnLoad<Component>(this IUnRegister property, Action onFinish = null) where Component : UnityEngine.Component
+        public static void UnRegisterWaitSceneUnLoad(this IUnRegister property, Action onFinish = null) 
         {
             UnRegisterWaitGameObjectDestroy(property, SceneListener.Instance, onFinish);
         }
@@ -1206,6 +1211,18 @@ namespace YukiFrameWork
             int v = layerMask & (1 << layer);
             return v != 0;
         }
+
+        public static bool Contains(this Bounds b, Bounds bounds)
+        {
+            if (b.min.x <= bounds.min.x && b.min.y <= bounds.min.y && b.min.z <= bounds.min.z &&
+                b.max.x >= bounds.max.x && b.max.y >= bounds.max.y && b.max.z >= bounds.max.z)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
 
         /// <summary>
         /// 获取ProjectSetting Physics2D中某一个层级和其他层级的碰撞关系
@@ -1277,5 +1294,143 @@ namespace YukiFrameWork
             timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
             callBack?.Invoke();
         }
+    }
+
+    public static class RayExtension
+    {
+        /// <summary>
+        /// 计算两个射线之间的最小距离
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+
+        public static float MiniDistance(this Ray ray, Ray other)
+        {
+
+            if (Mathf.Approximately(Vector3.Angle(ray.direction, other.direction), 0))
+            {
+                // 方向相同 说明射线平行
+                Vector3 n = other.origin - ray.origin;
+                float angle = Vector3.Angle(n, ray.direction);
+                float distance = Vector3.Distance(other.origin, ray.origin);
+                return distance * Mathf.Sin(angle * Mathf.Deg2Rad);
+            }
+
+            // 先求出垂直这两个射线的向量
+            Vector3 normal = Vector3.Cross(ray.direction, other.direction);
+
+            // 任意在两个向量上分别取一个点 计算出向量
+            Vector3 m = ray.origin - other.origin;
+            // 求出该向量在法线上的投影 就是两个向量之间的最小距离  
+            return Vector3.Dot(m.normalized, normal.normalized) * Vector3.Distance(ray.origin, other.origin);
+        }
+
+        /// <summary>
+        /// 计算两条射线之间最近的点
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="other"></param>
+        /// <param name="ray_point"></param>
+        /// <param name="other_point"></param>
+        public static void MiniDistancePoint(this Ray ray, Ray other, out Vector3 ray_point, out Vector3 other_point)
+        {
+            float ray_point_distance;
+            float other_point_distance;
+
+            ray.MiniDistancePoint(other, out ray_point_distance, out other_point_distance);
+
+            ray_point = ray.GetPoint(ray_point_distance);
+            other_point = other.GetPoint(other_point_distance);
+        }
+
+
+        /// <summary>
+        /// 计算两条射线之间最近的点(返回的距离如果是负的,代表该点在起点的反方向)
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="other"></param>
+        /// <param name="ray_point_distance"></param>
+        /// <param name="other_point_ditance"></param>
+        public static void MiniDistancePoint(this Ray ray, Ray other, out float ray_point_distance, out float other_point_ditance)
+        {
+
+            // 判断向量是否平行
+            if (Mathf.Approximately(Vector3.Angle(ray.direction, other.direction), 0))
+            {
+                float angle = Vector3.Angle(other.origin - ray.origin, ray.direction);
+                float distance = Vector3.Distance(other.origin, ray.origin) * Mathf.Cos(angle * Mathf.Deg2Rad);
+
+                if (distance >= 0)
+                {
+                    // 方向相同 说明射线平行  
+                    other_point_ditance = 0;
+                    ray_point_distance = distance;
+                }
+                else
+                {
+                    // 方向相同 说明射线平行 
+                    ray_point_distance = 0;
+                    other_point_ditance = -distance;
+                }
+                return;
+            }
+
+            float a = Vector3.Dot(other.origin, ray.direction);
+            float b = Vector3.Dot(other.direction, ray.direction);
+            float c = Vector3.Dot(ray.origin, ray.direction);
+            float d = Vector3.Dot(ray.direction, ray.direction);
+
+            float e = Vector3.Dot(other.origin, other.direction);
+            float f = Vector3.Dot(other.direction, other.direction);
+            float g = Vector3.Dot(ray.origin, other.direction);
+            float h = Vector3.Dot(ray.direction, other.direction);
+
+            float y = (e * d - g * d - a * h + c * h) / (b * h - f * d);
+            float x = (a + b * y - c) / d;
+
+            ray_point_distance = x;
+            other_point_ditance = y;
+
+
+            // 推导过程
+
+            // 假设最近的点距离射线远点的位置是:x 另外一条线的距离是:y 两个点分别为: a , b
+
+            // a = ray.origin + ray.direction * x 
+
+            // b = other.origin + other.direction * y
+
+            // (a - b   ) * ray.direction = 0
+
+            // 代入a和b的值
+            // (ray.origin + ray.direction * x - other.origin - other.direction * y) * ray.direction = 0
+
+            // ray.origin * ray.direction + ray.direction * x* ray.direction - other.origin* ray.direction - other.direction * y * ray.direction = 0
+
+            // ray.origin * ray.direction + ray.direction * x* ray.direction = other.origin* ray.direction + other.direction * y * ray.direction
+
+            // x = (other.origin* ray.direction + other.direction * y * ray.direction - ray.origin * ray.direction ) / ray.direction * ray.direction
+
+            // 相同的步骤推导 (a - b   ) * other.direction = 0 
+
+            // 然后把 x 代入 即可求的 x 和 y 的值!
+
+        }
+
+
+        /// <summary>
+        /// 计算点到射线的最短距离
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public static float Distance(this Ray ray, Vector3 point)
+        {
+            float angle = Vector3.Angle(point - ray.origin, ray.direction);
+            if (Mathf.Approximately(angle, 0) || Mathf.Approximately(angle, 180)) return 0;
+            return Vector3.Distance(ray.origin, point) * Mathf.Sin(angle * Mathf.Deg2Rad);
+        }
+
     }
 }

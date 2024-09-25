@@ -17,6 +17,7 @@ using YukiFrameWork.Extension;
 namespace YukiFrameWork.Pilot
 {
     [RequireComponent(typeof(Image))]
+    [DisableViewWarning]
 	public class GuideHandler : MonoBehaviour,ICanvasRaycastFilter
 	{     
         private Dictionary<string, GuideInfo> runtime_Info_Dict = new Dictionary<string, GuideInfo>();

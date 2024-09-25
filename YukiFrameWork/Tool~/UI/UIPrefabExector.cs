@@ -22,6 +22,7 @@ namespace YukiFrameWork.UI
 	/// <summary>
 	/// 临时UI面板预制体执行者,简单操作，无需实例化，直接在场景处理，只控制面板的开关，仅对特殊情况使用(例如资源加载的掩盖面板等),位于所有层级之后，最底
 	/// </summary>
+	[DisableViewWarning]
 	public class UIPrefabExector : MonoBehaviour
 	{				
 		internal List<BasePanel> prefabInfos = new List<BasePanel>();

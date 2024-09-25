@@ -88,7 +88,11 @@ namespace YukiFrameWork
         }
         static LogKit() 
         {
-            Application.logMessageReceivedThreaded += OnLogByUnity;
+            try
+            {
+                Application.logMessageReceivedThreaded += OnLogByUnity;
+            }
+            catch { } 
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
