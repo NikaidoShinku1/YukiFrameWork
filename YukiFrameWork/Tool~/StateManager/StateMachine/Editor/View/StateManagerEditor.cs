@@ -8,6 +8,7 @@ using UnityEngine;
 using YukiFrameWork.Extension;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
+using UnityEditor.Animations;
 namespace YukiFrameWork.ActionStates
 {
     [CanEditMultipleObjects]
@@ -150,7 +151,7 @@ namespace YukiFrameWork.ActionStates
 
         protected override void OnPlayAnimation(StateAction action)
         {
-            var view = (StateMachineMono)Self;
+            var view = (StateMachineMono)Self;           
             EditorGUILayout.BeginHorizontal();
             var rect = EditorGUILayout.GetControlRect();
             if (GUI.Button(new Rect(rect.x + 45, rect.y, 30, rect.height), EditorGUIUtility.IconContent(animPlay ? "PauseButton" : "PlayButton")))
@@ -167,11 +168,21 @@ namespace YukiFrameWork.ActionStates
                 animPlay = false;
                 animAction = action;
                 if (!EditorApplication.isPlaying)
+                {
+                    if (view.animMode == AnimationMode.Animator)
+                    {
+                        StateAction.SetBlendTreeParameter(action, view.animator);
+                    }
                     PlayAnimation(view, action, normalizedTime);
+                }
             }
             EditorGUILayout.EndHorizontal();
             if (animPlay && animAction == action && !EditorApplication.isPlaying)
             {
+                if (view.animMode == AnimationMode.Animator)
+                {
+                    StateAction.SetBlendTreeParameter(action, view.animator);
+                }
                 action.animTime += 20f * Time.deltaTime;
                 if (action.animTime >= action.animTimeMax)
                     action.animTime = 0f;
@@ -192,9 +203,9 @@ namespace YukiFrameWork.ActionStates
                     }
                     break;
                 case AnimationMode.Animator:
-                    {
-                        var animator = view.animator;
-                        animator.Play(action.clipName, 0, normalizedTime);
+                    {                       
+                        var animator = view.animator;                     
+                        animator.Play(action.clipName, action.layer, normalizedTime);
                         animator.Update(0f);
                     }
                     break;
@@ -204,6 +215,8 @@ namespace YukiFrameWork.ActionStates
                     break;
             }
         }
+  
+
     }
 }
 #endif

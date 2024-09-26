@@ -188,7 +188,6 @@ namespace YukiFrameWork.JsonInspector
 			{
 				if (Event.current.type == EventType.MouseDown && Event.current.button == 1)
 				{
-					Debug.Log("啊");
 					var menu = new GenericMenu();
 					menu.AddItem(new GUIContent("Close"), false, () =>
 					{

@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Reflection;
@@ -12,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.IO.Pipes;
+using UnityEditor.Animations;
 
 namespace YukiFrameWork.ActionStates
 {
@@ -235,7 +235,36 @@ namespace YukiFrameWork.ActionStates
             _animLoopProperty = null;
             _actionsProperty = null;
         }
+        /// <summary>
+        /// 是否是混合树
+        /// </summary>
+        /// <param name="animator"></param>
+        /// <param name="layer"></param>
+        /// <returns></returns>
+        public static bool IsStateBlendTree(Animator animator, string clipName, out BlendTree blendTree)
+        {
+            blendTree = null;
+            if (animator == null)
+                return false;
+            var controller = animator.runtimeAnimatorController as AnimatorController;        
+            int hash = Animator.StringToHash(clipName);
 
+            foreach (var item in controller.layers)
+            {
+                var stateMachine = item.stateMachine;
+
+                foreach (var state in stateMachine.states)
+                {
+                    if (state.state.motion is BlendTree tree && state.state.nameHash == hash)
+                    {
+                        blendTree = tree;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
         protected virtual void OnDrawAnimationField() { }
 
         /// <summary>
@@ -346,6 +375,38 @@ namespace YukiFrameWork.ActionStates
                             EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("animTime"), new GUIContent(StateMachineSetting.AnimationTime, "animTime"));
                             EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("animTimeMax"), new GUIContent(StateMachineSetting.AnimationLength, "animTimeMax"));
                             EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("layer"), new GUIContent(StateMachineSetting.AnimationLayer, "layer"));
+                            if (Self is StateMachineMono mono && IsStateBlendTree(mono.animator, act.clipName, out BlendTree blendTree))
+                            {
+                                EditorGUILayout.HelpBox(StateMachineSetting.BlendTreeInfo + blendTree.blendType, MessageType.Info);
+                                EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("blendParameter"), new GUIContent(StateMachineSetting.BlendParameter + blendTree.blendParameter, "blendParameter"));
+                                act.blendParameterName = blendTree.blendParameter;
+                                act.blendParameterYName = blendTree.blendParameterY;
+                                switch (blendTree.blendType)
+                                {
+                                    case BlendTreeType.Simple1D:
+                                        //1D不需要参数Y
+                                        act.blendParameterYName = string.Empty;
+                                        break;
+                                    case BlendTreeType.SimpleDirectional2D:
+                                        EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("blendParameterY"), new GUIContent(StateMachineSetting.BlendParameterY + blendTree.blendParameterY, "blendParameterY"));
+                                        break;
+                                    case BlendTreeType.FreeformDirectional2D:
+                                        EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("blendParameterY"), new GUIContent(StateMachineSetting.BlendParameterY + blendTree.blendParameterY, "blendParameterY"));
+                                        break;
+                                    case BlendTreeType.FreeformCartesian2D:
+                                        EditorGUILayout.PropertyField(actionProperty.FindPropertyRelative("blendParameterY"), new GUIContent(StateMachineSetting.BlendParameterY + blendTree.blendParameterY, "blendParameterY"));
+                                        break;                                 
+                                }
+                               
+                              
+                            }
+                            else
+                            {
+                                act.blendParameter = 0;
+                                act.blendParameterY = 0;
+                                act.blendParameterName = string.Empty;
+                                act.blendParameterYName = string.Empty;
+                            }
                             for (int i = 0; i < act.behaviours.Length; ++i)
                             {
                                 EditorGUILayout.BeginHorizontal();

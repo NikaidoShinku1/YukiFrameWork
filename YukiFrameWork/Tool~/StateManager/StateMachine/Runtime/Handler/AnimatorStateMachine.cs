@@ -24,6 +24,7 @@ namespace YukiFrameWork.ActionStates
         {
             var clipName = stateAction.clipName;
             animator.speed = state.animSpeed;
+            StateAction.SetBlendTreeParameter(stateAction,animator);
             if (state.isCrossFade)
             {
                 var stateInfo = animator.GetCurrentAnimatorStateInfo(stateAction.layer);

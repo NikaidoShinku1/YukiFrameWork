@@ -44,19 +44,19 @@ namespace YukiFrameWork
             await MonoHelper.Start(LoadSceneAsync(operation, loadingCallBack));
             onFinish?.Invoke();
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator LoadSceneAsync(string sceneName,Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
 		{
             var operation = SceneManager.LoadSceneAsync(sceneName, mode);
             return LoadSceneAsync(operation, loadingCallBack);
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator LoadSceneAsync(int sceneIndex, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             var operation = SceneManager.LoadSceneAsync(sceneIndex, mode);
             return LoadSceneAsync(operation, loadingCallBack);              
         }
-
+        [DisableEnumeratorWarning]
         internal static IEnumerator LoadSceneAsync(AsyncOperation asyncOperation, Action<float> loadingCallBack = null)
         {
             float progress = 0f;
@@ -70,7 +70,7 @@ namespace YukiFrameWork
             }          
             LoadSceneSucceed?.Invoke();
         }
-
+        [DisableEnumeratorWarning]
         internal static IEnumerator LoadSceneAsync(LoadSceneRequest asyncOperation, Action<float> loadingCallBack = null)
         {
             float progress = 0f;
@@ -93,6 +93,7 @@ namespace YukiFrameWork
         /// <param name="loadingCallBack">加载的进度</param>
         /// <param name="mode"></param>
         /// <returns></returns>
+        [DisableEnumeratorWarning]
         public static IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName,Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
 			var operation = SceneManager.LoadSceneAsync(sceneName, mode);			
@@ -107,12 +108,13 @@ namespace YukiFrameWork
         /// <param name="loadingCallBack">加载的进度</param>
         /// <param name="mode"></param>
         /// <returns></returns>
+        [DisableEnumeratorWarning]
         public static IEnumerator LoadSceneAsyncWithAllowSceneActive(int sceneIndex, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
         {
             var operation = SceneManager.LoadSceneAsync(sceneIndex);          
             return LoadSceneAsyncWithAllowSceneActive(operation, onCompleted,loadingCallBack);
         }
-
+        [DisableEnumeratorWarning]
         internal static IEnumerator LoadSceneAsyncWithAllowSceneActive(AsyncOperation asyncOperation, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null)
         {
             asyncOperation.allowSceneActivation = false;          
@@ -152,7 +154,7 @@ namespace YukiFrameWork
             if (!isInited) return;
             AssetBundleManager.LoadScene(projectName, sceneName, mode);
         }
-
+        [DisableEnumeratorWarning]
         public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsynchrony(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
 
@@ -174,6 +176,7 @@ namespace YukiFrameWork
             onFinish?.Invoke();
         }
 
+        [DisableEnumeratorWarning]
         [Obsolete("通过XFABManager进行场景加载时希望提前关闭场景的加载方法已经过时，请使用标准的LoadSceneAsyncWithAllowSceneActive或者使用LoadSceneAsync")]
         public IEnumerator LoadSceneAsyncWithAllowSceneActive(string sceneName, Action<AsyncOperation> onCompleted, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsyncWithAllowSceneActive(AssetBundleManager.LoadSceneAsync(projectName, sceneName, mode), onCompleted, loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");

@@ -53,8 +53,11 @@ namespace YukiFrameWork.ActionStates
         public static string QuitPlayback => Language == PluginLanguage.Chinese ? "退出播放" : "Quit playback";
         public static string SoundObject => Language == PluginLanguage.Chinese ? "音效对象" : "Sound object";
         public static string AnimationTime => Language == PluginLanguage.Chinese ? "动画时间" : "Animation time";
+        public static string BlendParameter => Language == PluginLanguage.Chinese ? "混合树参数" : "Blend Parameter";
+        public static string BlendParameterY => Language == PluginLanguage.Chinese ? "混合树参数Y" : "Blend ParameterY";
         public static string AnimationLength => Language == PluginLanguage.Chinese ? "动画长度" : "Animation length";
         public static string AnimationLayer => Language == PluginLanguage.Chinese ? "动画层级" : "Animation layer";
+        public static string BlendTreeInfo => Language == PluginLanguage.Chinese ? "设置的动作为混合树，将显示混合树参数设置 混合树类型:" : "Set the action to blend tree, will display the blend tree parameter set blend tree type:";
         public static string PlayableAsset => Language == PluginLanguage.Chinese ? "可播放资源" : "Playable asset";
         public static string MeshAnimated => Language == PluginLanguage.Chinese ? "GPU动画" : "Mesh animated";
         public static string SkillObject => Language == PluginLanguage.Chinese ? "技能对象" : "Skill object";

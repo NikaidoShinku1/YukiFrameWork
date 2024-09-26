@@ -439,15 +439,6 @@ namespace YukiFrameWork
         public static T GetUtility<T>(this IGetUtility actor) where T : class, IUtility
             => actor.GetArchitecture().GetUtility<T>();
 
-        /// <summary>
-        /// AbstractController会出现自动化事件注册因懒汉获取架构的方式没有执行注册，故提供该方法，在需要时可以使用
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="t"></param>
-        public static void BuildController<T>(this T t) where T : AbstractController
-        {
-            t.Build();        
-        }
     }
 
     /// <summary>
@@ -458,10 +449,8 @@ namespace YukiFrameWork
         private const string message = "名称已过时，当继承IGetRegisterEvent接口时，";
         private const string defaultName = "this.AddListener方法";
         private const string asyncName = "this.AddListener_Async方法";
-        private const string coroutineName = "this.AddListener_Coroutine方法";
         private const string removeDefaultName = "this.RemoveListener方法";
         private const string removeasyncName = "this.RemoveListener_Async方法";
-        private const string removeCoroutineName = "this.RemoveListener_Coroutine方法";
         [Obsolete(message + defaultName)]
         public static IUnRegister RegisterEvent<T>(this IGetRegisterEvent registerEvent, Action<T> onEvent) where T : IEventArgs
             => EventManager.AddListener<T>(onEvent);

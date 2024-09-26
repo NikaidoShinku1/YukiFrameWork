@@ -80,7 +80,7 @@ namespace YukiFrameWork.ActionStates
 
         public override void OnEnter(StateAction action)
         {
-            eventEnter = false;
+            eventEnter = false;           
         }
 
         public override void OnUpdate(StateAction action)

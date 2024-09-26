@@ -39,6 +39,26 @@ namespace YukiFrameWork.ActionStates
         /// </summary>
         public bool IsComplete => animTime >= animTimeMax - 1;
 
+        /// <summary>
+        /// 如果动画是混合树，该参数则为混合树的1D参数值
+        /// </summary>
+        public float blendParameter;
+
+        /// <summary>
+        /// 如果动画是混合树，该参数则为混合树的1D参数名称
+        /// </summary>
+        public string blendParameterName;
+
+        /// <summary>
+        /// 如果动画是混合树,该参数为混合树的2D参数名称
+        /// </summary>
+        public string blendParameterYName;
+
+        /// <summary>
+        /// 如果动画是混合树，该参数则为混合树的2D参数值
+        /// </summary>
+        public float blendParameterY;   
+
         public StateAction() { }
 
         public StateAction(State state, string clipName, params ActionBehaviour[] behaviours)
@@ -180,6 +200,16 @@ namespace YukiFrameWork.ActionStates
                     break;
                 }
             }
+        }
+
+        internal static void SetBlendTreeParameter(StateAction stateAction, UnityEngine.Animator animator)
+        {
+            if (!animator) return;            
+            if (!stateAction.blendParameterName.IsNullOrEmpty())
+                animator.SetFloat(stateAction.blendParameterName, stateAction.blendParameter);
+
+            if (!stateAction.blendParameterYName.IsNullOrEmpty())
+                animator.SetFloat(stateAction.blendParameterYName, stateAction.blendParameterY);
         }
     }
 }

@@ -175,7 +175,7 @@ namespace YukiFrameWork
                     return mArchitecture;
                 }
             }
-        }
+        }      
 
         /// <summary>
         /// 仅用于框架内部使用，禁止外部访问
