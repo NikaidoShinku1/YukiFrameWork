@@ -108,7 +108,20 @@ namespace YukiFrameWork.Buffer
         [ShowIf(nameof(reimportTable)),Button("将现有配置导出Json"),FoldoutGroup("JsonBuff")]
         void CreateTable()
         {
-            SerializationTool.SerializedObject(buffConfigs).CreateFileStream(jsonPath,jsonName,".json");
+            if (buffConfigs.Count == 0) return;
+
+            foreach (var buff in buffConfigs)
+            {
+                if (buff.BuffIcon != null)
+                    buff.Sprite = AssetDatabase.GetAssetPath(buff.BuffIcon);
+
+                buff.BuffType = buff.GetType().ToString();
+            }
+
+            SerializationTool.SerializedObject(buffConfigs, settings: new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+            }).CreateFileStream(jsonPath,jsonName,".json");
         }      
 #endif
         

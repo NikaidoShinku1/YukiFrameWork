@@ -261,7 +261,7 @@ namespace YukiFrameWork
             return core;
         }
         /// <summary>
-        /// 使用对象池回收加载
+        /// 使用对象池回收加载子物体
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="core"></param>
@@ -275,6 +275,29 @@ namespace YukiFrameWork
                 GameObjectLoader.UnLoad(item.gameObject);
 
             }
+            return core;
+        }
+
+        /// <summary>
+        /// 使用对象池回收物体
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static GameObject UnLoad(this GameObject core)
+        {
+            GameObjectLoader.UnLoad(core);
+            return core;
+        }
+
+        /// <summary>
+        /// 使用对象池回收物体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static T UnLoad<T>(this T core) where T : Component
+        {
+            GameObjectLoader.UnLoad(core.gameObject);
             return core;
         }
         /// <summary>

@@ -58,11 +58,6 @@ namespace YukiFrameWork.Buffer
         /// Buff的精灵
         /// </summary>
         Sprite BuffIcon { get; }		
-
-		/// <summary>
-		/// Buff的精灵路径/需要动态加载时可以使用
-		/// </summary>
-		string Sprite { get; }
 		
 		/// <summary>
 		/// Buff的持续时间,当SurivialType选择计时器时使用，单位秒

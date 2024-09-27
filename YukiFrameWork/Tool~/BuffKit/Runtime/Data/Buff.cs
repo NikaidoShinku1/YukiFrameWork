@@ -121,16 +121,15 @@ namespace YukiFrameWork.Buffer
         [field: ValueDropdown(nameof(names))]
         [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
         public string[] BuffDisableID { get ; set ; }
-
-        [JsonIgnore, SerializeField, LabelText("是否动态加载图标")]
-        private bool IsAutoBuffIcon;
-
-        [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50),HideIf(nameof(IsAutoBuffIcon))]
+        [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50)]
         [JsonIgnore]
         public Sprite BuffIcon { get; set; }
-      
-        [field:JsonProperty,SerializeField,ShowIf(nameof(IsAutoBuffIcon))]
-        public string Sprite { get; set; }
+
+        [JsonProperty]
+        internal string Sprite;
+
+        [JsonProperty]
+        internal string BuffType;
 
         [Button("打开脚本", ButtonHeight = 40), PropertySpace(20)]
         void OpenScript()
