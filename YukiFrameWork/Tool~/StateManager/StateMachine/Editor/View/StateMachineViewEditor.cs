@@ -246,7 +246,8 @@ namespace YukiFrameWork.ActionStates
             blendTree = null;
             if (animator == null)
                 return false;
-            var controller = animator.runtimeAnimatorController as AnimatorController;        
+            var controller = animator.runtimeAnimatorController as AnimatorController;
+            if (controller == null) return false;
             int hash = Animator.StringToHash(clipName);
 
             foreach (var item in controller.layers)
