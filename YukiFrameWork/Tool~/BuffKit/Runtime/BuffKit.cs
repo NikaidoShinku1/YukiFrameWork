@@ -131,6 +131,22 @@ namespace YukiFrameWork.Buffer
         public static char Spilt { get; private set; }
 
         internal static ILocalizationData GetContent(string buffKey)
-            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);      
+            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);
+
+        public static void AddBuffer(this IBuffExecutor executor,IBuff buff)
+        {
+            executor.Handler.AddBuffer(buff,executor);
+        }
+
+        public static void AddBuffer(this IBuffExecutor executor, string buffKey)
+        {
+            executor.Handler.AddBuffer(buffKey, executor);
+        }
+
+        public static bool RemoveBuffer(this IBuffExecutor executor, string buffKey)
+            => executor.Handler.RemoveBuffer(buffKey);
+
+        public static bool RemoveBuffer(this IBuffExecutor executor, IBuff buff)
+           => executor.Handler.RemoveBuffer(buff);
     }
 }
