@@ -22,4 +22,10 @@ namespace YukiFrameWork
 	{
 		
 	}
+
+	[AttributeUsage(AttributeTargets.Class)]
+	public class DisableRuntimeArchitectureWarningAttribute : Attribute
+	{
+		
+	}
 }

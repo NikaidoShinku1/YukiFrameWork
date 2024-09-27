@@ -24,14 +24,14 @@ namespace YukiFrameWork.Buffer
         /// Buff添加时触发的回调,该回调与BuffAwake同属周期，仅首次添加调用，如果是添加多个且不可叠加的buff，则每一个新Buff都触发
         /// </summary>
         [LabelText("Buff添加时会触发的回调")]
-        public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffAddCallBack = new UnityEngine.Events.UnityEvent<IBuffController>();
+        public UnityEngine.Events.UnityEvent<IBuffController> onBuffAddCallBack = new UnityEngine.Events.UnityEvent<IBuffController>();
 
 
 		/// <summary>
 		/// Buff移除时触发的回调，并且可以拿到Controller
 		/// </summary>
 		[LabelText("Buff移除时会触发的回调")]
-        public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffDestroyCallBack = new UnityEngine.Events.UnityEvent<IBuffController>();		
+        public UnityEngine.Events.UnityEvent<IBuffController> onBuffDestroyCallBack = new UnityEngine.Events.UnityEvent<IBuffController>();		
 
 		[Obsolete("不再需要手写控制器泛型，现在使用Handler.AddBuffer即可不需要传递泛型了，通过在BuffKit绑定控制器或者给Buff标记自动化特性BindBuffController!")]
 		public void AddBuffer<T>(IBuff buff, IBuffExecutor player) where T : IBuffController, new()
@@ -113,9 +113,6 @@ namespace YukiFrameWork.Buffer
             controller.Buffer = buff;
             controller.Player = player;
             controller.BuffLayer = 0;
-#if YukiFrameWork_DEBUGFULL
-            LogKit.I("创建的控制器类型:" + controller.GetType());
-#endif
             return controller;
         }
 		public void AddBuffer(string BuffKey, IBuffExecutor player)
@@ -161,13 +158,23 @@ namespace YukiFrameWork.Buffer
 		}
 
 		/// <summary>
-		/// 得到当前运行的所有Buff的数量
+		/// 得到当前运行的所有Buff的数量(以Buff类型为基准的数量)
 		/// </summary>
 		/// <returns></returns>
 		public int GetAllBufferCount()
 		{
 			return mTable.Count;
 		}
+
+		/// <summary>
+		/// 判断指定的Buff是否有在这个对象上执行
+		/// </summary>
+		/// <param name="BuffKey"></param>
+		/// <returns></returns>
+		public bool IsBufferRunning(string BuffKey)
+		{
+			return GetBufferCount(BuffKey) > 0;
+        }
 
         private void InitController(IBuffController controller)
 		{

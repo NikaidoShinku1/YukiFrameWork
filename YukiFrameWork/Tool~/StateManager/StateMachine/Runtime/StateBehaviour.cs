@@ -6,6 +6,8 @@ namespace YukiFrameWork.ActionStates
     /// 状态行为脚本
     /// </summary>
     [Serializable]
+    [DisableViewWarning]
+    [DisableRuntimeArchitectureWarning]
     public class StateBehaviour : BehaviourBase
     {       
         /// <summary>

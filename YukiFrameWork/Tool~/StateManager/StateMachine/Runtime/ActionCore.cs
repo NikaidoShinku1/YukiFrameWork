@@ -65,7 +65,7 @@ namespace YukiFrameWork.ActionStates
         /// </summary>
         ActiveLocalPosition,
     }
-
+    [DisableRuntimeArchitectureWarning]
     public class ActionCoreBase : ActionBehaviour
     {
         /// <summary>
@@ -106,6 +106,7 @@ namespace YukiFrameWork.ActionStates
     /// <summary>
     /// 内置的技能动作行为组件, 此组件包含处理技能特效
     /// </summary>
+    [DisableRuntimeArchitectureWarning]
     public class ActionCore : ActionCoreBase
     {
         /// <summary>

@@ -1,4 +1,4 @@
-
+ï»¿
 using System;
 
 namespace YukiFrameWork.DiaLogue
@@ -8,7 +8,7 @@ namespace YukiFrameWork.DiaLogue
     { 
     }
     /// <summary>
-    /// ÉèÖÃ¶Ô»°µÄ¸ù½Úµã,ÉèÖÃ¸ÃÌØĞÔ±ØĞëÖ±½Ó¼Ì³ĞNodeÀà
+    /// è®¾ç½®å¯¹è¯çš„æ ¹èŠ‚ç‚¹,è®¾ç½®è¯¥ç‰¹æ€§å¿…é¡»ç›´æ¥ç»§æ‰¿Nodeç±»
     /// </summary>
     public sealed class RootNodeAttribute : DiaLogueNodeAttribute
     {       
@@ -18,7 +18,7 @@ namespace YukiFrameWork.DiaLogue
         }
     }
     /// <summary>
-    /// ÉèÖÃ¶Ô»°µÄ·ÖÖ§½Úµã£¬±ê¼Çºó½ÚµãÊôÓÚ·ÖÖ§½Úµã
+    /// è®¾ç½®å¯¹è¯çš„åˆ†æ”¯èŠ‚ç‚¹ï¼Œæ ‡è®°åèŠ‚ç‚¹å±äºåˆ†æ”¯èŠ‚ç‚¹
     /// </summary>
     public sealed class CompositeNodeAttribute : DiaLogueNodeAttribute
     {
@@ -29,7 +29,7 @@ namespace YukiFrameWork.DiaLogue
     }
 
     /// <summary>
-    /// ÉèÖÃ¶Ô»°µÄËæ»ú½Úµã£¬±ê¼Çºó½ÚµãÊôÓÚËæ»ú½Úµã
+    /// è®¾ç½®å¯¹è¯çš„éšæœºèŠ‚ç‚¹ï¼Œæ ‡è®°åèŠ‚ç‚¹å±äºéšæœºèŠ‚ç‚¹
     /// </summary>
     public sealed class RandomNodeAttribute : DiaLogueNodeAttribute
     {
@@ -40,7 +40,7 @@ namespace YukiFrameWork.DiaLogue
     }
 
     /// <summary>
-    /// µ¥½Úµã±ê¼Ç£¬±ê¼Ç¸ÃÌØĞÔºó½ÚµãµÄÀàĞÍÎªÄ¬ÈÏµ¥·ÖÖ§½Úµã¡£
+    /// å•èŠ‚ç‚¹æ ‡è®°ï¼Œæ ‡è®°è¯¥ç‰¹æ€§åèŠ‚ç‚¹çš„ç±»å‹ä¸ºé»˜è®¤å•åˆ†æ”¯èŠ‚ç‚¹ã€‚
     /// </summary>
     public sealed class SingleNodeAttribute : DiaLogueNodeAttribute
     {

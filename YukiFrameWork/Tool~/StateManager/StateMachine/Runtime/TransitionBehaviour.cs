@@ -6,6 +6,7 @@
     /// 连接行为--用户可以继承此类添加组件 
     /// </summary>
     [Serializable]
+    [DisableRuntimeArchitectureWarning]
     public class TransitionBehaviour : BehaviourBase
     {
         [UnityEngine.HideInInspector]

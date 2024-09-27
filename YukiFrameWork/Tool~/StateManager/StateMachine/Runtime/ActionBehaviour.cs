@@ -6,6 +6,7 @@
     /// 动作行为--用户添加的组件
     /// </summary>
     [Serializable]
+    [DisableRuntimeArchitectureWarning]
     public class ActionBehaviour : BehaviourBase
     {
         /// <summary>

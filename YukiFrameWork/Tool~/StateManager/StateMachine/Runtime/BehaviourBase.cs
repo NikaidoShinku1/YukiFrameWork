@@ -280,6 +280,7 @@
     /// 状态行为基类
     /// </summary>
     [Serializable]
+    [DisableRuntimeArchitectureWarning]
     public class BehaviourBase : AbstractController
     {
         [HideField]
