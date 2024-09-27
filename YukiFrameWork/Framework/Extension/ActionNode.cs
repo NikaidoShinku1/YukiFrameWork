@@ -136,8 +136,9 @@ namespace YukiFrameWork
 
         public virtual bool IsCompleted { get; protected set; }
 
-        public bool IsInit { get; protected set; } = false;      
-  
+        public bool IsInit { get; protected set; } = false;
+
+        [DisableEnumeratorWarning]
         public abstract IEnumerator ToCoroutine();
 
         public abstract void OnFinish();
@@ -210,7 +211,7 @@ namespace YukiFrameWork
             this.onEvent = onEvent;                     
             return this;
         }
-
+        [DisableEnumeratorWarning]
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();

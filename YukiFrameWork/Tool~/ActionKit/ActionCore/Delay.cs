@@ -106,7 +106,7 @@ namespace YukiFrameWork
             currentTime = isRealTime ? Time.realtimeSinceStartup : Time.time;
             IsCompleted = false;
         }
-
+        [DisableEnumeratorWarning]
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();

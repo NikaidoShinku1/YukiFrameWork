@@ -96,8 +96,8 @@ namespace YukiFrameWork
             return sequence;
         }
 
-        public static ISequence StartTimer(this ISequence sequence, float maxTime, Action<float> TimpTemp, Action callBack = null, bool isConstraint = false, bool isRealTime = false)
-            => sequence.AddSequence(Timer.Get(maxTime, TimpTemp, callBack, isConstraint,isRealTime));
+        public static ISequence StartTimer(this ISequence sequence, float maxTime, Action<float> callTemp, Action callBack = null, bool isConstraint = false, bool isRealTime = false)
+            => sequence.AddSequence(Timer.Get(maxTime, callTemp, callBack, isConstraint,isRealTime));
        
         public static ISequence Sequence(this ISequence sequence, Action<ISequence> sequenceEvent)
         {
@@ -203,7 +203,7 @@ namespace YukiFrameWork
             IsCompleted = false;
             IsInit = true;
         }
-
+        [DisableEnumeratorWarning]
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
@@ -256,7 +256,7 @@ namespace YukiFrameWork
             IsInit = true;
             IsCompleted = false;
         }
-
+        [DisableEnumeratorWarning]
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
@@ -315,7 +315,7 @@ namespace YukiFrameWork
             IsCompleted = false;
             onEvent?.Invoke(callBack);
         }
-
+        [DisableEnumeratorWarning]
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();

@@ -120,13 +120,19 @@ namespace YukiFrameWork.Events
                     jump = true;
                     goto Finish;
                 }
-                string path = scriptAssemblies + nameof(YukiFrameWork) + ".dll";
+                string bakeDllPath = $"{DefindDirectory}/bak_{nameof(YukiFrameWork)}.dll";
+                string bakPdbPath = $"{DefindDirectory}/bak_{nameof(YukiFrameWork)}.pdb";
+                string dll = scriptAssemblies + nameof(YukiFrameWork) + ".dll";
+                string pdb = scriptAssemblies + nameof(YukiFrameWork) + ".pdb";
+                File.Copy(dll, bakeDllPath);
+                File.Copy(pdb, bakPdbPath);
+                string path = bakeDllPath;
 
                 definitionStream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite);
                 assemblyDefinition = AssemblyDefinition.ReadAssembly(definitionStream, new ReaderParameters()
                 {
                     ReadSymbols = true,
-                    AssemblyResolver = CreateAssemblyResolver(DefindDirectory + "/" + nameof(YukiFrameWork) + ".dll")
+                    AssemblyResolver = CreateAssemblyResolver(dll)
                 });
                 foreach (var item in definds.Values)
                 {
