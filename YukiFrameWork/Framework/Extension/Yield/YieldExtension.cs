@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
@@ -56,8 +57,8 @@ namespace YukiFrameWork
         public static YieldTask ToSingleTask(this IEnumerator enumerator)
         {
             return enumerator.GetAwaiter();
-        }          
-
+        }
+        [DisableEnumeratorWarning]
         public static IEnumerator ToCoroutine(this YieldTask task)
         {
             return CoroutineTool.WaitUntil(() =>
@@ -65,7 +66,7 @@ namespace YukiFrameWork
                 return task.IsCompleted;
             });
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator ToCoroutine<T>(this YieldTask<T> task)
         {
             return CoroutineTool.WaitUntil(() =>
@@ -178,6 +179,7 @@ namespace YukiFrameWork
 
         public Coroutine Root { get; private set; }
 
+        [DisableEnumeratorWarning]
         private IEnumerator ExecuteAsync()
         {
             while (IsRunning)
@@ -306,7 +308,7 @@ namespace YukiFrameWork
             => waitForFixedUpdate;        
         public static WaitForEndOfFrame WaitForEndOfFrame()
             => waitForEndOfFrame;
-
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitForSecondsRealtime(float time)
         {
             float timer = 0;
@@ -316,7 +318,7 @@ namespace YukiFrameWork
                 yield return new WaitDefaultFrame();
             }
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitForSeconds(float time)
         {
             float timer = 0;
@@ -326,7 +328,7 @@ namespace YukiFrameWork
                 yield return new WaitDefaultFrame();
             }
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitForFrames(int count = 1)
         {
             for (int i = 0; i < count; i++)
@@ -334,22 +336,21 @@ namespace YukiFrameWork
                 yield return WaitForFrame();
             }
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitForFrame()
         {
             yield return new WaitDefaultFrame();
         }
-        
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitUntil(Func<bool> m_Predicate)
         {
             yield return new CustomWaitUntil(m_Predicate);
         }
-
+        [DisableEnumeratorWarning]
         public static IEnumerator WaitWhile(Func<bool> m_Predicate)
         {
             yield return new CustomWaitWhile(m_Predicate);
-        }
-
+        }      
         /// <summary>
         /// 绑定生命周期销毁时终止异步等待器，同时终止该异步协程后面所有的等待逻辑
         /// </summary>

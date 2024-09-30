@@ -178,15 +178,17 @@ namespace YukiFrameWork.UI
 
             EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
-            CodeManager.GenericPanelScripts(Data);
+            CodeManager.GenericPanelScripts(Data,() => 
+            {
+                if (CodeManager.CheckViewBindder(panel, panel.GetComponentsInChildren<YukiBind>()))
+                {
+                    GenericPartialScripts();
+                }
+            });
             EditorGUILayout.EndVertical();
             if (EditorGUI.EndChangeCheck())
                 panel.SaveData();
-            
-            if (!target.GetType().Equals(typeof(BasePanel)))
-            {
-                CodeManager.BindInspector(panel, panel, GenericPartialScripts);
-            }
+            CodeManager.BindInspector(panel, panel, GenericPartialScripts);
 
         }
  
@@ -260,7 +262,10 @@ namespace YukiFrameWork.UI
             if (monoScript == null || PrefabUtility.IsPartOfAnyPrefab(panel)) return false;
             var component = panel.gameObject.AddComponent(monoScript.GetClass());
             BasePanel currentController = component as BasePanel;
-
+            foreach (var item in (panel as ISerializedFieldInfo).GetSerializeFields())
+            {
+                (currentController as ISerializedFieldInfo).AddFieldData(item);
+            }
             currentController.Data = panel.Data;
             currentController.name = currentController.Data.ScriptName;        
             DestroyImmediate(panel);

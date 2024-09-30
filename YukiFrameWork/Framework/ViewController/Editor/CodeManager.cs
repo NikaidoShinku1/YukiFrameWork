@@ -250,7 +250,7 @@ namespace YukiFrameWork
 	{
         private static ICodeGenerator viewControllerGenerator = new ViewControllerGenerator();
         private static ICodeGenerator panelGenerator = new BasePanelGenerator();
-        public static void GenericControllerScripts(CustomData Data)
+        public static void GenericControllerScripts(CustomData Data,Action callBack  = null)
         {
             string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
 
@@ -288,7 +288,7 @@ namespace YukiFrameWork
                         fileStream.Close();
                         Data.OnLoading = true;
                     }
-
+                    callBack?.Invoke();
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
 
@@ -324,7 +324,7 @@ namespace YukiFrameWork
             }
         }
 
-        public static void GenericPanelScripts(GenericDataBase Data)
+        public static void GenericPanelScripts(GenericDataBase Data, Action callBack = null)
         {
             string scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
 
@@ -362,7 +362,7 @@ namespace YukiFrameWork
                         Data.OnLoading = true;
 
                     }
-
+                    callBack?.Invoke();
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
 
@@ -540,7 +540,7 @@ namespace YukiFrameWork
                 GUILayout.FlexibleSpace();
                 if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
                 {
-                    if ((info.GetSerializeFields().Count() > 0 || (binds != null && binds.Length > 0)) && GUILayout.Button("生成代码", GUILayout.Height(25)))
+                    if (CheckViewBindder(info,binds) && GUILayout.Button("生成代码", GUILayout.Height(25)))
                     {
                         GenericCallBack?.Invoke();
                     }
@@ -571,11 +571,16 @@ namespace YukiFrameWork
                         Undo.RecordObject(target, "Add Data");
                         info.AddFieldData(new SerializeFieldData(asset));
 
-                        SaveData(target);
+                        SaveData(infoAsset: target);
                     }
                     e.Use();
                 }
             }
+        }
+
+        public static bool CheckViewBindder(ISerializedFieldInfo info, YukiBind[] binds)
+        {
+            return (info.GetSerializeFields().Count() > 0 || (binds != null && binds.Length > 0));
         }
     }
 }

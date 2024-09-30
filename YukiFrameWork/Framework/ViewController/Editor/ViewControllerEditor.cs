@@ -283,7 +283,13 @@ namespace YukiFrameWork.Extension
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space(20);
-            CodeManager.GenericControllerScripts(Data);
+            CodeManager.GenericControllerScripts(Data,() => 
+            {
+                if (CodeManager.CheckViewBindder(controller, controller.GetComponentsInChildren<YukiBind>()))
+                {
+                    GenericPartialScripts();
+                }
+            });
 
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
@@ -295,11 +301,10 @@ namespace YukiFrameWork.Extension
 
             try
             {
-                if (target.GetType() != typeof(ViewController))
-                {
-                    CodeManager.BindInspector(controller, controller, GenericPartialScripts);
-                    EditorGUILayout.Space();
-                }
+
+                CodeManager.BindInspector(controller, controller, GenericPartialScripts);
+                EditorGUILayout.Space();
+
             }
             catch { }
         }
@@ -381,6 +386,10 @@ namespace YukiFrameWork.Extension
             var component = controller.gameObject.AddComponent(monoScript.GetClass());
             ViewController currentController = component as ViewController;            
             currentController.Data = controller.Data;
+            foreach (var item in (controller as ISerializedFieldInfo).GetSerializeFields())
+            {
+                (currentController as ISerializedFieldInfo).AddFieldData(item);
+            }
             currentController.IsAutoSettingField = controller.IsAutoSettingField;          
             DestroyImmediate(controller);
             currentController.gameObject.name = currentController.Data.ScriptName;
