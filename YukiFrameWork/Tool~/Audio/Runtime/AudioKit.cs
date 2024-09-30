@@ -135,7 +135,7 @@ namespace YukiFrameWork.Audio
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
             AudioManager.I.CheckLoaderCache(loader);
-            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader);
+            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader);        
             musicPlayer.Mute = !Setting.IsMusicOn.Value;
         }
 
@@ -326,8 +326,14 @@ namespace YukiFrameWork.Audio
             };
             AudioManager.I.CheckLoaderCache(loader);
             soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
-            SetAllSoundMute(Setting.IsSoundOn.Value);
+            SetAllSoundMute();
             return soundPlayer;
+        }
+
+        static async void SetAllSoundMute()
+        {
+            await CoroutineTool.WaitForEndOfFrame();
+            SetAllSoundMute(Setting.IsSoundOn.Value);
         }
 
         private static bool CheckPlaySound(string name)
@@ -451,6 +457,7 @@ namespace YukiFrameWork.Audio
 
         public static void SetAllSoundMute(bool mute)
         {
+
             foreach (var players in soundActivities.Values)
             {
                 for (int i = 0; i < players.Count; i++)

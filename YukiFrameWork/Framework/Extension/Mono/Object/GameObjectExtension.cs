@@ -511,7 +511,63 @@ namespace YukiFrameWork
             SetLocalScale(core.gameObject, new Vector3(core.transform.localScale.x, core.transform.localScale.y, z));
             return core;
         }
+        #region Vector
+        public static Vector3 SetX(this Vector3 core, float x)
+        {
+            return new Vector3(x, core.y, core.z);
+        }
 
+        public static Vector3 SetY(this Vector3 core, float y)
+        {
+            return new Vector3(core.x, y, core.z);
+        }
+
+        public static Vector2 SetX(this Vector2 core, float x)
+        {
+            return new Vector2(x, core.y);
+        }
+
+        public static Vector2 SetY(this Vector2 core, float y)
+        {
+            return new Vector2(core.x, y);
+        }
+
+        public static Vector3 SetZ(this Vector3 core, float z)
+        {
+            return new Vector3(core.x, core.y, z);
+        }
+
+        public static Vector3 Abs(this Vector3 core)
+        {
+            return new Vector3(Mathf.Abs(core.x), Mathf.Abs(core.y), Mathf.Abs(core.z));
+        }
+
+        public static Vector2 Abs(this Vector2 core)
+        {
+            return new Vector2(Mathf.Abs(core.x), Mathf.Abs(core.y));
+        }
+
+        public static float Distance(this Vector3 core,Vector3 target)
+        {
+            return Vector3.Distance(core, target);
+        }
+
+        public static float Distance(this Transform core, Transform target)
+        {
+            return Vector3.Distance(core.position, target.position);
+        }
+
+        public static float Distance(this Vector3 core, Transform target)
+        {
+            return Vector3.Distance(core, target.position);
+        }
+
+        public static float Distance(this Transform core, Vector3 target)
+        {
+            return Vector3.Distance(core.position, target);
+        }
+
+        #endregion
         public static GameObject SetParent(this GameObject core, GameObject parent)
         {
             core.transform.SetParent(parent.transform);

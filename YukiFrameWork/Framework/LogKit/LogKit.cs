@@ -218,7 +218,7 @@ namespace YukiFrameWork
 
         public static void Exception(Exception ex)
         {
-            throw new Exception(string.Format("{0}\n------------> \nReal StackTrace(捕捉时机堆栈坐标) --> \n{1}\n\n------------------\n Default StackTrace(Unity 默认捕捉) ", ex.Message, ex.StackTrace));
+            Debug.LogException(new System.Exception(string.Format("{0}\n------------> \nReal StackTrace(捕捉时机堆栈坐标) --> \n{1}\n\n------------------\n Default StackTrace(Unity 默认捕捉) ", ex.Message, ex.StackTrace)));
         }
        
         static StringBuilder stackBuilder = new StringBuilder();

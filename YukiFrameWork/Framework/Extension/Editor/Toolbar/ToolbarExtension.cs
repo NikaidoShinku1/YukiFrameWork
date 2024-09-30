@@ -38,13 +38,12 @@ namespace YukiFrameWork.ToolBar
     {
         private static readonly List<(int, Action)> s_LeftToolbarGUI = new List<(int, Action)>();
         private static readonly List<(int, Action)> s_RightToolbarGUI = new List<(int, Action)>();
-
+      
         static ToolbarExtension()
         {
             ToolbarCallback.OnToolbarGUILeft = GUILeft;
             ToolbarCallback.OnToolbarGUIRight = GUIRight;
-            Type attributeType = typeof(ToolbarAttribute);
-
+            Type attributeType = typeof(ToolbarAttribute);         
             foreach (var methodInfo in TypeCache.GetMethodsWithAttribute<ToolbarAttribute>())
             {
                 var attributes = methodInfo.GetCustomAttributes(attributeType, false);

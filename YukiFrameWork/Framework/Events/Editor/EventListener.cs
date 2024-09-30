@@ -86,7 +86,7 @@ namespace YukiFrameWork.Events
         static void Inject(string dir)
         {
 
-            Dictionary<string, IInject_IO> definds = new Dictionary<string, IInject_IO>();
+            Dictionary<string, IInject_IO> definds = new Dictionary<string, IInject_IO>();          
             try
             {
                 DoBackUpDirCreateOneTime(dir);
@@ -95,8 +95,12 @@ namespace YukiFrameWork.Events
                     if (definds.ContainsKey(dllFileName)) continue;
 
                     var dllPath = $"{dir}/{dllFileName}";
-                    dllPath = Path.ChangeExtension(dllPath, ".dll");
-                    if (File.Exists(dllPath) == false) continue;
+                    try
+                    {
+                        dllPath = Path.ChangeExtension(dllPath, ".dll");
+                        if (File.Exists(dllPath) == false) continue;
+                    }
+                    catch { continue; }
                     var injecter = new Inject_IO(dllPath);
                     definds.Add(dllFileName, injecter);
                 }

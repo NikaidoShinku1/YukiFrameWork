@@ -22,26 +22,36 @@ namespace YukiFrameWork.Audio
         private IAudioLoader loader;
         public bool IsAudioFree { get; private set; } = true;
 
+        internal bool IsAudioSource => mAudioSource && mAudioSource.gameObject;
         public float Volume
         {
-            get => mAudioSource.volume;
-            set => mAudioSource.volume = value;
+            get => IsAudioSource ? mAudioSource.volume : 0;
+            set
+            {
+                if(IsAudioSource)
+                    mAudioSource.volume = value;
+
+            }
         }
 
         public bool Mute
         {
-            get => mAudioSource.mute;
-            set => mAudioSource.mute = value;
+            get => IsAudioSource ? mAudioSource.mute : false;
+            set
+            {
+                if(IsAudioSource)
+                    mAudioSource.mute = value;
+            }
         }
 
         public string ClipName
         {
-            get => mAudioSource.clip.name;
+            get => IsAudioSource ? mAudioSource.clip.name : string.Empty;
         }
 
         public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader)
         {
-            if (mAudioSource == null)
+            if (!mAudioSource || !mAudioSource.gameObject)
             {
                 mAudioSource = target.gameObject.AddComponent<AudioSource>();
             }

@@ -89,7 +89,7 @@ namespace YukiFrameWork
         {
             return Table.GetEnumerator();
         }
-
+        [DisableEnumeratorWarning]
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

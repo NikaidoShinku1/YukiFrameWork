@@ -330,9 +330,8 @@ namespace YukiFrameWork.Buffer
 				{
 					var controller = item[i];
                     onBuffDestroyCallBack?.Invoke(controller);
-                    controller.OnBuffDestroy();					
-                    LogKit.I("回收的控制器类型:" + controller.GetType());
-                    BuffController.Release(controller);
+                    controller.OnBuffDestroy();
+					BuffController.Release(controller);
 				}
 			}
 			release.Clear();

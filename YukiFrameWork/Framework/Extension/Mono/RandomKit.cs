@@ -202,7 +202,7 @@ namespace YukiFrameWork
         /// </summary>
         public static float Probability
         {
-            get => Range(0f, 101f);
+            get => Range(1f, 101f);
         }
 
         /// <summary>
