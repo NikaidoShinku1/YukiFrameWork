@@ -110,7 +110,7 @@ namespace YukiFrameWork
 
         private FastList<OrderController> controllers = new FastList<OrderController>();
         
-        private EasyContainer container => architecture.Container;
+        private RoleContainer container => architecture.RoleContainer;
 
         private IEnumerator StartModule()
         {          

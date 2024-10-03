@@ -464,10 +464,10 @@ namespace YukiFrameWork
                     bool contains = false;
                     bool IsInfo = false;
                     if (registration != null)
-                        contains = architecture.Container.ContainsType(registration.IsCustomType ? registration.registerType : info.type);
+                        contains = architecture.RoleContainer.ContainsType(registration.IsCustomType ? registration.registerType : info.type);
                     else
                     {
-                        contains = architecture.Container.ContainsInstance(info.type);
+                        contains = architecture.RoleContainer.ContainsInstance(info.type);
                         IsInfo = true;
                     }
 

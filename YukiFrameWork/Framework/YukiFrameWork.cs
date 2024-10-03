@@ -66,8 +66,13 @@ namespace YukiFrameWork
         void SendCommand<T>(T command) where T : ICommand;
         TResult SendCommand<TResult>(ICommand<TResult> command);
         TResult SendQuery<TResult>(IQuery<TResult> query);
+
+        Container LoadContainer(string containerKey);
+
+        void UnLoadContainer(string containerKey);
+
         #region Framework Internal Gettter
-        internal EasyContainer Container { get; }          
+        internal RoleContainer RoleContainer { get; }          
         #endregion
     }
 
@@ -112,6 +117,11 @@ namespace YukiFrameWork
         
     }
 
+    public interface IGetContainer : IGetArchitecture
+    {
+
+    }
+
     #endregion
 
     public interface IDestroy
@@ -122,7 +132,7 @@ namespace YukiFrameWork
     #region Controller
     public interface IController :
         ISendCommand, IGetArchitecture, IGetModel, IGetUtility,
-        IGetRegisterEvent,IGetSystem,IGetQuery
+        IGetRegisterEvent,IGetSystem,IGetQuery,IGetContainer
     {
 
     }
@@ -140,7 +150,7 @@ namespace YukiFrameWork
 
 
     #region System
-    public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy
+    public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy,IGetContainer
     {
         void Init();      
     }
@@ -155,13 +165,13 @@ namespace YukiFrameWork
 
     #region Command
     public interface ICommand : ISetArchitecture,ISendEvent,IGetRegisterEvent,IGetModel
-        ,IGetUtility,IGetSystem,ISendCommand,IGetArchitecture,IGetQuery
+        ,IGetUtility,IGetSystem,ISendCommand,IGetArchitecture,IGetQuery,IGetContainer
     {       
         void Execute();        
     }
 
     public interface ICommand<TResult> : ISetArchitecture, ISendEvent, IGetRegisterEvent, IGetModel
-        , IGetUtility, IGetSystem, ISendCommand, IGetArchitecture,IGetQuery
+        , IGetUtility, IGetSystem, ISendCommand, IGetArchitecture,IGetQuery,IGetContainer
     {
         TResult Execute();
     }
@@ -189,14 +199,14 @@ namespace YukiFrameWork
     public abstract partial class Architecture<TCore> : IArchitecture,IDisposable where TCore : class,IArchitecture ,new()
     {
         #region Data
-        private EasyContainer easyContainer = new EasyContainer();
-       
+        private RoleContainer easyContainer = new RoleContainer();
+        private Dictionary<string, Container> anyContainers = new Dictionary<string, Container>();
         private ArchitectureTableConfig config;
 #endregion
 
         internal bool IsInited = false;
 
-        EasyContainer IArchitecture.Container => easyContainer;
+        RoleContainer IArchitecture.RoleContainer => easyContainer;
         ArchitectureTableConfig IArchitecture.TableConfig
         {
             get
@@ -219,6 +229,21 @@ namespace YukiFrameWork
             {
                 table.projectName = ProjectName;
                 config = new ArchitectureTableConfig(table);                     
+            }
+
+            string[] containers = BuildContainers;
+
+            if (containers != null && containers.Length > 0)
+            {
+                for (int i = 0; i < containers.Length; i++)
+                {
+                    if (anyContainers.ContainsKey(containers[i]))
+                        continue;
+
+                    Container container = new Container();
+                    container.Init();
+                    anyContainers[containers[i]] = container;
+                }
             }
 
             OnInit();
@@ -248,6 +273,38 @@ namespace YukiFrameWork
         /// </summary>
         /// <returns></returns>
         protected virtual ArchitectureTable BuildArchitectureTable() => null;
+
+        /// <summary>
+        /// 构建通用容器，重写该数组，根据一个标识一个容器，有多少标识，在架构的Init方法执行前就会构建多少个容器可使用。
+        /// </summary>
+        protected virtual string[] BuildContainers => null;
+
+        /// <summary>
+        /// 加载对应的容器
+        /// </summary>
+        /// <param name="key">容器标识</param>
+        /// <returns></returns>
+        public Container LoadContainer(string key)
+        {
+            if (anyContainers.TryGetValue(key, out Container container))
+            { }
+
+            return container;
+        }
+
+        /// <summary>
+        /// 卸载对应的容器
+        /// </summary>
+        /// <param name="key">容器标识</param>
+        public void UnLoadContainer(string key)
+        {
+            if (!anyContainers.TryGetValue(key, out Container container))
+            {
+                return;
+            }
+            container.Dispose();
+            anyContainers.Remove(key);
+        }
 
         #region 架构全局模块，如果想要让架构设置为全局的可以使用这个
         private static TCore mGlobal = null;
@@ -347,8 +404,10 @@ namespace YukiFrameWork
             return command.Execute();         
         }
     }
-
-    public sealed class EasyContainer
+    /// <summary>
+    /// 只单独针对层级设置的容器
+    /// </summary>
+    public sealed class RoleContainer
     {                      
        
         private Dictionary<Type, object> mInstances = new Dictionary<Type, object>(); 
@@ -431,13 +490,28 @@ namespace YukiFrameWork
     public static class ControllerExtension
     {           
         public static T GetModel<T>(this IGetModel actor) where T : class, IModel
-            => actor.GetArchitecture().GetModel<T>();  
+            => actor.GetArchitecture().GetModel<T>();
+
+        public static IEnumerable<T> GetModels<T>(this IGetModel actor) where T : class, IModel
+            => actor.GetArchitecture().RoleContainer.GetInstanceByType<T>();
 
         public static T GetSystem<T>(this IGetSystem actor) where T : class, ISystem
             => actor.GetArchitecture().GetSystem<T>();
 
         public static T GetUtility<T>(this IGetUtility actor) where T : class, IUtility
             => actor.GetArchitecture().GetUtility<T>();
+
+        public static IEnumerable<T> GetSystems<T>(this IGetSystem actor) where T : class, ISystem
+            => actor.GetArchitecture().RoleContainer.GetInstanceByType<T>();
+
+        public static IEnumerable<T> GetUtilities<T>(this IGetUtility actor) where T : class, IUtility
+            => actor.GetArchitecture().RoleContainer.GetInstanceByType<T>();
+
+        public static Container LoadContainer(this IGetContainer actor, string key)
+            => actor.GetArchitecture().LoadContainer(key);
+
+        public static Container UnLoadContainer(this IGetContainer actor, string key)
+            => actor.GetArchitecture().LoadContainer(key);
 
     }
 
