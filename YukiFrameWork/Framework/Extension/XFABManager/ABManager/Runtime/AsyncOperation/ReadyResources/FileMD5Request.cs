@@ -1,10 +1,8 @@
-﻿using System;
+﻿
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using XFABManager;
 
@@ -13,7 +11,7 @@ public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
 
     public string md5 { get;private set; }
     
-    private const int md5_max_file_size = 1024 * 1024 * 1;         // 如果大于50mb 是为大文件
+    private const int md5_max_file_size = 1024 * 1024 * 50;         // 如果大于50mb 是为大文件
 
     private const int file_stream_buffer_min = 1024 * 1024;         // 文件流缓冲区最小值 1 MB
 
@@ -36,19 +34,27 @@ public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
                 if (inputStream.Length < md5_max_file_size)
                 {
                     md5 = XFABTools.md5file(inputStream);
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+                    UnityEngine.Debug.LogFormat("同步计算file:{0} md5:{1}",filePath,md5);
+#endif
+
                 }
                 else
-                {
+                {  
                     MD5CryptoServiceProvider hashAlgorithm = new MD5CryptoServiceProvider();
                     byte[] buffer = GetFileStreamBuffer((int)inputStream.Length);
                     var output = new byte[buffer.Length];
 
-                    int timerFrame = 0;
+                    int timerFrame = 0; 
+                    long allLength = 0; 
 
-                    while (inputStream.Position < inputStream.Length)
+                    while (allLength < inputStream.Length)
                     {
                         int count = inputStream.Read(buffer, 0, buffer.Length);
-                        if (inputStream.Position < inputStream.Length)
+                        allLength += count;
+
+                        if (allLength < inputStream.Length)
                             //分块计算哈希值
                             hashAlgorithm.TransformBlock(buffer, 0, buffer.Length, output, 0);
                         else
@@ -61,6 +67,10 @@ public class FileMD5Request : CustomAsyncOperation<FileMD5Request>
                     }
                     // 有文件 判断md5值 需不需要更新
                     md5 = CaculateProviderMd5(hashAlgorithm);
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+                    UnityEngine.Debug.LogFormat("异步计算file:{0} md5:{1}", filePath, md5);
+#endif
                 }
             }
 

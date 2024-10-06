@@ -80,35 +80,48 @@ namespace YukiFrameWork.Events
 #endif
         static void OnBeforeAssemblyReload() 
         {
-            Inject(scriptAssemblies);
+            try
+            {
+                Inject(scriptAssemblies);
+            }
+            catch (Exception ex)
+            {
+#if UNITY_EDITOR
+                UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+#endif
+                UnityEngine.Debug.LogException(ex);
+                Debug.LogWarning("触发程序集拷贝异常，强制重新编译确保万无一失!");
+
+               
+            }
         }
 
         static void Inject(string dir)
         {
 
-            Dictionary<string, IInject_IO> definds = new Dictionary<string, IInject_IO>();          
+            Dictionary<string, IInject_IO> definds = new Dictionary<string, IInject_IO>();
+
+            DoBackUpDirCreateOneTime(dir);
+            foreach (var dllFileName in assemblies)
+            {
+                if (definds.ContainsKey(dllFileName)) continue;
+
+                var dllPath = $"{dir}/{dllFileName}";
+                try
+                {
+                    dllPath = Path.ChangeExtension(dllPath, ".dll");
+                    if (File.Exists(dllPath) == false) continue;
+                }
+                catch { continue; }
+                var injecter = new Inject_IO(dllPath);
+                definds.Add(dllFileName, injecter);
+            }
+            foreach (var item in definds.Values)
+            {
+                item.Init();
+            }
             try
             {
-                DoBackUpDirCreateOneTime(dir);
-                foreach (var dllFileName in assemblies)
-                {
-                    if (definds.ContainsKey(dllFileName)) continue;
-
-                    var dllPath = $"{dir}/{dllFileName}";
-                    try
-                    {
-                        dllPath = Path.ChangeExtension(dllPath, ".dll");
-                        if (File.Exists(dllPath) == false) continue;
-                    }
-                    catch { continue; }
-                    var injecter = new Inject_IO(dllPath);
-                    definds.Add(dllFileName, injecter);
-                }
-                foreach (var item in definds.Values)
-                {
-                    item.Init();
-                }
-
                 bool IsAutoInjected = true;
                 foreach (var inject in definds.Values)
                 {

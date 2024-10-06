@@ -450,7 +450,7 @@
             runtimeBehaviour.show = show;
             foreach (var metadata in Metadatas)
             {
-                var field = type.GetField(metadata.name);
+                var field = type.GetField(metadata.name,BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 if (field == null)
                     continue;
                 var value = metadata.Read();//必须先读值才能赋值下面字段和对象

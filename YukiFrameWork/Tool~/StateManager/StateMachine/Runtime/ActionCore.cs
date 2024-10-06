@@ -85,12 +85,8 @@ namespace YukiFrameWork.ActionStates
 
         public override void OnUpdate(StateAction action)
         {
-            if (action.animTime >= animEventTime & !eventEnter)
-            {
-                eventEnter = true;
-                OnAnimationEvent(action);
-            }
-        }
+            AnimationEvent(action);
+        }        
 
         /// <summary>
         /// 当动画事件触发
@@ -99,7 +95,25 @@ namespace YukiFrameWork.ActionStates
 
         public override void OnExit(StateAction action)
         {
+            base.OnExit(action);
             eventEnter = false;
+        }
+        public override void OnStop(StateAction action)
+        {
+            base.OnStop(action);
+            action.animTime = action.animTime < 100 ? 100 : action.animTime;
+            //防止事件帧数为100时，不会触发动画事件的问题
+            AnimationEvent(action);
+        }
+
+        private void AnimationEvent(StateAction action)
+        {
+
+            if (action.animTime >= animEventTime & !eventEnter)
+            {
+                eventEnter = true;
+                OnAnimationEvent(action);
+            }
         }
     }
 

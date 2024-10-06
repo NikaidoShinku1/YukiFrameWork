@@ -158,7 +158,11 @@ namespace YukiFrameWork.ActionStates
             foreach (var state in states)
                 state.Init(this);
             if (Parent == null)
-                DefaultState.Enter(0);    
+            {
+                DefaultState.Enter(0);               
+            }         
+            stateId = defaulId;
+            nextId = defaulId;
         }
 
         public void Execute(UpdateStatus updateStatus)
