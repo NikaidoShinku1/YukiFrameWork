@@ -25,25 +25,25 @@ namespace YukiFrameWork.Skill
     public class SkillData : ScriptableObject, ISkillData
     {
         
-        [SerializeField,LabelText("Skill的唯一标识"),InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"),JsonProperty]
-        private string SkillKey;
+        [SerializeField,LabelText("Skill的唯一标识"),InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"),JsonProperty(PropertyName = nameof(SkillKey))]
+        private string skillKey;
 
         [JsonIgnore]
-        public string GetSkillKey => SkillKey;
+        public string SkillKey => skillKey;
 
-        [SerializeField, LabelText("Skill的名称"), JsonProperty]
-        private string SkillName;
-
-        [JsonIgnore]
-        public string GetSkillName => SkillKit.UseLocalizationConfig 
-            ? SkillKit.GetContent(GetSkillKey).Context.Split(SkillKit.Spilt)[0] : SkillName;
-
-        [SerializeField,LabelText("技能介绍"),JsonProperty(),TextArea]
-        private string Description;
+        [SerializeField, LabelText("Skill的名称"), JsonProperty(PropertyName = nameof(SkillName))]
+        private string skillName;
 
         [JsonIgnore]
-        public string GetDescription => SkillKit.UseLocalizationConfig
-            ? SkillKit.GetContent(GetSkillKey).Context.Split(SkillKit.Spilt)[1] : Description;
+        public string SkillName => SkillKit.UseLocalizationConfig 
+            ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[0] : skillName;
+
+        [SerializeField,LabelText("技能介绍"),JsonProperty(PropertyName = nameof(Description)),TextArea]
+        private string description;
+
+        [JsonIgnore]
+        public string Description => SkillKit.UseLocalizationConfig
+            ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[1] : description;
 
         [field:SerializeField,LabelText("技能是否不受到时间影响")]
         [JsonProperty]
@@ -74,7 +74,7 @@ namespace YukiFrameWork.Skill
 
         [field:SerializeField,LabelText("技能图标/静态"),PreviewField(50)]
         [JsonIgnore]
-        public Sprite GetIcon { get; set; }
+        public Sprite Icon { get; set; }
      
         [JsonProperty]
         internal string Sprite;
@@ -120,12 +120,12 @@ namespace YukiFrameWork.Skill
         internal SkillDataBase root;
 
         [JsonIgnore]
-        IEnumerable list => root.SkillDataConfigs.Where(x => x != this).Select(x => new ValueDropdownItem(x.GetSkillName, x.GetSkillKey));
+        IEnumerable list => root.SkillDataConfigs.Where(x => x != this).Select((Func<SkillData, ValueDropdownItem>)(x => new ValueDropdownItem(x.SkillName, (object)x.SkillKey)));
         public static SkillData CreateInstance(string skillName, Type type)
         {
             SkillData skillData = ScriptableObject.CreateInstance(type) as SkillData;
-            skillData.SkillName = skillName;
-            skillData.SkillKey = "技能" + Mathf.Abs(skillData.GetInstanceID());
+            skillData.skillName = skillName;
+            skillData.skillKey = "技能" + Mathf.Abs(skillData.GetInstanceID());
             return skillData;
         }
 

@@ -70,7 +70,7 @@ namespace YukiFrameWork.UI
             panel.Enter(param);
             panel.gameObject.Show().SetAsLastSibling();
             ShowPanelCallBack?.Invoke(panel as BasePanel);
-        }
+        }			
 
         [Obsolete("推荐直接使用UIKit.HidePanel进行临时面板的关闭")]
         public T HidePanel<T>() where T : BasePanel
@@ -78,7 +78,37 @@ namespace YukiFrameWork.UI
 			return Hide_Internal<T>();
         }
 
-		internal T Hide_Internal<T>() where T : BasePanel
+		/// <summary>
+		/// 为UnityEvent拓展的打开方法。面板必须已经存在PrefabRoot的子节点中
+		/// </summary>
+		/// <param name="panel"></param>
+		public void ShowPanel(BasePanel panel)
+		{
+			if (!prefabInfos.Contains(panel))
+			{
+				Debug.LogWarning("PrefabRoot节点下不存在这个面板:" + panel.GetType());
+				return;
+			}
+
+			Open(panel);
+		}
+
+        /// <summary>
+        /// 为UnityEvent拓展的关闭方法。面板必须已经存在PrefabRoot的子节点中
+        /// </summary>
+        /// <param name="panel"></param>		
+        public void HidePanel(BasePanel panel)
+        {
+            if (!prefabInfos.Contains(panel))
+            {
+                Debug.LogWarning("PrefabRoot节点下不存在这个面板:" + panel.GetType());
+                return;
+            }
+
+			Hide(panel);
+        }
+
+        internal T Hide_Internal<T>() where T : BasePanel
 		{
             IPanel panel = prefabInfos.Find(x => x.GetType() == typeof(T));
 

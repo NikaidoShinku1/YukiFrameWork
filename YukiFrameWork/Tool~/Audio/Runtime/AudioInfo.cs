@@ -16,7 +16,7 @@ namespace YukiFrameWork.Audio
 	[DisableViewWarning]
 	public class AudioInfo : MonoBehaviour
 	{
-		enum PlayType
+		internal enum PlayType
 		{			
 			Music,
 			Voice,
@@ -49,7 +49,7 @@ namespace YukiFrameWork.Audio
 		[DisableIf(nameof(isPlaying))]
 		[InfoBox("音频的播放类型,Music用于背景音乐，Voice用于人声，Sound可以用于音效或者多个音频播放,\n特别提示:当使用Sound类型播放时，AudioSource会被添加在持有AudioInfo的这个对象上")
 			,LabelText("音频的播放方式"),Space]
-		[SerializeField] private PlayType playType;
+		[SerializeField] internal PlayType playType;
         [field: BoxGroup(info)]
         [field: LabelText("是否在运行时自动播放")]
 		[field: SerializeField,DisableIf(nameof(isPlaying))]		
@@ -63,7 +63,12 @@ namespace YukiFrameWork.Audio
         [field: BoxGroup(info)]
         [field: LabelText("不受时间缩放影响?"), DisableIf(nameof(isPlaying))]
         [field: SerializeField]
-        public bool IsRealTime { get; set; } = false;    
+        public bool IsRealTime { get; set; } = false;
+
+		[SerializeField,LabelText("是否自定义初始音量?"), BoxGroup(info), ShowIf(nameof(playType), PlayType.Sound), InfoBox("可以设置初始的音量，该音量仅保持在AudioKit.Setting对应的音频层级音量改动以前")]
+		private bool IsVolume;
+		[field: SerializeField, LabelText("初始默认音量?"), PropertyRange(0, 1), BoxGroup(info),ShowIf(nameof(isV))]
+		public float Volume { get; set; } = 1;
 
 		[SerializeField,LabelText("音频的资源加载类型"), BoxGroup(info)]
 		private LoadType loadType = LoadType.XFABManager;
@@ -88,12 +93,14 @@ namespace YukiFrameWork.Audio
 
 		public AudioClip Clip => audioType == AudioType.Single ? clip : (Clips == null || Clips.Length == 0) ? null : Clips[Random.Range(0,Clips.Length)];
 
+		
         #region Condition
         private bool s => loadType == LoadType.Clip && audioType == AudioType.Single;
         private bool cs => loadType == LoadType.Clip && audioType == AudioType.Random;
 		private bool res => loadType != LoadType.Clip && audioType == AudioType.Random;
 		private bool abSingle => loadType == LoadType.XFABManager && audioType == AudioType.Single;
 		private bool resSingle => loadType == LoadType.Resources && audioType == AudioType.Single;
+		private bool isV => playType == PlayType.Sound && IsVolume;
 		#endregion
 
 		[SerializeField, LabelText("音频资源:"), DisableIf(nameof(isPlaying)), ShowIf(nameof(cs)), BoxGroup(info)]
@@ -101,6 +108,7 @@ namespace YukiFrameWork.Audio
 
 		[SerializeField,LabelText("音频管理的节点"), BoxGroup(info),ShowIf(nameof(playType),PlayType.Sound)]
 		internal Position position;
+
         [BoxGroup(info)]
         [InfoBox("开始播放时的事件注册器",InfoMessageType.Warning),Space]
 		public UnityEvent<float> onStartCallBack;
@@ -161,16 +169,27 @@ namespace YukiFrameWork.Audio
 
         public void Play()
 		{
+			
             switch (playType)
             {
                 case PlayType.Music:
                     AudioKit.PlayMusic(this);
+					
                     break;
                 case PlayType.Voice:
                     AudioKit.PlayVoice(this);
                     break;
                 case PlayType.Sound:
-                    AudioKit.PlaySound(this);
+                    AudioPlayer player = AudioKit.PlaySound(this);
+
+					if (player == null)
+						return;
+
+					if (playType != PlayType.Sound || !IsVolume)
+						return;
+
+					player.Volume = Volume;
+
                     break;
             }
         }

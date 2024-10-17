@@ -17,19 +17,19 @@ namespace YukiFrameWork.Skill
 		/// <summary>
 		/// 技能标识(唯一)
 		/// </summary>
-		string GetSkillKey { get; }
+		string SkillKey { get; }
 		/// <summary>
 		/// 技能名称
 		/// </summary>
-		string GetSkillName { get; }	
+		string SkillName { get; }	
 		/// <summary>
 		/// 技能介绍
 		/// </summary>
-		string GetDescription { get; }
+		string Description { get; }
 		/// <summary>
 		/// 技能图标
 		/// </summary>
-		Sprite GetIcon { get; set; }		
+		Sprite Icon { get; set; }		
 
 		/// <summary>
 		/// 技能释放是否是无限时间的

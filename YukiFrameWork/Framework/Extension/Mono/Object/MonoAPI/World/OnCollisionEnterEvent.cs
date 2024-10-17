@@ -11,6 +11,13 @@ namespace YukiFrameWork
         {
             onEvent?.SendEvent(collision);
         }
+        protected override void OnTrigger(Collision t)
+        {
+            if (!onUnityEvent.layerMask.Contains(t.gameObject.layer))
+                return;
+
+            onUnityEvent.onUnityEvent?.Invoke(t);
+        }
     }
 
     public static class OnCollisionEnterExtension

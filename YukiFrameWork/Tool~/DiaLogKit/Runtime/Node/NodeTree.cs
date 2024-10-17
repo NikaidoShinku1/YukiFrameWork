@@ -27,23 +27,10 @@ namespace YukiFrameWork.DiaLogue
         [LabelText("对话树识别标识:"),SerializeField]
         [InfoBox("不同的对话树标识必须唯一,必须填写"),FoldoutGroup("配置", -2)]
         internal string nodekey;
-#if UNITY_EDITOR
-        [Button("初始化", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置", -1)]
-        void DataInit()
-        {
-            if (treeState == NodeTreeState.Running)
-                OnTreeEnd();
-
-            DiaLogGraphWindow.CloseWindow();
-        }
-#endif
         // 对话树的开始 根节点
         [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] internal Node rootNode;
         // 当前正在播放的对话
         public Node runningNode { get; private set; }
-        // 对话树当前状态 用于判断是否要开始这段对话
-        [LabelText("对话树当前的状态"), FoldoutGroup("配置")] public NodeTreeState treeState = NodeTreeState.Waiting;   
-
         // 所有对话内容的存储列表
         [LabelText("所有对话内容的存储列表"),SerializeField, ReadOnly, FoldoutGroup("配置")]
         internal List<Node> nodes = new List<Node>();
@@ -52,13 +39,7 @@ namespace YukiFrameWork.DiaLogue
         
         // 判断当前对话树和对话内容都是运行中状态则进行OnUpdate()方法更新
         internal MoveNodeState MoveNext()
-        {
-            if (treeState == NodeTreeState.Waiting || runningNode == null)
-            {
-                LogKit.W("对话树没有被启动或者分支已经结束，无法推进");
-                return MoveNodeState.Failed;
-            }
-
+        {         
             if (!runningNode.IsCompleted)
             {
                 return MoveNodeState.Idle;
@@ -109,13 +90,7 @@ namespace YukiFrameWork.DiaLogue
         internal Vector2 position;
 
         internal MoveNodeState MoveNextByOption(Option option)
-        {
-            if (treeState == NodeTreeState.Waiting || runningNode == null)
-            {
-                LogKit.W("对话树没有被启动或者分支已经结束，无法推进");
-                return MoveNodeState.Failed;
-            }
-
+        {         
             if (option == null)
             {
                 LogKit.E("条件不存在!");
@@ -176,8 +151,7 @@ namespace YukiFrameWork.DiaLogue
         // 对话树开始的触发方法
         internal virtual void OnTreeStart()
         {           
-            runningNode = rootNode;            
-            treeState = NodeTreeState.Running;
+            runningNode = rootNode;                       
             MonoHelper.Start(OnStateEnter(runningNode));
         }  
 
@@ -189,9 +163,7 @@ namespace YukiFrameWork.DiaLogue
         internal readonly EasyEvent onFailedCallBack = new EasyEvent();
         // 对话树结束的触发方法
         internal virtual void OnTreeEnd()
-        {
-            if (treeState == NodeTreeState.Waiting) return;
-            treeState = NodeTreeState.Waiting;
+        {          
             if (runningNode != null)
             {
                 runningNode.OnExit();

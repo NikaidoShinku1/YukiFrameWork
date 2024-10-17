@@ -11,6 +11,14 @@ namespace YukiFrameWork
         {
             onEvent?.SendEvent(other);
         }
+
+        protected override void OnTrigger(Collider t)
+        {
+            if (!onUnityEvent.layerMask.Contains(t.gameObject.layer))
+                return;
+
+            onUnityEvent.onUnityEvent?.Invoke(t);
+        }
     }
 
     public static class OnTriggerExitEventExtension

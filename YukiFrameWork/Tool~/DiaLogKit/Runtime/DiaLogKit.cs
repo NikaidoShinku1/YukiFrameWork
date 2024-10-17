@@ -122,7 +122,7 @@ namespace YukiFrameWork.DiaLogue
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key) && diaLogController[key].tree.treeState == NodeTreeState.Running;
+        public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key) && diaLogController[key].treeState == NodeTreeState.Running;
 
         public static bool OnDiaLogRelease(DiaLog diaLog)
             => GlobalObjectPools.GlobalRelease(diaLog);
@@ -140,7 +140,7 @@ namespace YukiFrameWork.DiaLogue
         public string DiaLogKey { get; private set; }
 
         internal NodeTree tree;
-
+        public NodeTreeState treeState { get; protected set; } = NodeTreeState.Waiting;
         private bool isInited = false;              
 
         void IGlobalSign.Init()
@@ -179,7 +179,7 @@ namespace YukiFrameWork.DiaLogue
 
         private void Update(MonoHelper helper)
         {            
-            if (tree.treeState == NodeTreeState.Running && tree.runningNode != null)
+            if (treeState == NodeTreeState.Running && tree.runningNode != null)
             {
                 tree.runningNode.OnUpdate();
             }
@@ -187,7 +187,7 @@ namespace YukiFrameWork.DiaLogue
 
         private void FixedUpdate(MonoHelper helper)
         {
-            if (tree.treeState == NodeTreeState.Running && tree.runningNode != null)
+            if (treeState == NodeTreeState.Running && tree.runningNode != null)
             {
                 tree.runningNode.OnFixedUpdate();
             }
@@ -195,7 +195,7 @@ namespace YukiFrameWork.DiaLogue
 
         private void LateUpdate(MonoHelper helper)
         {
-            if (tree.treeState == NodeTreeState.Running && tree.runningNode != null)
+            if (treeState == NodeTreeState.Running && tree.runningNode != null)
             {
                 tree.runningNode.OnLateUpdate();
             }
@@ -220,21 +220,23 @@ namespace YukiFrameWork.DiaLogue
 
         public void Start()
         {          
-            if (tree.treeState == NodeTreeState.Running)
+            if (treeState == NodeTreeState.Running)
             {
                 Debug.Log("该控制器绑定的对话树已经被启动，不会重复执行Start方法");
                 return;            
-            }           
+            }
+            treeState = NodeTreeState.Running;
             tree.OnTreeStart();
             DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, tree.runningNode);           
         }
         public void End()
         {          
-            if (tree.treeState != NodeTreeState.Waiting)
+            if (treeState == NodeTreeState.Waiting)
             {
                 LogKit.I("该控制器没有被启动，End方法是不会触发的,请至少调用一次Start方法");
                 return;
             }
+            treeState = NodeTreeState.Waiting;
             tree.OnTreeEnd();             
         }
         /// <summary>

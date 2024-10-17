@@ -16,6 +16,7 @@ namespace YukiFrameWork.Audio
     public class AudioPlayer
     {
         private AudioSource mAudioSource;
+        public AudioSource AudioSource => mAudioSource;
         private Action<float> onEndCallback = null;      
         private IYieldExtension audioTimer;
         private bool isRealTime;
@@ -51,9 +52,10 @@ namespace YukiFrameWork.Audio
 
         public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader)
         {
+           
             if (!mAudioSource || !mAudioSource.gameObject)
-            {
-                mAudioSource = target.gameObject.AddComponent<AudioSource>();
+            {                
+                mAudioSource = target.gameObject.AddComponent<AudioSource>();               
             }
 
             if (mAudioSource.clip == null || !mAudioSource.clip.Equals(clip))
@@ -112,8 +114,9 @@ namespace YukiFrameWork.Audio
             audioTimer = null;
             IsAudioFree = true;
             onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
-            onEndCallback = null;           
-            mAudioSource.clip = null;         
+            onEndCallback = null;         
+            if(mAudioSource)
+                mAudioSource.clip = null;         
             AudioManager.Instance.AddLoaderCacheTime(loader);
             loader = null;
         }       

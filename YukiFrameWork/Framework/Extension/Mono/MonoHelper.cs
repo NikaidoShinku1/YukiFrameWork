@@ -51,7 +51,7 @@ namespace YukiFrameWork
     
     [ClassAPI("MonoBehaviour的普通拓展类")]
     [GUIDancePath("YukiFrameWork/Framework/Extension")]
-    public class MonoHelper : SingletonMono<MonoHelper>
+    public partial class MonoHelper : SingletonMono<MonoHelper>
     {
         internal bool IsAgree = false;
         private event Action<MonoHelper> onUpdateEvent;

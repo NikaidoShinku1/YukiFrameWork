@@ -24,21 +24,21 @@ namespace YukiFrameWork.Skill
 	public static class SkillKit
 	{
 		private static ISkillLoader loader = null;
-		public static void InitLoader(string projectName)
+		public static void Init(string projectName)
 		{
 			isDefault = true;
 			loader = new ABManagerSkillLoader(projectName);
-			Init();
+			Init_Cancel();
 		}
 
-		public static void InitLoader(ISkillLoader loader)
+		public static void Init(ISkillLoader loader)
 		{
 			isDefault = false;
 			SkillKit.loader = loader;
-			Init();
+			Init_Cancel();
 		}
 		private static bool isInited = false;
-		private static void Init()
+		private static void Init_Cancel()
 		{
 			if (isInited) return;
 			MonoHelper.Destroy_AddListener(_ => 
@@ -84,7 +84,7 @@ namespace YukiFrameWork.Skill
 		{
             BindSkillControllerAttribute bind = skill.GetType().GetCustomAttribute<BindSkillControllerAttribute>();
             Type cType = bind != null ? bind.controllerType : null;
-            skills.Add(skill.GetSkillKey, new SkillBindder() {skillData = skill, controllerType = cType });
+            skills.Add(skill.SkillKey, new SkillBindder() {skillData = skill, controllerType = cType });
         }
 
         public static void BindController<T>(string SkillKey) where T : ISkillController
@@ -159,12 +159,12 @@ namespace YukiFrameWork.Skill
 
         public static void AddSkill(this ISkillExecutor executor, string skillKey)
         {
-			executor.Handler.AddSkill(skillKey, executor);
+			executor.Handler.AddSkill(executor, skillKey);
         }
 
         public static void AddSkill(this ISkillExecutor executor, ISkillData skill)
         {
-            executor.Handler.AddSkill(skill, executor);
+            executor.Handler.AddSkill(executor, skill);
         }
 
         /// <summary>
@@ -235,13 +235,13 @@ namespace YukiFrameWork.Skill
             UseLocalizationConfig = true;
         }
 
-        internal static bool UseLocalizationConfig { get; private set; } = false;
+		public static bool UseLocalizationConfig { get; private set; } = false;
 
-        internal static string LocalizationConfigKey { get; private set; }
+		public static string LocalizationConfigKey { get; private set; }
 
         public static char Spilt { get; private set; }
 
-        internal static ILocalizationData GetContent(string skillKey)
+		public static ILocalizationData GetContent(string skillKey)
             => LocalizationKit.GetContent(LocalizationConfigKey, skillKey);
 
     }

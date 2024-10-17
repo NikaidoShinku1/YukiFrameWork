@@ -85,10 +85,10 @@ namespace YukiFrameWork.Skill
             foreach (var item in SkillDataConfigs)
             {
                 if (item == null) continue;
-                if (string.IsNullOrEmpty(item.GetSkillKey)) continue;
+                if (string.IsNullOrEmpty(item.SkillKey)) continue;
 
-                writer.CustomCode($"public static string {item.GetSkillKey}_Key = \"{item.GetSkillKey}\";");
-                writer.CustomCode($"public static ISkillData {item.GetSkillKey} => SkillKit.GetSkillDataByKey(\"{item.GetSkillKey}\");");
+                writer.CustomCode($"public static string {item.SkillKey}_Key = \"{item.SkillKey}\";");
+                writer.CustomCode($"public static ISkillData {item.SkillKey} => SkillKit.GetSkillDataByKey(\"{item.SkillKey}\");");
             }
             codeCore.CodeSetting(nameSpace, InfoScriptNames, string.Empty, writer,false,true).Create(InfoScriptNames, filePath);
         }
@@ -111,9 +111,9 @@ namespace YukiFrameWork.Skill
             if (SkillDataConfigs.Count == 0) return;
             foreach (var item in SkillDataConfigs)
             {
-                if (item.GetIcon != null)
+                if (item.Icon != null)
                 {
-                    item.Sprite = AssetDatabase.GetAssetPath(item.GetIcon);
+                    item.Sprite = AssetDatabase.GetAssetPath(item.Icon);
                 }
 
                 item.SKillType = item.GetType().ToString();

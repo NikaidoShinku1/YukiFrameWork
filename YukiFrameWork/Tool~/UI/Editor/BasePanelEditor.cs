@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using YukiFrameWork.Events;
 using YukiFrameWork.Extension;
 
 namespace YukiFrameWork.UI
@@ -54,8 +56,8 @@ namespace YukiFrameWork.UI
             }
 
             if(panel.Data.IsPartialLoading)
-                EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);
-                   
+                EditorApplication.delayCall = () => Bind_AllFieldInfo(panel);            
+
         }  
         private void Bind_AllFieldInfo(BasePanel panel)
         {
@@ -249,11 +251,12 @@ namespace YukiFrameWork.UI
 
                 streamWriter.Write(builder);
 
-                streamWriter.Close();
+                streamWriter.Close(); 
                 stream.Close();
-                panel.Data.IsPartialLoading = true;
+                panel.Data.IsPartialLoading = true;            
                 AssetDatabase.Refresh();
-            }
+            }                   
+
         }
 
         private bool Update_ScriptFrameWorkConfigData(string path, BasePanel panel)

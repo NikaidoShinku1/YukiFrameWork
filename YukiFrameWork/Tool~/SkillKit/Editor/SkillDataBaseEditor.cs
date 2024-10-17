@@ -38,9 +38,9 @@ namespace YukiFrameWork.Skill
             names = null;
             foreach (var item in dataBase.SkillDataConfigs)
             {
-                string key = string.Format("{0}_{1}", item.GetSkillKey, item.GetInstanceID());
+                string key = string.Format("{0}_{1}", item.SkillKey, item.GetInstanceID());
                 skill_Info_Dicts.Add(key, (OdinEditor)OdinEditor.CreateEditor(item,typeof(OdinEditor)));
-                show_Info_Dicts.Add(key, item.GetSkillName);
+                show_Info_Dicts.Add(key, item.SkillName);
             }
             names = show_Info_Dicts.Keys.ToArray();
             if (dataBase.selectIndex >= show_Info_Dicts.Count || dataBase.selectIndex < 0)

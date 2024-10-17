@@ -78,7 +78,7 @@ namespace YukiFrameWork.Skill
             if (player == null || skillKeys == null || skillKeys.Length == 0) return;          
             for (int i = 0; i < skillKeys.Length; i++)
             {
-                AddSkill(SkillKit.GetSkillDataByKey(skillKeys[i]),player);
+                AddSkill(player, SkillKit.GetSkillDataByKey(skillKeys[i]));
             }
         }
 
@@ -87,7 +87,7 @@ namespace YukiFrameWork.Skill
             if (player == null || skills == null || skills.Length == 0) return;
             for (int i = 0; i < skills.Length; i++)
             {
-                AddSkill(skills[i], player);
+                AddSkill(player, skills[i]);
             }
         }
 
@@ -98,13 +98,13 @@ namespace YukiFrameWork.Skill
         /// <typeparam name="T">技能控制器类型</typeparam>
         /// <param name="skill">技能信息</param>
         /// <param name="executor">技能执行者</param>
-        public ISkillController AddSkill(ISkillData skill,ISkillExecutor player)
+        public ISkillController AddSkill(ISkillExecutor player, ISkillData skill)
         {
-            if (skills.ContainsKey(skill.GetSkillKey))
+            if (skills.ContainsKey(skill.SkillKey))
             {
 #if YukiFrameWork_DEBUGFULL
                 LogKit.E("该技能已经被添加,试图重复添加!");
-                return skills[skill.GetSkillKey];
+                return skills[skill.SkillKey];
 #endif
             }
             var controller = CreateInstance(skill,player);
@@ -114,7 +114,7 @@ namespace YukiFrameWork.Skill
 
         private ISkillController CreateInstance(ISkillData skillData,ISkillExecutor player)
         {
-            var skillController = SkillKit.CreateSkillController(skillData.GetSkillKey);
+            var skillController = SkillKit.CreateSkillController(skillData.SkillKey);
             skillController.Player = player;
             skillController.SkillData = skillData;
             skillController.SkillLevel = 0;
@@ -126,12 +126,12 @@ namespace YukiFrameWork.Skill
 
         private void Add(ISkillController controller)
         {
-            skills[controller.SkillData.GetSkillKey] = controller;         
+            skills[controller.SkillData.SkillKey] = controller;         
             controller.OnAwake();
             onAddSkillEvent?.Invoke(controller);       
         }
 
-        public ISkillController AddSkill(string skillKey, ISkillExecutor player)
+        public ISkillController AddSkill(ISkillExecutor player, string skillKey)
         {
             ISkillData skill = SkillKit.GetSkillDataByKey(skillKey);
             if (skill == null)
@@ -141,7 +141,7 @@ namespace YukiFrameWork.Skill
 #endif
                 return null;
             }
-            return AddSkill(skill, player);
+            return AddSkill(player, skill);
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace YukiFrameWork.Skill
             Interruption(controller);
             //触发销毁方法
             controller.OnDestroy();
-            skills.Remove(controller.SkillData.GetSkillKey);
+            skills.Remove(controller.SkillData.SkillKey);
             onRemoveSkillEvent?.Invoke(controller);         
             SkillController.ReleaseController(controller);
         }
@@ -368,7 +368,7 @@ namespace YukiFrameWork.Skill
 
         private void Interruption(ISkillController controller)
         {
-            if (!controller.IsSkillRelease || this.ToString() == "null") return;
+            if (!controller.IsSkillRelease || !this) return;
 
             controller.IsSkillRelease = false;
             controller.ReleasingTime = 0;           

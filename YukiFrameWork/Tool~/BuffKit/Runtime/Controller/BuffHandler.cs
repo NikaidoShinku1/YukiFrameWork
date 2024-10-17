@@ -176,6 +176,36 @@ namespace YukiFrameWork.Buffer
 			return GetBufferCount(BuffKey) > 0;
         }
 
+		/// <summary>
+		/// 获取指定Buff的控制器，只返回第一个BuffController，如果是可以同时存在不可叠加的Buff，想获取所有的控制器请调用GetRuntimeBuffers方法。
+		/// </summary>
+		/// <param name="BuffKey"></param>
+		/// <returns></returns>
+		public IBuffController GetRuntimeBuffer(string BuffKey)
+		{
+			if (!mTable.TryGetValue(BuffKey, out var list))
+			{
+				LogKit.W("Buff" + BuffKey + "不存在");
+				return null;
+			}
+			return list.FirstOrDefault();
+        }
+
+		/// <summary>
+		/// 获取指定Buff的所有控制器
+		/// </summary>
+		/// <param name="BuffKey"></param>
+		/// <returns></returns>
+        public IBuffController[] GetRuntimeBuffers(string BuffKey)
+        {
+            if (!mTable.TryGetValue(BuffKey, out var list))
+            {
+                LogKit.W("Buff" + BuffKey + "不存在");
+                return null;
+            }
+            return list.ToArray();
+        }
+
         private void InitController(IBuffController controller)
 		{
             onBuffAddCallBack?.Invoke(controller);			

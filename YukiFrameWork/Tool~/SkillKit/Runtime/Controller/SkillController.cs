@@ -118,14 +118,12 @@ namespace YukiFrameWork.Skill
                 return CoolDownTime / SkillData.CoolDownTime;
             }
         }
-
+        #region EventTrigger      
         public Action<float> onCooling { get; set; }
         public Action<float> onReleasing { get; set; }
         public Action onCoolingComplete { get; set; }
         public Action onReleaseComplete { get; set; }
-        public Action<int> onLevelChanged { get; set; }
-
-        #region EventTrigger      
+        public Action<int> onLevelChanged { get; set; }  
         
         #endregion        
 
