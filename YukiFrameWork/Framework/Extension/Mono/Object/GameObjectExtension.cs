@@ -285,6 +285,7 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static GameObject UnLoad(this GameObject core)
         {
+            if (!core) return null;
             GameObjectLoader.UnLoad(core);
             return core;
         }
@@ -297,6 +298,7 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static T UnLoad<T>(this T core) where T : Component
         {
+            if (!core) return null;
             GameObjectLoader.UnLoad(core.gameObject);
             return core;
         }

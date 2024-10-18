@@ -32,6 +32,6 @@
         /// 当停止动作 : 当动作不使用动画循环时, 动画时间到达100%后调用
         /// </summary>
         /// <param name="action"></param>
-        public virtual void OnStop(StateAction action) { }
+        public virtual void OnStop(StateAction action) { }       
     }
 }

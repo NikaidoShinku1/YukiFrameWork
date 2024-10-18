@@ -73,6 +73,12 @@ namespace YukiFrameWork
         public static ISequence Delay(this ISequence sequence, float currentTime, Action onDelayFinish = null, bool isRealTime = false)
             => sequence.AddSequence(YukiFrameWork.Delay.Get(currentTime, onDelayFinish,isRealTime));
 
+        public static ISequence NextFrame(this ISequence sequence)       
+            => DelayFrame(sequence, 1);       
+
+        public static ISequence DelayFrame(this ISequence sequence, int frameCount,Action onFrameFinish = null)       
+            => sequence.AddSequence(YukiFrameWork.NextFrame.Get(frameCount, onFrameFinish));       
+
         public static ISequence CallBack(this ISequence sequence, Action callBack)
             => sequence.AddSequence(YukiFrameWork.CallBack.Get(callBack));
 
@@ -117,6 +123,12 @@ namespace YukiFrameWork
     {
         public static IParallel Delay(this IParallel parallel, float currentTime, Action callBack = null, bool isRealTime = false)
             => parallel.AddParallel(YukiFrameWork.Delay.Get(currentTime, callBack,isRealTime));
+
+        public static IParallel NextFrame(this IParallel parallel)
+           => DelayFrame(parallel, 1);
+
+        public static IParallel DelayFrame(this IParallel parallel, int frameCount, Action onFrameFinish = null)
+            => parallel.AddParallel(YukiFrameWork.NextFrame.Get(frameCount, onFrameFinish));
 
         public static IParallel Condition(this IParallel parallel, Func<bool> condition)
             => parallel.AddParallel(YukiFrameWork.Condition.Get(condition));

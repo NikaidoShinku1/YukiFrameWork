@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.28.11 AudioKit模块为AudioInfo添加3dSoundSetting设置，新增音效层级的暂停与恢复。修复状态机模块中，当多重继承时，不重写FixedUpdate与LateUpdate不执行的问题。
+
 V1.28.10 Buff模块-->BuffHandler新增获取BuffController的方法，对话系统优化，对话树的运行状态数据移动到控制器中
 
 V1.28.9 修复状态机模块，默认状态的id不为0时导致的状态执行错误

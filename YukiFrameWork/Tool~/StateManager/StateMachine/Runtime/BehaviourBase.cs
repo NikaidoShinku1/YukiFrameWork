@@ -467,12 +467,35 @@
                     break;
                 root = root.Parent;
             }
-           
-            if ((lateUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnLateUpdate) == 0)
-                root.UpdateStatus |= UpdateStatus.OnLateUpdate;
-            if ((fixedUpdateMethod.DeclaringType == type) && (stateMachine.UpdateStatus & UpdateStatus.OnFixedUpdate) == 0)
-                root.UpdateStatus |= UpdateStatus.OnFixedUpdate;    
+            Type lateDeclaringType = lateUpdateMethod.DeclaringType;
+            Type fixedDeclaringType = fixedUpdateMethod.DeclaringType;
+            Type classType = type;
+
+            InitUpdate_Behaviour_Method(root, stateMachine, UpdateStatus.OnLateUpdate, classType, lateDeclaringType);
+            InitUpdate_Behaviour_Method(root, stateMachine, UpdateStatus.OnFixedUpdate, classType, fixedDeclaringType);       
             return runtimeBehaviour;
+        }
+
+        private bool CheckTypeOfBehaviour(Type type)
+        {
+            return type != typeof(StateBehaviour)
+            && type != typeof(ActionBehaviour)
+            && type != typeof(TransitionBehaviour)
+            && type != typeof(BehaviourBase);
+        }
+
+        private void InitUpdate_Behaviour_Method(IStateMachine root,IStateMachine stateMachine,UpdateStatus updateStatus,Type classType,Type DeclaringType)
+        {
+            do
+            {
+                if ((DeclaringType == classType) && (stateMachine.UpdateStatus & updateStatus) == 0)
+                {
+                    root.UpdateStatus |= updateStatus;
+                    break;
+                }               
+                classType = classType.BaseType;
+            }
+            while (classType != null && CheckTypeOfBehaviour(classType));
         }
     }
 }

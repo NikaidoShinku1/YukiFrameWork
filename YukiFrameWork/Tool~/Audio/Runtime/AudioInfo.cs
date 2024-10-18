@@ -13,6 +13,36 @@ using YukiFrameWork.Extension;
 using XFABManager;
 namespace YukiFrameWork.Audio
 {
+	[System.Serializable]
+	public class AudioSourceSoundSetting
+	{
+		
+		[Range(0,256)]
+		public int Priority = 128;
+
+		[Range(-3,3)]
+		public float Pitch = 1;
+
+		[Range(-1,1)]
+		public float StereoPan = 0;
+
+		[Range(0,1)]
+		public float SpatitalBlend = 0;
+
+		[Range(0,1.1f)]
+		public float ReverbZoneMix = 1;
+		[Range(0,5)]
+		public float DopplerLevel = 1;
+
+		[Range(0,360)]
+		public int Spread;
+
+        public AudioRolloffMode VolumeRolloff;
+
+        public float MinDistance = 1;
+
+		public float MaxDistance = 500;		
+    }
 	[DisableViewWarning]
 	public class AudioInfo : MonoBehaviour
 	{
@@ -91,8 +121,10 @@ namespace YukiFrameWork.Audio
 		[SerializeField, LabelText("音频资源:"), DisableIf(nameof(isPlaying)), ShowIf(nameof(s)), BoxGroup(info)]
 		private AudioClip clip;
 
-		public AudioClip Clip => audioType == AudioType.Single ? clip : (Clips == null || Clips.Length == 0) ? null : Clips[Random.Range(0,Clips.Length)];
+		public AudioClip Clip => audioType == AudioType.Single ? clip : (Clips == null || Clips.Length == 0) ? null : Clips[Random.Range(0,Clips.Length)];		
 
+		[LabelText("3D Sound Setting")]
+		public AudioSourceSoundSetting SoundSetting;
 		
         #region Condition
         private bool s => loadType == LoadType.Clip && audioType == AudioType.Single;

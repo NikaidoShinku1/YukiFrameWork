@@ -64,22 +64,22 @@ namespace YukiFrameWork.Audio
         private static Dictionary<string, IAudioLoader> audioLoaderDict = DictionaryPools<string, IAudioLoader>.Get();
 
         [MethodAPI("播放音乐，适用于背景等")]
-        public static void PlayMusic(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false)
+        public static void PlayMusic(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return;
             //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);          
-            PlayMusicExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayMusicExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime,setting);
         }
 
-        public static void PlayMusic(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlayMusic(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (!clip) return;
             //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;         
-            PlayMusicExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayMusicExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime, setting);
         }
 
         public static void PlayMusic(AudioInfo audioInfo)
@@ -94,11 +94,11 @@ namespace YukiFrameWork.Audio
                 , audioInfo.Loop
                 ,value => audioInfo.onStartCallBack?.Invoke(value)
                 ,value => audioInfo.onEndCallBack?.Invoke(value)
-                ,audioInfo.IsRealTime);
+                ,audioInfo.IsRealTime,audioInfo.SoundSetting);
 
         }
         [MethodAPI("(异步)播放音乐，适用于背景等")]
-        public static void PlayMusicAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlayMusicAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return;
             //if (!Setting.IsMusicOn.Value) return;
@@ -106,15 +106,15 @@ namespace YukiFrameWork.Audio
             var loader = GetOrAddAudioLoader(name);
 
             if (loader.Clip != null)
-                PlayMusicExecute(loader,audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
+                PlayMusicExecute(loader,audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime,setting);
             else
                 loader.LoadClipAsync(name, clip =>
                 {
-                    PlayMusicExecute(loader, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
+                    PlayMusicExecute(loader, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime,setting);
                 });
         }
 
-        private static void PlayMusicExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static void PlayMusicExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             void SetAudioVolume(float value) => musicPlayer.Volume = value;
           
@@ -135,28 +135,28 @@ namespace YukiFrameWork.Audio
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
             AudioManager.I.CheckLoaderCache(loader);
-            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader);        
+            musicPlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime, loader, setting);        
             musicPlayer.Mute = !Setting.IsMusicOn.Value;
         }
 
         [MethodAPI("播放人声，与背景音乐一致有单独的层，一般只适用于一个语音播放")]
-        public static void PlayVoice(string name,bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlayVoice(string name,bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return;
             //if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
-            PlayVoiceExecute(loader, audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayVoiceExecute(loader, audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime,setting);
          
         }
 
-        public static void PlayVoice(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlayVoice(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (!clip) return;
             //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            PlayVoiceExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime);
+            PlayVoiceExecute(null, audioMgr, clip, loop, onStartCallback, onEndCallback, isRealTime, setting);
         }
 
         public static void PlayVoice(AudioInfo audioInfo)
@@ -172,24 +172,24 @@ namespace YukiFrameWork.Audio
                 , audioInfo.Loop
                 , value => audioInfo.onStartCallBack?.Invoke(value)
                 , value => audioInfo.onEndCallBack?.Invoke(value)
-                , audioInfo.IsRealTime);
+                , audioInfo.IsRealTime,audioInfo.SoundSetting);
 
         }
 
         [MethodAPI("(异步)播放人声，与背景音乐一致有单独的层，一般只适用于一个语音播放")]
-        public static void PlayVoiceAsync(string name, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlayVoiceAsync(string name, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return;
             //if (!Setting.IsVoiceOn.Value) return;
             var audioMgr = AudioManager.Instance;
             var loader = GetOrAddAudioLoader(name);          
             if (loader.Clip != null)
-                PlayVoiceExecute(loader, audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime);
+                PlayVoiceExecute(loader, audioMgr, loader.Clip, loop, onStartCallback, onEndCallback, isRealTime,setting);
             else
-                loader.LoadClipAsync(name, clip => PlayVoiceExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime));
+                loader.LoadClipAsync(name, clip => PlayVoiceExecute(loader,audioMgr,clip, loop, onStartCallback, onEndCallback, isRealTime, setting));
         }
 
-        private static void PlayVoiceExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static void PlayVoiceExecute(IAudioLoader loader,AudioManager audioMgr, AudioClip clip, bool loop = false, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {           
             void SetAudioVolume(float value)
             {
@@ -215,7 +215,7 @@ namespace YukiFrameWork.Audio
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
             AudioManager.I.CheckLoaderCache(loader);
-            voicePlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
+            voicePlayer.SetAudio(audioMgr.transform, clip, loop, onStartCallback, onEndCallback, isRealTime,loader,setting);
             voicePlayer.Mute = !Setting.IsVoiceOn.Value;
         }
 
@@ -239,7 +239,7 @@ namespace YukiFrameWork.Audio
         }
 
         [MethodAPI("播放声音、特效等，可以用于在多人说话的时候使用,可以传递自定义的父节点挂载AudioSource")]        
-        public static AudioPlayer PlaySound(string name,bool loop = false,Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false)
+        public static AudioPlayer PlaySound(string name,bool loop = false,Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return null;
             //if (!Setting.IsSoundOn.Value) return null;
@@ -249,15 +249,15 @@ namespace YukiFrameWork.Audio
 
             AudioClip clip = loader.Clip != null ? loader.Clip : loader.LoadClip(name);
 
-            return PlaySoundExecute(loader,audioMgr,clip, loop, parent,onStartCallback, onEndCallback, isRealTime);
+            return PlaySoundExecute(loader,audioMgr,clip, loop, parent,onStartCallback, onEndCallback, isRealTime,setting);
         }
 
-        public static void PlaySound(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static void PlaySound(AudioClip clip, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (!clip) return;
             //if (!Setting.IsMusicOn.Value) return;
             var audioMgr = AudioManager.Instance;
-            PlaySoundExecute(null, audioMgr, clip, loop, null, onStartCallback,onEndCallback, isRealTime);
+            PlaySoundExecute(null, audioMgr, clip, loop, null, onStartCallback,onEndCallback, isRealTime,setting);
         }
 
         public static AudioPlayer PlaySound(AudioInfo audioInfo)
@@ -276,12 +276,13 @@ namespace YukiFrameWork.Audio
                 , audioInfo.Loop
                 , audioInfo.position == AudioInfo.Position.IgnorePosition ? audioInfo.transform : null,value => audioInfo.onStartCallBack?.Invoke(value)
                 , value => audioInfo.onEndCallBack?.Invoke(value)
-                , audioInfo.IsRealTime);
+                , audioInfo.IsRealTime
+                ,audioInfo.SoundSetting);
 
         }
 
         [MethodAPI("(异步)播放声音、特效等，可以用于在多人说话的时候使用,可以传递自定义的父节点挂载AudioSource")]
-        public static PlaySoundRequest PlaySoundAsync(string name, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        public static PlaySoundRequest PlaySoundAsync(string name, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {
             if (name.IsNullOrEmpty()) return null;
             //if (!Setting.IsSoundOn.Value) return null;
@@ -291,20 +292,20 @@ namespace YukiFrameWork.Audio
             PlaySoundRequest request = new PlaySoundRequest();
             if (loader.Clip != null)
             {
-                AudioPlayer player = PlaySoundExecute(loader, audioMgr, loader.Clip, loop, parent, onStartCallback, onEndCallback, isRealTime);
+                AudioPlayer player = PlaySoundExecute(loader, audioMgr, loader.Clip, loop, parent, onStartCallback, onEndCallback, isRealTime,setting);
                 request.OnCompleted(player);
             }
             else
                 loader.LoadClipAsync(name, clip =>
                 {          
-                    AudioPlayer player = PlaySoundExecute(loader, audioMgr, clip, loop, parent, onStartCallback, onEndCallback, isRealTime);
+                    AudioPlayer player = PlaySoundExecute(loader, audioMgr, clip, loop, parent, onStartCallback, onEndCallback, isRealTime,setting);
                     request.OnCompleted(player);
                 });
 
             return request;
         }
 
-        private static AudioPlayer PlaySoundExecute(IAudioLoader loader,AudioManager audioMgr,AudioClip clip, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false)
+        private static AudioPlayer PlaySoundExecute(IAudioLoader loader,AudioManager audioMgr,AudioClip clip, bool loop = false, Transform parent = null, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false,AudioSourceSoundSetting setting = default)
         {            
             var soundPlayer = SoundActivitiesExist(clip.name);
             //防止注册的事件重复，注册前注销一次
@@ -325,7 +326,7 @@ namespace YukiFrameWork.Audio
                 .UnRegisterWaitGameObjectDestroy(audioMgr);
             };
             AudioManager.I.CheckLoaderCache(loader);
-            soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime,loader);
+            soundPlayer.SetAudio(parent == null ? audioMgr.transform : parent, clip, loop, onStartCallback, onEndCallback, isRealTime,loader, setting);
             SetAllSoundMute();
             return soundPlayer;
         }
@@ -426,6 +427,28 @@ namespace YukiFrameWork.Audio
             voicePlayer?.Stop();
         }
 
+        public static void PauseAllSound()
+        {
+            foreach (var players in soundActivities.Values)
+            {
+                for (int i = 0; i < players.Count; i++)
+                {
+                    players[i].Pause();
+                }
+            }
+        }
+
+        public static void ResumeAllSound()
+        {
+            foreach (var players in soundActivities.Values)
+            {
+                for (int i = 0; i < players.Count; i++)
+                {
+                    players[i].Resume();
+                }
+            }
+        }
+
         public static void StopAllSound()
         {
             foreach (var players in soundActivities.Values)
@@ -452,6 +475,42 @@ namespace YukiFrameWork.Audio
                 }
             }
             catch 
+            { }
+        }
+
+        public static void PauseSound(string name)
+        {
+            if (name.IsNullOrEmpty()) return;
+            try
+            {
+                foreach (var players in soundActivities.Values)
+                {
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        if (players[i].ClipName == name)
+                            players[i].Pause();
+                    }
+                }
+            }
+            catch
+            { }
+        }
+
+        public static void ResumeSound(string name)
+        {
+            if (name.IsNullOrEmpty()) return;
+            try
+            {
+                foreach (var players in soundActivities.Values)
+                {
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        if (players[i].ClipName == name)
+                            players[i].Resume();
+                    }
+                }
+            }
+            catch
             { }
         }
 

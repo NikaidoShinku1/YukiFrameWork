@@ -155,7 +155,9 @@ namespace YukiFrameWork.ActionStates
                     {
                         var behaviour = behaviours[i] as ActionBehaviour;
                         if (behaviour.Active)
+                        {
                             behaviour.OnStop(this);
+                        }
                     }
                     state.OnActionStop();
                 }

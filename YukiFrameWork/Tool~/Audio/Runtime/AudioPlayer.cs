@@ -50,7 +50,7 @@ namespace YukiFrameWork.Audio
             get => IsAudioSource ? mAudioSource.clip.name : string.Empty;
         }
 
-        public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader)
+        public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader,AudioSourceSoundSetting soundSetting)
         {
            
             if (!mAudioSource || !mAudioSource.gameObject)
@@ -66,7 +66,20 @@ namespace YukiFrameWork.Audio
                 onStartCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
                 this.onEndCallback = onEndCallback;
                 mAudioSource.clip = clip;
-                mAudioSource.loop = loop;               
+                mAudioSource.loop = loop;
+                if (soundSetting != null)
+                {
+                    mAudioSource.spatialBlend = soundSetting.SpatitalBlend;
+                    mAudioSource.rolloffMode = soundSetting.VolumeRolloff;
+                    mAudioSource.dopplerLevel = soundSetting.DopplerLevel;
+                    mAudioSource.pitch = soundSetting.Pitch;
+                    mAudioSource.priority = soundSetting.Priority;
+                    mAudioSource.panStereo = soundSetting.StereoPan;
+                    mAudioSource.reverbZoneMix = soundSetting.ReverbZoneMix;
+                    mAudioSource.spread = soundSetting.Spread;
+                    mAudioSource.minDistance = soundSetting.MinDistance;
+                    mAudioSource.maxDistance = soundSetting.MaxDistance;
+                }
                 mAudioSource.Play();             
                 IsAudioFree = false;
                 if (!loop)

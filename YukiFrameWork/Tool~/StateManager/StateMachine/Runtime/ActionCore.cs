@@ -96,20 +96,21 @@ namespace YukiFrameWork.ActionStates
         public override void OnExit(StateAction action)
         {
             base.OnExit(action);
+            //防止事件帧数为100时，不会触发动画事件的问题
+            AnimationEvent(action);
             eventEnter = false;
         }
+
         public override void OnStop(StateAction action)
         {
-            base.OnStop(action);
-            action.animTime = action.animTime < 100 ? 100 : action.animTime;
+            base.OnStop(action);          
             //防止事件帧数为100时，不会触发动画事件的问题
             AnimationEvent(action);
         }
 
         private void AnimationEvent(StateAction action)
         {
-
-            if (action.animTime >= animEventTime & !eventEnter)
+            if (action.animTime >= animEventTime && !eventEnter)
             {
                 eventEnter = true;
                 OnAnimationEvent(action);
