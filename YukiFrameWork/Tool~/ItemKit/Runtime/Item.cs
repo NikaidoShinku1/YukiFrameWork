@@ -10,6 +10,7 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
+using System.Collections;
 namespace YukiFrameWork.Item
 {
     public interface IItem
@@ -21,7 +22,7 @@ namespace YukiFrameWork.Item
         bool IsStackable { get; }
         bool IsMaxStackableCount { get;}
         int MaxStackableCount { get; }
-        ItemType ItemType { get; }        
+        string ItemType { get; set; }        
         string SpriteAtlas { get; set; }        
         string Sprite { get; set; }
     }
@@ -99,7 +100,7 @@ namespace YukiFrameWork.Item
                 }
             }
         }
-        public Item(string name, string key, Sprite icon, ItemType itemType)
+        public Item(string name, string key, Sprite icon, string itemType = "")
         {
             this.Name = name;
             this.Key = key;
@@ -107,14 +108,20 @@ namespace YukiFrameWork.Item
             this.ItemType = itemType;
         }
 
-        public Item() { }        
-        [field: SerializeField, LabelText("物品类型"),InfoBox("设置物品的类型，例如武器，材料等")]
-        public ItemType ItemType { get; set; }
+        public Item() { }
+
+        private IEnumerable allItemTypes => ItemDataBase.AllItemTypes;
+        [field: SerializeField, LabelText("物品类型"),ValueDropdown(nameof(allItemTypes))]
+        [JsonProperty]
+        public string ItemType { get; set; }
         [field: SerializeField, LabelText("是否可堆叠")]
+        [JsonProperty]
         public bool IsStackable { get; set; } = true;
         [field: SerializeField, LabelText("是否有堆叠上限"),ShowIf(nameof(IsStackable))]
+        [JsonProperty]
         public bool IsMaxStackableCount { get ; set ; }
         [field: SerializeField, LabelText("上限的数量"),ShowIf(nameof(IsMeet))]
+        [JsonProperty]
         public int MaxStackableCount { get ; set ; }
         [JsonIgnore]
         private bool IsMeet => IsMaxStackableCount && IsStackable;

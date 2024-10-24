@@ -113,7 +113,7 @@ namespace YukiFrameWork.UI
             return OpenPanelExecute<T>(name, level, panelCore as T,param);
         }   
 
-        private static IPanel GetPanelCore<T>(string name) where T : class,IPanel
+        private static IPanel GetPanelCore<T>(string name) where T : BasePanel,IPanel
         {
             UIManager uiMgr = UIManager.I;
             IPanel panelCore = uiMgr.GetPanelCore<T>();
@@ -152,7 +152,7 @@ namespace YukiFrameWork.UI
             return OpenPanelExecute(panel.name, level, panel, param);
         }
 
-        private static T CreatePanelCore<T>(string name) where T :class, IPanel
+        private static T CreatePanelCore<T>(string name) where T :BasePanel, IPanel
         {
             if (loader == null)
             {

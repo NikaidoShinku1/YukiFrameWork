@@ -58,12 +58,17 @@ namespace YukiFrameWork.DiaLogue
         // 对话节点GUID标识
         [SerializeField, LabelText("节点的唯一GUID"),ReadOnly] 
         internal string id;
-
+        [field:SerializeField,LabelText("节点的LinkId")]
+        [InfoBox("该id为节点的运行唯一标识，不可修改，由数组顺序控制恒定。可与配表相互搭配使用"),ReadOnly,JsonProperty]
+        public int nodeId { get; set; }
         [SerializeField,ShowIf(nameof(IsComposite)),ListDrawerSettings(HideAddButton = true)]
         internal List<Option> optionItems = new List<Option>();
 
         [SerializeField,ShowIf(nameof(IsRandom)), ListDrawerSettings(HideAddButton = true)]
         internal List<Node> randomItems = new List<Node>();
+
+        [SerializeField,HideInInspector,JsonProperty]
+        internal List<int> linkIds  = new List<int>();
 
         [JsonIgnore]
         public List<Option> OptionItems
@@ -119,7 +124,7 @@ namespace YukiFrameWork.DiaLogue
 
         private void OnValidate()
         {
-            onValidate?.Invoke();
+            onValidate?.Invoke();         
         }
 
         [JsonIgnore]
@@ -193,6 +198,7 @@ namespace YukiFrameWork.DiaLogue
         {
             public string optionTexts;
             public string spritePath;
+            public int linkId;
         }
 
         [Button("导出条件表"),ShowIf(nameof(IsComposite))]

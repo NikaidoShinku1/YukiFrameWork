@@ -14,7 +14,7 @@ using System;
 
 namespace YukiFrameWork.UI
 {
-    public interface IUIConfigLoader : IResLoader<IPanel>
+    public interface IUIConfigLoader : IResLoader<BasePanel>
     {             
         
     }

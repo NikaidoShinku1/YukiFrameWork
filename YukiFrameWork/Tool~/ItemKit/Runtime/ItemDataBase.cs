@@ -16,6 +16,12 @@ using System.Reflection;
 using UnityEngine.U2D;
 using System.Linq;
 using System.Text;
+using System.Collections;
+using static Codice.Client.BaseCommands.BranchExplorer.ExplorerData.BrExTreeBuilder.BrExFilter;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -25,12 +31,104 @@ namespace YukiFrameWork.Item
     public abstract class ItemDataBase : ScriptableObject
     {
         public abstract IItem[] Items { get; set; }
+#if UNITY_EDITOR
+
+        static List<ItemDataBase> FindAssets()
+        {
+            string[] guids = AssetDatabase.FindAssets($"t:{typeof(ItemDataBase)}");
+            List<ItemDataBase> items = new List<ItemDataBase>();
+            foreach (var item in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(item);
+                if (path.IsNullOrEmpty()) continue;
+
+                ItemDataBase itemDataBase = AssetDatabase.LoadAssetAtPath<ItemDataBase>(path);
+                if(itemDataBase)
+                    items.Add(itemDataBase);
+
+            }
+
+            return items;
+        }
+        protected static ValueDropdownList<string> allItemTypes;
+
+        internal static ValueDropdownList<string> AllItemTypes
+        {
+            get
+            {
+                if (allItemTypes == null)
+                {
+                    allItemTypes = new ValueDropdownList<string>();
+                }
+
+                allItemTypes.Clear();
+
+                string[] guids = AssetDatabase.FindAssets($"t:{typeof(ItemDataBase)}");
+                var items = FindAssets();
+                foreach (var itemDataBase in items)                {
+                    
+                    foreach (var type in itemDataBase.mItemTypeDicts)
+                    {
+                        var temp = allItemTypes.Find(x => x.Value == type.Key);
+                        if(temp.Value == type.Key)
+                            continue;
+                        allItemTypes.Add(type.Value,type.Key);
+                    }
+
+                    if (allItemTypes.Count == 0)
+                        itemDataBase.ResetItemType();
+                    
+                }
+                return allItemTypes;
+            }
+        }    
+#endif
+        public virtual void OnEnable()
+        {
+            InitItemTypeByDataBase();           
+        }
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            InitItemTypeByDataBase();
+            var items = FindAssets();
+
+            foreach (var item in items)
+            {
+                if (item.Equals(this)) continue;
+                item.mItemTypeDicts = mItemTypeDicts;
+            }
+#endif
+        }
+        protected abstract void ResetItemType();
+
+        void InitItemTypeByDataBase()
+        {
+            if(mItemTypeDicts.Count == 0)
+            {
+                mItemTypeDicts["Consumable"] = "消耗品";
+                mItemTypeDicts["Equipment"] = "装备";
+                mItemTypeDicts["Material"] = "材料";
+                mItemTypeDicts["Weapon"] = "武器";
+            }          
+        }
+
+        [SerializeField, LabelText("物品的类型收集"), Searchable, DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "类型介绍"), BoxGroup("物品自定义")]
+        [InfoBox("所有的物品配置，都可以单独设置物品的类型，但全局共享，如果有相同的Key/Value，则数据共享，访问Item.ItemType以Key为主", InfoMessageType.Info)]
+        private YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
     }
     public abstract class ItemDataBase<Item> : ItemDataBase where Item :class, IItem
     {
         [SerializeField, Searchable, FoldoutGroup("物品管理", -1),TableList]
         internal Item[] items = new Item[0];
+        protected override void ResetItemType()
+        {
+            foreach (var item in items)
+            {
+                item.ItemType = string.Empty;               
+            }
 
+        }
         public override IItem[] Items
         {
             get => items.Select(x => x as IItem).ToArray();
@@ -38,13 +136,14 @@ namespace YukiFrameWork.Item
         }
 
 #if UNITY_EDITOR
-        public virtual void OnEnable()
+        public override void OnEnable()
         {
+            
             if (string.IsNullOrEmpty(fileName))
             { 
                 fileName = this.GetType().Name.Replace("DataBase","s");               
             }
-            InitItemTypeByDataBase();
+            base.OnEnable();          
         }
         [SerializeField, LabelText("命名空间"), FoldoutGroup("Code Setting", -2)]
         string NameSpace = "YukiFrameWork.Item.Example";
@@ -111,23 +210,7 @@ namespace YukiFrameWork.Item
            
             AssetDatabase.Refresh();
 
-        }
-        [LabelText("打开物品类型的自定义功能"), SerializeField, BoxGroup("物品自定义")]
-        bool IsOpenCustomType;
-        [Button("生成物品类型代码", ButtonHeight = 20), BoxGroup("物品自定义"), ShowIf(nameof(IsOpenCustomType))]
-        void CreateItemType()
-        {
-            CodeCore core = new CodeCore();
-            CodeWriter writer = new CodeWriter();
-            foreach (var key in mItemTypeDicts.Keys)
-            {
-                writer.CustomCode($"[LabelText(\"{mItemTypeDicts[key]}\")]")
-                    .CustomCode($"{key},");
-            }
-            core.Using("Sirenix.OdinInspector").Descripton(nameof(ItemType), "YukiFrameWork.Item", "物品的类型枚举", System.DateTime.Now.ToString())
-                .CodeSetting("YukiFrameWork.Item", nameof(ItemType), string.Empty, writer, false, false, true)
-                .builder.CreateFileStream(ImportSettingWindow.GetData().path + "/ItemKit/Runtime", nameof(ItemType), ".cs");
-        }
+        }     
         [SerializeField, LabelText("配置文件:"), FoldoutGroup("配置表设置")]
         TextAsset textAsset;
         [Button("导入", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置表设置")]
@@ -169,28 +252,7 @@ namespace YukiFrameWork.Item
                 }
             }
             SerializationTool.SerializedObject(Items).CreateFileStream(reImportPath, reImportName, ".json");
-        }
-
-        [SerializeField, LabelText("物品的类型收集"), Searchable, DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "类型介绍"), BoxGroup("物品自定义"), ShowIf(nameof(IsOpenCustomType))]
-        [InfoBox("请勿更改ItemType文件的存放位置，这是由框架设定的", InfoMessageType.Warning)]
-        private YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
-
-        void InitItemTypeByDataBase()
-        {
-            var itemType = typeof(ItemType);
-
-            mItemTypeDicts.Clear();
-            for (int i = 0; i < Enum.GetValues(itemType).Length; i++)
-            {
-                ItemType type = (ItemType)Enum.GetValues(itemType).GetValue(i);
-
-                LabelTextAttribute labelText = itemType.GetField(type.ToString()).GetCustomAttribute<LabelTextAttribute>();
-
-                mItemTypeDicts[type.ToString()] = labelText?.Text;
-            }
-
-        }
-
+        }     
         [Button("打开Item编辑器窗口(Plus)",ButtonHeight = 40)]
         void OpenWindow()
         {

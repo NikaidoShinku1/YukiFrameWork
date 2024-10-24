@@ -170,7 +170,7 @@ namespace YukiFrameWork.DiaLogue
             if (isInited) return;
             isInited = true;
             this.DiaLogKey = key;
-            this.tree = nodeTree;
+            this.tree = nodeTree.Instantiate();
         
             MonoHelper.Update_AddListener(Update);
             MonoHelper.FixedUpdate_AddListener(FixedUpdate);
@@ -336,6 +336,8 @@ namespace YukiFrameWork.DiaLogue
         public Node GetRootNode() => tree.rootNode;
    
         public List<Node> GetAllDiaLogNodes() => tree.nodes;
+
+        public Node GetNodeById(int id) => tree.nodes.Find(x => x.nodeId == id);
 
         public void Foreach(Action<Node> each) => tree.ForEach(each);
     }

@@ -42,13 +42,15 @@ namespace YukiFrameWork.DiaLogue
         {
             None,
             MouseDown,
-            KeyDown
+            KeyDown,
+            Auto
         }
 
         [SerializeField,LabelText("打字机模式下的间隔时间"),ShowIf(nameof(showTime)),FoldoutGroup(settingDes)]
         internal float intervalTime = 0.2f;
 
-        [SerializeField,LabelText("默认的按键映射(基础)"), FoldoutGroup(settingDes)]
+        [SerializeField,LabelText("默认映射(基础)"), FoldoutGroup(settingDes)]
+        [InfoBox("选择模式，映射为None时该组件仅作为注册对话UI更新组件使用，需要接着手动使用DiaLog控制器进行条件判断")]
         internal AutoMode autoMode = AutoMode.MouseDown;
         private bool isMouseDown => autoMode == AutoMode.MouseDown;
         private bool isKeyDown => autoMode == AutoMode.KeyDown;
@@ -59,6 +61,11 @@ namespace YukiFrameWork.DiaLogue
         [SerializeField,LabelText("鼠标点击下标"),FoldoutGroup(settingDes),MaxValue(2),MinValue(0),ShowIf(nameof(isMouseDown))]
         internal int mouseIndex;
 
+        [SerializeField,LabelText("自动播放间隔时间"),FoldoutGroup(settingDes),ShowIf(nameof(autoMode),AutoMode.Auto)]
+        internal float timer = 1.5f;
+
+        [LabelText("自动播放结束后触发事件:"),FoldoutGroup(settingDes), ShowIf(nameof(autoMode), AutoMode.Auto)]
+        public UnityEvent onAutomaticSessionEndEvent;
         private DiaLog mDiaLog;
 
         /// <summary>
@@ -71,11 +78,46 @@ namespace YukiFrameWork.DiaLogue
         private Coroutine mCurrentCoroutine;
         private Action mCurrentCallBack;       
 
-        private void Start()
+        private async void Start()
         {
             if (isKeyDown && keyCode == KeyCode.None)
             {
                 keyCode = KeyCode.A;
+            }
+            //安全判定，等待一帧
+            await CoroutineTool.WaitForFrame();
+            Auto_Reset_MoveNext();
+        }
+
+        /// <summary>
+        /// 从初始开始进行推进(必须是自动模式且已经调用InitDiaLog方法初始化)
+        /// </summary>
+        public async void Auto_Reset_MoveNext()
+        {
+            if (autoMode == AutoMode.Auto)
+            {
+                CoroutineTokenSource source = CoroutineTokenSource.Create(this);
+                await CoroutineTool.WaitUntil(() => mDiaLog != null).Token(source.Token);
+                if (mDiaLog.treeState == NodeTreeState.Waiting)
+                    mDiaLog.Start();
+                while (true)
+                {
+                    if (mDiaLog == null) 
+                        break;
+
+                    Node node = mDiaLog.GetCurrentRuntimeNode();
+                    if (!node)
+                        break;
+
+                    await CoroutineTool.WaitUntil(() => node.IsCompleted && !node.IsComposite).Token(source.Token);
+                    await CoroutineTool.WaitForSeconds(timer).Token(source.Token);
+
+                    MoveNodeState nodeState = mDiaLog.MoveNext();
+                    if (nodeState == MoveNodeState.Failed)
+                        break;
+                }
+
+                onAutomaticSessionEndEvent?.Invoke();
             }
         }
 
@@ -133,7 +175,9 @@ namespace YukiFrameWork.DiaLogue
         private void Update()
         {
             bool enter = false;
-            if (autoMode == AutoMode.MouseDown)
+            if (autoMode == AutoMode.Auto)
+                return;           
+            else if (autoMode == AutoMode.MouseDown)
             {
                 enter = Input.GetMouseButtonDown(mouseIndex);
             }
@@ -157,14 +201,16 @@ namespace YukiFrameWork.DiaLogue
             }
         }
 
-        internal void InitDiaLog(DiaLog diaLog)
+        public void InitDiaLog(DiaLog diaLog)
         {
             if (mDiaLog != null)
             {
+                if (mDiaLog == diaLog)
+                    return;
                 mDiaLog.GlobalRelease();
             }
             mDiaLog = diaLog;           
-            mDiaLog.RegisterWithNodeEnterEvent(Update_UI);
+            mDiaLog.RegisterWithNodeEnterEvent(Update_UI);       
             mDiaLog.Start();
         }
 

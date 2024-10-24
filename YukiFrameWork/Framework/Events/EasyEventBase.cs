@@ -36,7 +36,7 @@ namespace YukiFrameWork
         }
     }
 
-    /// <summary>
+    /*/// <summary>
     /// 自动化事件注册，为参数类型派生自IEventArgs且是唯一参数的方法标记该特性，可取代EventManager.AddListener的调用，进行自动注册的效果
     /// <para>特性参数:bool onlyMonoEnable ---> 是否开启Mono激活检测，开启后，当组件/对象失活时，无法进行指定参数的调用</para>
     /// <para>使用方式: 当你有一个继承IEventArgs的参数类MyCustomArg</para>
@@ -74,5 +74,5 @@ namespace YukiFrameWork
         {
             this.argTypes = argTypes;
         }
-    }
+    }*/
 }

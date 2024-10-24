@@ -1,4 +1,4 @@
-﻿///=====================================================
+﻿/*///=====================================================
 /// - FileName:      EventListener.cs
 /// - NameSpace:     YukiFrameWork.Events
 /// - Description:   通过本地的代码生成器创建的脚本
@@ -204,7 +204,7 @@ namespace YukiFrameWork.Events
             }
         }
 #if UNITY_EDITOR
-        [UnityEditor.Callbacks.PostProcessScene]
+        [UnityEditor.Callbacks.PostProcessScene] 
 #endif
         private static void AutoInjectAssemblys()
         {
@@ -565,9 +565,6 @@ namespace YukiFrameWork.Events
                
                 assemblies = config.assemblies.ToList();
                 assemblies.Add(config.assembly);
-#if UNITY_EDITOR
-                AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
-#endif
 
             }
             catch(Exception ex)
@@ -826,3 +823,4 @@ namespace YukiFrameWork.Events
         }
     }
 }
+*/

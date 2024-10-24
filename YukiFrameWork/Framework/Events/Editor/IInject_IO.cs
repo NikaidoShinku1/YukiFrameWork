@@ -1,4 +1,4 @@
-﻿///=====================================================
+﻿/*///=====================================================
 /// - FileName:      IInject_IO.cs
 /// - NameSpace:     YukiFrameWork.Events
 /// - Description:   通过本地的代码生成器创建的脚本
@@ -199,3 +199,4 @@ namespace YukiFrameWork.Events
         }
     }
 }
+*/

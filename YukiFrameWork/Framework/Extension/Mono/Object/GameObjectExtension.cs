@@ -1512,6 +1512,5 @@ namespace YukiFrameWork
             if (Mathf.Approximately(angle, 0) || Mathf.Approximately(angle, 180)) return 0;
             return Vector3.Distance(ray.origin, point) * Mathf.Sin(angle * Mathf.Deg2Rad);
         }
-
     }
 }

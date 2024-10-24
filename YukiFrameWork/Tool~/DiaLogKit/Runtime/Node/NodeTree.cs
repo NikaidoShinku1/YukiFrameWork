@@ -39,7 +39,9 @@ namespace YukiFrameWork.DiaLogue
         
         // 判断当前对话树和对话内容都是运行中状态则进行OnUpdate()方法更新
         internal MoveNodeState MoveNext()
-        {         
+        {
+            if (!runningNode)
+                return MoveNodeState.Failed;
             if (!runningNode.IsCompleted)
             {
                 return MoveNodeState.Idle;
@@ -179,10 +181,10 @@ namespace YukiFrameWork.DiaLogue
             {
                 each?.Invoke(nodes[i]);
             }
-        }
+        }      
 
 #if UNITY_EDITOR
-              
+
         [Button("Edit Graph", ButtonHeight = 30)]
         void OpenWindow()
         {
@@ -197,14 +199,29 @@ namespace YukiFrameWork.DiaLogue
                 if (item.GetIcon() != null)
                     item.spritePath = AssetDatabase.GetAssetPath(item.GetIcon());
                 else item.spritePath = string.Empty;
+                item.linkIds.Clear();
+                if (item.IsRoot || item.IsSingle)
+                {
+                    if (item.child != null)
+                        item.linkIds.Add(item.child.nodeId);
 
+                }
+                else if (item.IsRandom)
+                {
+                    if (item.randomItems != null && item.randomItems.Count > 0)
+                        item.linkIds = item.randomItems.Select(x => x.nodeId).ToList();
+                }
+                else if (item.IsComposite)
+                {
+                    if(item.optionItems != null && item.optionItems.Count > 0)
+                        item.linkIds = item.optionItems.Select(x => x.nextNode).Select(x => x.nodeId).ToList();
+                }
                 item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
             }
             string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore });                 
             json.CreateFileStream(assetPath, assetName, ".json");         
-        }
+        }        
 
-     
         [Button("Json配置表导入", ButtonHeight = 30)]
         void Import(TextAsset textAsset,bool nodeClear = true)
         {
@@ -217,20 +234,22 @@ namespace YukiFrameWork.DiaLogue
                     DeleteNode(nodes[nodes.Count - 1]);
                 }
             }
-          
-            foreach (var model in models) 
+
+            foreach (var model in models)
             {
                 string nodeType = model[nameof(nodeType)].ToString();
                 string title = model["dialogueTitle"].ToString();
                 string context = model["dialogueContext"].ToString();
                 string spritePath = model["spritePath"].ToString();
+
                 Type type = AssemblyHelper.GetType(nodeType);
-                var node = CreateNode(type,true);
+                var node = CreateNode(type, true);
                 node.dialogueTitle = title;
                 node.dialogueContext = context;
-                if(!spritePath.IsNullOrEmpty())
+                if (!spritePath.IsNullOrEmpty())
                     node.icon = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
-
+                node.nodeId = model["nodeId"].Value<int>();
+                node.linkIds = model["linkIds"].ToArray().Select(x => x.Value<int>()).ToList();
                 foreach (var field in type.GetRuntimeFields())
                 {                   
                     if (field.HasCustomAttribute<DeSerializedNodeFieldAttribute>(true))
@@ -251,6 +270,26 @@ namespace YukiFrameWork.DiaLogue
                     }
                 }
             }
+
+            foreach (var node in nodes)
+            {
+                Debug.Log("Test");
+                if (node.linkIds != null && node.linkIds.Count > 0)
+                {
+                    Debug.Log("Test");
+                    if (node.IsRoot || node.IsSingle)
+                        node.child = nodes.Find(x => x.nodeId == node.linkIds[0]);
+                    else if (node.IsRandom)
+                        node.randomItems.AddRange(node.linkIds.Select(x => nodes.Find(a => a.nodeId == x)));
+                    else if (node.IsComposite)
+                        node.optionItems.AddRange(node.linkIds.Select(x => new Option 
+                        {
+                            nextNode = nodes.Find(a => a.nodeId == x)
+                        }));
+                }
+            }
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
         }
    
         public Node CreateNode(System.Type type,bool IsCustomPosition = false)
@@ -259,6 +298,7 @@ namespace YukiFrameWork.DiaLogue
             node.name = type.Name;
             node.id = GUID.Generate().ToString();
             node.nodeType = type.FullName;
+            node.nodeId = (1000) + nodes.Count + 1;
             // node.NodeIndex = nodes.Count;
             if (node.DiscernType == typeof(RootNodeAttribute))
                 rootNode = node;           
