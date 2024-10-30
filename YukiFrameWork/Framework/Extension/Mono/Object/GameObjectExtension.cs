@@ -163,7 +163,7 @@ namespace YukiFrameWork
 
         public static bool ActiveInHierarchy<T>(this T component) where T : Component
         {
-            return Active(component.gameObject);
+            return ActiveInHierarchy(component.gameObject);
         }
 
         public static bool ActiveInHierarchy(this GameObject gameObject)

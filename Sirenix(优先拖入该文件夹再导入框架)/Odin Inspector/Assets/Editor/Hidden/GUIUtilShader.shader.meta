@@ -1,8 +1,9 @@
 fileFormatVersion: 2
-guid: 728df0e3465c1a148b83053a3f31d489
-timeCreated: 1573836981
-licenseType: Store
-DefaultImporter:
+guid: 7619c1ca61a5ef94ca78ddfa69941dad
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
   userData: 
   assetBundleName: 
   assetBundleVariant: 
@@ -10,7 +11,7 @@ AssetOrigin:
   serializedVersion: 1
   productId: 89041
   packageName: Odin Inspector and Serializer
-  packageVersion: 3.3.1.0
+  packageVersion: 3.3.1.10
   assetPath: "Assets/Sirenix(\u4F18\u5148\u62D6\u5165\u8BE5\u6587\u4EF6\u5939\u518D\u5BFC\u5165\u6846\u67B6)/Odin
-    Inspector/Modules/Unity.Entities.data"
-  uploadId: 664282
+    Inspector/Assets/Editor/Hidden/GUIUtilShader.shader"
+  uploadId: 702916

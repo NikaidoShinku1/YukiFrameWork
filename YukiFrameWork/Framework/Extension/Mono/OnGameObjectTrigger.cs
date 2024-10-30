@@ -11,6 +11,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using YukiFrameWork.Events;
 
 namespace YukiFrameWork
 {   
@@ -24,7 +25,7 @@ namespace YukiFrameWork
 
         private readonly FastList<Action> onFinishEvents = new FastList<Action>();
 
-        private readonly Stack<IUnRegister> unRegisters = new Stack<IUnRegister>();
+        private readonly Stack<IUnRegister> unRegisters  = new Stack<IUnRegister>();
 
         private readonly Stack<IUnRegister> unDisableRegisters = new Stack<IUnRegister>();
 
@@ -96,7 +97,7 @@ namespace YukiFrameWork
         }
 
         private void OnDestroy()
-        {
+        {         
             queueActionNodes.Clear();
             foreach (var action in executeNodeDict.Keys)
             {
@@ -105,7 +106,11 @@ namespace YukiFrameWork
 
             foreach (var register in unRegisters)
             {
+#if UNITY_2022_1_OR_NEWER
+                EventManager.Root.RemoveEvent(register);
+#else
                 register.UnRegisterAllEvent();
+#endif
             }
 
             foreach (var finish in onFinishEvents)

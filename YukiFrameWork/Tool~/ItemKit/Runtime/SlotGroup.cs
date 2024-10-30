@@ -11,8 +11,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Linq;
 namespace YukiFrameWork.Item
 {
+    
 	public class SlotGroup
 	{
         [field:JsonProperty,SerializeField]
@@ -27,22 +29,83 @@ namespace YukiFrameWork.Item
         [JsonIgnore]
 		public IReadOnlyList<Slot> Slots => slots;
 
+        private event Action OrderRefresh = null;
+
+        public bool IsEmpty => slots.FirstOrDefault(x => x.Item != null) == null;
+
+        public SlotGroup ForEach(Action<Slot> action)
+        {
+            ForEach((_, slot) => action?.Invoke(slot));
+            return this;
+        }
+
+        public SlotGroup ForEach(Action<int, Slot> action)
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                action?.Invoke(i, slots[i]);
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// 注册排序刷新事件
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public SlotGroup RegisterOrderRefresh(Action order)
+        {
+            OrderRefresh += order;
+            return this;
+        }
+
+
+        /// <summary>
+        /// 注销排序刷新事件
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public SlotGroup UnRegisterOrderRefresh(Action order)
+        {
+            OrderRefresh -= order;
+            return this;
+        }
+
         public SlotGroup(string key)
         {
             Key = key;           
         }
 
+        /// <summary>
+        /// 创建一个新的插槽
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public SlotGroup CreateSlot(IItem item, int count)
         {
+            if (!mCondition.Invoke(item))
+                return this;
             slots.Add(new Slot(item, count,this));
             return this;
         }
 
+        /// <summary>
+        /// 创建一个新的插槽
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public SlotGroup CreateSlotByKey(string itemKey, int count)
         {
             return CreateSlot(ItemKit.GetItemByKey(itemKey), count);
         }
 
+        /// <summary>
+        /// 创建指定数量的空插槽
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public SlotGroup CreateSlotsByCount(uint count)
         {
             for (int i = 0; i < count; i++)
@@ -50,11 +113,51 @@ namespace YukiFrameWork.Item
                 CreateSlot(null,0);
             }
             return this;
-        }   
+        }
+
+        /// <summary>
+        /// 为物品仓库排序
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="orders"></param>
+        /// <returns></returns>
+        public SlotGroup OrderBy<TKey>(Func<Slot,TKey> orders)
+        {
+            slots = slots.OrderBy(orders).ToList();
+            OrderRefresh?.Invoke();
+            return this;
+        }
+
+        /// <summary>
+        /// 从高到低为物品仓库排序
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="orders"></param>
+        /// <returns></returns>
+        public SlotGroup OrderByDescending<TKey>(Func<Slot, TKey> orders)
+        {
+            slots = slots.OrderByDescending(orders).ToList();
+            OrderRefresh?.Invoke();
+            return this;
+        }
+        /// <summary>
+        /// 通过物品标识查找指定的插槽
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <returns></returns>
         public Slot FindSlotByKey(string itemKey) => slots.Find(x => x.Item != null && x.Item.GetKey == itemKey && x.ItemCount != 0);
 
+        /// <summary>
+        /// 查找到空插槽
+        /// </summary>
+        /// <returns></returns>
         public Slot FindEmptySlot() => slots.Find(x => x.ItemCount == 0);
 
+        /// <summary>
+        /// 查找到可以继续添加物品的插槽
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <returns></returns>
         public Slot FindAddableSlot(string itemKey)
         {
             var item = ItemKit.ItemDicts[itemKey];
@@ -107,14 +210,65 @@ namespace YukiFrameWork.Item
             public int RemainCount;          
         }
 
+        /// <summary>
+        /// 添加物品
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <param name="addCount"></param>
+        /// <returns></returns>
         public ItemOperateResult StoreItem(string itemKey, int addCount = 1)
         {
             var item = ItemKit.ItemDicts[itemKey];
             return StoreItem(item, addCount);
         }
 
+        /// <summary>
+        /// 将物品直接插入指定下标的插槽(如果物品是相同的则等同于添加的效果)
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <param name="addCount"></param>
+        /// <returns></returns>
+        public ItemOperateResult InsertItem(int index,IItem item, int addCount = 1)
+        {
+            if(!mCondition.Invoke(item))
+                return new ItemOperateResult() { Succeed = false ,RemainCount = addCount};
+            Slot slot = slots[index];
+
+            if (slot.Item?.GetKey == item.GetKey)
+            {
+                return StoreItem(item,addCount);
+            }
+
+            slot.ItemCount = 0;
+            slot.Item = null;
+            if (item.IsStackable && item.IsMaxStackableCount)
+            {
+                if (addCount <= item.MaxStackableCount)                
+                    goto F;               
+                return new ItemOperateResult() { Succeed = false,RemainCount = addCount};
+            }
+            F: slot.ItemCount += addCount;
+            slot.Item = item;
+            slot.OnItemChanged.SendEvent();
+            return new ItemOperateResult() { Succeed = true, RemainCount = 0 };
+        }
+
+        /// <summary>
+        /// 将物品直接插入指定下标的插槽(如果物品是相同的则等同于添加的效果)
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="itemKey"></param>
+        /// <param name="addCount"></param>
+        /// <returns></returns>
+        public ItemOperateResult InsertItem(int index, string itemKey, int addCount = 1)
+        {
+            return InsertItem(index, ItemKit.GetItemByKey(itemKey), addCount);
+        }
+
         public ItemOperateResult StoreItem(IItem item, int addCount = 1)
-        {          
+        {
+            if (!mCondition.Invoke(item))
+                return new ItemOperateResult() { Succeed = false, RemainCount = addCount };
             if (item.IsStackable && item.IsMaxStackableCount)
             {
                 do
@@ -158,7 +312,12 @@ namespace YukiFrameWork.Item
                 return new ItemOperateResult() { Succeed = true, RemainCount = 0 };
             }
         }
-
+        /// <summary>
+        /// 移除某个物品
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <param name="removeCount"></param>
+        /// <returns></returns>
         public bool RemoveItem(string itemKey, int removeCount = 1)
         {
             var slot = FindSlotByKey(itemKey);
@@ -174,16 +333,40 @@ namespace YukiFrameWork.Item
 
             return false;
         }
-
+        /// <summary>
+        /// 移除某个物品
+        /// </summary>
+        /// <param name="itemKey"></param>
+        /// <param name="removeCount"></param>
+        /// <returns></returns>
         public bool RemoveItem(IItem item, int removeCount = 1)
         {
             return RemoveItem(item.GetKey, removeCount);
         }
 
+        /// <summary>
+        /// 通过物品的下标清空物品
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="removeCount"></param>
+        /// <returns></returns>
+        public bool ClearItemByIndex(int index)
+        {           
+            Slot slot = slots[index];
+            if (slot.Item == null)
+                return false;
+
+            return RemoveItem(slot.Item, slot.ItemCount);
+        }      
 
         internal bool ConditionInvoke(IItem item)
             => mCondition(item);
 
+        /// <summary>
+        /// 注册物品的添加条件(不满足条件是不会进行添加的)
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <returns></returns>
         public SlotGroup Condition(Func<IItem, bool> condition)
         {
             this.mCondition = condition;
@@ -195,19 +378,19 @@ namespace YukiFrameWork.Item
         private Action<UISlot> mOnSlotPointerEnter;
         private Action<UISlot> mOnSlotPointerExit;
 
-        internal void SlotInitInvoke(UISlot slot)
+        public void SlotInitInvoke(UISlot slot)
             => mOnSlotInit?.Invoke(slot);
 
-        internal void SlotSelectInvoke(UISlot slot)
+        public void SlotSelectInvoke(UISlot slot)
             => mOnSlotSelect?.Invoke(slot);
 
-        internal void SlotDeselectInvoke(UISlot slot)
+        public void SlotDeselectInvoke(UISlot slot)
            => mOnSlotDeselect?.Invoke(slot);
 
-        internal void SlotPointerEnterInvoke(UISlot slot)
+        public void SlotPointerEnterInvoke(UISlot slot)
            => mOnSlotPointerEnter?.Invoke(slot);
 
-        internal void SlotPointerExitInvoke(UISlot slot)
+        public void SlotPointerExitInvoke(UISlot slot)
            => mOnSlotPointerExit?.Invoke(slot);
 
         public SlotGroup OnSlotInit(Action<UISlot> onSlotInit)

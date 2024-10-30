@@ -389,8 +389,7 @@ namespace YukiFrameWork.Extension
             foreach (var item in (controller as ISerializedFieldInfo).GetSerializeFields())
             {
                 (currentController as ISerializedFieldInfo).AddFieldData(item);
-            }
-            currentController.IsAutoSettingField = controller.IsAutoSettingField;          
+            }                
             DestroyImmediate(controller);
             currentController.gameObject.name = currentController.Data.ScriptName;
             return true;

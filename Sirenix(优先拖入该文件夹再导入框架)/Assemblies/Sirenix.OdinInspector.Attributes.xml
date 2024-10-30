@@ -3380,6 +3380,11 @@
             Specifies how non-default constructors are handled.
             </summary>
         </member>
+        <member name="F:Sirenix.OdinInspector.NonDefaultConstructorPreference.Exclude">
+            <summary>
+            Excludes types with non default constructors from the Selector.
+            </summary>
+        </member>
         <member name="F:Sirenix.OdinInspector.NonDefaultConstructorPreference.ConstructIdeal">
             <summary>
             Attempts to find the most straightforward constructor to call, prioritizing default values.
@@ -3422,22 +3427,6 @@
             
             <para>Implementation example: <c>public object Method(Type type)</c>.</para>
             </example>
-        </member>
-        <member name="F:Sirenix.OdinInspector.PolymorphicDrawerSettingsAttribute.OnInstanceAssigned">
-            <summary>
-            Specifies an action for handling created/assigned instances.
-            </summary>
-            <example>
-            <para>
-            The resolver expects any method that takes a single parameter of the base type, where the parameter is named 'instance', and returns <see cref="T:System.Void"/>.
-            </para>
-            
-            <para>Implementation example: <c>public void Method(SomeBaseType instance)</c>.</para>
-            </example>
-            <remarks>
-            <para> Syncs with <c>ref</c> on parameters.</para>
-            <para> 'instance' can be a default value (such as NULL).</para>
-            </remarks>
         </member>
         <member name="T:Sirenix.OdinInspector.PreviewFieldAttribute">
              <summary>

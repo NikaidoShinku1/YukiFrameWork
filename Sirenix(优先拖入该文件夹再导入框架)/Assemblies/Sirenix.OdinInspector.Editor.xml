@@ -3694,6 +3694,11 @@
             The base type of the value entry. If this is value entry represents a member value, this is the type of the member. If the value entry represents a collection element, this is the element type of the collection.
             </summary>
         </member>
+        <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.TValueGenericTypeArgument">
+            <summary>
+            The generic value type of the value entry alias itself, IE, the PropertyValueEntryAlias implements the IPropertyValueEntry&lt;TValue&gt; interface - this member returns TValue regardless of the actual type of the backing objects. This is a performance shortcut to checking TValue using reflection, used internally by the property system to determine whether a value entry alias needs to be swapped out with an alias for a different type.
+            </summary>
+        </member>
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias.ValueState">
             <summary>
             The special state of the value entry.
@@ -3845,6 +3850,11 @@
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.BaseValueType">
             <summary>
             The base type of the value entry. If this is value entry represents a member value, this is the type of the member. If the value entry represents a collection element, this is the element type of the collection.
+            </summary>
+        </member>
+        <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.TValueGenericTypeArgument">
+            <summary>
+            The generic value type of the value entry alias itself, IE, the PropertyValueEntryAlias implements the IPropertyValueEntry&lt;TValue&gt; interface - this member returns TValue regardless of the actual type of the backing objects. This is a performance shortcut to checking TValue using reflection, used internally by the property system to determine whether a value entry alias needs to be swapped out with an alias for a different type.
             </summary>
         </member>
         <member name="P:Sirenix.OdinInspector.Editor.PropertyValueEntryAlias`2.ValueState">
@@ -4484,6 +4494,13 @@
             Draws the property layout.
             </summary>
             <param name="label">The label.</param>
+        </member>
+        <member name="M:Sirenix.OdinInspector.Editor.Drawers.InlineEditorAttributeDrawer`1.DrawAnimationClipEditorPreview(UnityEngine.Rect)">
+            <summary>
+            
+            </summary>
+            <param name="rect"></param>
+            <remarks>Will set <see cref="P:UnityEngine.GUI.enabled">GUI.enabled</see> to false during some cases, to avoid the Preview eating events when it really shouldn't.</remarks>
         </member>
         <member name="T:Sirenix.OdinInspector.Editor.Drawers.InlinePropertyAttributeDrawer">
             <summary>
@@ -8135,6 +8152,15 @@
             To safely change anything in the type cache, you must be holding this lock.
             </summary>
         </member>
+        <member name="M:Sirenix.OdinInspector.Editor.TypeRegistry.GetInstantiableInheritors(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="type"></param>
+            <param name="includeUnityTypes"></param>
+            <param name="excludeTypesWithoutDefaultConstructor">This is checked using <see cref="M:Sirenix.Utilities.TypeExtensions.HasDefaultConstructor(System.Type)"/>.</param>
+            <returns></returns>
+        </member>
         <member name="T:Sirenix.OdinInspector.Editor.UniqueDrawerKey">
              <summary>
              Gets a unique key for any given property within a drawer.
@@ -8847,12 +8873,11 @@
             Gets or sets the icon getter.
             </summary>
         </member>
-        <member name="M:Sirenix.OdinInspector.Editor.OdinMenuItem.DrawMenuItems(System.Int32,System.Boolean)">
+        <member name="M:Sirenix.OdinInspector.Editor.OdinMenuItem.DrawMenuItems(System.Int32)">
             <summary>
             Draws this menu item followed by all of its child menu items
             </summary>
             <param name="indentLevel">The indent level.</param>
-            <param name="recursive">Specifies whether the item should draw only itself or continue drawing its children recursively when expanded.</param>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuItem.DrawMenuItem(System.Int32)">
             <summary>
@@ -9160,26 +9185,31 @@
             <summary>
             Adds a menu item with the specified object instance at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,UnityEngine.Texture)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,Sirenix.OdinInspector.SdfIconType)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,UnityEngine.Sprite)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.Add(System.String,System.Object,Sirenix.Utilities.Editor.EditorIcon)">
             <summary>
             Adds a menu item with the specified object instance and icon at the the specified path.
             </summary>
+            <returns>Returns all menu items created in order to add the menu item at the specified path.</returns>
         </member>
         <member name="M:Sirenix.OdinInspector.Editor.OdinMenuTree.AddRange``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.String})">
             <summary>
@@ -10244,7 +10274,7 @@
             <para>Either '<paramref name="key"/>' or '<paramref name="id"/>' must be set, but both can also be set for more consistent results.</para>
             </remarks>
         </member>
-        <member name="M:Sirenix.OdinInspector.Editor.OdinObjectSelector.Show(UnityEngine.Rect,System.Object,System.Int32,Sirenix.OdinInspector.Editor.InspectorProperty,System.Boolean)">
+        <member name="M:Sirenix.OdinInspector.Editor.OdinObjectSelector.Show(UnityEngine.Rect,System.Object,System.Int32,Sirenix.OdinInspector.Editor.InspectorProperty,System.Boolean,System.Boolean)">
             <summary>
             Shows a selector.
             </summary>

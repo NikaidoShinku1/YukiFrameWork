@@ -168,8 +168,7 @@ namespace YukiFrameWork
                 lock (_object)
                 {
                     if (mArchitecture == null)
-                    {
-                        (this as IYMonoBehaviour).InitAllFields();
+                    {                     
                         mArchitecture = ArchitectureConstructor.I.Enquene(this);                                  
                     }
                     return mArchitecture;

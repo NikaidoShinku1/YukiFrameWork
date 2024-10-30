@@ -172,7 +172,7 @@ namespace YukiFrameWork.DiaLogue
                 onExitCallBack.SendEvent(runningNode);
             }
 
-            MonoHelper.Stop(mEnterCoroutine);       
+            MonoHelper.Stop(mEnterCoroutine);        
         }
 
         public void ForEach(Action<Node> each)

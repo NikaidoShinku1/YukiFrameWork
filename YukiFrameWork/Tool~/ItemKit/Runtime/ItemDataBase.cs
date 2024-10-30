@@ -7,21 +7,12 @@
 /// -  All Rights Reserved.
 ///=====================================================
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using YukiFrameWork.Extension;
-using System.Reflection;
-
 using UnityEngine.U2D;
 using System.Linq;
 using System.Text;
-using System.Collections;
-using static Codice.Client.BaseCommands.BranchExplorer.ExplorerData.BrExTreeBuilder.BrExFilter;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
-
-
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -43,7 +34,7 @@ namespace YukiFrameWork.Item
                 if (path.IsNullOrEmpty()) continue;
 
                 ItemDataBase itemDataBase = AssetDatabase.LoadAssetAtPath<ItemDataBase>(path);
-                if(itemDataBase)
+                if (itemDataBase)
                     items.Add(itemDataBase);
 
             }
@@ -65,27 +56,27 @@ namespace YukiFrameWork.Item
 
                 string[] guids = AssetDatabase.FindAssets($"t:{typeof(ItemDataBase)}");
                 var items = FindAssets();
-                foreach (var itemDataBase in items)                {
-                    
+                foreach (var itemDataBase in items) {
+
                     foreach (var type in itemDataBase.mItemTypeDicts)
                     {
                         var temp = allItemTypes.Find(x => x.Value == type.Key);
-                        if(temp.Value == type.Key)
+                        if (temp.Value == type.Key)
                             continue;
-                        allItemTypes.Add(type.Value,type.Key);
+                        allItemTypes.Add(type.Value, type.Key);
                     }
 
                     if (allItemTypes.Count == 0)
                         itemDataBase.ResetItemType();
-                    
+
                 }
                 return allItemTypes;
             }
-        }    
+        }
 #endif
         public virtual void OnEnable()
         {
-            InitItemTypeByDataBase();           
+            InitItemTypeByDataBase();
         }
 #if UNITY_EDITOR
         private void OnValidate()
@@ -98,34 +89,35 @@ namespace YukiFrameWork.Item
                 if (item.Equals(this)) continue;
                 item.mItemTypeDicts = mItemTypeDicts;
             }
-#endif
+
         }
+#endif
         protected abstract void ResetItemType();
 
         void InitItemTypeByDataBase()
         {
-            if(mItemTypeDicts.Count == 0)
+            if (mItemTypeDicts.Count == 0)
             {
                 mItemTypeDicts["Consumable"] = "消耗品";
                 mItemTypeDicts["Equipment"] = "装备";
                 mItemTypeDicts["Material"] = "材料";
                 mItemTypeDicts["Weapon"] = "武器";
-            }          
+            }
         }
 
         [SerializeField, LabelText("物品的类型收集"), Searchable, DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "类型介绍"), BoxGroup("物品自定义")]
         [InfoBox("所有的物品配置，都可以单独设置物品的类型，但全局共享，如果有相同的Key/Value，则数据共享，访问Item.ItemType以Key为主", InfoMessageType.Info)]
         private YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
     }
-    public abstract class ItemDataBase<Item> : ItemDataBase where Item :class, IItem
+    public abstract class ItemDataBase<Item> : ItemDataBase where Item : class, IItem
     {
-        [SerializeField, Searchable, FoldoutGroup("物品管理", -1),TableList]
+        [SerializeField, Searchable, FoldoutGroup("物品管理", -1), TableList]
         internal Item[] items = new Item[0];
         protected override void ResetItemType()
         {
             foreach (var item in items)
             {
-                item.ItemType = string.Empty;               
+                item.ItemType = string.Empty;
             }
 
         }
@@ -138,19 +130,19 @@ namespace YukiFrameWork.Item
 #if UNITY_EDITOR
         public override void OnEnable()
         {
-            
+
             if (string.IsNullOrEmpty(fileName))
-            { 
-                fileName = this.GetType().Name.Replace("DataBase","s");               
+            {
+                fileName = this.GetType().Name.Replace("DataBase", "s");
             }
-            base.OnEnable();          
+            base.OnEnable();
         }
         [SerializeField, LabelText("命名空间"), FoldoutGroup("Code Setting", -2)]
         string NameSpace = "YukiFrameWork.Item.Example";
         [SerializeField, LabelText("生成路径"), FoldoutGroup("Code Setting"), ShowIf(nameof(DoNotNullOrEmpty))]
         string filePath = string.Empty;
 
-        [SerializeField,LabelText("脚本名称/文件名称"), FoldoutGroup("Code Setting")]
+        [SerializeField, LabelText("脚本名称/文件名称"), FoldoutGroup("Code Setting")]
         string fileName;
         private bool DoNotNullOrEmpty => !string.IsNullOrEmpty(filePath);
         [Button("生成代码"), FoldoutGroup("Code Setting")]
@@ -184,7 +176,7 @@ namespace YukiFrameWork.Item
                 }
 
                 filePath = builer.ToString();
-            }           
+            }
             if (string.IsNullOrEmpty(filePath)) return;
             if (string.IsNullOrEmpty(fileName)) return;
             string name = fileName;
@@ -207,10 +199,10 @@ namespace YukiFrameWork.Item
                 ;
 
             System.IO.File.WriteAllText(filePath + "/" + name + ".cs", core.builder.ToString());
-           
+
             AssetDatabase.Refresh();
 
-        }     
+        }
         [SerializeField, LabelText("配置文件:"), FoldoutGroup("配置表设置")]
         TextAsset textAsset;
         [Button("导入", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置表设置")]
@@ -223,7 +215,7 @@ namespace YukiFrameWork.Item
                 return;
             }
 
-            List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);            
+            List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);
             foreach (Item item in items)
             {
                 item.GetIcon = string.IsNullOrEmpty(item.SpriteAtlas)
@@ -233,11 +225,11 @@ namespace YukiFrameWork.Item
 
             Items = items.Select(x => x as IItem).ToArray();
         }
-        [LabelText("导出路径"), FoldoutGroup("配置表设置"),SerializeField]
+        [LabelText("导出路径"), FoldoutGroup("配置表设置"), SerializeField]
         string reImportPath = "Assets/ItemKitData";
-        [LabelText("导出文件名称"), FoldoutGroup("配置表设置"),SerializeField]
+        [LabelText("导出文件名称"), FoldoutGroup("配置表设置"), SerializeField]
         string reImportName = "Item";
-        [Button("将现有物品导出配表",ButtonHeight = 30),FoldoutGroup("配置表设置"),PropertySpace(15)]
+        [Button("将现有物品导出配表", ButtonHeight = 30), FoldoutGroup("配置表设置"), PropertySpace(15)]
         void ReImport()
         {
             if (this.Items?.Length == 0)
@@ -252,12 +244,13 @@ namespace YukiFrameWork.Item
                 }
             }
             SerializationTool.SerializedObject(Items).CreateFileStream(reImportPath, reImportName, ".json");
-        }     
-        [Button("打开Item编辑器窗口(Plus)",ButtonHeight = 40)]
+        }
+        [Button("打开Item编辑器窗口(Plus)", ButtonHeight = 40)]
         void OpenWindow()
         {
             ItemDesignerWindow.OpenWindow();
         }
 #endif
-    }   
+    }
 }
+

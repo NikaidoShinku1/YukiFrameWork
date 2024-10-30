@@ -52,6 +52,7 @@ namespace YukiFrameWork.ToolBar
         private static string[] sceneNames;     
         static ToolbarExtenderView()
         {
+            config = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
             void Update()
             {
                 current_Scenes.Clear();              
@@ -97,11 +98,12 @@ namespace YukiFrameWork.ToolBar
             "开启视图快捷显示",
             "关闭视图快捷显示"
         };
+        private static FrameworkConfigInfo config;
         [Toolbar(OnGUISide.Left,0)]
         static void OnToolBarGUILeft()
         {
-            FrameworkConfigInfo.IsShowHerarchy
-                = EditorGUILayout.Popup(FrameworkConfigInfo.IsShowHerarchy ? 0 : 1, herar) == 0;
+            config.IsShowHerarchy
+                = EditorGUILayout.Popup(config.IsShowHerarchy ? 0 : 1, herar) == 0;
             if (GUILayout.Button("Open Local Configuration"))
             {
                 FrameWorkDisignWindow.OpenWindow();

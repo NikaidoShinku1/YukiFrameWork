@@ -1,6 +1,9 @@
 fileFormatVersion: 2
-guid: 5a1693d73a4f6e34d955789129c71e11
-DefaultImporter:
+guid: 99e0f263ae4ed2d4d962a2e995dff6df
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
   userData: 
   assetBundleName: 
   assetBundleVariant: 
@@ -8,7 +11,7 @@ AssetOrigin:
   serializedVersion: 1
   productId: 89041
   packageName: Odin Inspector and Serializer
-  packageVersion: 3.3.1.0
+  packageVersion: 3.3.1.10
   assetPath: "Assets/Sirenix(\u4F18\u5148\u62D6\u5165\u8BE5\u6587\u4EF6\u5939\u518D\u5BFC\u5165\u6846\u67B6)/Odin
-    Inspector/Modules/Unity.Localization.data"
-  uploadId: 664282
+    Inspector/Assets/Editor/Hidden/SdfIconShader.shader"
+  uploadId: 702916

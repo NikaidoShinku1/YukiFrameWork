@@ -37,10 +37,10 @@ namespace YukiFrameWork.Item
 
         private void Awake()
         {						
-			var group = ItemKit.CreateSlotGroup(mGroupKey);
-
+			var group = ItemKit.CreateSlotGroup(mGroupKey);			
 			foreach (var config in configs)
 			{
+
 				group.CreateSlot(ItemKit.GetItemByKey(config.itemKey), config.count)
 					.OnSlotInit(slot => config.mOnSlotInit?.Invoke(slot))
 					.OnSlotSelect(slot => config.mOnSlotSelect?.Invoke(slot))

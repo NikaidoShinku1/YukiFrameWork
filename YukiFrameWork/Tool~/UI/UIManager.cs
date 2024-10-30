@@ -153,7 +153,7 @@ namespace YukiFrameWork.UI
         public void SetPanelFieldAndProperty(BasePanel panel)
         {
             Type type = panel.GetType();
-            (panel as IYMonoBehaviour).InitAllFields();
+            //(panel as IYMonoBehaviour).InitAllFields();
         }
 
         [Obsolete]

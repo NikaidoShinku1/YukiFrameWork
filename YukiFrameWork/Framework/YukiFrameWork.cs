@@ -140,10 +140,7 @@ namespace YukiFrameWork
 
     #region Model
     public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy,IGetConfig
-    {                      
-        /// <summary>
-        /// 是否自动注入字段开启，开启后可以使用ConfigSerializeFieldAttribute特性进行自动配表注入。
-        /// </summary>      
+    {                             
         void Init();        
     }
     #endregion

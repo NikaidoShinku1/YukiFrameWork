@@ -126,6 +126,7 @@ namespace YukiFrameWork
         [LabelText("检索类型"), PropertySpace(10), ShowInInspector, BoxGroup]
         internal static SelectType selectType;
 
+        
         private string eventSearch;
         private IArchitecture architecture;       
         private ArchitectureDebuggerWindow editorWindow;
@@ -247,9 +248,13 @@ namespace YukiFrameWork
                         architecture = request.architecture;
                 }
             }
-        
+           
             float width = editorWindow.position.width - editorWindow.MenuWidth;
-
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("搜索指定类型", GUILayout.Width(100));
+            searchName = EditorGUILayout.TextField(searchName, GUILayout.Width(width / 2));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(10);
             var rect = EditorGUILayout.BeginVertical();
             switch (mtitle)
             {
@@ -342,7 +347,8 @@ namespace YukiFrameWork
         }
         string box;
         private ArchitectureDebuggerWindow.Title mTitle => mtitle;
-       
+        [HideInInspector]
+        public string searchName;
         void DrawController()
         {
             foreach (var info in rolds[Rule.Controller])
@@ -359,6 +365,9 @@ namespace YukiFrameWork
                     continue;
 
                 if (selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && runtimeInitialize != null)
+                    continue;
+
+                if (!searchName.IsNullOrEmpty() && !info.type.FullName.Contains(searchName))
                     continue;
                 var tRect = EditorGUILayout.BeginHorizontal();
                 var rect = EditorGUILayout.BeginHorizontal(tRect.Contains(Event.current.mousePosition) ? "SelectionRect" : "Wizard Box", GUILayout.Height(25));
@@ -430,6 +439,9 @@ namespace YukiFrameWork
                     continue;
 
                 if (selectType == ArchitectureDebuggerWindow.SelectType.NoAttribute && registration != null)
+                    continue;
+
+                if (!searchName.IsNullOrEmpty() && !info.type.FullName.Contains(searchName))
                     continue;
 
                 var tRect = EditorGUILayout.BeginHorizontal();

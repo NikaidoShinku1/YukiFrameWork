@@ -40,21 +40,25 @@ namespace XFABManager
 
             GUILayout.EndScrollView();
 
+            if (btn_create_click)
+            {
+                CreateProject();
+                btn_create_click = false;
+            }
+
 
         }
 
- 
- 
+
+
         #region OnGUI
 
+        private bool btn_create_click = false;
         // 画出创建按钮
         private void DrawCreateButton() {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("创建" )) {
-                CreateProject();
-            }
-
+            btn_create_click = GUILayout.Button("创建");
             GUILayout.EndHorizontal();
         }
 
@@ -70,7 +74,7 @@ namespace XFABManager
             {
                 //创建
                 string path = EditorUtility.OpenFolderPanel("请选择保存目录", Application.dataPath, "");
-                if (path != null)
+                if (!string.IsNullOrEmpty(path))
                 {
                     Debug.Log(path);
                     if (!path.StartsWith(Application.dataPath))

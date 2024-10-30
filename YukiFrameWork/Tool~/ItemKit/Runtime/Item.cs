@@ -15,16 +15,40 @@ namespace YukiFrameWork.Item
 {
     public interface IItem
     {
+        /// <summary>
+        /// 获取物品的唯一标识
+        /// </summary>
         string GetKey { get;  }
+        /// <summary>
+        /// 获取物品的名称
+        /// </summary>
         string GetName { get; }
+        /// <summary>
+        /// 获取物品的介绍
+        /// </summary>
         string GetDescription { get; }
-        Sprite GetIcon { get; set; }     
+        /// <summary>
+        /// 获取物品的图标
+        /// </summary>
+        Sprite GetIcon { get; set; }    
+        /// <summary>
+        /// 物品是否是可堆叠的
+        /// </summary>
         bool IsStackable { get; }
+        /// <summary>
+        /// 物品是否有堆叠数量上限
+        /// </summary>
         bool IsMaxStackableCount { get;}
+        /// <summary>
+        /// 物品的最大堆叠数量
+        /// </summary>
         int MaxStackableCount { get; }
-        string ItemType { get; set; }        
-        string SpriteAtlas { get; set; }        
-        string Sprite { get; set; }
+        /// <summary>
+        /// 物品的类型
+        /// </summary>
+        string ItemType { get; set; }           
+        internal string SpriteAtlas { get; set; }        
+        internal string Sprite { get; set; }
     }
 
     [Serializable]
@@ -109,9 +133,13 @@ namespace YukiFrameWork.Item
         }
 
         public Item() { }
-
+#if UNITY_EDITOR
         private IEnumerable allItemTypes => ItemDataBase.AllItemTypes;
-        [field: SerializeField, LabelText("物品类型"),ValueDropdown(nameof(allItemTypes))]
+#endif
+        [field: SerializeField, LabelText("物品类型")]
+#if UNITY_EDITOR
+        [field: ValueDropdown(nameof(allItemTypes))]
+#endif
         [JsonProperty]
         public string ItemType { get; set; }
         [field: SerializeField, LabelText("是否可堆叠")]
@@ -148,9 +176,9 @@ namespace YukiFrameWork.Item
                 else Icon = value;
             }
         }             
-        [LabelText("精灵所在的图集"), JsonProperty, SerializeField, HideInInspector]
-        public string SpriteAtlas { get; set; }
-        [LabelText("精灵的路径/名称"),JsonProperty, SerializeField, HideInInspector]
-        public string Sprite { get; set; }      
+        [LabelText("精灵所在的图集"), JsonProperty]
+        string IItem.SpriteAtlas { get; set; }
+        [LabelText("精灵的路径/名称"),JsonProperty]
+        string IItem.Sprite { get; set; }      
     }
 }

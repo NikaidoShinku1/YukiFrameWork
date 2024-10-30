@@ -22,7 +22,10 @@ namespace YukiFrameWork
     }
     public abstract class EasyEventBase<T> : IEasyEvent where T : Delegate
     {     
-        protected T OnEasyEvent;       
+        protected T OnEasyEvent;
+#if UNITY_2022_1_OR_NEWER
+        EventRegisterType IUnRegister.RegisterType { get; set; }
+#endif
         public abstract IUnRegister RegisterEvent(T onEvent);
         public abstract void UnRegister(T onEvent);
         public virtual void UnRegisterAllEvent() => OnEasyEvent = null;  

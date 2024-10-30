@@ -26,11 +26,12 @@ namespace YukiFrameWork.Extension
             return enumerable.Select(x => new GUIContent(x)).ToArray();
         }
 		public static bool GetRuntimeOrEditor() => Application.isPlaying;
-
+        private static FrameworkConfigInfo config;
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         static void Init()
         {
+            config = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
             EditorApplication.hierarchyWindowItemOnGUI = (int id, Rect rect) =>
             {                
                 OnDefaultHierarchyGUI(id, rect);              
@@ -43,7 +44,7 @@ namespace YukiFrameWork.Extension
 
             try
             {
-                if (!FrameworkConfigInfo.IsShowHerarchy) return;
+                if (!config.IsShowHerarchy) return;
              
                 GameObject current = (GameObject)EditorUtility.InstanceIDToObject(id);             
                 if (current == null)

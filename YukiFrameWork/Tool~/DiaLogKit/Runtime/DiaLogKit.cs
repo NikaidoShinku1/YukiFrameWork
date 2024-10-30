@@ -208,6 +208,8 @@ namespace YukiFrameWork.DiaLogue
             {
                 tree.onEnterCallBack.UnRegisterAllEvent();
                 tree.onExitCallBack.UnRegisterAllEvent();
+                tree.onCompletedCallBack.UnRegisterAllEvent();
+                tree.onFailedCallBack.UnRegisterAllEvent();
                 DiaLogKit.RemoveDiaLogue(DiaLogKey);
                 End();
             }           

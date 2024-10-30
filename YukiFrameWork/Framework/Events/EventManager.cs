@@ -9,12 +9,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEngine;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork.Events
 {
+    public enum EventRegisterType
+    {
+        Type,
+        String,
+        Enum,
+        AsyncType
+    }
     public class EventInfo
 	{
         private Dictionary<Type, IEasyEvent> eventPools = new Dictionary<Type, IEasyEvent>();
@@ -27,7 +35,10 @@ namespace YukiFrameWork.Events
 			{
 				value = new T();
 				eventPools[typeof(T)] = value;
-			}          
+#if UNITY_2022_1_OR_NEWER
+                value.RegisterType = EventRegisterType.Type;
+#endif
+            }          
 			return (T)value;
 		}
 
@@ -37,6 +48,9 @@ namespace YukiFrameWork.Events
             {
                 value = new T();
                 eventPools[typeof(T)] = value;
+#if UNITY_2022_1_OR_NEWER
+                value.RegisterType = EventRegisterType.AsyncType;
+#endif
             }
 
             return (T)value;
@@ -49,6 +63,9 @@ namespace YukiFrameWork.Events
             {
                 value = new T();
 				stringEventPools[name] = value;
+#if UNITY_2022_1_OR_NEWER
+                value.RegisterType = EventRegisterType.String;
+#endif
             }
 
             return (T)value;
@@ -60,6 +77,9 @@ namespace YukiFrameWork.Events
             {
                 value = new T();
 				enumEventPools[e] = value;
+#if UNITY_2022_1_OR_NEWER
+                value.RegisterType = EventRegisterType.Enum;
+#endif
             }
             return (T)value;
         }
@@ -103,12 +123,49 @@ namespace YukiFrameWork.Events
 
             return (T)value;
         }
+#if UNITY_2022_1_OR_NEWER
+        internal void RemoveEvent(IUnRegister unRegister)
+        {
+            switch (unRegister.RegisterType)
+            {
+                case EventRegisterType.Type:
+                    {
+                        var key = eventPools.Keys.FirstOrDefault(x => eventPools[x] == unRegister);
+                        if (key != null)
+                            eventPools[key]?.UnRegisterAllEvent();
+                    }
+                    break;
+                case EventRegisterType.String:
+                    {
+                        var key = stringEventPools.Keys.FirstOrDefault(x => stringEventPools[x] == unRegister);
+                        if (!key.IsNullOrEmpty())
+                            stringEventPools[key]?.UnRegisterAllEvent();
+                    }
+                    break;
+                case EventRegisterType.Enum:
+                    {
+                        var key = enumEventPools.Keys.FirstOrDefault(x => enumEventPools[x] == unRegister);
+                        if (key != null)
+                            enumEventPools[key]?.UnRegisterAllEvent();
+                    }
+                    break;
+                case EventRegisterType.AsyncType:
+                    {
+                        var key = asyncEventPools.Keys.FirstOrDefault(x => asyncEventPools[x] == unRegister);
+                        if (key != null)
+                            asyncEventPools[key]?.UnRegisterAllEvent();
+                    }
+                    break;             
+            }
+        }
+#endif
     }
 
     public static class EventManager
     {
         private static EventInfo eventInfo;
 
+        public static EventInfo Root => eventInfo;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Init_Inject_StaticMethod()
         {

@@ -60,7 +60,7 @@ namespace YukiFrameWork.Pilot
 			info.dataBase = this;
 			return info;
 		}
-
+#if UNITY_EDITOR
 		[Button("将配置导出json配表")]
 		void CreateFile(string filePath = "Assets/GuideData",string fileName = "guideData")
 		{
@@ -91,7 +91,7 @@ namespace YukiFrameWork.Pilot
 
 			OnEnable();
 		}
+#endif
 
-		
 	}
 }

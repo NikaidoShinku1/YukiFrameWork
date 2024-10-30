@@ -185,7 +185,13 @@ namespace XFABManager
             SelectProjectWindow selectProject = EditorWindow.GetWindow<SelectProjectWindow>("打包列表");
             selectProject.Show(); 
         }
-
+        private void OnFocus()
+        {
+            //Debug.Log("focus");
+            profileContent = null;
+            toolsContent = null;
+            showContent = null;
+        }
         #endregion
 
 

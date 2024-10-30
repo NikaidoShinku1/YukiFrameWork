@@ -107,7 +107,7 @@ namespace YukiFrameWork
                 { $"框架序列化工具/Json可视化器",JsonSerializeEditor.instance,SdfIconType.ViewList}
             };
 
-            foreach (var item in Resources.FindObjectsOfTypeAll<LocalizationConfig>())
+            foreach (var item in YukiAssetDataBase.FindAssets<LocalizationConfig>())
             {
                 tree.Add($"LocalizationConfig/{item.name}_{item.GetInstanceID()}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
             }
@@ -116,7 +116,7 @@ namespace YukiFrameWork
                 Type type = AssemblyHelper.GetType("YukiFrameWork.Item.ItemDataBase");
                 if (type != null)
                 {
-                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    foreach (var item in YukiAssetDataBase.FindAssets(type))
                     {
                         tree.Add($"ItemDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.Calendar2PlusFill);
                     }
@@ -129,7 +129,7 @@ namespace YukiFrameWork
                 Type type = AssemblyHelper.GetType("YukiFrameWork.Skill.SkillDataBase");
                 if (type != null)
                 {
-                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    foreach (var item in YukiAssetDataBase.FindAssets(type))
                     {
                         tree.Add($"SkillDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.StickiesFill);
                     }
@@ -142,7 +142,7 @@ namespace YukiFrameWork
                 Type type = AssemblyHelper.GetType("YukiFrameWork.Buffer.BuffDataBase");
                 if (type != null)
                 {
-                    foreach (var item in Resources.FindObjectsOfTypeAll(type))
+                    foreach (var item in YukiAssetDataBase.FindAssets(type))
                     {
                         tree.Add($"BuffDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.BagCheckFill);
                     }
