@@ -1,3 +1,28 @@
+## version 1.14.1 更新内容
+
+1.  添加GameObjectLoader预加载资源功能!
+
+## version 1.14.0 更新内容
+
+1. 删除部分类型加载资源的警告提示!
+
+## version 1.13.9 更新内容
+
+1. 修复 MacOS 系统编辑器模式创建项目报错!
+2. 优化 MacOS 系统编辑器模式修改bundle名称 显示不清晰!
+
+## version 1.13.8 更新内容
+
+1. 优化异步计算md5逻辑!
+
+## version 1.13.7 更新内容
+
+1. 修复GameObjectLoader异步加载资源没有进度的问题!
+
+## version 1.13.6 更新内容
+
+1. 优化GameObjectLoader加载逻辑!
+
 ## version 1.13.5 更新内容
 
 1. 优化场景进度!

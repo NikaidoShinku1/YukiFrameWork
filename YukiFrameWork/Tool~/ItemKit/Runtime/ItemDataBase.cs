@@ -23,24 +23,7 @@ namespace YukiFrameWork.Item
     {
         public abstract IItem[] Items { get; set; }
 #if UNITY_EDITOR
-
-        static List<ItemDataBase> FindAssets()
-        {
-            string[] guids = AssetDatabase.FindAssets($"t:{typeof(ItemDataBase)}");
-            List<ItemDataBase> items = new List<ItemDataBase>();
-            foreach (var item in guids)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(item);
-                if (path.IsNullOrEmpty()) continue;
-
-                ItemDataBase itemDataBase = AssetDatabase.LoadAssetAtPath<ItemDataBase>(path);
-                if (itemDataBase)
-                    items.Add(itemDataBase);
-
-            }
-
-            return items;
-        }
+       
         protected static ValueDropdownList<string> allItemTypes;
 
         internal static ValueDropdownList<string> AllItemTypes
@@ -55,7 +38,7 @@ namespace YukiFrameWork.Item
                 allItemTypes.Clear();
 
                 string[] guids = AssetDatabase.FindAssets($"t:{typeof(ItemDataBase)}");
-                var items = FindAssets();
+                var items = YukiAssetDataBase.FindAssets<ItemDataBase>();
                 foreach (var itemDataBase in items) {
 
                     foreach (var type in itemDataBase.mItemTypeDicts)
@@ -78,18 +61,29 @@ namespace YukiFrameWork.Item
         {
             InitItemTypeByDataBase();
         }
+
+        private void Reset()
+        {
+            InitItemTypeByDataBase();
+        }
 #if UNITY_EDITOR
         private void OnValidate()
         {
             InitItemTypeByDataBase();
-            var items = FindAssets();
+            var items = YukiAssetDataBase.FindAssets<ItemDataBase>();
+            YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
+            foreach (var item in items)
+            {
+                foreach (var dict in item.mItemTypeDicts)
+                {
+                    mItemTypeDicts[dict.Key] = dict.Value;
+                }
+            }
 
             foreach (var item in items)
             {
-                if (item.Equals(this)) continue;
                 item.mItemTypeDicts = mItemTypeDicts;
             }
-
         }
 #endif
         protected abstract void ResetItemType();
@@ -103,6 +97,7 @@ namespace YukiFrameWork.Item
                 mItemTypeDicts["Material"] = "材料";
                 mItemTypeDicts["Weapon"] = "武器";
             }
+           
         }
 
         [SerializeField, LabelText("物品的类型收集"), Searchable, DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "类型介绍"), BoxGroup("物品自定义")]

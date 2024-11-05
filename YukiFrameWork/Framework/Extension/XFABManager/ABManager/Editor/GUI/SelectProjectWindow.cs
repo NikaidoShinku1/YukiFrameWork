@@ -1,6 +1,6 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -53,7 +53,7 @@ public class SelectProjectWindow : EditorWindow
             {
                 foreach (var item in projectView.BuildProjects)
                 {
-                    ProjectBuild.Build(item, EditorUserBuildSettings.activeBuildTarget);
+                    ProjectBuild.Build(item, EditorUserBuildSettings.activeBuildTarget, item.revealInFinderOnBuildFinsh);
                 }
             }
 

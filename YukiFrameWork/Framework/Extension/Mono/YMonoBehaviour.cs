@@ -26,9 +26,7 @@ namespace YukiFrameWork
         protected virtual void Awake()
         {
             onAwake?.Invoke(transform);
-           
-        }
-
-        
+          
+        }       
     }
 }

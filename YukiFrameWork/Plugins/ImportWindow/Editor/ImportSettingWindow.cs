@@ -95,7 +95,8 @@ namespace YukiFrameWork.Extension
             ["Audio"] = packagePath + "/Tool~/Audio",
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",
             ["PilotKit"] = packagePath + "/Tool~/PilotKit",
-            ["NavMeshPlus"] = packagePath + "/Tool~/NavMeshPlus"
+            ["NavMeshPlus"] = packagePath + "/Tool~/NavMeshPlus",
+            ["MissionKit"] = packagePath + "/Tool~/MissionKit"
         };    
 
         void LoadData()
@@ -201,8 +202,8 @@ namespace YukiFrameWork.Extension
             DrawBoxGUI(Color.white, ImportWindowInfo.NavMeshPlusInfo
                 , MessageType.Info, string.Format("{0}/NavMeshPlus", data.path), "NavMeshPlus", moduleInfo["NavMeshPlus"]);
 
-            DrawBoxGUI(Color.white, ImportWindowInfo.GuideInfo
-                , MessageType.Info, string.Format("{0}/PilotKit", data.path), "PilotKit", moduleInfo["PilotKit"]);
+            DrawBoxGUI(Color.white, ImportWindowInfo.MissionInfo
+                , MessageType.Info, string.Format("{0}/MissionKit", data.path), "MissionKit", moduleInfo["MissionKit"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
             , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", moduleInfo["DiaLogKit"]); 
@@ -226,7 +227,12 @@ namespace YukiFrameWork.Extension
             , MessageType.Info, string.Format("{0}/ItemKit", data.path), "ItemKit", moduleInfo["ItemKit"]);
 
             DrawBoxGUI(Color.yellow, ImportWindowInfo.StateMechineInfo
-          , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", moduleInfo["StateMechine"]);
+            , MessageType.Warning, string.Format("{0}/StateMechine", data.path), "StateMechine", moduleInfo["StateMechine"]);
+
+
+            DrawBoxGUI(Color.yellow, ImportWindowInfo.GuideInfo
+                , MessageType.Warning, string.Format("{0}/PilotKit", data.path), "PilotKit", moduleInfo["PilotKit"]);
+
 
             EditorGUILayout.HelpBox(ImportWindowInfo.ImportAllModuleInfo, MessageType.Warning);
             EditorGUILayout.BeginHorizontal();

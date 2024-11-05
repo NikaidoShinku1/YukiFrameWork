@@ -23,9 +23,11 @@ namespace YukiFrameWork.Extension
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
 
-        public static string GuideInfo => !IsEN ? "通用引导模块，可以实现简单的引导系统" : "Universal boot module can realize simple boot system";
+        public static string GuideInfo => !IsEN ? "通用引导模块，可以实现简单的引导系统(暂时不完善，不推荐使用)" : "Universal boot module can realize simple boot system";
 
         public static string SaveToolInfo => !IsEN ? "框架存档工具，可用于数据的保存以及持久化" : "Framework SaveTool, which can be used for data preservation and persistence";
+
+        public static string MissionInfo => !IsEN ? "框架任务系统，基础通用式任务系统，拥有一键式分组管理以及生命周期，自定义加载，可自由拓展" : "Frame Mission Kit, basic universal Mission system, with one-click group management and life cycle, custom loading, can be freely expanded";
 
         public static string StateMechineInfo => !IsEN ? "(旧)状态机模块,可以实现对于状态的管理等操作,编辑器可视化(已停止更新,除非项目已经使用旧状态机开发，否则推荐使用新状态机StateManager模块!)" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization(Updates have stopped, and unless the project has been developed using the old state machine, the new StateManager module is recommended!)";
 

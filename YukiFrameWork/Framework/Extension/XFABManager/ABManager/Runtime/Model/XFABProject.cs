@@ -164,7 +164,11 @@ namespace XFABManager
         /// </summary>
         [HideInInspector]
         public string update_date; // 更新日期
-        
+
+        [Tooltip("打包完成后是否打开AssetBundle所在的文件夹?")]
+        [HideInInspector]
+        public bool revealInFinderOnBuildFinsh;
+
         /// <summary>
         /// AssetBundle打包选项
         /// </summary>

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using YukiFrameWork;
 namespace XFABManager {
 
@@ -35,10 +34,10 @@ namespace XFABManager {
             CoroutineStarter.Start(CheckPoolActive());
         }
 
-        private const int DETECTION_INTERVAL = 60; // 默认一分钟检测一次
+        private const int DETECTION_INTERVAL = 10; // 默认一分钟检测一次
 
 
-        private static Dictionary<int, GameObjectPool> allPools = new Dictionary<int, GameObjectPool>(); // key : prefab hash code value : pool
+        internal static Dictionary<int, GameObjectPool> allPools = new Dictionary<int, GameObjectPool>(); // key : prefab hash code value : pool
 
 
         private static Dictionary<int, int> allObjPoolMapping = new Dictionary<int, int>(); // key : obj hash code value : pool prefab hash code
@@ -56,10 +55,9 @@ namespace XFABManager {
         /// <returns></returns>
 
         public static GameObject Load(string projectName, string assetName, Transform parent = null)
-        {          
+        {   
             // 加载预制体
-            GameObject prefab = AssetBundleManager.LoadAssetWithoutTips<GameObject>(projectName, assetName);
-          
+            GameObject prefab = AssetBundleManager.LoadAssetWithoutTips<GameObject>(projectName, assetName); 
             return Load(prefab,parent);
         }
 
@@ -70,8 +68,9 @@ namespace XFABManager {
         /// <param name="assetName"></param>
         /// <returns></returns>
         public static GameObject Load(GameObject prefab, Transform parent = null)
-        {
+        { 
             if (!prefab) return null;
+
             GameObjectPool pool = GetOrCreatePool(prefab);
 
             GameObject obj = pool.Load(parent);
@@ -88,8 +87,7 @@ namespace XFABManager {
         /// </summary> 
         /// <returns></returns>
         public static GameObjectLoadRequest LoadAsync(string projectName,string assetName, Transform parent = null)
-        {
-            if (!EditorApplicationTool.isPlaying) return null;
+        { 
             GameObjectLoadRequest request = new GameObjectLoadRequest();
             CoroutineStarter.Start(request.LoadAsync(projectName, assetName, parent));
             return request;
@@ -110,15 +108,15 @@ namespace XFABManager {
             {
                 // 如果是编辑器非运行模式 直接销毁
                 if (obj)
-                    GameObject.Destroy(obj);
+                    GameObject.Destroy(obj); 
                 return;
             }
 
 #endif
 
             // 如果为空 或者 已经被销毁了，可以不用处理
-            if (!obj)
-                return;
+            if (!obj) return;
+
             int key = obj.GetHashCode();
             if (allObjPoolMapping.ContainsKey(key)) { 
                 int pool_key = allObjPoolMapping[key];
@@ -131,9 +129,8 @@ namespace XFABManager {
                 GameObject.Destroy(obj);
             
         }
-
-
-        private static GameObjectPool GetOrCreatePool(GameObject prefab) {
+  
+        internal static GameObjectPool GetOrCreatePool(GameObject prefab) {
 
             if (allPools.ContainsKey(prefab.GetHashCode())) {
                 return allPools[prefab.GetHashCode()];
@@ -151,7 +148,10 @@ namespace XFABManager {
                 // 检测池子中的游戏物体是否需要销毁  检测池子是否需要关闭
                 tempPools.Clear();
 
-                foreach (var pool in allPools.Values) { 
+                foreach (var pool in allPools.Values) 
+                {
+                    // 如果该池子不自动卸载 就不需要检测了
+                    if (!pool.IsAutoUnload) continue;
                     tempPools.Add(pool);
                 }
 
@@ -192,17 +192,54 @@ namespace XFABManager {
             }
         }
 
+        #region 预加载
+         
+        /// <summary>
+        /// 预加载
+        /// </summary>
+        /// <param name="projectName">模块名</param>
+        /// <param name="assetName">资源名</param>
+        public static void Preload(string projectName, string assetName)
+        {
+            Preload(projectName, assetName, true);
+        }
+
+        /// <summary>
+        /// 预加载
+        /// </summary>
+        /// <param name="projectName">模块名</param>
+        /// <param name="assetName">资源名</param>
+        /// <param name="autoUnload">是否自动卸载</param>
+        public static void Preload(string projectName, string assetName, bool autoUnload)
+        { 
+            GameObjectPreload.Preload(projectName, assetName, autoUnload);
+        }
+
+        public static void UnPreload(string projectName, string assetName)
+        {
+            GameObjectPreload.UnPreload(projectName, assetName);
+        }
+
+        public static bool IsPreloading() 
+        {
+            return GameObjectPreload.IsPreloading();
+        }
+
+        #endregion
+
+
+
     }
 
     public class GameObjectPool
     {
-        private const int DESTROY_TIME_OUT = 5 * 60; // 当游戏物体未被使用时 超过多少时间 会被销毁
+        private const int DESTROY_TIME_OUT = 1 * 60; // 当游戏物体未被使用时 超过多少时间 会被销毁
 
         /// <summary>
         /// 存放某一个预制体 创建的所有实例  key : obj hash code 
         /// </summary>
         private Dictionary<int,GameObjectInfo> allObjs = new Dictionary<int, GameObjectInfo>(); 
-        private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器         
+        private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器
 
         private GameObject prefab;
 
@@ -253,13 +290,33 @@ namespace XFABManager {
         {
             get 
             { 
+                // 如果不自动卸载 就不能关闭
+                if(!IsAutoUnload) return false;
+
                 return IsEmpty && Time.time - EmptyTime > DESTROY_TIME_OUT;
             }
         }
 
-        public GameObjectPool(GameObject prefab) {
-            if (prefab == null) throw new System.Exception("prefab is null!");
+        /// <summary>
+        /// 是否自动卸载
+        /// </summary>
+        internal bool IsAutoUnload { get; set; }
+
+        /// <summary>
+        /// 模块名
+        /// </summary>
+        internal string ProjectName { get; set; }
+
+        /// <summary>
+        /// 资源名
+        /// </summary>
+        internal string AssetName { get; set; }
+
+        public GameObjectPool(GameObject prefab) 
+        {
+            if (!prefab) throw new System.Exception("prefab is null!");
             this.prefab = prefab;
+            IsAutoUnload = true;
         }
 
         // 创建一个实例
@@ -287,7 +344,8 @@ namespace XFABManager {
                 GameObjectInfo info = new GameObjectInfo(obj);
                 allObjs.Add(info.Hash,info);
             }
-            obj.transform.SetParent(parent, false);
+            
+            obj.transform.SetParent(parent, false);  
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
@@ -296,7 +354,7 @@ namespace XFABManager {
 
         public void UnLoad(GameObject obj,bool parentStays = false)
         {
-            if (obj == null || obj.IsDestroy()) return;
+            if (!obj) return;
             int hash = obj.GetHashCode();
             if (!allObjs.ContainsKey(hash)) return;
 
@@ -372,11 +430,16 @@ namespace XFABManager {
                 GameObject.Destroy(_parent.gameObject); 
 
             _parent = null;
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+            Debug.LogFormat("GameObjectLoader 卸载资源:{0} asset:{1}", ProjectName, AssetName);
+#endif
         }
 
         public bool ContainsObject(int obj_hash_code) {
             return allObjs.ContainsKey(obj_hash_code);
-        }   
+        }
+
     }
 
     public struct GameObjectInfo 
@@ -394,16 +457,17 @@ namespace XFABManager {
             this.UnloadTime = Time.time;
             Hash = obj.GetHashCode();
         }
+    
 
 
-        public bool IsDestroy() 
-        { 
-            return Obj.IsDestroy();
+    }
+
+    public static class GameObjectInfoExtension
+    {
+        public static bool IsDestroy(this GameObjectInfo info)
+        {
+            return info.Obj.IsDestroy();
         }
-
-
-
-
     }
 
 

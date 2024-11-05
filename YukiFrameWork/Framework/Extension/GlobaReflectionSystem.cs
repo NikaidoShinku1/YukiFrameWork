@@ -269,7 +269,7 @@ namespace YukiFrameWork
         /// 直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter
         /// </summary>        
         [MethodAPI("直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter")]
-        public static void SetValue<T>(this T target, string parameterName,object value) where T : class
+        public static void SetValue<T>(this T target, string parameterName,object value)
         {
             Set<T>(target, value,parameterName);
         }

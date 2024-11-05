@@ -237,8 +237,7 @@ namespace YukiFrameWork
                     if (anyContainers.ContainsKey(containers[i]))
                         continue;
 
-                    Container container = new Container();
-                    container.Init();
+                    Container container = new Container();                    
                     anyContainers[containers[i]] = container;
                 }
             }

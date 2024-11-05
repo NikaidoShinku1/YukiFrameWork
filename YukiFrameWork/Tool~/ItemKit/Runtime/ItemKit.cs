@@ -106,7 +106,7 @@ namespace YukiFrameWork.Item
             var group = new SlotGroup(key);
             mSlotGroupDicts.Add(key, group);
             return group;
-        }
+        }      
 #if UNITY_2021_1_OR_NEWER
         public static SlotGroup RemoveSlotGroup(string key)
         {
@@ -230,6 +230,7 @@ namespace YukiFrameWork.Item
                     {
                         slotGroup.Slots[i].Item = item;
                         slotGroup.Slots[i].ItemCount = slot.itemCount;
+                       // slotGroup.Slots[i].
                         if (eventTrigger)
                             slotGroup.Slots[i].OnItemChanged.SendEvent();
                     }

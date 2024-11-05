@@ -29,7 +29,7 @@ namespace YukiFrameWork.Item
         [JsonIgnore]
 		public IReadOnlyList<Slot> Slots => slots;
 
-        private event Action OrderRefresh = null;
+        public Action OrderRefresh { get; set; } = null;
 
         public bool IsEmpty => slots.FirstOrDefault(x => x.Item != null) == null;
 
@@ -223,7 +223,7 @@ namespace YukiFrameWork.Item
         }
 
         /// <summary>
-        /// 将物品直接插入指定下标的插槽(如果物品是相同的则等同于添加的效果)
+        /// 将物品直接插入指定下标的插槽(如果物品是相同的以插入结果为准)
         /// </summary>
         /// <param name="itemKey"></param>
         /// <param name="addCount"></param>
@@ -233,14 +233,12 @@ namespace YukiFrameWork.Item
             if(!mCondition.Invoke(item))
                 return new ItemOperateResult() { Succeed = false ,RemainCount = addCount};
             Slot slot = slots[index];
-
-            if (slot.Item?.GetKey == item.GetKey)
-            {
-                return StoreItem(item,addCount);
-            }
-
             slot.ItemCount = 0;
             slot.Item = null;
+            if (slot.Item?.GetKey == item.GetKey)
+            {              
+                return StoreItem(item,addCount);
+            }           
             if (item.IsStackable && item.IsMaxStackableCount)
             {
                 if (addCount <= item.MaxStackableCount)                
@@ -327,6 +325,8 @@ namespace YukiFrameWork.Item
             if (slot.ItemCount >= removeCount)
             {
                 slot.ItemCount -= removeCount;
+                if (slot.ItemCount == 0)
+                    slot.Item = null;
                 slot.OnItemChanged.SendEvent();
                 return true;
             }

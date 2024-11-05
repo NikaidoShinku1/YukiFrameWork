@@ -10,7 +10,6 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 namespace YukiFrameWork
 {
 	
@@ -24,19 +23,24 @@ namespace YukiFrameWork
         {
             key = key.IsNullOrEmpty() ? typeof(T).Name : key;
 
-            Register<T>(new T(), key);
+            RegisterInstance<T>(new T(), key);
             
+        }
+
+        public Container()
+        {
+            Init();
         }
 
         public void Register(Type type,string key = "")
         {
             key = key.IsNullOrEmpty() ? type.Name : key;
             object instance = Activator.CreateInstance(type);
-            Register(type,key,instance);
+            RegisterInstance(type,key,instance);
 
         }
         private List<(Type,string)> releaseComponents = new List<(Type, string)>();
-        internal void Init()
+        private void Init()
         {
             MonoHelper.Update_AddListener(Update);
         }
@@ -46,8 +50,7 @@ namespace YukiFrameWork
             foreach (var type in mInstances.Keys)
             {
                 //如果不是组件，就不遍历
-                if (!type.IsSubclassOf(typeof(UnityEngine.Component))) continue;
-
+                if (!typeof(Component).IsAssignableFrom(type)) continue;
                 foreach (var key in mInstances[type].Keys)
                 {
                     object item = mInstances[type][key];
@@ -67,7 +70,7 @@ namespace YukiFrameWork
             for (int i = 0; i < releaseComponents.Count; i++)
             {
                 var item = releaseComponents[i];
-                UnRegister(item.Item1, item.Item2);
+                UnRegisterInstance(item.Item1, item.Item2);
             }
 
             releaseComponents.Clear();
@@ -76,10 +79,10 @@ namespace YukiFrameWork
         public void RegisterComponent<T>(T component,string key = "") where T : Component
         {
             key = key.IsNullOrEmpty() ? typeof(T).Name : key;
-            Register(typeof(T), key,component);
+            RegisterInstance(typeof(T), key,component);
         }
 
-        private void Register(Type type, string key,object value)
+        private void RegisterInstance(Type type, string key,object value)
         {
             if (mInstances.TryGetValue(type, out var dict))
             {
@@ -93,7 +96,7 @@ namespace YukiFrameWork
             dict[key] = value;
         }
 
-        public T Resolve<T>(string key = "") where T : class
+        public T ResolveInstance<T>(string key = "") where T : class
         {
             key = key.IsNullOrEmpty() ? typeof(T).Name : key;
             if (mInstances.TryGetValue(typeof(T), out var dict))
@@ -107,17 +110,18 @@ namespace YukiFrameWork
             return null;
         }     
 
-        public void Register<T>(T instance, string key = "") where T : class
+        public void RegisterInstance<T>(T instance, string key = "") where T : class
         {
-            Register(typeof(T), key, instance);
+            key = key.IsNullOrEmpty() ? typeof(T).Name : key;
+            RegisterInstance(typeof(T), key, instance);
         }
 
-        public bool UnRegister<T>(string key = "")
+        public bool UnRegisterInstance<T>(string key = "")
         {
-            return UnRegister(typeof(T), key);
+            return UnRegisterInstance(typeof(T), key);
         }
 
-        public bool UnRegister(Type type, string key = "")
+        public bool UnRegisterInstance(Type type, string key = "")
         {
             if (key.IsNullOrEmpty())
                 mInstances.Remove(type);
@@ -156,7 +160,7 @@ namespace YukiFrameWork
 
                 foreach (var key in instances.Keys)              
                 {
-                    UnRegister(type, key);
+                    UnRegisterInstance(type, key);
                 }
             }
         }

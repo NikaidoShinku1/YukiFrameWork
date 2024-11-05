@@ -17,7 +17,7 @@ namespace XFABManager{
 
         private Vector3 m_ScrollPosition;
 
-        private ValidBuildTarget buildTarget;
+        private BuildTarget buildTarget;
         //private ValidBuildTarget lastBuildTarget;
         GUIContent targetContent;
 
@@ -61,6 +61,9 @@ namespace XFABManager{
         // 更新信息
         private GUIContent updateMessageContent;
 
+        private bool revealInFinderOnBuildFinsh;
+        private GUIContent revealInFinderContent;
+
         private string update_date;
 
         // 更新信息
@@ -76,7 +79,7 @@ namespace XFABManager{
             this.window = window;
 
             targetContent = new GUIContent("Build Target", "请选择要打包的目标平台!");
-            buildTarget = (ValidBuildTarget)EditorUserBuildSettings.activeBuildTarget;
+            buildTarget = EditorUserBuildSettings.activeBuildTarget;
 
             //output_path = string.Format("{0}/{1}/{2}/{3}", project.out_path(b), project.name, project.version, buildTarget);
 
@@ -96,6 +99,8 @@ namespace XFABManager{
 
             updateMessageContent = new GUIContent("更新信息", "在这里可以填写本次更新了哪些内容!");
 
+            revealInFinderContent = new GUIContent("RevealInFinderOnBuildFinsh","打包完成后是否打开AssetBundle所在的文件夹?");
+
             //updateDateContent = new GUIContent("更新日期", "更新日期!");
 
             buildAssetBundleOption = new bool[project.buildAssetBundleOptions.Count];
@@ -109,7 +114,7 @@ namespace XFABManager{
             m_ScrollPosition = EditorGUILayout.BeginScrollView(m_ScrollPosition);
             EditorGUILayout.Space();
             // 构建的目标平台
-            buildTarget = (ValidBuildTarget)EditorGUILayout.EnumPopup(targetContent, buildTarget);
+            buildTarget = (BuildTarget)EditorGUILayout.EnumPopup(targetContent, buildTarget);
             EditorGUILayout.Space();
 
             // 输出路径
@@ -139,6 +144,8 @@ namespace XFABManager{
             DrawToggle(ref project.isCopyToStreamingAssets, ref isCopyToStreamingAssets, copyToStreamingAssetsContent);
             DrawToggle(ref project.isCompressedIntoZip, ref isCompressedIntoZip, compressedIntoZipContent);
             DrawToggle(ref project.isAutoPackAtlas, ref isAutoPackAtlas, isAutoPackAtlasContent);
+           
+
 
             if (project.isAutoPackAtlas)
             {
@@ -191,6 +198,9 @@ namespace XFABManager{
             GUILayout.EndHorizontal();
 
             GUILayout.Space(20);
+
+            DrawToggle(ref project.revealInFinderOnBuildFinsh, ref revealInFinderOnBuildFinsh, revealInFinderContent);
+
             GUILayout.BeginHorizontal();
 
             //GUILayout.Label(updateDateContent, GUILayout.Width(155));
@@ -275,7 +285,7 @@ namespace XFABManager{
 
         // 构建 AssetBundle
         public void Build() {
-            ProjectBuild.Build(project, (BuildTarget)buildTarget);
+            ProjectBuild.Build(project, (BuildTarget)buildTarget,project.revealInFinderOnBuildFinsh);
         }
 }
 

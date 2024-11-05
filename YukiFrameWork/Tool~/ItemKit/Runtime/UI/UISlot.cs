@@ -20,7 +20,7 @@ namespace YukiFrameWork.Item
 		public Text Count;
 
         public Slot Slot { get;private set; }
-
+      
         public UISlot InitSlot(Slot slot)
         {
             this.Slot?.OnItemChanged.UnRegister(UpdateView);
