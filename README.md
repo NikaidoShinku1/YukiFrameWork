@@ -9,6 +9,8 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 本框架YukiFrameWork上手教程：https://www.bilibili.com/video/BV14XVEe4ExG/?spm_id_from=333.788&vd_source=8d59e90cf24f9961527733c56cb61575
 
+框架交流qq群：215199720
+
 #### 安装教程
 
 特殊标记: 
@@ -41,7 +43,9 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 - 框架技能系统[SkillKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SkillKit/SkillKit.md)
 
-- 框架引导系统[PilotKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/PilotKit/PilotKit.md)
+- 框架任务系统[MissionKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionKit/MissionKit.md)
+
+- 框架引导系统(不完善，暂时不建议使用)[PilotKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/PilotKit/PilotKit.md)
 
 - 框架Debug拓展:[LogKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.控制台日志工具.md)
 
@@ -80,6 +84,8 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 - 资源管理模块:ABManager(模块原作者：弦小风,[模块详细信息](https://gitee.com/xianfengkeji/xfabmanager.git))
 
 - 框架支持插件:[Odin](https://odininspector.com/);
+
+- 框架支持插件:[NavMeshPlus](https://github.com/h8man/NavMeshPlus.git#master);
 
 #### 框架实战项目:
 
