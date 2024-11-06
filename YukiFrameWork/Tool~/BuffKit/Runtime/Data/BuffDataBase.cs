@@ -126,9 +126,10 @@ namespace YukiFrameWork.Buffer
 #endif
         
         private void OnValidate()
-        {          
+        {                     
             for (int i = 0; i < buffConfigs.Count; i++)
-            {              
+            {
+                if (buffConfigs[i])
                 buffConfigs[i].dataBase = this;
             }
         }

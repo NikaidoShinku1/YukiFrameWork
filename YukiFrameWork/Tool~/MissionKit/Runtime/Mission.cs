@@ -102,16 +102,17 @@ namespace YukiFrameWork.Missions
 		/// <summary>
 		/// 开始任务
 		/// </summary>
-		public void StartMission()
+		public bool StartMission()
 		{
 			if (Status != MissionStatus.Idle)
 			{
 				LogKit.W("任务已经处于执行中或者已经完成/失败了");
-				return;
+				return false;
 			}
             if (startingMissionCondition.Count != 0 && !CheckConditions(startingMissionCondition))
-                return;
+                return false;
             ChangeStatus(MissionStatus.Running);
+			return true;
         }
 
 		/// <summary>

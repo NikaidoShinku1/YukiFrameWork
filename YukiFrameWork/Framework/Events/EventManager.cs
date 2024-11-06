@@ -165,39 +165,7 @@ namespace YukiFrameWork.Events
     {
         private static EventInfo eventInfo;
 
-        public static EventInfo Root => eventInfo;
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Init_Inject_StaticMethod()
-        {
-            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
-
-            if (info == null)
-            {
-                throw new Exception("框架配置丢失！请检查Resources是否生成配置");
-            }
-
-            List<string> assemblies = new List<string>();
-            if (info.assemblies != null)
-                assemblies.AddRange(info.assemblies);
-            assemblies.Add(info.assembly);
-
-            try
-            {
-                var InjectedNameSpace = "YukiFrameWork";
-                var InjectedClazz = "Event_Builder";
-                foreach (var ass in assemblies)
-                {
-                    
-                    Assembly assembly = Assembly.Load(ass);
-                    Type registerType = AssemblyHelper.GetType($"{InjectedNameSpace}.{InjectedClazz}", assembly);
-                    if (registerType == null) continue;
-                    IEventBuilder builder = Activator.CreateInstance(registerType) as IEventBuilder;
-                    ///静态初始化
-                    builder.StaticInit();
-                }
-            }
-            catch(Exception ex) { LogKit.W(ex.ToString()); }
-        }
+        public static EventInfo Root => eventInfo;     
         static EventManager()
         {
             eventInfo = new EventInfo();

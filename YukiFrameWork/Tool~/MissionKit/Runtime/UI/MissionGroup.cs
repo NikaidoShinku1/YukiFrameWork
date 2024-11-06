@@ -49,7 +49,7 @@ namespace YukiFrameWork.Missions
 			return this;
 		}
 
-		public MissionGroup UnRegisterUIMissionInit(Action<UIMission> action)
+        public  MissionGroup UnRegisterUIMissionInit(Action<UIMission> action)
 		{
 			onUIMissionInit -= action;
 			return this;

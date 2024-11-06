@@ -91,6 +91,7 @@ namespace YukiFrameWork
             try
             {
                 Application.logMessageReceivedThreaded += OnLogByUnity;
+                Init();
             }
             catch { } 
         }
@@ -98,6 +99,8 @@ namespace YukiFrameWork
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Init()
         {
+            if (Inited) return;
+            if (!Application.isPlaying) return;
             if (config == null) return;
             if (config.saveDirPath.IsNullOrEmpty()) return;
 
@@ -106,8 +109,9 @@ namespace YukiFrameWork
             CheckFileSize();
 
             LogKit.I("获取日志文件输出路径:" + config.saveDirPath);
+            Inited = true;
         }
-
+        private static bool Inited = false;
         private static async void CheckFileSize()
         {
             ///防止运行时卡顿，真实时间三秒后执行

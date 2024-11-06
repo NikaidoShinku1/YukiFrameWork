@@ -14,7 +14,6 @@ using System.Linq;
 using System.Collections;
 namespace YukiFrameWork.Buffer
 {
-    [Serializable,HideMonoScript]
     public abstract class Buff : ScriptableObject, IBuff
     {
         [SerializeField, LabelText("Buff的唯一标识:"), InfoBox("该标识应唯一，不允许出现多个buff同标识的情况"),JsonProperty]

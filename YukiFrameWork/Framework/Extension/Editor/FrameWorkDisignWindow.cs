@@ -14,6 +14,7 @@ using YukiFrameWork.ExampleRule;
 using Sirenix.OdinInspector;
 using System;
 using System.Reflection;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using YukiFrameWork.JsonInspector;
@@ -200,8 +201,8 @@ namespace YukiFrameWork
                 tree.Add($"框架规则示例", example, SdfIconType.PersonRolodex);
             }
 
-            tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(), SdfIconType.AlarmFill);
-            tree.Add("框架说明文档", new FrameworkInfoByWindow(), SdfIconType.Bug);
+            // tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(), SdfIconType.AlarmFill);        
+            tree.Add("框架说明文档", new FrameworkInfoByWindow(), SdfIconType.Table);
             return tree;       
         }
         public static FrameWorkDisignWindow Instance;
@@ -228,6 +229,13 @@ namespace YukiFrameWork
                 fontStyle = FontStyle.Bold
 
             };
+            GUILayout.BeginVertical();
+            UnityEditor.EditorGUILayout.HelpBox("框架使用提示:当使用hybridclr等热更新插件时，可打开架构构造器脚本。\n因适配问题可将RuntimeInitializeOnLoadMethod特性注释，并在合适的时机手动调用ArchitectureConstructor.InitArchitecture()方法",MessageType.Warning);
+            if (GUILayout.Button("打开脚本",GUILayout.Width(100)))
+            {
+                AssetDatabase.OpenAsset(UnityEditor.AssetDatabase.LoadAssetAtPath<MonoScript>(ImportSettingWindow.packagePath + "/Framework/ViewController/" + nameof(ArchitectureConstructor) + ".cs"));
+            }
+            GUILayout.EndVertical();
             title.normal.textColor = Color.white;
             GUILayout.Label("YukiFramework", title);
             GUILayout.Label("工具教学链接");

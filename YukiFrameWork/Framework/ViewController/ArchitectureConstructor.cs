@@ -21,11 +21,16 @@ namespace YukiFrameWork
     public class ArchitectureConstructor : Singleton<ArchitectureConstructor>
     {
         private static object _object = new object();
+        private static bool isInited = false;
 #if UNITY_2020_1_OR_NEWER
+        /// <summary>
+        /// 当接入hybridclr等热更插件时，该特性可能出现无法正常使用的情况，可在项目中将该特性进行注释。手动调用ArchitectureConstructor.InitArchitecture()方法;
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        internal static void InitArchitecture()
+        public static void InitArchitecture()
         {
-            
+            if (isInited) return;
+            isInited = true;
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>("FrameworkConfigInfo");           
             lock (_object)
             {
@@ -35,11 +40,14 @@ namespace YukiFrameWork
                 {
                     Loading(name, true);
                 }     
-            }          
+            }
+
+            _ = ArchitectureConstructor.Instance;
         }
 
         public override void OnInit()
         {
+            InitArchitecture();
             MonoHelper.Destroy_AddListener(_ =>
             {
                 globalDicts.Clear();

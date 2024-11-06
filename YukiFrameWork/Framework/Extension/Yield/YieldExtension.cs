@@ -95,12 +95,18 @@ namespace YukiFrameWork
     {
         private static bool isInstall = false;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Install()
+        public static void Install()
         {
             if (isInstall) return;
             UnitySynchronizationContext = SynchronizationContext.Current;
             UnityThreadId = Thread.CurrentThread.ManagedThreadId;
             isInstall = true;
+        }
+
+        static SyncContext()
+        {
+            //如果没有生效则调用一次
+            Install();
         }
 
         private static SynchronizationContext synchronization;

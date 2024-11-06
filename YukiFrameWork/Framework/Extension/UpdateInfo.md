@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.29.2 公开架构初始化接口。优化部分代码细节，Odin插件新增Odin Validator。
+
 V1.29.1 框架新增任务系统。同步更新XFABManager，优化细节并支持GameObjectLoader预加载池。
 
 V1.28.15 优化背包系统，支持物品的插入与通过下标清空物品。优化细节，框架提供YMonoBehaviour基类支持可视化Awake注册。新增UIColor组件可以注册对Color的修改事件。
