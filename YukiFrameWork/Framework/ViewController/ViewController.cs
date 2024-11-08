@@ -31,8 +31,7 @@ namespace YukiFrameWork
         [SerializeField]
         private string assetPath = "Assets";
         [SerializeField]
-        private bool isCustomAssembly = false;
-
+        private bool isCustomAssembly = false;      
         private List<string> parents = new List<string>();
 
         private int selectIndex = 0;
@@ -47,8 +46,7 @@ namespace YukiFrameWork
         {
             get => completedFile;
             set => completedFile = value;
-        }            
-
+        }                
         public int AutoArchitectureIndex
         {
             get => autoArchitectureIndex;

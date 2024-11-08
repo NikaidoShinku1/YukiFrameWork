@@ -280,6 +280,8 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
             SelectArchitecture(Data);
             EditorGUILayout.Space();
+            SetFolderCreated(Data);
+            EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space(20);
@@ -312,6 +314,7 @@ namespace YukiFrameWork.Extension
         private void SelectParentClass(CustomData data)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
+           
             EditorGUILayout.LabelField(FrameWorkConfigData.ViewControllerParent,GUILayout.Width(120));
             data.SelectIndex = EditorGUILayout.Popup(data.SelectIndex, data.Parent.ToArray());
             EditorGUILayout.EndHorizontal();
@@ -319,10 +322,22 @@ namespace YukiFrameWork.Extension
         private void SelectArchitecture(CustomData Data)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
+            
             EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Select Architecture:" : "架构选择:", GUILayout.Width(120));
             Data.AutoArchitectureIndex = EditorGUILayout.Popup(Data.AutoArchitectureIndex, list.ToArray());
             EditorGUILayout.EndHorizontal();
-        }      
+        }
+
+        private string[] folderTip = new string[] { "开启", "关闭" };
+        private void SetFolderCreated(CustomData Data)
+        {
+            EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径",MessageType.Info);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
+            
+            EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Folder Separation:" : "文件夹分离:", GUILayout.Width(120));
+            Data.IsFolderCreateScripts = EditorGUILayout.Popup(Data.IsFolderCreateScripts ? 0 : 1, folderTip) == 0;
+            EditorGUILayout.EndHorizontal();
+        }
 
         private void GenericPartialScripts()
         {

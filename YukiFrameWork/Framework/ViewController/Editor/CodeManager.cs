@@ -272,6 +272,18 @@ namespace YukiFrameWork
                         AssetDatabase.Refresh();
                     }
 
+                    if (Data.IsFolderCreateScripts)
+                    {
+                        Data.ScriptPath = Data.ScriptPath + "/" + Data.ScriptName;
+                        if (!Directory.Exists(Data.ScriptPath))
+                        {
+                            Directory.CreateDirectory(Data.ScriptPath);
+                            AssetDatabase.Refresh();
+                        }
+                        scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
+
+                    }
+
                     if (File.Exists(scriptFilePath))
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
@@ -344,6 +356,19 @@ namespace YukiFrameWork
                         AssetDatabase.Refresh();
                     }
 
+                    if (Data.IsFolderCreateScripts)
+                    {
+                        Data.ScriptPath = Data.ScriptPath + "/" + Data.ScriptName;
+                        if (!Directory.Exists(Data.ScriptPath))
+                        {
+                            Directory.CreateDirectory(Data.ScriptPath);
+                            AssetDatabase.Refresh();
+                        }
+                        scriptFilePath = Data.ScriptPath + @"/" + Data.ScriptName + ".cs";
+
+                    }
+
+
                     if (File.Exists(scriptFilePath))
                     {
                         Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
@@ -402,31 +427,37 @@ namespace YukiFrameWork
         {
             if (GUILayout.Button("...", GUILayout.Width(40)))
             {
-                Data.ScriptPath = string.Empty;
-                string path = EditorUtility.OpenFolderPanel("", Data.ScriptPath, "");
 
-                bool append = false;
-
-                string[] values = path.Split('/');
-
-                for (int i = 0; i < values.Length; i++)
-                {
-                    if (values[i].Contains("Assets") || values[i] == "Assets")
-                    {
-                        append = true;
-                    }
-                    if (append)
-                    {
-                        if (i < values.Length - 1)
-                            Data.ScriptPath += values[i] + "/";
-                        else
-                            Data.ScriptPath += values[i];
-                    }
-
-                }
-
+                Data.ScriptPath = SelectFolder(Data.ScriptPath);
                 GUIUtility.ExitGUI();
             }
+        }
+
+        public static string SelectFolder(string targetPath)
+        {           
+            string path = EditorUtility.OpenFolderPanel("", targetPath, "");
+            string target = string.Empty;
+            bool append = false;
+
+            string[] values = path.Split('/');
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i].Contains("Assets") || values[i] == "Assets")
+                {
+                    append = true;
+                }
+                if (append)
+                {
+                    if (i < values.Length - 1)
+                        target += values[i] + "/";
+                    else
+                        target += values[i];
+                }
+
+            }
+
+            return target;
         }
         public static bool IsPlaying => Application.isPlaying;
 

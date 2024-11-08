@@ -125,6 +125,12 @@ namespace YukiFrameWork
 #endif
 
         }
+
+        [Button("打开高级生成窗口", ButtonHeight = 35), PropertySpace, ShowIf(nameof(SelectIndex), 0)]
+        private void OpenExpertWindow()
+        {
+            ExpertCodeConfigWindow.OpenWindow();
+        }
 #endif
 #endif
 #if UNITY_EDITOR

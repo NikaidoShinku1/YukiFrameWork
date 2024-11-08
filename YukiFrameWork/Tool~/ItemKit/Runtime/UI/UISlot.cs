@@ -43,7 +43,7 @@ namespace YukiFrameWork.Item
                     else Count.Hide();
                     Icon.Show();
 
-                    if (Slot.Item.GetIcon)
+                    if (Slot.Item?.GetIcon)
                     {
                         Icon.sprite = Slot.Item.GetIcon;
                     }

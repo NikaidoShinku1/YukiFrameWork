@@ -177,7 +177,7 @@ namespace YukiFrameWork.UI
             if (!path.IsNullOrEmpty())
                 Data.ScriptPath = path;
             EditorGUILayout.EndHorizontal();
-
+            SetFolderCreated(Data);
             EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
             CodeManager.GenericPanelScripts(Data,() => 
@@ -193,7 +193,17 @@ namespace YukiFrameWork.UI
             CodeManager.BindInspector(panel, panel, GenericPartialScripts);
 
         }
- 
+        private string[] folderTip = new string[] { "开启", "关闭" };
+        private void SetFolderCreated(UICustomData Data)
+        {
+            EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径", MessageType.Info);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
+
+            EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Folder Separation:" : "文件夹分离:", GUILayout.Width(120));
+            Data.IsFolderCreateScripts = EditorGUILayout.Popup(Data.IsFolderCreateScripts ? 0 : 1, folderTip) == 0;
+            EditorGUILayout.EndHorizontal();
+        }
+
         private void GenericPartialScripts()
         {
             BasePanel panel = target as BasePanel;

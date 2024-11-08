@@ -26,6 +26,7 @@ namespace YukiFrameWork.Extension
     
         public static Type GetType(string typeName,Assembly assembly = default)
         {          
+            if(string.IsNullOrEmpty(typeName))return null;
             if (typeDict.TryGetValue(typeName, out var type))
             {
                 return type;
