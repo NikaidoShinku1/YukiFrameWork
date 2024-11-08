@@ -331,7 +331,7 @@ namespace YukiFrameWork.Extension
         private string[] folderTip = new string[] { "开启", "关闭" };
         private void SetFolderCreated(CustomData Data)
         {
-            EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径",MessageType.Info);
+            EditorGUILayout.HelpBox(!FrameWorkConfigData.IsEN ? "开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径" : "If this function is enabled, a folder to save the script is automatically generated and the path is synchronized when the script is built", MessageType.Info);
             EditorGUILayout.BeginHorizontal(GUILayout.Width(400));
             
             EditorGUILayout.LabelField(FrameWorkConfigData.IsEN ? "Folder Separation:" : "文件夹分离:", GUILayout.Width(120));

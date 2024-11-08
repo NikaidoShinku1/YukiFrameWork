@@ -168,10 +168,13 @@ namespace YukiFrameWork
                     EditorGUILayout.HelpBox("在高级设置中，Controller层级生成非ViewController版本，ViewController请使用组件方式添加", MessageType.Info);
                 }
                 config.levelInterface = EditorGUILayout.Toggle("是否以接口形式继承", config.levelInterface);
-                if (config.levelInterface && config.ParentType != ParentType.Controller)
+                if (config.ParentType != ParentType.Controller)
                 {
-                    config.customInterface = EditorGUILayout.Toggle("是否自定义接口存在:", config.customInterface);
-                    config.IsScruct = EditorGUILayout.Toggle("是否是结构体", config.IsScruct);
+                    config.customInterface = EditorGUILayout.Toggle("是否自定义接口派生:", config.customInterface);
+                    if (config.levelInterface)
+                    {
+                        config.IsScruct = EditorGUILayout.Toggle("是否是结构体", config.IsScruct);
+                    }
                 }
             }
             else config.levelInterface = false;
@@ -181,6 +184,8 @@ namespace YukiFrameWork
                 if (architectures.Count > 0)
                     config.architecture = architectures[selectIndex];
             }
+            EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径", MessageType.Info);
+            config.FoldExport = EditorGUILayout.ToggleLeft("文件夹分离", config.FoldExport);
             config.IsOpenExpertCode = EditorGUILayout.ToggleLeft("开启字段高级注入模式:",config.IsOpenExpertCode);
             EditorGUILayout.Space(15);
             if (config.IsOpenExpertCode)
@@ -208,6 +213,14 @@ namespace YukiFrameWork
             {
                 if (GUILayout.Button("生成脚本",GUILayout.Height(30)))
                 {
+                    if (config.FoldExport)
+                    {
+                        if (!config.FoldPath.EndsWith("/") || !config.FoldPath.EndsWith(@"\"))
+                        {
+                            config.FoldPath += "/";
+                        }
+                        config.FoldPath += config.Name;
+                    }
                     drawCode.BuildFile(config).CreateFileStream(config.FoldPath,config.Name,".cs");
                 }
             }

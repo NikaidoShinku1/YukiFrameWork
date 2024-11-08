@@ -152,6 +152,9 @@ namespace YukiFrameWork
 		[HideInInspector]
 		public bool IsOpenExpertCode;
 
+		[HideInInspector]
+		public bool FoldExport;
+
 #if UNITY_EDITOR
 		[ValueDropdown(nameof(AllAssemblies))]
 #endif
@@ -266,9 +269,9 @@ namespace YukiFrameWork
             string className = config.Name.Substring(0, 1).ToUpper() + config.Name.Substring(1);
             if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility)
 			{
-				if (config.levelInterface && config.customInterface)
+				if (config.customInterface)
 				{
-                    builder.AppendLine($"    public interface I{className} : {parentName}");
+                    builder.AppendLine($"    public interface I{className} : I{config.ParentType}");
                     builder.AppendLine("    {");
                     builder.AppendLine("");
                     builder.AppendLine("    }");
@@ -290,7 +293,7 @@ namespace YukiFrameWork
 
                 }
             }		
-            builder.AppendLine($"    public {(structClass ? "struct" : "class")} {className} : {parentName}{(inter ? ",I" + className : "")}");
+            builder.AppendLine($"    public {(structClass ? "struct" : "class")} {className}{(config.ParentType != ParentType.None ? " :" : "")} {parentName}{(inter ? ",I" + className : "")}");
 			builder.AppendLine("    {");
 			foreach (var field in config.fieldDatas)
 			{
@@ -324,7 +327,10 @@ namespace YukiFrameWork
 				builder.AppendLine("");
 				builder.AppendLine("        }");
 			}
-			else if (parentName == nameof(IModel) || parentName == nameof(ISystem) || parentName == nameof(IController))
+			else if (config.ParentType == ParentType.Model 
+				|| config.ParentType == ParentType.System 
+				|| config.ParentType == ParentType.Utility 
+				|| config.ParentType == ParentType.Controller)
 			{
 				if (parentName == nameof(IModel) || parentName == nameof(ISystem))
 				{
@@ -338,13 +344,16 @@ namespace YukiFrameWork
                     builder.AppendLine("");
                     builder.AppendLine("        }");
                 }
-				builder.AppendLine();
-				builder.AppendLine("        IArchitecture IGetArchitecture.GetArchitecture()");
-				builder.AppendLine("        {");
-				builder.AppendLine($"            {(architectureType == null ? "return null;" : $"return {architectureType}.Global;")}");
-				builder.AppendLine("        }");
-                builder.AppendLine();
-				if (parentName != nameof(IController))
+				if (config.ParentType != ParentType.Utility && config.levelInterface)
+				{
+					builder.AppendLine();
+					builder.AppendLine("        IArchitecture IGetArchitecture.GetArchitecture()");
+					builder.AppendLine("        {");
+					builder.AppendLine($"            {(architectureType == null ? "return null;" : $"return {architectureType}.Global;")}");
+					builder.AppendLine("        }");
+					builder.AppendLine();
+				}
+				if (config.ParentType != ParentType.Controller && config.ParentType != ParentType.Utility && config.levelInterface)
 				{
 					builder.AppendLine("        void ISetArchitecture.SetArchitecture(IArchitecture architecture)");
 					builder.AppendLine("        {");
