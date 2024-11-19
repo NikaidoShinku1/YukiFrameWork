@@ -13,6 +13,7 @@ using System;
 using System.Reflection;
 using YukiFrameWork.Pools;
 using YukiFrameWork.Events;
+using System.Collections.Generic;
 namespace YukiFrameWork
 {
     public interface IEasyEvent : IUnRegister
@@ -23,8 +24,11 @@ namespace YukiFrameWork
     public interface IEventArgs 
     {
         
-    }  
-
+    }
+    public interface IUnRegiserList
+    {
+        List<IUnRegister> UnRegisters { get; }
+    }
     public interface IUnRegister
     {
         void UnRegisterAllEvent();

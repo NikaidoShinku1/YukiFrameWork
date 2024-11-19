@@ -12,7 +12,7 @@ namespace YukiFrameWork
         {
             onEvent.SendEvent(eventData);
 
-        }
+        }         
     }
 
     public static class BindDragEventTriggerExtension

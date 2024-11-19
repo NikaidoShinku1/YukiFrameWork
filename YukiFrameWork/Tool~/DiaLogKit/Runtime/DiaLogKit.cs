@@ -44,6 +44,16 @@ namespace YukiFrameWork.DiaLogue
         static DiaLogKit()
         {            
             diaLogController = new Dictionary<string, DiaLog>();
+            if (Application.isPlaying)
+            {
+                MonoHelper.Destroy_AddListener(_ =>
+                {
+                    foreach (var item in diaLogController.Values)
+                    {
+                        item.GlobalRelease();
+                    }
+                });
+            }
         }
 
         public static void Init(string projectName)
@@ -170,7 +180,7 @@ namespace YukiFrameWork.DiaLogue
             if (isInited) return;
             isInited = true;
             this.DiaLogKey = key;
-            this.tree = nodeTree.Instantiate();
+            this.tree = nodeTree;
         
             MonoHelper.Update_AddListener(Update);
             MonoHelper.FixedUpdate_AddListener(FixedUpdate);

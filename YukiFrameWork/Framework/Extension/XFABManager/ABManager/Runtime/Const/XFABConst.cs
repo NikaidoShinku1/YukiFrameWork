@@ -21,6 +21,9 @@ public class XFABConst
 
     public const string asset_bundle_mapping = "AssetBundleNameMapping.txt";
 
+    [Tooltip("资源名称与AssetBundle名称的映射(升级版)")]
+    public const string asset_bundle_mapping_upgrade = "AssetBundleNameMappingUpgrade.txt";
+
     /// <summary>
     /// 后缀信息
     /// </summary>

@@ -172,39 +172,56 @@ namespace YukiFrameWork.Missions
         /// </summary>
         private static Dictionary<string, Type> missions_runtime_condition_dicts = new Dictionary<string, Type>();
 
-        public static IReadOnlyDictionary<string, Type> Missions_runtime_condition_dicts => missions_runtime_condition_dicts;
+        public static IReadOnlyDictionary<string, Type> Missions_runtime_condition_dicts => missions_runtime_condition_dicts;    
 
-        public static void LoadMissionConfig<T>(T configBase) where T : MissionConfigBase
+        public static void LoadMissionConfig(MissionConfigBase configBase)
         {
             var missions = configBase.Missions;
 
             foreach (var dict in configBase.mMissionParams_dict)
-                AddParam(dict.Key,dict.Value);
-            
+                AddParam(dict.Key, dict.Value);
+
             foreach (var item in missions)
                 AddMissionData(item);
         }
 
-        public static void LoadMissionConfig<T>(string path) where T : MissionConfigBase
+        public static void LoadMissionConfig(string path)
         {
-            LoadMissionConfig(loader.Load<T>(path));
+            LoadMissionConfig(loader.Load<MissionConfigBase>(path));
         }
 
         [DisableEnumeratorWarning]
-        public static IEnumerator LoadMissionConfigAsync<T>(string path) where T : MissionConfigBase
+        public static IEnumerator LoadMissionConfigAsync(string path)
         {
             bool completed = false;
-            loader.LoadAsync<T>(path, item => {
-                LoadMissionConfig<T>(item);
+            loader.LoadAsync<MissionConfigBase>(path, item => {
+                LoadMissionConfig(item);
                 completed = true;
             });
 
             yield return CoroutineTool.WaitUntil(() => completed);
         }
 
+        /// <summary>
+        /// 添加新的任务参数。但需要手动查找任务数据并为数据中的参数标识同步添加，如果希望一次性解决这个问题，可以调用MissionKit.AddParam(string key, string missionKey, MissionParam missionParam)方法
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="param"></param>
         public static void AddParam(string key, MissionParam param)
         {
             missions_runtime_params[key] = param;
+        }
+
+        /// <summary>
+        /// 添加新的任务参数，并会为指定的任务数据添加新的参数标识
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="missionKey"></param>
+        /// <param name="missionParam"></param>
+        public static void AddParam(string key, string missionKey, MissionParam missionParam)
+        {
+            AddParam(key, missionParam);
+            missions_runtime_dicts[missionKey].MissionParams.Add(key);
         }
         [Serializable]
         public class Mission_Runtime_Data
@@ -223,7 +240,7 @@ namespace YukiFrameWork.Missions
                     data = new List<Mission_Runtime_Data>();
                 }
 
-                data = group.Value.Missions.Select(x => 
+                data = group.Value.Mission_Dicts.Select(x => 
                 {
                     return new Mission_Runtime_Data()
                     {

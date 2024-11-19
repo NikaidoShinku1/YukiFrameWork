@@ -14,14 +14,16 @@ using System.Collections.Generic;
 using System.Linq;
 using YukiFrameWork.Extension;
 
-
 #if UNITY_EDITOR
+using Sirenix.Utilities;
 using UnityEditor;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 namespace YukiFrameWork
 {
 	public class ExpertCodeConfigWindow : EditorWindow
 	{
+        //AttributesExampleWindow
 		[MenuItem("YukiFrameWork/" + nameof(ExpertCodeConfigWindow),false,-1000)]
 		public static void OpenWindow()
 		{
@@ -33,7 +35,10 @@ namespace YukiFrameWork
             config = Resources.Load<ExpertCodeConfig>(nameof(ExpertCodeConfig));
             if (!config)
                 throw new Exception("配置丢失");
-
+            foreach (var window in Resources.FindObjectsOfTypeAll<ExpertCodeShowWindow>())
+            {
+                window.Close();
+            }
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
             if (!info) return;
             if (info.nameSpace != config.NameSpace)
@@ -41,7 +46,7 @@ namespace YukiFrameWork
             childWindowRect = new Rect(position.x, position.y, 200, 100);
             architectures.Clear();
             architectures.Add("None");
-            List<string> assemblies = config.configInfo.assemblies.ToList();
+            List<string> assemblies = config.configInfo.assemblies.ToList(); 
             assemblies.Add(config.configInfo.assembly);
 
             foreach (var item in assemblies)
@@ -161,28 +166,50 @@ namespace YukiFrameWork
             EditorGUILayout.EndHorizontal();
             config.Name = EditorGUILayout.TextField("脚本名称:" ,config.Name);
             config.ParentType = (ParentType)EditorGUILayout.EnumPopup("继承规则:", config.ParentType);
-            if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Controller)
+            if (config.ParentType != ParentType.Architecture)
             {
-                if (config.ParentType == ParentType.Controller)
+                if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Controller)
                 {
-                    EditorGUILayout.HelpBox("在高级设置中，Controller层级生成非ViewController版本，ViewController请使用组件方式添加", MessageType.Info);
-                }
-                config.levelInterface = EditorGUILayout.Toggle("是否以接口形式继承", config.levelInterface);
-                if (config.ParentType != ParentType.Controller)
-                {
-                    config.customInterface = EditorGUILayout.Toggle("是否自定义接口派生:", config.customInterface);
-                    if (config.levelInterface)
+                    if (config.ParentType == ParentType.Controller)
                     {
-                        config.IsScruct = EditorGUILayout.Toggle("是否是结构体", config.IsScruct);
+                        EditorGUILayout.HelpBox("在高级设置中，Controller层级生成非ViewController版本，ViewController请使用组件方式添加", MessageType.Info);
+                    }
+                    config.levelInterface = EditorGUILayout.Toggle("是否以接口形式继承", config.levelInterface);
+                    if (config.ParentType != ParentType.Controller)
+                    {
+                        config.customInterface = EditorGUILayout.Toggle("是否自定义接口派生:", config.customInterface);
+                        if (config.levelInterface)
+                        {
+                            config.IsScruct = EditorGUILayout.Toggle("是否是结构体", config.IsScruct);
+                        }
                     }
                 }
+                else config.levelInterface = false;
+                if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Controller)
+                {
+                    selectIndex = EditorGUILayout.Popup("注册架构选择", selectIndex, architectures.ToArray());
+                    if (architectures.Count > 0)
+                        config.architecture = architectures[selectIndex];
+                }
+
+                if (config.ParentType == ParentType.ScriptableObject)
+                {
+                    config.soFileName = EditorGUILayout.TextField("创建so文件名:", config.soFileName);
+                    if (config.soFileName.IsNullOrEmpty())
+                        config.soFileName = config.Name;
+                    config.soMenuName = EditorGUILayout.TextField("创建so菜单名:", config.soMenuName);
+                    if (config.soMenuName.IsNullOrEmpty())
+                        config.soMenuName = "YukiFrameWork/" + config.soFileName;
+                }
+                else
+                {
+                    config.soFileName = string.Empty;
+                    config.soMenuName = string.Empty; 
+                }
             }
-            else config.levelInterface = false;
-            if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Controller)
+            else
             {
-                selectIndex = EditorGUILayout.Popup("注册架构选择", selectIndex, architectures.ToArray());
-                if (architectures.Count > 0)
-                    config.architecture = architectures[selectIndex];
+                
             }
             EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径", MessageType.Info);
             config.FoldExport = EditorGUILayout.ToggleLeft("文件夹分离", config.FoldExport);
@@ -192,7 +219,7 @@ namespace YukiFrameWork
             {
                 odinEditor ??= OdinEditor.CreateEditor(config, typeof(OdinEditor)) as OdinEditor;
                 odinEditor.OnInspectorGUI();
-            }
+            }          
             string targetPath = config.FoldPath + "/" + config.Name + ".cs";
             if (System.IO.File.Exists(targetPath))
             {
@@ -207,30 +234,48 @@ namespace YukiFrameWork
                     MonoScript monoScript = AssetDatabase.LoadAssetAtPath<MonoScript>(targetPath);
                     AssetDatabase.OpenAsset(monoScript);
                 }
+                if (GUILayout.Button("更新脚本", GUILayout.Height(30)))
+                {
+                    CreateOrUpdateCode(false);
+                }
                 EditorGUILayout.EndVertical();
             }
             else
             {
                 if (GUILayout.Button("生成脚本",GUILayout.Height(30)))
                 {
-                    if (config.FoldExport)
-                    {
-                        if (!config.FoldPath.EndsWith("/") || !config.FoldPath.EndsWith(@"\"))
-                        {
-                            config.FoldPath += "/";
-                        }
-                        config.FoldPath += config.Name;
-                    }
-                    drawCode.BuildFile(config).CreateFileStream(config.FoldPath,config.Name,".cs");
-                }
-            }
+                    CreateOrUpdateCode(true);
+                }               
+            }           
+
+            
             EditorGUILayout.EndVertical();
            
             if(EditorGUI.EndChangeCheck())
                 config.Save();
             EditorGUILayout.EndScrollView();
         }
-
+        private void CreateOrUpdateCode(bool tickPath = false)
+        {
+            if (config.FoldExport && tickPath)
+            {
+                if (!config.FoldPath.EndsWith("/") || !config.FoldPath.EndsWith(@"\"))
+                {
+                    config.FoldPath += "/";
+                }
+                config.FoldPath += config.Name;
+            }
+            string text = drawCode.BuildFile(config).ToString();
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.BackgroundColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.IdentifierColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.KeywordColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.LiteralColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.StringLiteralColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.CommentColor)}>", string.Empty);
+            text = text.Replace($"<color=#{ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.StringLiteralColor)}>", string.Empty);
+            text = text.Replace("</color>", string.Empty);
+            text.CreateFileStream(config.FoldPath, config.Name, ".cs");
+        }
         private void OnDisable()
         {           
             if (showWindow)
@@ -277,29 +322,35 @@ namespace YukiFrameWork
             if (GUILayout.Button("刷新", GUILayout.Width(200)))
             {
                 text = drawCode.BuildFile(Instance.config).ToString();
+                Repaint();
             }
             EditorGUILayout.EndVertical();
+            if (codeTextStyle == null)
+            {
+                codeTextStyle = new GUIStyle(SirenixGUIStyles.MultiLineLabel);
+                codeTextStyle.normal.textColor = ExpertCodeConfig.TextColor;
+                codeTextStyle.active.textColor = ExpertCodeConfig.TextColor;
+                codeTextStyle.focused.textColor = ExpertCodeConfig.TextColor;
+                codeTextStyle.wordWrap = false;
+            }
             scrollRect = EditorGUILayout.BeginScrollView(scrollRect);
-            EditorGUILayout.BeginVertical();
-            GUILayout.TextArea(config.Name.IsNullOrEmpty()  ? "请输入文件名称以预览脚本" : text, "FrameBox");
+            var textRect = EditorGUILayout.BeginVertical();
+            EditorGUI.DrawRect(textRect, SirenixGUIStyles.BorderColor);
+            Vector2 vector = codeTextStyle.CalcSize(text);
+            Rect position = GUILayoutUtility.GetRect(vector.x + 50f, vector.y).AddXMin(4f).AddY(2f);
+            EditorGUI.SelectableLabel(position,config.Name.IsNullOrEmpty()  ? "请输入文件名称以预览脚本" : text,codeTextStyle);
             EditorGUILayout.EndVertical();
             EditorGUILayout.EndScrollView();
         }
-        
+        private GUIStyle codeTextStyle;
+  
         private void OnInspectorUpdate()
         {
             if (!Instance) return;
 
             position = new Rect(targetX, targetY, position.width, position.height);
             Repaint();
-        }
-
-        private void OnDisable()
-        {
-            if (Instance && Instance.showWindow == this)
-                Instance.showWindow = null;
-                
-        }
+        }       
     }
 }
 #endif

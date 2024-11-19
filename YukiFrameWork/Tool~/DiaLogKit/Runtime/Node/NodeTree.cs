@@ -323,6 +323,10 @@ namespace YukiFrameWork.DiaLogue
         {
             Undo.RecordObject(this, "Node Tree (DeleteNode)");
             nodes.Remove(node);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].nodeId = (1000) + (i + 1);
+            }
             Undo.DestroyObjectImmediate(node);
             AssetDatabase.SaveAssets();
             return node;

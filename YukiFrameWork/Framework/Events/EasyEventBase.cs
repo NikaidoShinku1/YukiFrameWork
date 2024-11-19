@@ -28,7 +28,8 @@ namespace YukiFrameWork
 #endif
         public abstract IUnRegister RegisterEvent(T onEvent);
         public abstract void UnRegister(T onEvent);
-        public virtual void UnRegisterAllEvent() => OnEasyEvent = null;  
+        public virtual void UnRegisterAllEvent() => OnEasyEvent = null;
+        
     }
     public abstract class ListenerAttribute : Attribute
     {

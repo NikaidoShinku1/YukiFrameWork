@@ -86,7 +86,7 @@ public class TestCondition : IMissionCondition
 |--|--|
 |-- Property API|属性API|
 |string GroupKey|任务的分组标识|
-|IReadOnlyDictionary<string,Mission> Missions|已经构建的所有任务基类|
+|IReadOnlyDictionary<string,Mission> Mission_Dicts|已经构建的所有任务基类|
 |event Func<IMissionData,bool> addMissionCondition|添加任务的条件，默认是True|
 |string[] AllMissionsKey|获取所有的任务标识|
 |-- Method API|-- Method API|

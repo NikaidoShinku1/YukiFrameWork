@@ -29,6 +29,8 @@ namespace YukiFrameWork.Extension
 
         public static string MissionInfo => !IsEN ? "框架任务系统，基础通用式任务系统，拥有一键式分组管理以及生命周期，自定义加载，可自由拓展" : "Frame Mission Kit, basic universal Mission system, with one-click group management and life cycle, custom loading, can be freely expanded";
 
+        public static string BehaviourTreeInfo => !IsEN ? "框架行为树模块，可以实现对复杂AI的设计，复合节点的打断以及Json序列化" : "The behavior tree module can realize the design of complex AI, the interruption of composite nodes and the Json serialization";
+
         public static string StateMechineInfo => !IsEN ? "(旧)状态机模块,可以实现对于状态的管理等操作,编辑器可视化(已停止更新,除非项目已经使用旧状态机开发，否则推荐使用新状态机StateManager模块!)" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization(Updates have stopped, and unless the project has been developed using the old state machine, the new StateManager module is recommended!)";
 
         public static string StateManagerInfo => !IsEN ? "全新状态机模块，在旧状态机之上，全面支持对于动作状态的设计，可完美兼容实现基础动作游戏设计，编辑器可视化" : "The new state machine module, on top of the old state machine, fully supports the design of the action state, which can be perfectly compatible with the basic action game design and editor visualization";

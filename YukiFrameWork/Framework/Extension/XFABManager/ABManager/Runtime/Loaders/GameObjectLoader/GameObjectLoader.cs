@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic; 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using YukiFrameWork;
 namespace XFABManager {
 
@@ -93,14 +94,19 @@ namespace XFABManager {
             return request;
         }
 
+        [Obsolete("已过时,请使用Unload(GameObject obj) 代替!")]
+        public static void UnLoad(GameObject obj, bool parentStays = false) 
+        {
+            UnLoad(obj);
+        }
+
         /// <summary>
         /// 回收或销毁某一个游戏物体，如果这个游戏物体是通过GameObjectLoader加载的, 则会放到缓存池中回收, 如果不是则会直接销毁
         /// 被回收的游戏物体如果超过五分钟没有使用会被销毁
         /// </summary>
         /// <param name="obj">待回收的游戏物体</param>
-        /// <param name="parentStays">是否保持父节点不变</param>
         /// <exception cref="System.Exception"></exception>
-        public static void UnLoad(GameObject obj, bool parentStays = false)
+        public static void UnLoad(GameObject obj)
         {
 #if UNITY_EDITOR
 
@@ -118,10 +124,11 @@ namespace XFABManager {
             if (!obj) return;
 
             int key = obj.GetHashCode();
-            if (allObjPoolMapping.ContainsKey(key)) { 
+            if (allObjPoolMapping.ContainsKey(key))
+            { 
                 int pool_key = allObjPoolMapping[key];
                 if (allPools.ContainsKey(pool_key))
-                    allPools[pool_key].UnLoad(obj, parentStays);
+                    allPools[pool_key].UnLoad(obj);
                 else
                     throw new System.Exception(string.Format("未查询到池子:{0}",pool_key));
             }
@@ -241,6 +248,9 @@ namespace XFABManager {
         private Dictionary<int,GameObjectInfo> allObjs = new Dictionary<int, GameObjectInfo>(); 
         private List<GameObjectInfo> tempList = new List<GameObjectInfo>(); // 临时容器
 
+        // 存放无效的Obj
+        private List<int> invalidObjs = new List<int>();
+
         private GameObject prefab;
 
         private static Transform _GameObjectLoaderParent;
@@ -263,21 +273,21 @@ namespace XFABManager {
 
         public GameObject Prefab => prefab;
 
-        private Transform Parent
-        {
-            get {
+        //private Transform Parent
+        //{
+        //    get {
 
-                if (_parent == null)
-                {
-                    GameObject obj = new GameObject(string.Format("{0}:{1}",prefab.name,prefab.GetHashCode()));
-                    obj.transform.SetParent(GameObjectLoaderParent, false);
-                    _parent = obj.transform;
-                }
+        //        if (_parent == null)
+        //        {
+        //            GameObject obj = new GameObject(string.Format("{0}:{1}",prefab.name,prefab.GetHashCode()));
+        //            obj.transform.SetParent(GameObjectLoaderParent, false);
+        //            _parent = obj.transform;
+        //        }
 
-                return _parent;
-            }
+        //        return _parent;
+        //    }
 
-        }
+        //}
 
         public bool IsEmpty => allObjs.Count == 0;
 
@@ -324,12 +334,23 @@ namespace XFABManager {
         {
 
             GameObject obj = null;
+
+
+            invalidObjs.Clear();
+
             // 先找一个不在使用中的
 
             foreach (var item in allObjs.Keys)
             {
                 GameObjectInfo info = allObjs[item];
-                if (!info.IsDestroy() && !info.IsInUse)
+
+                if (!info.Obj) 
+                {
+                    invalidObjs.Add(item);
+                    continue;
+                }
+
+                if (!info.IsInUse)
                 {
                     obj = info.Obj; 
                     info.IsInUse = true; 
@@ -337,6 +358,12 @@ namespace XFABManager {
                     break;
                 }
             }
+
+            foreach (var item in invalidObjs)
+            {
+                allObjs.Remove(item);
+            }
+
              
             if (obj == null)
             {
@@ -349,10 +376,19 @@ namespace XFABManager {
             obj.transform.localEulerAngles = Vector3.zero;
             obj.transform.localPosition = Vector3.zero;
             obj.SetActive(true);
+
+            // 如果父节点不为空 把当前游戏物体设置为最后一个节点
+            if(obj.transform.parent)
+                obj.transform.SetAsLastSibling();
+
+            // 把游戏物体移动到当前活跃的场景中
+            //if(obj.transform.parent == null && obj.scene != SceneManager.GetActiveScene())
+            //    SceneManager.MoveGameObjectToScene(obj,SceneManager.GetActiveScene());
+
             return obj;
         }
 
-        public void UnLoad(GameObject obj,bool parentStays = false)
+        public void UnLoad(GameObject obj)
         {
             if (!obj) return;
             int hash = obj.GetHashCode();
@@ -361,10 +397,7 @@ namespace XFABManager {
             GameObjectInfo info = allObjs[hash];
 
             if (info.IsInUse == false) return; // 说明已经 Unload 了
-
-            if(!parentStays)
-                info.Obj.transform.SetParent(Parent, false);
-
+             
             info.Obj.SetActive(false);
             info.IsInUse = false;
             info.UnloadTime = Time.time;
@@ -442,7 +475,7 @@ namespace XFABManager {
 
     }
 
-    public struct GameObjectInfo 
+    public class GameObjectInfo 
     {
         public GameObject Obj { get; set; } // 游戏物体对象
         public float UnloadTime { get; set; } // 回收的事件
@@ -457,17 +490,16 @@ namespace XFABManager {
             this.UnloadTime = Time.time;
             Hash = obj.GetHashCode();
         }
-    
 
 
-    }
-
-    public static class GameObjectInfoExtension
-    {
-        public static bool IsDestroy(this GameObjectInfo info)
-        {
-            return info.Obj.IsDestroy();
+        public bool IsDestroy() 
+        { 
+            return Obj.IsDestroy();
         }
+
+
+
+
     }
 
 

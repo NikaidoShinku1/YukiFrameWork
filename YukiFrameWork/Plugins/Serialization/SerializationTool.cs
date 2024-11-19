@@ -158,7 +158,6 @@ namespace YukiFrameWork.Extension
             return jsons;
         }
 
-#if UNITY_EDITOR
         /// <summary>
         /// 可以快捷创建该字符串的文件流
         /// </summary>
@@ -177,7 +176,9 @@ namespace YukiFrameWork.Extension
             if (!Directory.Exists(filePath))
             {
                 Directory.CreateDirectory(filePath);
+#if UNITY_EDITOR
                 AssetDatabase.Refresh();
+#endif
             }
             if (!suffix.StartsWith("."))
             {
@@ -201,9 +202,10 @@ namespace YukiFrameWork.Extension
                 streamWriter.Close();
                 stream.Close();
             }
+#if UNITY_EDITOR
             AssetDatabase.Refresh();
+#endif
             return true;
         }
-#endif
     }
 }

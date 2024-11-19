@@ -8,14 +8,14 @@ namespace YukiFrameWork
     [Serializable]
     public class SerializeCollisionUnityEvent<T>
     {
-        [SerializeField, LabelText("检测层级")]
+        [SerializeField, LabelText("检测层级(仅碰撞器有效)")]
         public LayerMask layerMask;
         [SerializeField, LabelText("可视化注册事件")]
         public UnityEvent<T> onUnityEvent;        
     }
     public abstract class MonoAPI<T> : DefaultAPI<EasyEvent<T>,Action<T>>
     {
-        [SerializeField,LabelText("碰撞检测可视")]
+        [SerializeField,LabelText("可视化注册")]
         protected SerializeCollisionUnityEvent<T> onUnityEvent = new SerializeCollisionUnityEvent<T>();        
         public override IUnRegister Register(Action<T> callBack) => onEvent.RegisterEvent(callBack);
 
@@ -24,6 +24,6 @@ namespace YukiFrameWork
             Register(OnTrigger);              
         }
 
-        protected virtual void OnTrigger(T t) { }
+        protected virtual void OnTrigger(T t) { onUnityEvent.onUnityEvent?.Invoke(t); }
     }
 }

@@ -30,6 +30,11 @@ namespace YukiFrameWork
                 EditorUtility.DisplayDialog("提示", "文件:Assets/Resources/FrameworkConfigInfo.asset 是架构的配置文件,不能删除!否则无法正确初始化架构!", "确定");
                 return AssetDeleteResult.FailedDelete;
             }
+            else if (assetPath.StartsWith("Assets/Resources/ExpertCodeConfig"))
+            {
+                EditorUtility.DisplayDialog("提示", "文件:Assets/Resources/ExpertCodeConfig.asset 是架构的配置文件,不能删除!否则无法正确构建高级脚本设置!", "确定");
+                return AssetDeleteResult.FailedDelete;
+            }
             else if (assetPath.Contains("Sirenix"))
             {
                 EditorUtility.DisplayDialog("提示", "文件夹:Sirenix 是框架依赖的编辑器拓展,不能删除!否则无法正确使用框架!", "确定");

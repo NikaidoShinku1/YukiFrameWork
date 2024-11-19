@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -7,11 +8,12 @@ using System.Text;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
-
+using UnityEditor.SceneManagement; 
 #endif
+
 using UnityEngine; 
 using UnityEngine.SceneManagement;
+using YukiFrameWork.Extension;
 //using UnityEngine.SceneManagement;
 
 namespace XFABManager
@@ -56,27 +58,31 @@ namespace XFABManager
 
     public class AssetBundleManager
     {
-
-        [RuntimeInitializeOnLoadMethod]
-        static void Init(){
+  
+        [RuntimeInitializeOnLoadMethod()]
+        static void Init() 
+        {  
             Initialize();
             CoroutineStarter.Start(AutomaticResourceClearing());
             CoroutineStarter.Start(AutoUnloadScene());
         }
 
-        #region 字段 
+        #region 常量
 
         public const int AutomaticResourceClearingTime = 300; // 默认5分钟检测一次
 
         private const int AutoUnloadSceneTimeInterval = 60; // 默认 1分钟
         private const int AutoUnloadSceneTimeOuttime = 600; // 默认 10分钟
 
+        #endregion
+
+        #region 字段 
+
+
         /// <summary>
         /// 存放所有的 AssetBundle
         /// </summary>
         private static Dictionary<string, Dictionary<string, AssetBundle>> assetBundles = new Dictionary<string, Dictionary<string, AssetBundle>>();
-
-        private static List<SceneObject> unloadedSceneObjects = new List<SceneObject>();
 
         /// <summary>
         /// 某一个 AssetBundle 被依赖的引用
@@ -92,6 +98,9 @@ namespace XFABManager
 
         private static Dictionary<string, Dictionary<string, string>> AssetBundleNameMapping = new Dictionary<string, Dictionary<string, string>>();
 
+        [Tooltip("AssetBundleNameMapping 升级版")]
+        private static Dictionary<string, Dictionary<string, Dictionary<Type, string>>> AssetBundleNameMappingUpgrade = new Dictionary<string, Dictionary<string, Dictionary<Type, string>>>();
+         
         /// <summary>
         /// 当前加载的bundle 对应加载了哪些资源
         /// </summary>
@@ -106,8 +115,8 @@ namespace XFABManager
         internal static IServerFilePath ServerFilePath { get;private set; }
 
         private static AssetBundle dependenceBundle = null;
-        private static string dependenceProjectName = string.Empty;   
-
+        private static string dependenceProjectName = string.Empty;
+  
         /// <summary>
         /// 不能重复的异步操作的缓存 
         /// </summary>
@@ -137,6 +146,8 @@ namespace XFABManager
 #endif
 
         private static Dictionary<string, string> secrets = new Dictionary<string, string>();
+
+        private static List<SceneObject> unloadedSceneObjects = new List<SceneObject>();
 
         #endregion
 
@@ -173,11 +184,13 @@ namespace XFABManager
         /// </summary>
         /// <returns></returns>
         private static void Initialize()
-        {
-            assetBundles.Clear();
+        { 
+            // 数据清空
+            assetBundles.Clear(); 
             dependence_assetbundles.Clear();
             depnecnce_deleted_bundles.Clear();
             AssetBundleNameMapping.Clear();
+            AssetBundleNameMappingUpgrade.Clear();
             bundle_assets.Clear();
             bundle_sub_assets.Clear();
             dependenceBundle = null;
@@ -187,6 +200,7 @@ namespace XFABManager
             asset_hash_project_name.Clear();
             secrets.Clear();
             unloadedSceneObjects.Clear();
+             
             // 初始化 获取项目版本接口 
             SetGetProjectVersion<GetProjectVersionDefault>(); 
             // 初始化服务器文件路径接口
@@ -197,11 +211,12 @@ namespace XFABManager
             SceneManager.sceneUnloaded += OnSceneUnloaded;
         }
 
-        private static void OnSceneUnloaded(Scene scene)
+        private static void OnSceneUnloaded(Scene scene) 
         {
             SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
             unloadedSceneObjects.Add(s);
         }
+
 
         #region 更新和下载资源
 
@@ -787,7 +802,7 @@ namespace XFABManager
         /// 异步加载子资源
         /// </summary>
         [System.Obsolete("该方法已经过时,将会在未来的版本中移除,请使用AssetBundleManager.LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) 代替!")]
-        public static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsync<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
+        public static LoadAssetsRequest LoadAssetWithSubAssetsAsync<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name))
@@ -845,7 +860,7 @@ namespace XFABManager
         /// <summary>
         /// 异步加载某个类型的所有资源
         /// </summary>
-        public static LoadAssetsRequest<T> LoadAllAssetsAsync<T>(string projectName, string bundleName) where T : UnityEngine.Object
+        public static LoadAssetsRequest LoadAllAssetsAsync<T>(string projectName, string bundleName) where T : UnityEngine.Object
         {
             return LoadAllAssetsAsyncInternal<T>(projectName,bundleName);
         }
@@ -887,13 +902,13 @@ namespace XFABManager
         public static T LoadAsset<T>(string projectName , string assetName) where T : UnityEngine.Object
         {
 
-            if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T)))
-            {
-                if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T)))
+            //{
+            //    if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
+            //    else
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
 
@@ -911,13 +926,13 @@ namespace XFABManager
         public static UnityEngine.Object LoadAsset(string projectName, string assetName, Type type)
         {
 
-            if (LoaderTips.AllLoaderTips.ContainsKey(type))
-            {
-                if (LoaderTips.AllLoaderTips[type].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            //{
+            //    if (LoaderTips.AllLoaderTips[type].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+            //    else
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, assetName, type);
             if (string.IsNullOrEmpty(bundle_name)) {
@@ -966,12 +981,12 @@ namespace XFABManager
         public static LoadAssetRequest<T> LoadAssetAsync<T>(string projectName, string assetName) where T : UnityEngine.Object
         {
 
-            if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T))) {
-                if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
-                else 
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T))) {
+            //    if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
+            //    else 
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name)) {
@@ -982,13 +997,13 @@ namespace XFABManager
         }
         public static LoadAssetRequest LoadAssetAsync(string projectName, string assetName, Type type)
         {
-            if (LoaderTips.AllLoaderTips.ContainsKey(type))
-            {
-                if (LoaderTips.AllLoaderTips[type].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            //{
+            //    if (LoaderTips.AllLoaderTips[type].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+            //    else
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, assetName, type);
             if (string.IsNullOrEmpty(bundle_name)) { 
@@ -999,7 +1014,7 @@ namespace XFABManager
         }
 
         // 异步加载资源 
-        internal static LoadAssetRequest LoadAssetAsyncWithoutTips<T>(string projectName, string assetName) where T : UnityEngine.Object
+        internal static LoadAssetRequest<T> LoadAssetAsyncWithoutTips<T>(string projectName, string assetName) where T : UnityEngine.Object
         {
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name))
@@ -1044,13 +1059,13 @@ namespace XFABManager
         /// <exception cref="Exception"></exception>
         public static UnityEngine.Object LoadSubAsset(string projectName, string mainAssetName, string subAssetName, Type type) {
 
-            if (LoaderTips.AllLoaderTips.ContainsKey(type))
-            {
-                if (LoaderTips.AllLoaderTips[type].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            //{
+            //    if (LoaderTips.AllLoaderTips[type].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+            //    else
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, mainAssetName, type);
             if (string.IsNullOrEmpty(bundle_name)) 
@@ -1079,45 +1094,34 @@ namespace XFABManager
         /// <param name="mainAssetName">主资源名称</param>
         /// <param name="subAssetName">子资源名称</param>
         /// <returns></returns>
-        public static LoadSubAssetRequest<T> LoadSubAssetAsync<T>(string projectName, string mainAssetName, string subAssetName) where T : UnityEngine.Object
+        public static LoadSubAssetRequest LoadSubAssetAsync<T>(string projectName, string mainAssetName, string subAssetName)where T : UnityEngine.Object
         {
-            if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T)))
-            {
-                if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[typeof(T)].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[typeof(T)].tips);
-            }
-
-            string bundle_name = GetBundleName(projectName, mainAssetName, typeof(T));
-            if (string.IsNullOrEmpty(bundle_name))
-                return null;
-            return LoadSubAssetAsyncInternal<T>(projectName, bundle_name, mainAssetName, subAssetName);
+            return LoadSubAssetAsync(projectName, mainAssetName, subAssetName, typeof(T));
         }
 
-            /// <summary>
-            /// 异步加载子资源
-            /// </summary>
-            /// <param name="projectName">资源模块名称</param>
-            /// <param name="mainAssetName">主资源名称</param>
-            /// <param name="subAssetName">子资源名称</param>
-            /// <param name="type">类型</param>
-            /// <returns></returns>
-            /// <exception cref="Exception"></exception>
-            public static LoadSubAssetRequest LoadSubAssetAsync(string projectName, string mainAssetName, string subAssetName,Type type) 
+        /// <summary>
+        /// 异步加载子资源
+        /// </summary>
+        /// <param name="projectName">资源模块名称</param>
+        /// <param name="mainAssetName">主资源名称</param>
+        /// <param name="subAssetName">子资源名称</param>
+        /// <param name="type">类型</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static LoadSubAssetRequest LoadSubAssetAsync(string projectName, string mainAssetName, string subAssetName, Type type) 
         {
-            if (LoaderTips.AllLoaderTips.ContainsKey(type))
-            {
-                if (LoaderTips.AllLoaderTips[type].IsThrowException)
-                    throw new Exception(LoaderTips.AllLoaderTips[type].tips);
-                else
-                    Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
-            }
+            //if (LoaderTips.AllLoaderTips.ContainsKey(type))
+            //{
+            //    if (LoaderTips.AllLoaderTips[type].IsThrowException)
+            //        throw new Exception(LoaderTips.AllLoaderTips[type].tips);
+            //    else
+            //        Debug.LogWarning(LoaderTips.AllLoaderTips[type].tips);
+            //}
 
             string bundle_name = GetBundleName(projectName, mainAssetName, type);
             if (string.IsNullOrEmpty(bundle_name)) 
                 return null; 
-            return LoadSubAssetAsyncInternal(projectName, bundle_name,mainAssetName,subAssetName,type);
+            return LoadSubAssetAsyncInternal(projectName, bundle_name,mainAssetName,subAssetName, type);
         }
 
 
@@ -1172,7 +1176,7 @@ namespace XFABManager
         /// <summary>
         /// 异步加载资源及所有子资源
         /// </summary>
-        public static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) where T : UnityEngine.Object
+        public static LoadAssetsRequest LoadAssetWithSubAssetsAsync<T>(string projectName , string assetName) where T : UnityEngine.Object
         {
             string bundle_name = GetBundleName(projectName, assetName, typeof(T));
             if (string.IsNullOrEmpty(bundle_name)) { 
@@ -1217,7 +1221,7 @@ namespace XFABManager
         /// <param name="projectName"></param>
         /// <param name="sceneName"></param>
         /// <param name="mode"></param>
-        [Obsolete("该方法已过时,请使用LoadSceneAsynchrony代替!")]
+        [Obsolete("该方法已过时,请使用AssetBundleManager.LoadSceneAsynchrony代替!")]
         public static AsyncOperation LoadSceneAsync(string projectName , string sceneName, LoadSceneMode mode)
         {
             string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
@@ -1229,15 +1233,15 @@ namespace XFABManager
         }
 
         public static LoadSceneRequest LoadSceneAsynchrony(string projectName, string sceneName, LoadSceneMode mode)
-        {
-            string key = string.Format("LoadSceneAsynchrony:{0}_{1}", projectName, sceneName);
+        { 
+            string key = string.Format("LoadSceneAsynchrony:{0}_{1}",projectName,sceneName);
 
             return ExecuteOnlyOnceAtATime<LoadSceneRequest>(key, () =>
             {
                 LoadSceneRequest request = new LoadSceneRequest();
                 CoroutineStarter.Start(request.LoadSceneAsyncInternal(projectName, sceneName, mode));
                 return request;
-            });
+            }); 
         }
 
         #endregion
@@ -1256,6 +1260,7 @@ namespace XFABManager
         // 加载资源
         internal static UnityEngine.Object LoadAssetInternal(string projectName, string bundleName, string assetName, Type type)
         {
+
             if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(bundleName) || string.IsNullOrEmpty(assetName))
             {
                 return null;
@@ -1364,11 +1369,9 @@ namespace XFABManager
             return null;
         }
 
-        internal static LoadSubAssetRequest<T> LoadSubAssetAsyncInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName ) where T : UnityEngine.Object
+        internal static LoadSubAssetRequest LoadSubAssetAsyncInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName )
         {
-            LoadSubAssetRequest<T> request = new LoadSubAssetRequest<T>();
-            CoroutineStarter.Start(request.LoadSubAssetAsync(projectName, bundleName, mainAssetName, subAssetName, typeof(T)));
-            return request;
+            return LoadSubAssetAsyncInternal(projectName,bundleName,mainAssetName,subAssetName,typeof(T));
         }
 
         internal static LoadSubAssetRequest LoadSubAssetAsyncInternal(string projectName, string bundleName, string mainAssetName, string subAssetName,Type type) 
@@ -1418,9 +1421,9 @@ namespace XFABManager
         /// <summary>
         /// 异步加载子资源
         /// </summary>
-        internal static LoadAssetsRequest<T> LoadAssetWithSubAssetsAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
+        internal static LoadAssetsRequest LoadAssetWithSubAssetsAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
-            LoadAssetsRequest<T> request = new LoadAssetsRequest<T>();
+            LoadAssetsRequest request = new LoadAssetsRequest();
             //CoroutineStarter.Start(request.LoadAssetWithSubAssetsAsync<T>(projectName, bundleName, assetName));
             CoroutineStarter.Start(request.LoadAssetWithSubAssetsAsync(projectName, bundleName, assetName, typeof(T)));
             return request;
@@ -1521,9 +1524,9 @@ namespace XFABManager
         /// <summary>
         /// 异步加载某个类型的所有资源
         /// </summary>
-        internal static LoadAssetsRequest<T> LoadAllAssetsAsyncInternal<T>(string projectName, string bundleName) where T : UnityEngine.Object
+        internal static LoadAssetsRequest LoadAllAssetsAsyncInternal<T>(string projectName, string bundleName) where T : UnityEngine.Object
         {
-            LoadAssetsRequest<T> request = new LoadAssetsRequest<T>();
+            LoadAssetsRequest request = new LoadAssetsRequest();
             //CoroutineStarter.Start(request.LoadAllAssetsAsync<T>(projectName, bundleName));
             CoroutineStarter.Start(request.LoadAllAssetsAsync(projectName, bundleName, typeof(T)));
             return request;
@@ -1549,7 +1552,7 @@ namespace XFABManager
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
-                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);      
+                XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
                 string asset_path = bundle.GetAssetPathByFileName(sceneName, typeof(SceneObject)); 
                 EditorSceneManager.LoadSceneInPlayMode(asset_path, new LoadSceneParameters() { loadSceneMode = mode });
                 return;
@@ -1558,17 +1561,21 @@ namespace XFABManager
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
             // 加载场景所在 AB
             LoadAssetBundle(projectName, bundle_name);
+
+            
             // 加载场景
             SceneManager.LoadScene(sceneName, mode);
+             
 
             for (int i = 0; i < SceneManager.sceneCount; i++)
             {
                 Scene scene = SceneManager.GetSceneAt(i);
                 if (!scene.IsValid()) continue;
                 if (scene.name != sceneName) continue;
-                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());              
+                SceneObject s = new SceneObject(scene.name, scene.GetHashCode());
                 AddAssetCache(projectName, bundleName, s);
             }
+ 
         }
 
         // UnityEditor.SceneAsset
@@ -1629,7 +1636,9 @@ namespace XFABManager
 
             if(!bundle_assets[projectName][bundleName].ContainsKey(asset.GetHashCode()))
                 bundle_assets[projectName][bundleName].Add(asset.GetHashCode(),asset);
-           
+
+            //Debug.LogFormat("add catch bundleName:{0} count:{1} hash:{2}",bundleName,bundle_assets[projectName][bundleName].Count, asset.GetHashCode());
+            
             if (!asset_hash_project_name.ContainsKey(asset_hash)) 
                 asset_hash_project_name.Add(asset_hash, projectName);
         }
@@ -1710,6 +1719,8 @@ namespace XFABManager
                 if(asset_hash_project_name.ContainsKey(asset_hash_code))
                     asset_hash_project_name.Remove(asset_hash_code);
 
+                //Debug.LogFormat("bundleName:{0} count:{1}",bundleName,bundle_assets[projectName][bundleName].Count);
+
                 if (bundle_assets[projectName][bundleName].Count == 0) {
                     if (IsHaveInUseAssetBundleDependence(projectName, bundleName)) return; // 如果这个assetbundle 被别人依赖 则不能卸载
                     bundle_assets[projectName].Remove(bundleName);
@@ -1741,7 +1752,7 @@ namespace XFABManager
 
             Dictionary<string, List<string>> need_remove_bundles = new Dictionary<string, List<string>>();
             Dictionary<string, List<string>> not_unload_bundles = new Dictionary<string, List<string>>();  // 保存本应该卸载 但是因为被别人引用没有卸载的bundle
-
+             
             while (true) {
 
                 need_remove_bundles.Clear();
@@ -1793,8 +1804,9 @@ namespace XFABManager
             }   
         }
 
-        private static IEnumerator AutoUnloadScene()
-        {
+        private static IEnumerator AutoUnloadScene() 
+        { 
+
             while (true)
             {
                 yield return new WaitForSeconds(AutoUnloadSceneTimeInterval); // 1
@@ -1810,10 +1822,9 @@ namespace XFABManager
                         i--;
                         UnloadAsset(scene);
                     }
-                }
-            }
+                } 
+            }    
         }
-
 
         #endregion
 
@@ -2235,30 +2246,64 @@ namespace XFABManager
 
         internal static string GetBundleName(string projectName,string assetName, Type type) 
         {
+
             if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(assetName))
                 return string.Empty;
+
 #if UNITY_EDITOR
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
                 //Debug.Log(projectName+" getfromeditor " + assetName);
                 // 从 Asset 查询 BundleName
-                XFABProject project = XFABProjectManager.Instance.GetProject(projectName);
-                string asset_name_key = AssetBundleTools.GetAssetNameWithType(assetName, type);
+                XFABProject project = XFABProjectManager.Instance.GetProject(projectName); 
 
-                if (project != null && project.AssetBundleNameMappingWithTypeEditorLoad.ContainsKey(asset_name_key))
-                    return project.AssetBundleNameMappingWithTypeEditorLoad[asset_name_key];
-                else
-                    return String.Empty;
+                if (project != null && project.AssetBundleNameMappingWithTypeEditorLoad.ContainsKey(assetName)) 
+                {
+                    Dictionary<Type, string> types = project.AssetBundleNameMappingWithTypeEditorLoad[assetName];
+
+                    if (types.TryGetValue(type, out string name))
+                    {
+                        return name;
+                    }
+                    if (types.ContainsKey(type))
+                        return types[type];                  
+                    else
+                    {
+                        foreach (var t in types.Keys)
+                        {
+                            if (t.IsSubclassOf(type))
+                                return types[t];
+                        } 
+                    } 
+                }
+                
+                return string.Empty;
             }
 #endif
-            if ( !AssetBundleNameMapping.ContainsKey(projectName) ) {
+            // 优先从新的配置中获取
+            string bundleName = GetBundleNameUpgrade(projectName, assetName, type);
+            if(string.IsNullOrEmpty(bundleName))
+                bundleName = GetBundleNameOld(projectName, assetName, type); // 如果新的配置获取不到 尝试去旧的配置中获取
+
+            return bundleName;
+        }
+
+        // 兼容旧版本
+        internal static string GetBundleNameOld(string projectName, string assetName, Type type)
+        {
+
+            if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(assetName))
+                return string.Empty;
+             
+            if (!AssetBundleNameMapping.ContainsKey(projectName))
+            {
                 Dictionary<string, string> map = new Dictionary<string, string>();
                 string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
                 // 如果数据目录没有这个文件 尝试从内置目录获取
-                if(!File.Exists(mapping_path))
+                if (!File.Exists(mapping_path))
                     mapping_path = XFABTools.BuildInDataPath(projectName, XFABConst.asset_bundle_mapping);
 
-                if (File.Exists(mapping_path) )
+                if (File.Exists(mapping_path))
                 {
                     string[] datas = File.ReadAllLines(mapping_path);
                     foreach (var item in datas)
@@ -2273,9 +2318,77 @@ namespace XFABManager
             string asset_key = AssetBundleTools.GetAssetNameWithType(assetName, type);
 
             if (!AssetBundleNameMapping[projectName].ContainsKey(asset_key))
-                return string.Empty; 
+                return string.Empty;
 
             return AssetBundleNameMapping[projectName][asset_key];
+        }
+
+        // 新的
+        internal static string GetBundleNameUpgrade(string projectName, string assetName, Type type) 
+        {
+            if (string.IsNullOrEmpty(projectName) || string.IsNullOrEmpty(assetName))
+                return string.Empty;
+
+            if (!AssetBundleNameMappingUpgrade.ContainsKey(projectName))
+            {
+                Dictionary<string, Dictionary<Type, string>> map = new Dictionary<string, Dictionary<Type, string>>();
+
+                string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping_upgrade);
+                // 如果数据目录没有这个文件 尝试从内置目录获取
+                if (!File.Exists(mapping_path))
+                    mapping_path = XFABTools.BuildInDataPath(projectName, XFABConst.asset_bundle_mapping_upgrade);
+
+                if (File.Exists(mapping_path))
+                {
+
+                    Dictionary<string, Dictionary<string, string>> mappings = new Dictionary<string, Dictionary<string, string>>();
+
+                    string content = File.ReadAllText(mapping_path);
+
+                    try
+                    {
+                        mappings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(content);
+                        foreach (var asset_name in mappings.Keys)
+                        {
+                            foreach (var full_name in mappings[asset_name].Keys)
+                            {
+                                if (!map.ContainsKey(asset_name))
+                                    map.Add(asset_name, new Dictionary<Type, string>());
+                                
+                                Type t = AssemblyHelper.GetType(full_name);
+
+                                if (t == null) continue;
+
+                                if (map[asset_name].ContainsKey(t)) continue;
+
+                                map[asset_name].Add(t, mappings[asset_name][full_name]); 
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    { 
+                    } 
+                }
+                AssetBundleNameMappingUpgrade.Add(projectName, map);
+            }
+           
+
+
+            if (!AssetBundleNameMappingUpgrade[projectName].ContainsKey(assetName))
+                return string.Empty;
+
+            if (AssetBundleNameMappingUpgrade[projectName][assetName].ContainsKey(type))
+                return AssetBundleNameMappingUpgrade[projectName][assetName][type];
+            else
+            {
+                foreach (var t in AssetBundleNameMappingUpgrade[projectName][assetName].Keys)
+                {
+                    if (t.IsSubclassOf(type))
+                        return AssetBundleNameMappingUpgrade[projectName][assetName][t];
+                }
+            }
+
+            return string.Empty;
         }
 
         /// <summary>

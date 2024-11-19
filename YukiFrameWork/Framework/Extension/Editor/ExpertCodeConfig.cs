@@ -19,9 +19,6 @@ using System.Text;
 using YukiFrameWork.Extension;
 
 
-
-
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -30,6 +27,7 @@ namespace YukiFrameWork
 	public enum ParentType
 	{		
 		None,
+		Architecture,
 		Model,
 		System,
 		Utility,
@@ -121,7 +119,7 @@ namespace YukiFrameWork
         internal FrameworkConfigInfo configInfo => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
         private void OnEnable()
         {
-			NameSpace = configInfo.nameSpace;
+			NameSpace = configInfo?.nameSpace;
         }
         public const string tip = "高级脚本设置引用dll仅包含框架与FrameworkConfig中程序集设置添加的访问程序集,注入字段/方法类型仅为基础字段打造——————>不能是泛型/集合";	
 		[LabelText("命名空间")]
@@ -155,6 +153,11 @@ namespace YukiFrameWork
 		[HideInInspector]
 		public bool FoldExport;
 
+		[HideInInspector]
+		public string soFileName;
+		[HideInInspector]
+		public string soMenuName;
+
 #if UNITY_EDITOR
 		[ValueDropdown(nameof(AllAssemblies))]
 #endif
@@ -177,7 +180,24 @@ namespace YukiFrameWork
         public List<FieldData> fieldDatas = new List<FieldData>();
 
 		[TableList,LabelText("为类添加方法")]
-        public List<MethodData> methodDatas = new List<MethodData>();    
+        public List<MethodData> methodDatas = new List<MethodData>();
+
+#if UNITY_EDITOR
+		[FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color BackgroundColor = new Color(0.118f, 0.118f, 0.118f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color TextColor = new Color(0.863f, 0.863f, 0.863f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color KeywordColor = new Color(0.337f, 0.612f, 0.839f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color IdentifierColor = new Color(0.306f, 0.788f, 0.69f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color CommentColor = new Color(0.341f, 0.651f, 0.29f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color LiteralColor = new Color(0.71f, 0.808f, 0.659f, 1f);
+        [FoldoutGroup("Script Code Colors")]
+        [ShowInInspector]public static Color StringLiteralColor = new Color(0.839f, 0.616f, 0.522f, 1f);      
+#endif
 
     }
 
@@ -192,7 +212,10 @@ namespace YukiFrameWork
 		public string fieldType;
         public string fieldName;
 		[InfoBox("是否封装属性")]
-		public bool WrapperAttribute = false;		
+		public bool WrapperAttribute = false;
+
+		[LabelText("注释"),TextArea]
+		public string description;
     }
 	[Serializable]
 	public class MethodData
@@ -209,7 +232,9 @@ namespace YukiFrameWork
 		[HideIf(nameof(Void))]
 		public string ReturnType;
 		public string Name;
-	}
+        [LabelText("注释"),TextArea]
+        public string description;
+    }
 
 
 #if UNITY_EDITOR
@@ -220,28 +245,37 @@ namespace YukiFrameWork
 		{			
 			builder.Clear();
 			ExpertCodeConfig config = arg[0] as ExpertCodeConfig;
+			string commentColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.CommentColor);
+			string textColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.TextColor);
+			string keyWordColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.KeywordColor);
+			string IdentiferColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.IdentifierColor);
+			string LiteralColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.LiteralColor);
+			string stringLiteralColor = ColorUtility.ToHtmlStringRGBA(ExpertCodeConfig.StringLiteralColor);
 			if (config.Name.IsNullOrEmpty()) return builder;
-			builder.AppendLine("///=====================================================");
-			builder.AppendLine("/// - FileName:      " + config.Name + ".cs");
-			builder.AppendLine("/// - NameSpace:     " + config.NameSpace);
-			builder.AppendLine("/// - Description:   高级定制脚本生成");
-			builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-			builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
-			builder.AppendLine("/// -  All Rights Reserved.");
-			builder.AppendLine("///=====================================================");
+			builder.AppendLine($"<color=#{commentColor}>///=====================================================");
+			builder.AppendLine($"/// - FileName:      " + config.Name + ".cs");
+			builder.AppendLine($"/// - NameSpace:     " + config.NameSpace);
+			builder.AppendLine($"/// - Description:   高级定制脚本生成");
+			builder.AppendLine($"/// - Creation Time: " + System.DateTime.Now.ToString());
+			builder.AppendLine($"/// -  (C) Copyright 2008 - 2024");
+			builder.AppendLine($"/// -  All Rights Reserved.");
+			builder.AppendLine($"///=====================================================</color>");
 
-			builder.AppendLine("using YukiFrameWork;");
-			builder.AppendLine("using UnityEngine;");
-			builder.AppendLine("using System;");
+			builder.AppendLine($"<color=#{keyWordColor}>using</color> YukiFrameWork;");
+			builder.AppendLine($"<color=#{keyWordColor}>using</color> UnityEngine;");
+			builder.AppendLine($"<color=#{keyWordColor}>using</color> System;");
 			if (!config.NameSpace.IsNullOrEmpty())
 			{
-				builder.AppendLine($"namespace {config.NameSpace}");
+				builder.AppendLine($"<color=#{keyWordColor}>namespace</color> {config.NameSpace}");
 				builder.AppendLine("{");
 			}
 			string parentName = string.Empty;
 			switch (config.ParentType)
 			{
 				case ParentType.None:
+					break;
+				case ParentType.Architecture:
+					parentName = $"Architecture<{config.Name}>";
 					break;
 				case ParentType.Model:
 					parentName = config.levelInterface ? nameof(IModel) : nameof(AbstractModel);
@@ -271,123 +305,186 @@ namespace YukiFrameWork
 			{
 				if (config.customInterface)
 				{
-                    builder.AppendLine($"    public interface I{className} : I{config.ParentType}");
-                    builder.AppendLine("    {");
+                    builder.AppendLine($"    <color=#{keyWordColor}>public interface</color> <color=#{LiteralColor}>I{className}</color> : <color=#{LiteralColor}>I{config.ParentType}</color>");
+                    builder.AppendLine("    {");                  
+					foreach (var field in config.fieldDatas)
+					{
+                        if (field.fieldType.IsNullOrEmpty() || field.fieldName.IsNullOrEmpty()) continue;
+                        string name = field.fieldName.Substring(0, 1).ToUpper() + field.fieldName.Substring(1);
+                        Type fieldType = AssemblyHelper.GetType(field.fieldType);
+                        string type = ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? ExpertCodeConfig.typeAliases[fieldType] : field.fieldType;
+                        if (field.WrapperAttribute)
+                        {
+                            builder.AppendLine($"        <color=#{keyWordColor}>public</color> <color=#{(ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? keyWordColor : IdentiferColor)}>{type}</color> {name}");
+                            builder.AppendLine("        {");
+                            builder.AppendLine($"            <color=#{keyWordColor}>get</color> => m{name};");
+                            builder.AppendLine($"            <color=#{keyWordColor}>set</color> => m{name} = <color=#{keyWordColor}>value</color>;");
+                            builder.AppendLine("        }");
+                        }
+                    }
                     builder.AppendLine("");
+                    foreach (var method in config.methodDatas)
+                    {
+                        if (method.Name.IsNullOrEmpty() || (!method.Void && method.ReturnType.IsNullOrEmpty())) continue;
+						if (method.methodLevel != FieldLevel.Public) continue;
+                        string name = method.Name.Substring(0, 1).ToUpper() + method.Name.Substring(1);
+                        string level = method.methodLevel.ToString().Substring(0).ToLower();
+                        string type = method.ReturnType;
+                        if (!method.Void)
+                        {
+                            Type methodType = AssemblyHelper.GetType(method.ReturnType);
+                            type = ExpertCodeConfig.typeAliases.ContainsKey(methodType) ? ExpertCodeConfig.typeAliases[methodType] : method.ReturnType;
+                        }
+                        if (!method.description.IsNullOrEmpty())
+                            builder.AppendLine($"        <color=#{commentColor}>//{method.description}</color>");
+                        builder.AppendLine($"        {(method.Void ? $"<color=#{keyWordColor}>void" : $"<color=#{IdentiferColor}>" + type)}</color> {name}();");                      
+                    }
                     builder.AppendLine("    }");
-					inter = true;
+                    builder.AppendLine();
+                    builder.AppendLine();
+                    inter = true;
                 }
 			}
-			builder.AppendLine();
-			builder.AppendLine();
+			
 			bool structClass = config.levelInterface && (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility) && config.IsScruct;
             Type architectureType = AssemblyHelper.GetType(config.architecture);
 			if (architectureType != null)
 			{
-				if(config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility)
-					builder.AppendLine($"    {(inter ? $"[Registration(typeof({architectureType}),typeof(I{config.Name}))]" : $"[Registration(typeof({architectureType}))]")}");
-				else if(config.ParentType == ParentType.Controller)
-                {
-                    builder.AppendLine($"    [InitController]");
-                    builder.AppendLine($"    [RuntimeInitializeOnArchitecture(typeof({architectureType}),true)]");
+				if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility)
+					builder.AppendLine($"    {(inter ? $"[<color=#{IdentiferColor}>Registration</color>(<color=#{keyWordColor}>typeof</color>(<color=#{IdentiferColor}>{architectureType}</color>),<color=#{keyWordColor}>typeof</color>(I<color=#{IdentiferColor}>{config.Name}</color>))]" : $"[<color=#{IdentiferColor}>Registration</color>(<color=#{keyWordColor}>typeof</color>(<color=#{IdentiferColor}>{architectureType}</color>))]")}");
+				else if (config.ParentType == ParentType.Controller)
+				{
+					if (parentName != nameof(IController))
+						builder.AppendLine($"    [<color=#{IdentiferColor}>InitController</color>]");
+					builder.AppendLine($"    [<color=#{IdentiferColor}>RuntimeInitializeOnArchitecture(typeof({architectureType}),true)</color>]");
 
+				}
+			}
+			if (config.ParentType == ParentType.ScriptableObject)
+			{
+				if(!config.soFileName.IsNullOrEmpty() && !config.soMenuName.IsNullOrEmpty())
+				{
+					Debug.Log(config.soFileName);
+                    builder.AppendLine($"    [<color=#{IdentiferColor}>CreateAssetMenu(fileName =<color=#{stringLiteralColor}>\"{config.soFileName}\"</color>,menuName = <color=#{stringLiteralColor}>\"{config.soMenuName}\"</color>)</color>]");
                 }
-            }		
-            builder.AppendLine($"    public {(structClass ? "struct" : "class")} {className}{(config.ParentType != ParentType.None ? " :" : "")} {parentName}{(inter ? ",I" + className : "")}");
+			}
+            builder.AppendLine($"    <color=#{keyWordColor}>public {(structClass ? "struct" : "class")}</color> <color=#{IdentiferColor}>{className}</color>{(config.ParentType != ParentType.None ? " :" : "")} <color=#{IdentiferColor}>{parentName}</color>{(inter ? $",<color=#{LiteralColor}>I" + className + "</color>" : "")}");
 			builder.AppendLine("    {");
-			foreach (var field in config.fieldDatas)
+			if (config.IsOpenExpertCode)
 			{
-				if (field.fieldType.IsNullOrEmpty() || field.fieldName.IsNullOrEmpty()) continue;
-				string name = field.fieldName.Substring(0, 1).ToUpper() + field.fieldName.Substring(1);
-                string level = field.fieldLevel.ToString().Substring(0).ToLower();
-				Type fieldType = AssemblyHelper.GetType(field.fieldType);
-				string type = ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? ExpertCodeConfig.typeAliases[fieldType] : field.fieldType;
-                builder.AppendLine($"        {level} {type} m{name};");
-				if(field.WrapperAttribute)
-                {
-                    builder.AppendLine($"        public {field.fieldType} {name}");
-                    builder.AppendLine("        {");
-                    builder.AppendLine($"            get => m{name};");
-					builder.AppendLine($"            set => m{name} = value;");
-                    builder.AppendLine("        }");
-                }
-            }
+				foreach (var field in config.fieldDatas)
+				{
+					if (field.fieldType.IsNullOrEmpty() || field.fieldName.IsNullOrEmpty()) continue;
+					string name = field.fieldName.Substring(0, 1).ToUpper() + field.fieldName.Substring(1);
+					string level = field.fieldLevel.ToString().Substring(0).ToLower();
+					Type fieldType = AssemblyHelper.GetType(field.fieldType);
+					string type = ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? ExpertCodeConfig.typeAliases[fieldType] : field.fieldType;
+					if (!field.description.IsNullOrEmpty())
+						builder.AppendLine($"        <color=#{commentColor}>//{field.description}</color>");
+					builder.AppendLine($"        <color=#{keyWordColor}>{level} {type}</color> m{name};");
+					if (field.WrapperAttribute)
+					{
+						builder.AppendLine($"        <color=#{keyWordColor}>public</color> <color=#{(ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? keyWordColor : IdentiferColor)}>{type}</color> {name}");
+						builder.AppendLine("        {");
+						builder.AppendLine($"            <color=#{keyWordColor}>get</color> => m{name};");
+						builder.AppendLine($"            <color=#{keyWordColor}>set</color> => m{name} = <color=#{keyWordColor}>value</color>;");
+						builder.AppendLine("        }");
+					}
+				}
+			}
 			builder.AppendLine();
-			if (parentName == nameof(AbstractModel) || parentName == nameof(AbstractSystem))
+			if (config.ParentType == ParentType.Architecture)
 			{
-				builder.AppendLine("        public override void Init()");
+				builder.AppendLine($"        <color=#{commentColor}>//可以填写默认进入的场景名称，在架构准备完成后，自动进入</color>");
+                builder.AppendLine($"        <color=#{keyWordColor}>public override</color> (string, SceneLoadType) DefaultSceneName => default;");
+				builder.AppendLine();
+                builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> OnInit()");
+                builder.AppendLine("        {");
+                builder.AppendLine("");
+                builder.AppendLine("        }");
+				builder.AppendLine($"        <color=#{commentColor}>//配表构建，通过ArchitectureTable可以在架构中缓存部分需要的资源,例如TextAssets ScriptableObject</color>");
+				builder.AppendLine($"        <color=#{keyWordColor}>protected override</color> <color=#{IdentiferColor}>ArchitectureTable</color> BuildArchitectureTable() => default;");
+				builder.AppendLine("");
+
+            }
+			else if (parentName.Contains(nameof(AbstractModel)) || parentName.Contains(nameof(AbstractSystem)))
+			{
+				builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> Init()");
 				builder.AppendLine("        {");
 				builder.AppendLine("");
 				builder.AppendLine("        }");
 			}
-			else if (parentName == nameof(AbstractController))
+			else if (parentName.Contains(nameof(AbstractController)))
 			{
-				builder.AppendLine("        public override void OnInit()");
+				builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> OnInit()");
 				builder.AppendLine("        {");
 				builder.AppendLine("");
 				builder.AppendLine("        }");
 			}
-			else if (config.ParentType == ParentType.Model 
-				|| config.ParentType == ParentType.System 
-				|| config.ParentType == ParentType.Utility 
+			else if (config.ParentType == ParentType.Model
+				|| config.ParentType == ParentType.System
+				|| config.ParentType == ParentType.Utility
 				|| config.ParentType == ParentType.Controller)
 			{
-				if (parentName == nameof(IModel) || parentName == nameof(ISystem))
+				if (parentName.Contains(nameof(IModel)) || parentName.Contains(nameof(ISystem)))
 				{
-					builder.AppendLine("        public void Init()");
+					builder.AppendLine($"        <color=#{keyWordColor}>public void</color> Init()");
 					builder.AppendLine("        {");
 					builder.AppendLine("");
 					builder.AppendLine("        }");
 					builder.AppendLine();
-                    builder.AppendLine("        public void Destroy()");
-                    builder.AppendLine("        {");
-                    builder.AppendLine("");
-                    builder.AppendLine("        }");
-                }
+					builder.AppendLine($"        <color=#{keyWordColor}>public void</color> Destroy()");
+					builder.AppendLine("        {");
+					builder.AppendLine("");
+					builder.AppendLine("        }");
+				}
 				if (config.ParentType != ParentType.Utility && config.levelInterface)
 				{
 					builder.AppendLine();
-					builder.AppendLine("        IArchitecture IGetArchitecture.GetArchitecture()");
+					builder.AppendLine($"        <color=#{IdentiferColor}>IArchitecture IGetArchitecture</color>.GetArchitecture()");
 					builder.AppendLine("        {");
-					builder.AppendLine($"            {(architectureType == null ? "return null;" : $"return {architectureType}.Global;")}");
+					builder.AppendLine($"            {(architectureType == null ? $"<color=#{keyWordColor}>return<color> null;" : $"<color=#{keyWordColor}>return</color> <color=#{IdentiferColor}>{architectureType}</color>.Global;")}");
 					builder.AppendLine("        }");
 					builder.AppendLine();
 				}
 				if (config.ParentType != ParentType.Controller && config.ParentType != ParentType.Utility && config.levelInterface)
 				{
-					builder.AppendLine("        void ISetArchitecture.SetArchitecture(IArchitecture architecture)");
+					builder.AppendLine($"        <color=#{keyWordColor}>void</color> <color=#{IdentiferColor}>ISetArchitecture</color>.SetArchitecture(<color=#{LiteralColor}>IArchitecture</color> architecture)");
 					builder.AppendLine("        {");
 					builder.AppendLine("");
 					builder.AppendLine("        }");
 				}
-            }
-			else if (parentName == nameof(MonoBehaviour) || parentName == nameof(YMonoBehaviour))
+			}
+			else if (config.ParentType == ParentType.MonoBehaviour || config.ParentType == ParentType.YMonoBehaviour)
 			{
-                builder.AppendLine("        void Start()");
-                builder.AppendLine("        {");
-                builder.AppendLine("");
-                builder.AppendLine("        }");
-            }
+				builder.AppendLine($"        <color=#{keyWordColor}>void</color> Start()");
+				builder.AppendLine("        {");
+				builder.AppendLine("");
+				builder.AppendLine("        }");
+			}
 			builder.AppendLine();
-			foreach (var method in config.methodDatas)
+			if (config.IsOpenExpertCode)
 			{
-                if (method.Name.IsNullOrEmpty() || (!method.Void && method.ReturnType.IsNullOrEmpty())) continue;
-				string name = method.Name.Substring(0, 1).ToUpper() + method.Name.Substring(1);
-				string level = method.methodLevel.ToString().Substring(0).ToLower();
-				string type = method.ReturnType;
-				if (!method.Void)
+				foreach (var method in config.methodDatas)
 				{
-					Type methodType = AssemblyHelper.GetType(method.ReturnType);
-                    type = ExpertCodeConfig.typeAliases.ContainsKey(methodType) ? ExpertCodeConfig.typeAliases[methodType] : method.ReturnType;
-                }
-                
-                builder.AppendLine($"        {level}{(method.Virtual && !config.IsScruct ? " virtual" :"")} {(method.Void ? "void" : type)} {name}()");
-                builder.AppendLine("        {");
-                builder.AppendLine($"            {(method.Void ? string.Empty : "return default;")}");
-                builder.AppendLine("        }");
-				builder.AppendLine();
-            }
-		           
+					if (method.Name.IsNullOrEmpty() || (!method.Void && method.ReturnType.IsNullOrEmpty())) continue;
+					string name = method.Name.Substring(0, 1).ToUpper() + method.Name.Substring(1);
+					string level = method.methodLevel.ToString().Substring(0).ToLower();
+					string type = method.ReturnType;
+					if (!method.Void)
+					{
+						Type methodType = AssemblyHelper.GetType(method.ReturnType);
+						type = ExpertCodeConfig.typeAliases.ContainsKey(methodType) ? ExpertCodeConfig.typeAliases[methodType] : method.ReturnType;
+					}
+					if (!method.description.IsNullOrEmpty())
+						builder.AppendLine($"        <color=#{commentColor}>//{method.description}</color>");
+					builder.AppendLine($"        <color=#{keyWordColor}>{level}{(method.Virtual && !config.IsScruct ? " virtual" : "")}</color> {(method.Void ? $"<color=#{keyWordColor}>void" : $"<color=#{IdentiferColor}>" + type)}</color> {name}()");
+					builder.AppendLine("        {");
+					builder.AppendLine($"            {(method.Void ? string.Empty : $"<color=#{keyWordColor}>return default</color>;")}");
+					builder.AppendLine("        }");					
+				}
+			}
+            builder.AppendLine();
             builder.AppendLine("    }");
 
             if (!config.NameSpace.IsNullOrEmpty())

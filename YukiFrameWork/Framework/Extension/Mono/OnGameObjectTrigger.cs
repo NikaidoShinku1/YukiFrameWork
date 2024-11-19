@@ -29,6 +29,10 @@ namespace YukiFrameWork
 
         private readonly Stack<IUnRegister> unDisableRegisters = new Stack<IUnRegister>();
 
+        public readonly EasyEvent OnUpdate = new EasyEvent();
+        public readonly EasyEvent OnFixedUpdate = new EasyEvent();
+        public readonly EasyEvent OnLateUpdate = new EasyEvent();
+
         public void AddAction(IActionNode node,IActionNodeController controller)
         {                     
             queueActionNodes.Add(new KeyValuePair<IActionNode, IActionNodeController>(node, controller));
@@ -55,6 +59,8 @@ namespace YukiFrameWork
 
         private void Update()
         {
+            OnUpdate.SendEvent();
+
             if (queueActionNodes.Count > 0)
             {
                 foreach (var queueNode in queueActionNodes)
@@ -84,6 +90,16 @@ namespace YukiFrameWork
             }
 
             actionNodes.Clear();
+        }
+
+        private void FixedUpdate()
+        {
+            OnFixedUpdate.SendEvent();
+        }
+
+        private void LateUpdate()
+        {
+            OnLateUpdate.SendEvent();
         }
 
         private void OnDisable()

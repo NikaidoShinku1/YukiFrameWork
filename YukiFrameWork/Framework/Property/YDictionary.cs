@@ -46,7 +46,7 @@ namespace YukiFrameWork
 #endif
     }   
     [Serializable]    
-    public class YDictionary<TKey, TValue> : YDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>,IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,IBindableProperty<KeyValuePair<TKey,TValue>>
+    public class YDictionary<TKey, TValue> : YDictionary, ISerializationCallbackReceiver, IDictionary<TKey, TValue>,IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,IBindableProperty<KeyValuePair<TKey,TValue>>,IReadOnlyDictionary<TKey,TValue>
     {
         [Serializable]
         public struct Y_KeyValuePair
@@ -89,6 +89,10 @@ namespace YukiFrameWork
         public int Count => list.Count;
 
         public bool IsReadOnly => false;
+
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
         public void Add(TKey key, TValue value)
         {

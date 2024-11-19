@@ -24,7 +24,7 @@ namespace YukiFrameWork.Missions
 			this.GroupKey = groupKey;
 		}
 
-		public IReadOnlyDictionary<string,Mission> Missions => missions;
+		public IReadOnlyDictionary<string,Mission> Mission_Dicts => missions;
 
 		/// <summary>
 		/// 当任务有状态/数据更新时刷新事件

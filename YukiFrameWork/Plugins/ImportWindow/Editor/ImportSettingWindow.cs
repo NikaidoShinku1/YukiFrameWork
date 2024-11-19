@@ -96,7 +96,8 @@ namespace YukiFrameWork.Extension
             ["ItemKit"] = packagePath + "/Tool~/ItemKit",
             ["PilotKit"] = packagePath + "/Tool~/PilotKit",
             ["NavMeshPlus"] = packagePath + "/Tool~/NavMeshPlus",
-            ["MissionKit"] = packagePath + "/Tool~/MissionKit"
+            ["MissionKit"] = packagePath + "/Tool~/MissionKit",
+            ["BehaviourTree"] = packagePath + "/Tool~/BehaviourTree",
         };    
 
         void LoadData()
@@ -204,6 +205,9 @@ namespace YukiFrameWork.Extension
 
             DrawBoxGUI(Color.white, ImportWindowInfo.MissionInfo
                 , MessageType.Info, string.Format("{0}/MissionKit", data.path), "MissionKit", moduleInfo["MissionKit"]);
+
+            DrawBoxGUI(Color.white, ImportWindowInfo.BehaviourTreeInfo
+                , MessageType.Info, string.Format("{0}/BehaviourTree", data.path), "BehaviourTree", moduleInfo["BehaviourTree"]);
 
             DrawBoxGUI(Color.white, ImportWindowInfo.DiaLogInfo
             , MessageType.Info, string.Format("{0}/DiaLogKit", data.path), "DiaLogKit", moduleInfo["DiaLogKit"]); 

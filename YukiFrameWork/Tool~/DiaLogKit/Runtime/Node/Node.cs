@@ -59,7 +59,7 @@ namespace YukiFrameWork.DiaLogue
         [SerializeField, LabelText("节点的唯一GUID"),ReadOnly] 
         internal string id;
         [field:SerializeField,LabelText("节点的LinkId")]
-        [InfoBox("该id为节点的运行唯一标识，不可修改，由数组顺序控制恒定。可与配表相互搭配使用"),ReadOnly,JsonProperty]
+        [field:InfoBox("该id为节点的运行唯一标识，不可修改，由数组顺序控制恒定。可与配表相互搭配使用"),ReadOnly,JsonProperty]
         public int nodeId { get; set; }
         [SerializeField,ShowIf(nameof(IsComposite)),ListDrawerSettings(HideAddButton = true)]
         internal List<Option> optionItems = new List<Option>();

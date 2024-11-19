@@ -1,5 +1,5 @@
-#if UNITY_EDITOR
 using Newtonsoft.Json;
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic; 
@@ -8,8 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
-using UnityEngine; 
-
+using UnityEngine;
 namespace XFABManager
 {
     /// <summary>
@@ -19,7 +18,7 @@ namespace XFABManager
     {
 
         private static List<AssetBundleBuild> bundles = new List<AssetBundleBuild>();
-
+        
         /// <summary>
         /// 打包某一个模块的AssetBundle(仅可在Editor模式下调用)
         /// </summary>
@@ -123,8 +122,8 @@ namespace XFABManager
                 AssetBundleBuild item = bundles[i];
                 item.assetBundleName = item.assetBundleName.ToLower();
                 bundles[i] = item;
-            } 
-
+            }
+              
             var buildManifest = BuildPipeline.BuildAssetBundles(out_path, bundles.ToArray(), buildAssetBundleOptions,buildTarget);
 
             if (buildManifest == null)
@@ -266,12 +265,21 @@ namespace XFABManager
 
             project.AssetBundleNameMapping.Clear();  // 先清空资源 
             project.AssetBundleNameMappingWithType.Clear();
-            
-            StringBuilder builder = new StringBuilder();
+             
+              
+            // key:资源名 key:类型 v: bundle
+            Dictionary<string,Dictionary<string,string>> mappings = new Dictionary<string, Dictionary<string, string>>();
 
-            foreach (var item in project.AssetBundleNameMappingWithType.Keys)
+            foreach (var asset_name in project.AssetBundleNameMappingWithType.Keys)
             {
-                builder.Append(item).Append("|").Append(project.AssetBundleNameMappingWithType[item]).Append("\n");
+                foreach (var type in project.AssetBundleNameMappingWithType[asset_name].Keys)
+                {  
+                    if(!mappings.ContainsKey(asset_name))
+                        mappings.Add(asset_name, new Dictionary<string, string>());
+
+                    if (!mappings[asset_name].ContainsKey(type.FullName))
+                        mappings[asset_name].Add(type.FullName, project.AssetBundleNameMappingWithType[asset_name][type]); 
+                } 
             }
             // 如果输出目录不存在 创建目录
             string out_path = project.temp_out_path(buildTarget);
@@ -279,10 +287,10 @@ namespace XFABManager
             {
                 Directory.CreateDirectory(out_path);
             }
-            string path = string.Format("{0}/{1}", out_path, XFABConst.asset_bundle_mapping);
-            File.WriteAllText(path, builder.ToString());
+            string path = string.Format("{0}/{1}", out_path, XFABConst.asset_bundle_mapping_upgrade);
 
-            //Debug.Log("映射构建成功!"+path);
+            File.WriteAllText(path,  JsonConvert.SerializeObject(mappings));
+             
         }
 
         private static void SaveSuffix(XFABProject project, BuildTarget buildTarget) {
@@ -320,7 +328,8 @@ namespace XFABManager
             //if (File.Exists(file_list)) File.Delete(file_list);
 
             bundles.Add(new AssetBundleBuild() { assetBundleName = buildTarget.ToString() });
-            bundles.Add(new AssetBundleBuild() { assetBundleName = "AssetBundleNameMapping.txt" }); // 文件名称与bundle的映射
+            bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.asset_bundle_mapping }); // 文件名称与bundle的映射 
+            bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.asset_bundle_mapping_upgrade }); // 文件名称与bundle的映射 
             bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.bundles_suffix_info }); // 文件名称与bundle的映射
             //List<BundleInfo> bundleInfos = new List<BundleInfo>( bundles.Count );
 

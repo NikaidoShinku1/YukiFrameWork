@@ -1,5 +1,6 @@
 ﻿
 #if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -241,57 +242,54 @@ namespace XFABManager
             }
         }
 
-        private Dictionary<string, string> asset_bundle_name_mapping_with_type = null;
+        private Dictionary<string, Dictionary<Type, string>> asset_bundle_name_mapping_with_type = null;
 
-        private Dictionary<string, string> asset_name_type_mapping_with_asset_path = null;
+        //private Dictionary<string, string> asset_name_type_mapping_with_asset_path = null;
 
         /// <summary>
         /// assetname_type 与 bundle_name 的映射
         /// </summary>
-        public Dictionary<string, string> AssetBundleNameMappingWithType
+        public Dictionary<string, Dictionary<Type,string>> AssetBundleNameMappingWithType
         {
             get { 
                 if (asset_bundle_name_mapping_with_type == null || asset_bundle_name_mapping_with_type.Count == 0)
                 {
-                    if(asset_bundle_name_mapping_with_type == null)
-                        asset_bundle_name_mapping_with_type = new Dictionary<string, string>();
-
-                    if (asset_name_type_mapping_with_asset_path == null)
-                        asset_name_type_mapping_with_asset_path = new Dictionary<string, string>();
-
-                    asset_name_type_mapping_with_asset_path.Clear();
+                    if (asset_bundle_name_mapping_with_type == null)
+                        asset_bundle_name_mapping_with_type = new Dictionary<string, Dictionary<Type, string>>();
+                     
 
                     foreach (var asset_path in AssetBundleNameMapping.Keys)
-                    { 
-                        //Debug.LogFormat("asset:{0} exist:{1}",asset_path, System.IO.File.Exists(asset_path)); 
+                    {  
                         if (string.IsNullOrEmpty(asset_path) || !File.Exists(asset_path)) continue;
                         //if (!System.IO.File.Exists(asset_path)) continue;
-                        string asset_name_with_type = AssetBundleTools.GetAssetNameWithType(asset_path);
-                        if (!asset_bundle_name_mapping_with_type.ContainsKey(asset_name_with_type))
+
+                        string asset_name = Path.GetFileNameWithoutExtension(asset_path);
+
+                        Type t = AssetBundleTools.GetAssetType(asset_path);
+
+                        if(!asset_bundle_name_mapping_with_type.ContainsKey(asset_name))
+                            asset_bundle_name_mapping_with_type.Add(asset_name,new Dictionary<Type, string>());
+
+                        Dictionary<Type, string> types = asset_bundle_name_mapping_with_type[asset_name];
+
+                        if (!types.ContainsKey(t))
                         {
-
-                            asset_bundle_name_mapping_with_type.Add(asset_name_with_type, AssetBundleNameMapping[asset_path]);
-
-                            asset_name_type_mapping_with_asset_path.Add(asset_name_with_type, asset_path);
-
+                            types.Add(t, AssetBundleNameMapping[asset_path]);
+                              
                             // 判断类型
-                            if (AssetBundleTools.GetAssetType(asset_path) == typeof(Sprite))
+                            if (t == typeof(Sprite))
                             {
-                                // 如果是sprite类型 有可能有多张  都要加进来 
-                                string assetName = Path.GetFileNameWithoutExtension(asset_path);
-
-                                asset_name_with_type = AssetBundleTools.GetAssetNameWithType(assetName, typeof(Texture2D));
-                                if (!asset_bundle_name_mapping_with_type.ContainsKey(asset_name_with_type))
-                                    asset_bundle_name_mapping_with_type.Add(asset_name_with_type, AssetBundleNameMapping[asset_path]);
-
+                                // 如果是sprite类型 有可能有多张  
+                                types.Add(typeof(Texture2D), AssetBundleNameMapping[asset_path]); 
                             }
                         }
                         else
                         {
                             StringBuilder message = new StringBuilder();
                             message.Append("发现同名文件:").AppendLine().Append(asset_path).AppendLine();
-                            if(asset_name_type_mapping_with_asset_path.ContainsKey(asset_name_with_type))
-                                message.AppendLine(asset_name_type_mapping_with_asset_path[asset_name_with_type]); 
+                       
+                            message.AppendLine(types[t]); 
+
                             message.AppendLine("请保证资源名称唯一,否则可能会导致资源加载异常!");
 
                             throw new System.Exception(message.ToString());
@@ -336,41 +334,50 @@ namespace XFABManager
             }
         }
 
-        private Dictionary<string, string> asset_bundle_name_mapping_with_type_editor_load = null;
+        private Dictionary<string, Dictionary<Type,string>> asset_bundle_name_mapping_with_type_editor_load = null;
 
         // assetname_type 与 bundle_name 的映射
-        public Dictionary<string, string> AssetBundleNameMappingWithTypeEditorLoad
+        public Dictionary<string, Dictionary<Type, string>> AssetBundleNameMappingWithTypeEditorLoad
         {
             get
             {
 
                 if (asset_bundle_name_mapping_with_type_editor_load == null || asset_bundle_name_mapping_with_type_editor_load.Count == 0)
                 {
-                    asset_bundle_name_mapping_with_type_editor_load = new Dictionary<string, string>();
+                    asset_bundle_name_mapping_with_type_editor_load = new Dictionary<string, Dictionary<Type, string>>();
+
                     foreach (var asset_path in AssetBundleNameMappingEditorLoad.Keys)
                     {
                         //Debug.LogFormat("asset:{0} exist:{1}",asset_path, System.IO.File.Exists(asset_path)); 
                         if (string.IsNullOrEmpty(asset_path) || !File.Exists(asset_path)) continue;
-                        //if (!System.IO.File.Exists(asset_path)) continue;
-                        string asset_name_with_type = AssetBundleTools.GetAssetNameWithType(asset_path);
-                        if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name_with_type))
+
+                        string asset_name = Path.GetFileNameWithoutExtension(asset_path);
+
+                        if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name))
+                            asset_bundle_name_mapping_with_type_editor_load.Add(asset_name, new Dictionary<Type, string>());
+
+                        Dictionary<Type, string> type_bundles = asset_bundle_name_mapping_with_type_editor_load[asset_name];
+
+                        Type t = AssetBundleTools.GetAssetType(asset_path);
+
+
+                        if (!type_bundles.ContainsKey(t))
                         {
 
-                            asset_bundle_name_mapping_with_type_editor_load.Add(asset_name_with_type, AssetBundleNameMappingEditorLoad[asset_path]);
+                            type_bundles.Add(t, AssetBundleNameMappingEditorLoad[asset_path]);
 
                             // 判断类型
-                            if (AssetBundleTools.GetAssetType(asset_path) == typeof(Sprite))
+                            if (t == typeof(Sprite))
                             {
-                                // 如果是sprite类型 有可能有多张  都要加进来
+                                // 如果是sprite类型 把 Texture2D 
                                 string assetName = Path.GetFileNameWithoutExtension(asset_path);
 
-                                asset_name_with_type = AssetBundleTools.GetAssetNameWithType(assetName, typeof(Texture2D));
-                                if (!asset_bundle_name_mapping_with_type_editor_load.ContainsKey(asset_name_with_type))
-                                    asset_bundle_name_mapping_with_type_editor_load.Add(asset_name_with_type, AssetBundleNameMappingEditorLoad[asset_path]);
+                                if (!type_bundles.ContainsKey(typeof(Texture2D)))
+                                    type_bundles.Add(typeof(Texture2D), AssetBundleNameMappingEditorLoad[asset_path]); 
                             }
                         }
                         else
-                            throw new System.Exception(string.Format("发现同名文件:{0} bundleName:{1} {2}", asset_path, AssetBundleNameMappingEditorLoad[asset_path], asset_bundle_name_mapping_with_type_editor_load[asset_name_with_type]));
+                            throw new System.Exception(string.Format("发现同名文件:{0} bundleName:{1} {2}", asset_path, AssetBundleNameMappingEditorLoad[asset_path], asset_bundle_name_mapping_with_type_editor_load[asset_name][t]));
                     }
                 }
 
@@ -445,8 +452,7 @@ namespace XFABManager
             EditorUtility.SetDirty(this);
 
             asset_bundle_name_mapping = null;
-            asset_bundle_name_mapping_with_type = null;
-            asset_name_type_mapping_with_asset_path = null;
+            asset_bundle_name_mapping_with_type = null; 
 
             asset_bundle_name_mapping_editor_load = null;
             asset_bundle_name_mapping_with_type_editor_load = null;

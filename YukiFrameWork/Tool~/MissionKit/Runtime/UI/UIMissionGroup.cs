@@ -77,7 +77,7 @@ namespace YukiFrameWork.Missions
 
                 foreach (var item in MissionKit.GetMissionGroup(GroupKey)
                     .UnRegisterMissionRefresh(Refresh)
-                    .RegisterMissionRefresh(Refresh).Missions.Values)
+                    .RegisterMissionRefresh(Refresh).Mission_Dicts.Values)
                 {
                     GameObjectLoader.Load(UIMissionPrefab.gameObject, UIMissionRoot).GetComponent<UIMission>().InitMission(item);
                 }

@@ -86,6 +86,9 @@ namespace YukiFrameWork
             }
         }
 
+        public static object CreateInstance(this Type type)
+            => Activator.CreateInstance(type);
+
         public static void Sort<T>(this IList<T> list, Comparison<T> comparison)
         {
 

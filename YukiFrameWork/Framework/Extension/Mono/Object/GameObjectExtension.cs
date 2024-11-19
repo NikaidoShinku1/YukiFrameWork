@@ -400,6 +400,16 @@ namespace YukiFrameWork
             return core;
         }
 
+        public static GameObject SetPosition(this GameObject core, float x, float y)
+        {
+            return SetPosition(core, new Vector2(x, y));
+        }
+
+        public static GameObject SetPosition(this GameObject core, float x, float y,float z)
+        {
+            return SetPosition(core, new Vector3(x, y, z));
+        }
+
         public static GameObject SetPositionX(this GameObject core, float x)
         {
             SetPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
@@ -422,6 +432,16 @@ namespace YukiFrameWork
         {
             SetPosition(core.gameObject, position);
             return core;
+        }
+
+        public static T SetPosition<T>(this T core, float x, float y) where T : Component
+        {
+            return SetPosition<T>(core, new Vector2(x, y));
+        }
+
+        public static T SetPosition<T>(this T core, float x, float y, float z) where T : Component
+        {
+            return SetPosition<T>(core, new Vector3(x, y, z));
         }
 
         public static T SetPositionX<T>(this T core, float x) where T : Component
@@ -1162,6 +1182,11 @@ namespace YukiFrameWork
             UnRegisterWaitGameObjectDestroy(property, component.gameObject, onFinish);
         }
 
+        public static void AddUnRegisterToList(this IUnRegister property, IUnRegiserList list)
+        {
+            list.UnRegisters.Add(property);
+        }
+
         /// <summary>
         /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁时自动清空事件
         /// </summary>
@@ -1374,6 +1399,21 @@ namespace YukiFrameWork
             }).Token(token);
             timeTemp?.Invoke(isConstraint ? (timer / time) : timer);
             callBack?.Invoke();
+        }
+
+        public static void UpdateListener(this Component component, Action onUpdate)
+        {
+            component.GetOrAddComponent<OnGameObjectTrigger>().OnUpdate.RegisterEvent(onUpdate);
+        }
+
+        public static void FixedUpdateListener(this Component component, Action onFixedUpdate)
+        {
+            component.GetOrAddComponent<OnGameObjectTrigger>().OnFixedUpdate.RegisterEvent(onFixedUpdate);
+        }
+
+        public static void LateUpdateListener(this Component component, Action onLateUpdate)
+        {
+            component.GetOrAddComponent<OnGameObjectTrigger>().OnLateUpdate.RegisterEvent(onLateUpdate);
         }
     }
 

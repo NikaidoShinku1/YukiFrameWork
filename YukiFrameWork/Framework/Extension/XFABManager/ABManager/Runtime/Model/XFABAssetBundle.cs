@@ -470,9 +470,9 @@ namespace XFABManager
 
                             if (assetType == null) continue;
 
-                            if (assetType != type) continue; 
+                            if (assetType != type && !assetType.IsSubclassOf(type)) continue; 
 
-                            FileAssetPathCache.Add(AssetBundleTools.GetAssetNameWithType(fileName,assetType), assetPath);
+                            FileAssetPathCache.Add(AssetBundleTools.GetAssetNameWithType(fileName,type), assetPath);
                             return assetPath;
                         }
                     }

@@ -2,7 +2,12 @@
 using Sirenix.OdinInspector;
 using System.IO;
 using System.Text;
-using YukiFrameWork.Events;
+using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
+using System;
+using UnityEngine.Tilemaps;
+
+
 
 
 #if UNITY_EDITOR
@@ -56,8 +61,21 @@ namespace YukiFrameWork
             Assembly,          
 
         }
-        [LabelText("是否开启视图快捷显示"),ShowInInspector]
+        internal enum ReLoadProject
+        {
+            [LabelText("重启游戏")]
+            Game,
+            [LabelText("重新进入当前场景")]
+            Scene,
+        }
+        [LabelText("是否开启视图快捷显示"),SerializeField]
         internal bool IsShowHerarchy = true;
+        [LabelText("是否开启编译重载"),SerializeField]
+        [InfoBox("开启后可在代码编译后执行运行时的指定操作。")]
+        internal bool IsShowReLoadProject = false;
+
+        [LabelText("选择模式:"),SerializeField,ShowIf(nameof(IsShowReLoadProject))]
+        internal ReLoadProject project;
         [SerializeField, EnumToggleButtons]
         Mode mode;
         [ShowIf(nameof(SelectIndex), 0), LabelText("脚本名称：")]
@@ -180,6 +198,38 @@ namespace YukiFrameWork
                 }
                 AssetDatabase.CreateAsset(info, "Assets/Resources/FrameworkConfigInfo.asset");
                 AssetDatabase.Refresh();
+            }         
+            
+        }
+
+        [UnityEditor.Callbacks.DidReloadScripts(0)]
+        static async void ReLoad()
+        {
+            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
+            if (!info) return;
+            if (!info.IsShowReLoadProject) return;
+            if (!EditorApplication.isPlaying) return;
+            switch (info.project)
+            {
+                case ReLoadProject.Game:
+                    EditorApplication.isPlaying = false;
+                    while (Time.frameCount > 1)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.1f));
+
+                        if (Time.frameCount <= 1)
+                        {
+                            EditorApplication.isPlaying = true;
+                            break;
+                        }
+                    }
+                  
+                    break;
+                case ReLoadProject.Scene:
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    break;
+                default:
+                    break;
             }
         }
 #endif
