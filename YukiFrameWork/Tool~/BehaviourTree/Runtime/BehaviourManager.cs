@@ -38,9 +38,30 @@ namespace YukiFrameWork.Behaviours
         {
             for (int i = 0; i < behaviourTrees.Count; i++)
             {
-                BehaviourTree behaviourTree = behaviourTrees[i];               
+                BehaviourTree behaviourTree = behaviourTrees[i];
                 if (CheckBehaviourRoot(behaviourTree))
+                {                                      
                     behaviourTree.rootBehaviour.Update();
+                    if (!behaviourTree.runtime_behaviours.All(x => !x.IsFailed))
+                    {
+                        for (int j = 0; j < behaviourTree.runtime_behaviours.Count; j++)
+                        {
+                            behaviourTree.runtime_behaviours[j].OnInternalUpdate();
+                        }
+                    }
+                }
+
+                if (behaviourTree.rootBehaviour.Status == BehaviourStatus.Success)
+                {
+                    for (int j = 0; j < behaviourTree.runtime_behaviours.Count; j++)
+                    {
+                        if (behaviourTree.runtime_behaviours[j].Status == BehaviourStatus.Running)
+                            behaviourTree.runtime_behaviours[j].ResetBehaviour();
+                    }
+                }
+
+                behaviourTree.CheckResetTree();
+                
             }
         }
 
@@ -66,7 +87,9 @@ namespace YukiFrameWork.Behaviours
 
         private bool CheckBehaviourRoot(BehaviourTree behaviourTree)
         {
-            return behaviourTree.rootBehaviour != null && behaviourTree.rootBehaviour.Status == BehaviourStatus.Running && !behaviourTree.IsPaused;
+            return behaviourTree.rootBehaviour != null 
+                && behaviourTree.rootBehaviour.Status == BehaviourStatus.Running 
+                && !behaviourTree.IsPaused;
         }
     }
 }

@@ -136,7 +136,33 @@ namespace XFABManager {
                 GameObject.Destroy(obj);
             
         }
-  
+        /// <summary>
+        /// 回收某一个节点下的第一级的子节点游戏物体
+        /// </summary>
+        /// <param name="parent"></param>
+        public static void UnLoad(Transform parent)
+        {
+            if (!parent) return;
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+                if (!child) continue;
+                GameObject obj = child.gameObject;
+                if (!obj.activeSelf) continue;
+
+                if (allObjPoolMapping.ContainsKey(obj.GetHashCode()))
+                {
+                    // 说明该游戏物体是通过GameObjectLoader加载出来的 直接回收即可
+                    UnLoad(obj);
+                }
+                else
+                {
+                    // 如果该游戏物体不是通过 GameObjectLoader 加载，直接隐藏即可
+                    obj.SetActive(false);
+                }
+            }
+        }
         internal static GameObjectPool GetOrCreatePool(GameObject prefab) {
 
             if (allPools.ContainsKey(prefab.GetHashCode())) {
@@ -221,7 +247,11 @@ namespace XFABManager {
         { 
             GameObjectPreload.Preload(projectName, assetName, autoUnload);
         }
-
+        /// <summary>
+        /// 如果预加载时选择的是不自动卸载，可通过此方法设置为自动卸载
+        /// </summary>
+        /// <param name="projectName"></param>
+        /// <param name="assetName"></param>
         public static void UnPreload(string projectName, string assetName)
         {
             GameObjectPreload.UnPreload(projectName, assetName);
@@ -241,7 +271,7 @@ namespace XFABManager {
     public class GameObjectPool
     {
         private const int DESTROY_TIME_OUT = 1 * 60; // 当游戏物体未被使用时 超过多少时间 会被销毁
-
+        private const int CLOSE_TIME_OUT = 10 * 60;
         /// <summary>
         /// 存放某一个预制体 创建的所有实例  key : obj hash code 
         /// </summary>
@@ -251,43 +281,11 @@ namespace XFABManager {
         // 存放无效的Obj
         private List<int> invalidObjs = new List<int>();
 
-        private GameObject prefab;
-
-        private static Transform _GameObjectLoaderParent;
-
-        private static Transform GameObjectLoaderParent
-        {
-            get 
-            {
-                if (_GameObjectLoaderParent == null)
-                {
-                    _GameObjectLoaderParent = new GameObject("GameObjectLoader").transform; 
-                    GameObject.DontDestroyOnLoad(_GameObjectLoaderParent.gameObject);
-                }
-
-                return _GameObjectLoaderParent;
-            }
-        }
+        private GameObject prefab;       
 
         private Transform _parent;
 
         public GameObject Prefab => prefab;
-
-        //private Transform Parent
-        //{
-        //    get {
-
-        //        if (_parent == null)
-        //        {
-        //            GameObject obj = new GameObject(string.Format("{0}:{1}",prefab.name,prefab.GetHashCode()));
-        //            obj.transform.SetParent(GameObjectLoaderParent, false);
-        //            _parent = obj.transform;
-        //        }
-
-        //        return _parent;
-        //    }
-
-        //}
 
         public bool IsEmpty => allObjs.Count == 0;
 
@@ -303,7 +301,7 @@ namespace XFABManager {
                 // 如果不自动卸载 就不能关闭
                 if(!IsAutoUnload) return false;
 
-                return IsEmpty && Time.time - EmptyTime > DESTROY_TIME_OUT;
+                return IsEmpty && Time.time - EmptyTime > CLOSE_TIME_OUT;
             }
         }
 
@@ -457,13 +455,7 @@ namespace XFABManager {
         {
             if (!IsCanClose) return;
             if (!prefab.IsDestroy())
-                AssetBundleManager.UnloadAsset(prefab); 
-
-            if(!_parent.IsDestroy() && !_parent.gameObject.IsDestroy())
-                GameObject.Destroy(_parent.gameObject); 
-
-            _parent = null;
-
+                AssetBundleManager.UnloadAsset(prefab);         
 #if XFABMANAGER_LOG_OPEN_TESTING
             Debug.LogFormat("GameObjectLoader 卸载资源:{0} asset:{1}", ProjectName, AssetName);
 #endif

@@ -82,7 +82,7 @@ namespace YukiFrameWork.Behaviours
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector2)]private Vector2 vector2Value;
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector3)]private Vector3 vector3Value;
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector4)]private Vector4 vector4Value;
-        [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.GameObject)]private GameObject prefabValue;
+        [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.GameObject)]private GameObject gameObjectValue;
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.BoolList)]private List<bool> boolLists = new List<bool>();
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.IntList)]private List<int> intLists = new List<int>();
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.FloatList)]private List<float> floatLists = new List<float>();
@@ -90,26 +90,178 @@ namespace YukiFrameWork.Behaviours
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector2List)]private List<Vector2> vector2Lists = new List<Vector2>();
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector3List)]private List<Vector3> vector3Lists = new List<Vector3>();
         [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.Vector4List)]private List<Vector4> vector4Lists = new List<Vector4>();
-        [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.GameObjectList)]private List<GameObject> prefabLists = new List<GameObject>();
+        [LabelText("参数本体"),SerializeField,ShowIf(nameof(behaviourParamType),BehaviourParamType.GameObjectList)]private List<GameObject> gameObjectList = new List<GameObject>();
         [LabelText("参数本体"),SerializeField, ShowIf(nameof(behaviourParamType), BehaviourParamType.UnityEvent)] private UnityEvent<AIBehaviour> unityEvent = new UnityEvent<AIBehaviour>();
+        public string StringValue
+        {
+            get => behaviourParamType != BehaviourParamType.String ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : stringValue;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.String) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                stringValue = value;
+            }
+        }
 
-        public string StringValue { get => behaviourParamType != BehaviourParamType.String ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : stringValue; }
-        public int IntValue { get => behaviourParamType != BehaviourParamType.Int ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : intValue; }
-        public float FloatValue { get => behaviourParamType != BehaviourParamType.Float ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :floatValue; }
-        public bool BoolValue { get => behaviourParamType != BehaviourParamType.Bool ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :boolValue; }
-        public Vector2 Vector2Value { get => behaviourParamType != BehaviourParamType.Vector2 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector2Value;  }
-        public Vector3 Vector3Value { get => behaviourParamType != BehaviourParamType.Vector3 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector3Value;  }
-        public Vector4 Vector4Value { get => behaviourParamType != BehaviourParamType.Vector4 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector4Value;  }
-        public GameObject PrefabValue { get => behaviourParamType != BehaviourParamType.GameObject ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :prefabValue;  }
-        public List<bool> BoolLists { get => behaviourParamType != BehaviourParamType.BoolList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :boolLists; }
-        public List<int> IntLists { get => behaviourParamType != BehaviourParamType.IntList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :intLists; }
-        public List<float> FloatLists { get => behaviourParamType != BehaviourParamType.FloatList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :floatLists; }
-        public List<string> StringLists { get => behaviourParamType != BehaviourParamType.StringList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :stringLists;  }
-        public List<Vector2> Vector2Lists { get => behaviourParamType != BehaviourParamType.Vector2List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector2Lists;  }
-        public List<Vector3> Vector3Lists { get => behaviourParamType != BehaviourParamType.Vector3List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector3Lists;  }
-        public List<Vector4> Vector4Lists { get => behaviourParamType != BehaviourParamType.Vector4List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :vector4Lists;  }
-        public List<GameObject> PrefabLists { get => behaviourParamType != BehaviourParamType.GameObjectList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) :prefabLists;  }
-        public UnityEvent<AIBehaviour> UnityEvent { get => behaviourParamType != BehaviourParamType.UnityEvent ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : unityEvent; }
+        public int IntValue
+        {
+            get => behaviourParamType != BehaviourParamType.Int ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : intValue;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Int) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                intValue = value;
+            }
+        }
+
+        public float FloatValue
+        {
+            get => behaviourParamType != BehaviourParamType.Float ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : floatValue;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Float) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                floatValue = value;
+            }
+        }
+
+        public bool BoolValue
+        {
+            get => behaviourParamType != BehaviourParamType.Bool ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : boolValue;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Bool) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                boolValue = value;
+            }
+        }
+
+        public Vector2 Vector2Value
+        {
+            get => behaviourParamType != BehaviourParamType.Vector2 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector2Value;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector2) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector2Value = value;
+            }
+        }
+
+        public Vector3 Vector3Value
+        {
+            get => behaviourParamType != BehaviourParamType.Vector3 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector3Value;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector3) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector3Value = value;
+            }
+        }
+
+        public Vector4 Vector4Value
+        {
+            get => behaviourParamType != BehaviourParamType.Vector4 ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector4Value;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector4) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector4Value = value;
+            }
+        }
+
+        public GameObject GameObjectValue
+        {
+            get => behaviourParamType != BehaviourParamType.GameObject ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : gameObjectValue;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.GameObject) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                gameObjectValue = value;
+            }
+        }
+
+        public List<bool> BoolLists
+        {
+            get => behaviourParamType != BehaviourParamType.BoolList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : boolLists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.BoolList) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                boolLists = value;
+            }
+        }
+
+        public List<int> IntLists
+        {
+            get => behaviourParamType != BehaviourParamType.IntList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : intLists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.IntList) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                intLists = value;
+            }
+        }
+
+        public List<float> FloatLists
+        {
+            get => behaviourParamType != BehaviourParamType.FloatList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : floatLists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.FloatList) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                floatLists = value;
+            }
+        }
+
+        public List<string> StringLists
+        {
+            get => behaviourParamType != BehaviourParamType.StringList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : stringLists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.StringList) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                stringLists = value;
+            }
+        }
+
+        public List<Vector2> Vector2Lists
+        {
+            get => behaviourParamType != BehaviourParamType.Vector2List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector2Lists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector2List) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector2Lists = value;
+            }
+        }
+
+        public List<Vector3> Vector3Lists
+        {
+            get => behaviourParamType != BehaviourParamType.Vector3List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector3Lists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector3List) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector3Lists = value;
+            }
+        }
+
+        public List<Vector4> Vector4Lists
+        {
+            get => behaviourParamType != BehaviourParamType.Vector4List ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : vector4Lists;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.Vector4List) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                vector4Lists = value;
+            }
+        }
+
+        public List<GameObject> GameObjectList
+        {
+            get => behaviourParamType != BehaviourParamType.GameObjectList ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : gameObjectList;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.GameObjectList) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                gameObjectList = value;
+            }
+        }
+
+        public UnityEvent<AIBehaviour> UnityEvent
+        {
+            get => behaviourParamType != BehaviourParamType.UnityEvent ? throw new Exception("参数类型不一致,Type:" + behaviourParamType) : unityEvent;
+            set
+            {
+                if (behaviourParamType != BehaviourParamType.UnityEvent) throw new Exception("参数类型不一致,Type:" + behaviourParamType);
+                unityEvent = value;
+            }
+        }
+
         public object Value
         {
             get
@@ -122,7 +274,7 @@ namespace YukiFrameWork.Behaviours
                     BehaviourParamType.Vector2 => Vector2Value,
                     BehaviourParamType.Vector3 => Vector3Value,
                     BehaviourParamType.Vector4 => Vector4Value,
-                    BehaviourParamType.GameObject => PrefabValue,
+                    BehaviourParamType.GameObject => GameObjectValue,
                     BehaviourParamType.Bool => BoolValue,
                     BehaviourParamType.BoolList => BoolLists,
                     BehaviourParamType.IntList => IntLists,
@@ -131,14 +283,13 @@ namespace YukiFrameWork.Behaviours
                     BehaviourParamType.Vector2List => Vector2Lists,
                     BehaviourParamType.Vector3List => Vector3Lists,
                     BehaviourParamType.Vector4List => Vector4Lists,
-                    BehaviourParamType.GameObjectList => PrefabLists,
-                    BehaviourParamType.UnityEvent => unityEvent,
+                    BehaviourParamType.GameObjectList => GameObjectList,
+                    BehaviourParamType.UnityEvent => UnityEvent,
                     _ => default
                 };
             }
 
-        }
-        
+        }    
     }
     /// <summary>
     /// 标记该特性，可让对应的字段自动在运行时赋值已有的参数，如果可序列化，此时会禁止对应字段在SO中Inspector的绘制并根据类型提示相应的提示/警告,同时可以在BehaviourTree组件中同步字段

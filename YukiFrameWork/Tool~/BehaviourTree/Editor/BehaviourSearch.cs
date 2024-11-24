@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using System.Linq;
@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using YukiFrameWork.Behaviours;
 /// <summary>
-/// ËÑË÷´°¿Ú
+/// æœç´¢çª—å£
 /// </summary>
 public class NodeSearchWindowProvider : ScriptableObject, UnityEditor.Experimental.GraphView.ISearchWindowProvider
 {
@@ -16,7 +16,7 @@ public class NodeSearchWindowProvider : ScriptableObject, UnityEditor.Experiment
     private BackGroundView graphView;
     private BehaviourTreeSO behaviourTree;
     /// <summary>
-    /// ³õÊ¼»¯
+    /// åˆå§‹åŒ–
     /// </summary>
     public void Init(BehaviourTreeGraphWindow window,BackGroundView view,BehaviourTreeSO behaviourTree)
     {
@@ -27,29 +27,29 @@ public class NodeSearchWindowProvider : ScriptableObject, UnityEditor.Experiment
     }
 
     /// <summary>
-    /// ´´½¨ËÑË÷Ê÷
+    /// åˆ›å»ºæœç´¢æ ‘
     /// </summary>
     public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
     {
         var entries = new List<SearchTreeEntry>();
 
-        entries.Add(new SearchTreeGroupEntry(new GUIContent("ĞĞÎªÊ÷½Úµã"), 0));      
-        entries.Add(new SearchTreeGroupEntry(new GUIContent("¸´ºÏ½Úµã"), 1));
+        entries.Add(new SearchTreeGroupEntry(new GUIContent("è¡Œä¸ºæ ‘èŠ‚ç‚¹"), 0));      
+        entries.Add(new SearchTreeGroupEntry(new GUIContent("å¤åˆèŠ‚ç‚¹"), 1));
         AddNodeOptions<Composite>(entries);       
 
-        entries.Add(new SearchTreeGroupEntry(new GUIContent("×°ÊÎ½Úµã"), 1));
+        entries.Add(new SearchTreeGroupEntry(new GUIContent("è£…é¥°èŠ‚ç‚¹"), 1));
         AddNodeOptions<Decorator>(entries);
 
-        entries.Add(new SearchTreeGroupEntry(new GUIContent("Ìõ¼ş½Úµã"), 1));
-
-        entries.Add(new SearchTreeGroupEntry(new GUIContent("¶¯×÷½Úµã"), 1));
+        entries.Add(new SearchTreeGroupEntry(new GUIContent("æ¡ä»¶èŠ‚ç‚¹"), 1));
+        AddNodeOptions<Condition>(entries);
+        entries.Add(new SearchTreeGroupEntry(new GUIContent("åŠ¨ä½œèŠ‚ç‚¹"), 1));
         AddNodeOptions<YukiFrameWork.Behaviours.Action>(entries);
 
         return entries;
     }
 
     /// <summary>
-    /// Ìí¼Ó½ÚµãÑ¡Ïî
+    /// æ·»åŠ èŠ‚ç‚¹é€‰é¡¹
     /// </summary>
     private void AddNodeOptions<T>(List<SearchTreeEntry> entries)
     {
@@ -58,7 +58,7 @@ public class NodeSearchWindowProvider : ScriptableObject, UnityEditor.Experiment
         {          
             if (type == typeof(AIRootBehaviour))
             {
-                //Ìø¹ı¸ù½Úµã
+                //è·³è¿‡æ ¹èŠ‚ç‚¹
                 continue;
             }        
            
@@ -69,11 +69,11 @@ public class NodeSearchWindowProvider : ScriptableObject, UnityEditor.Experiment
 
     public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
     {
-        //È¡³öÀàĞÍĞÅÏ¢
+        //å–å‡ºç±»å‹ä¿¡æ¯
         Type type = (Type)searchTreeEntry.userData;     
-        //´´½¨½Úµã 
-        var point = context.screenMousePosition - window.position.position; //Êó±êÏà¶ÔÓÚ´°¿ÚµÄÎ»ÖÃ
-        Vector2 graphMousePosition = graphView.contentViewContainer.WorldToLocal(point); //Êó±êÔÚ½ÚµãÍ¼ÏÂµÄÎ»ÖÃ
+        //åˆ›å»ºèŠ‚ç‚¹ 
+        var point = context.screenMousePosition - window.position.position; //é¼ æ ‡ç›¸å¯¹äºçª—å£çš„ä½ç½®
+        Vector2 graphMousePosition = graphView.contentViewContainer.WorldToLocal(point); //é¼ æ ‡åœ¨èŠ‚ç‚¹å›¾ä¸‹çš„ä½ç½®
         GraphBehaviourView.Create(type, behaviourTree,graphView, graphMousePosition);            
 
         return true;

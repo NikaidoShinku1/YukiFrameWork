@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 
 namespace XFABManager
@@ -33,34 +33,54 @@ namespace XFABManager
                 yield break;
             }
 
-            string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
-            if (File.Exists(mapping_path))
+            string mapping_path_upgrade = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping_upgrade);
+
+            if (File.Exists(mapping_path_upgrade))
             {
-                List<string> list = new List<string>();
-                string[] lines = File.ReadAllLines(mapping_path);
-                foreach (string line in lines)
+                string content = File.ReadAllText(mapping_path_upgrade);
+                // 优化读取升级后的   
+                Dictionary<string, Dictionary<string, string>> mappings = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(content);
+
+                foreach (var item in mappings.Values)
                 {
-                    if (string.IsNullOrEmpty(line)) continue;
-                    string[] names = line.Split('|');
-                    if (names == null || names.Length < 2 || string.IsNullOrEmpty(names[1])) continue;
-                    if (list.Contains(names[1])) continue;
-                    list.Add(names[1]);
+                    foreach (var bundle_name in item.Values)
+                    {
+                        yield return AssetBundleManager.LoadAssetBundleAsync(projectName, bundle_name);
+                    }
                 }
-
-                for (int i = 0; i < list.Count; i++)
+            }
+            else 
+            { 
+                // 如果没有新的 则使用旧的
+                string mapping_path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
+                if (File.Exists(mapping_path))
                 {
-                    string bundleName = string.Format("{0}_{1}{2}", projectName.ToLower(), list[i], AssetBundleManager.GetAssetBundleSuffix(projectName));
-                    if (bundleName.Equals(XFABTools.GetCurrentPlatformName())) continue;
-                    yield return AssetBundleManager.LoadAssetBundleAsync(projectName, bundleName);
-                    progress = (float)i / list.Count;
+                    List<string> list = new List<string>();
+                    string[] lines = File.ReadAllLines(mapping_path);
+                    foreach (string line in lines)
+                    {
+                        if (string.IsNullOrEmpty(line)) continue;
+                        string[] names = line.Split('|');
+                        if (names == null || names.Length < 2 || string.IsNullOrEmpty(names[1])) continue;
+                        if (list.Contains(names[1])) continue;
+                        list.Add(names[1]);
+                    }
+
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        string bundleName = string.Format("{0}_{1}{2}", projectName.ToLower(), list[i], AssetBundleManager.GetAssetBundleSuffix(projectName));
+                        if (bundleName.Equals(XFABTools.GetCurrentPlatformName())) continue;
+                        yield return AssetBundleManager.LoadAssetBundleAsync(projectName, bundleName);
+                        progress = (float)i / list.Count;
+                    } 
                 }
-
+                else
+                {
+                    Completed(string.Format("projectName:{0}读取AssetBundle列表失败!", projectName));
+                    yield break;
+                }
             }
-            else {
-                Completed(string.Format("projectName:{0}读取AssetBundle列表失败!", projectName));
-                yield break;
-            }
-
+              
             Completed();
         }
     }

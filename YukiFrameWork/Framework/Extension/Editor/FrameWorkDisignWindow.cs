@@ -99,8 +99,7 @@ namespace YukiFrameWork
         {
             string[] keys = titleDicts.Keys.ToArray();
             OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: true)
-            {
-                { $"工具导入窗口",new ImportSettingWindow(this),SdfIconType.GearFill },
+            {              
                 { $"框架基本设置", config, Sirenix.OdinInspector.SdfIconType.File },
 
                 { $"框架序列化工具/C#转文件流",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
@@ -199,10 +198,7 @@ namespace YukiFrameWork
             if (example != null)
             {
                 tree.Add($"框架规则示例", example, SdfIconType.PersonRolodex);
-            }
-
-            // tree.Add("组件拓展特性介绍", new AttributeInfoWIndow(), SdfIconType.AlarmFill);        
-            tree.Add("框架说明文档", new FrameworkInfoByWindow(), SdfIconType.Table);
+            }           
             return tree;       
         }
         public static FrameWorkDisignWindow Instance;
@@ -215,76 +211,8 @@ namespace YukiFrameWork
         }
     }
 
-    public class FrameworkInfoByWindow
-    {        
-        public string updateInfo => AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.packagePath + "/Framework/Extension/UpdateInfo.md")?.text;
-
-        [OnInspectorGUI]
-        void OnInspectorGUI()
-        {
-            var title = new GUIStyle()
-            {
-                fontSize = 20,
-                alignment = TextAnchor.UpperCenter,
-                fontStyle = FontStyle.Bold
-
-            };
-            GUILayout.BeginVertical();
-            UnityEditor.EditorGUILayout.HelpBox("框架使用提示:当使用hybridclr等热更新插件时，可打开架构构造器脚本。\n因适配问题可将RuntimeInitializeOnLoadMethod特性注释，并在合适的时机手动调用ArchitectureConstructor.InitArchitecture()方法",MessageType.Warning);
-            if (GUILayout.Button("打开脚本",GUILayout.Width(100)))
-            {
-                AssetDatabase.OpenAsset(UnityEditor.AssetDatabase.LoadAssetAtPath<MonoScript>(ImportSettingWindow.packagePath + "/Framework/ViewController/" + nameof(ArchitectureConstructor) + ".cs"));
-            }
-            GUILayout.EndVertical();
-            title.normal.textColor = Color.white;
-            GUILayout.Label("YukiFramework", title);
-            GUILayout.Label("工具教学链接");
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical(GUILayout.Width(200));
-            Button("LocalizationKit_本地化套件", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md");
-            Button("DiaLogKit_对话系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md");
-            Button("BuffKit_框架Buff系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
-            Button("LogKit_日志工具", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%97%A5%E5%BF%97%E5%B7%A5%E5%85%B7.md");
-            Button("ItemKit_框架背包系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md");
-            Button("MissionKit框架任务系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionKit/MissionKit.md");
-            Button("SerializationTool_框架序列化工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/%E5%BA%8F%E5%88%97%E5%8C%96%E5%B7%A5%E5%85%B7.md");
-            Button("SaveTool_框架存档工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/%E5%AD%98%E6%A1%A3%E7%B3%BB%E7%BB%9F.md");
-            Button("框架引导工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/PilotKit/PilotKit.md");
-            Button("Singleton_框架万能单例介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Singleton/9.%E5%8D%95%E4%BE%8B.md");
-            Button("EventSystem_框架广播系统介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Events/7.%E6%B6%88%E6%81%AF%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%9D%97.md");
-            Button("UIKit_框架UI模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md");
-            Button("AudioKit_框架声音管理", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
-            Button("ActionKit_时序动作套件说明", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
-            Button("Old StateManager_框架可视化状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md",Color.yellow);
-            Button("StateManager_全新动作设计状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateMachine/s.StateManager.md");
-            Button("Extension_框架拓展模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md");
-            Button("PoolsKit_框架设置简易对象池", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md");
-            Button("BindableProperty强化数据绑定类", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md");
-            Button("BezierUtility_框架贝塞尔曲线拓展", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md");
-            Button("XFABManager插件官网地址", "https://gitee.com/xianfengkeji/xfabmanager");
-            Button("2d NavMeshPlus 插件官网地址:", "https://github.com/h8man/NavMeshPlus/tree/master");
-
-            GUILayout.EndVertical();     
-            GUILayout.BeginVertical(GUILayout.Width(400));     
-            GUILayout.Label(updateInfo, "Framebox");
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();            
       
-        }
-
-        void Button(string name,string url,Color color = default)
-        {
-            if(color != default)
-            GUI.color = color;
-            if (GUILayout.Button(name,GUILayout.Height(40),GUILayout.Width(250)))
-            {
-                Application.OpenURL(url);
-            }
-            GUI.color = Color.white;
-            GUILayout.Space(5);
-        }
-       
-    }
+    
 
 
     public static class UnityEngineSavingExtension

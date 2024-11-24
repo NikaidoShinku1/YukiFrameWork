@@ -42,6 +42,23 @@ namespace YukiFrameWork
             return "";
         }
 
+        public static T Add<T>(this T obj, IList<T> list)
+        {
+            list.Add(obj);
+            return obj;
+        }
+
+        public static T Remove<T>(this T obj, IList<T> list)
+        {
+            list.Remove(obj);
+            return obj;
+        }
+
+        public static T IndexOf<T>(this T obj, IList<T> list,out int index)
+        {
+            index = list.IndexOf(obj);
+            return obj;
+        }
 
         public static string Color(this string content, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{content}</color>";
         /// <summary>

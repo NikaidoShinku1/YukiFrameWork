@@ -23,10 +23,7 @@ namespace YukiFrameWork.DiaLogue
     }
     [CreateAssetMenu(fileName = "NodeTree", menuName = "YukiFrameWork/NodeTree")]
     public class NodeTree : ScriptableObject
-    {
-        [LabelText("对话树识别标识:"),SerializeField]
-        [InfoBox("不同的对话树标识必须唯一,必须填写"),FoldoutGroup("配置", -2)]
-        internal string nodekey;
+    {     
         // 对话树的开始 根节点
         [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] internal Node rootNode;
         // 当前正在播放的对话
@@ -107,7 +104,17 @@ namespace YukiFrameWork.DiaLogue
 
             return Move(option.nextNode);
         }
-
+        private void OnValidate()
+        {
+            for(int i = 0;i<nodes.Count;i++)
+            {
+                var node = nodes[i];
+                if (node)
+                {
+                    node.nodeId = (1000) + i;
+                }
+            }
+        }
         internal MoveNodeState MoveNode(Node node)
         {            
             return Move(node);
@@ -272,8 +279,7 @@ namespace YukiFrameWork.DiaLogue
             }
 
             foreach (var node in nodes)
-            {
-                Debug.Log("Test");
+            {         
                 if (node.linkIds != null && node.linkIds.Count > 0)
                 {
                     Debug.Log("Test");

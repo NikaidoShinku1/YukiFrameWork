@@ -21,11 +21,9 @@ namespace YukiFrameWork.Behaviours
             if (CanExecute())
             {             
                 currentChild.Update();
-                BehaviourStatus status = currentChild.Status;
-                Debug.Log( currentChild.Description+status);
+                BehaviourStatus status = currentChild.Status;              
                 if (status == BehaviourStatus.Success)
-                    return BehaviourStatus.Success;
-
+                    return BehaviourStatus.Success;             
                 if (status == BehaviourStatus.Failed)
                     Next();              
             }
@@ -33,18 +31,30 @@ namespace YukiFrameWork.Behaviours
         }
 
         protected internal override void Self()
-        {
-            if (Status != BehaviourStatus.Running) return;
+        {           
             for (int i = 0; i < currentIndex; i++)
             {
                 var child = childs[i];
+                if (child.Status == BehaviourStatus.Running) continue;
                 if (child.Status == BehaviourStatus.Failed)
                 {
-                    if (child.OnUpdate() == BehaviourStatus.Success)
+                    var status = child.OnUpdate();
+                    if (status == BehaviourStatus.Success)
                     {
                         Status = BehaviourStatus.Success;
                         child.Status = BehaviourStatus.Success;
+                        currentChild.OnInterruption();
                         currentChild.ResetBehaviour();
+                        OnStart();
+                        break;
+                    }
+                    else if (status == BehaviourStatus.Running)
+                    {                      
+                        currentIndex = childs.IndexOf(child);
+                        currentChild.OnInterruption();
+                        currentChild.ResetBehaviour();
+                        currentChild = child;
+                        Status = BehaviourStatus.Running;
                         break;
                     }
                 }

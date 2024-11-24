@@ -1465,7 +1465,6 @@ namespace YukiFrameWork
             other_point = other.GetPoint(other_point_distance);
         }
 
-
         /// <summary>
         /// 计算两条射线之间最近的点(返回的距离如果是负的,代表该点在起点的反方向)
         /// </summary>

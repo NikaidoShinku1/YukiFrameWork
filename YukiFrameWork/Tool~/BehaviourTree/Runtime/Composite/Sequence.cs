@@ -40,7 +40,7 @@ namespace YukiFrameWork.Behaviours
         {         
             if (CanExecute())
             {
-                currentChild.Update();
+                currentChild.Update();            
                 BehaviourStatus status = currentChild.Status;
                 if (status == BehaviourStatus.Failed)
                 {                   
@@ -61,8 +61,7 @@ namespace YukiFrameWork.Behaviours
         }
 
         protected internal override void Self()
-        {
-            if (Status != BehaviourStatus.Running) return;
+        {           
             for(int i = 0;i < currentIndex; i++)
             {
                 var child = childs[i];
@@ -70,9 +69,12 @@ namespace YukiFrameWork.Behaviours
 
                 if (child.OnUpdate() == BehaviourStatus.Failed)
                 {
-                    currentChild.ResetBehaviour();
+                    currentChild.OnInterruption();
+                    currentChild.ResetBehaviour();                 
                     child.Status = BehaviourStatus.Failed;
                     Status = BehaviourStatus.Failed;
+                    currentIndex = childs.IndexOf(child);
+                    currentChild = child;
                     break;
                 }
             }
@@ -119,7 +121,7 @@ namespace YukiFrameWork.Behaviours
 
         protected override bool CanExecute()
         {
-            return currentIndex < childs.Count && Status == BehaviourStatus.Running;
+            return currentIndex < childs.Count && Status != BehaviourStatus.InActive;
         }
     }
 }

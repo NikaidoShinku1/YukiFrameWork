@@ -3,11 +3,12 @@
     "rootNamespace": "",
     "references": [
         "GUID:35d17ca44c3f9e0489ba3bd4ba52f23c",
-        "GUID:b1b970005ef164f8ab82a929113bb088"
+        "GUID:b1b970005ef164f8ab82a929113bb088",
+        "GUID:d8b63aba1907145bea998dd612889d6b"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

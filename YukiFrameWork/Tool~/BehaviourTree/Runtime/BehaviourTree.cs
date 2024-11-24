@@ -13,9 +13,10 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using Sirenix.OdinInspector;
 using System.Linq;
-using Sirenix.OdinInspector.Editor;
 using System.Collections;
 using System.Reflection;
+using Sirenix.OdinInspector.Editor;
+
 
 
 
@@ -29,7 +30,7 @@ namespace YukiFrameWork.Behaviours
         public AIRootBehaviour rootBehaviour { get; private set; }
         [SerializeField, LabelText("Config配置")]
 #if UNITY_EDITOR
-        [OnValueChanged(nameof(InspectorChange), InvokeOnInitialize = true)]
+        [OnValueChanged(nameof(InspectorChange))]
 #endif
         internal BehaviourTreeSO View;
 
@@ -81,7 +82,7 @@ namespace YukiFrameWork.Behaviours
             if (initMode == RuntimeInitMode.Start)
                 Init();
         }
-        private List<AIBehaviour> runtime_behaviours = new List<AIBehaviour>();
+        internal List<AIBehaviour> runtime_behaviours = new List<AIBehaviour>();
 
         private void OnEnable()
         {
@@ -157,8 +158,7 @@ namespace YukiFrameWork.Behaviours
             }
             OnCanceled?.Invoke();
         }
-
-        private void Update()
+        public void CheckResetTree()
         {
             if (Repeat_tree && (rootBehaviour.IsSuccess || rootBehaviour.IsFailed))
             {
@@ -189,8 +189,8 @@ namespace YukiFrameWork.Behaviours
         private IEnumerable bes => View ? View.AllNodes.Select(x => new ValueDropdownItem() { Text = x.name + "_" + x.ID, Value = x }) : default;
         [ShowIf(nameof(IsShow))]
         [ValueDropdown(nameof(bes))]
-        [InfoBox("当AIBehaviour重写DrawGizmos方法，选择高亮节点，同时在下方绘制拥有BehaviourParam特性的字段")]       
-        public AIBehaviour inspectorShowView;
+        [InfoBox("当AIBehaviour重写DrawGizmos方法，选择高亮节点")]       
+        public AIBehaviour gizmosView;
 
         void InspectorChange(BehaviourTreeSO treeSO)
         {            
@@ -203,122 +203,13 @@ namespace YukiFrameWork.Behaviours
         private void OnDrawGizmos()
         {
             //如果存在则绘制
-            if (inspectorShowView)
-                inspectorShowView.DrawGizmos(transform);         
+            if (gizmosView)
+                gizmosView.DrawGizmos(transform);         
         }      
 #endif
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(BehaviourTree))]
-    public class BehaviourTreeEditor : OdinEditor
-    {
-        private BehaviourTree behaviourTree => target as BehaviourTree;
-
-        private GUIStyle titleStyle;
-        public override void OnInspectorGUI()
-        {
-            base.OnInspectorGUI();
-
-            if (!behaviourTree) return;
-            if (!behaviourTree.View) return;
-            if (!behaviourTree.inspectorShowView) return;
-
-            FieldInfo[] fieldInfos = behaviourTree.inspectorShowView
-                .GetType()
-                .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => x.HasCustomAttribute<BehaviourParamAttribute>()).ToArray();
-
-            if (!behaviourTree.paramViews.ContainsKey(behaviourTree.inspectorShowView.ID))
-            {
-                behaviourTree.paramViews.Add(behaviourTree.inspectorShowView.ID, new List<BehaviourParamView>());
-            }
-
-       
-            if (behaviourTree.paramViews[behaviourTree.inspectorShowView.ID].Count != fieldInfos.Length)
-            {
-                List<string> names = new List<string>();
-                foreach (var field in fieldInfos)
-                {
-                    if (!BehaviourParam.AllParamTypes.ContainsKey(field.FieldType))
-                        continue;
-                    
-                    if (behaviourTree.paramViews[behaviourTree.inspectorShowView.ID].FirstOrDefault(x => x.fieldName == field.Name) != null)                   
-                        continue;
-                    behaviourTree.paramViews[behaviourTree.inspectorShowView.ID].Add(new BehaviourParamView()
-                    {
-                        fieldName = field.Name,
-                        paramType = BehaviourParam.AllParamTypes[field.FieldType]
-                    });
-                    names.Add(field.Name);
-
-                }
-                List<BehaviourParamView> items = new List<BehaviourParamView>();
-                foreach (var item in behaviourTree.paramViews[behaviourTree.inspectorShowView.ID])
-                {
-                    if (!names.Contains(item.fieldName))
-                    {
-                        items.Add(item);
-                    }
-                }
-
-                foreach (var item in items)
-                {
-                    behaviourTree.paramViews[behaviourTree.inspectorShowView.ID].Remove(item);
-                }
-            }
-            try
-            {
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.BeginVertical("FrameBox");
-                if (behaviourTree.paramViews[behaviourTree.inspectorShowView.ID].Count != 0)
-                {
-                    try
-                    {
-                        titleStyle ??= new GUIStyle()
-                        {
-                            fontSize = 16,
-                            alignment = TextAnchor.UpperCenter,
-                           
-                        };
-                        titleStyle.normal.textColor = Color.white;
-                        EditorGUILayout.LabelField("Behaviour Inspector", titleStyle);
-                        EditorGUILayout.Space();
-                    }
-                    catch { }
-                    foreach (var param in behaviourTree.paramViews[behaviourTree.inspectorShowView.ID])
-                    {
-                        var keys = behaviourTree.Params.Keys.Where(x => behaviourTree.Params[x].behaviourParamType == param.paramType).ToArray();
-
-                        if (keys.Length <= 0) continue;
-
-                        if (!param.paramName.IsNullOrEmpty())
-                            param.selectIndex = Array.IndexOf(keys, param.paramName);
-                        try
-                        {
-                            param.selectIndex = EditorGUILayout.Popup(param.fieldName, param.selectIndex, keys);
-                        }
-                        catch { }
-                        if (param.selectIndex >= keys.Length)
-                            param.selectIndex = 0;
-                        try
-                        {
-                            param.paramName = keys[param.selectIndex];
-                        }
-                        catch { param.selectIndex = 0; }
 
 
-                    }
-
-                }
-                EditorGUILayout.EndVertical();
-                if (EditorGUI.EndChangeCheck())
-                    behaviourTree.Save();
-            }
-            catch { }
-
-        }
-    }
-#endif
 }

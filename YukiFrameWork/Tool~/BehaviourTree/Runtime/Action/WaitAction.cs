@@ -16,19 +16,13 @@ namespace YukiFrameWork.Behaviours
         public override void OnStart()
         {
             base.OnStart();
-            timer = 0;
-            Debug.Log(target);
+            timer = 0;       
         }
-        private float timer = 0;
-
-        [BehaviourParam]
-        public GameObject target;
-        
+        public float time = 5;
+        private float timer = 0;  
         public override BehaviourStatus OnUpdate() 
         {
-            base.OnUpdate();
-            float time = BehaviourTree.Params["time"].FloatValue;
-
+            base.OnUpdate();           
             timer += Time.deltaTime;           
             return timer > time ? BehaviourStatus.Success : BehaviourStatus.Running;
         }

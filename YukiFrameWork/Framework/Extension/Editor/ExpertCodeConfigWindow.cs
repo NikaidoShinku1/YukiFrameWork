@@ -336,7 +336,7 @@ namespace YukiFrameWork
             scrollRect = EditorGUILayout.BeginScrollView(scrollRect);
             var textRect = EditorGUILayout.BeginVertical();
             EditorGUI.DrawRect(textRect, SirenixGUIStyles.BorderColor);
-            Vector2 vector = codeTextStyle.CalcSize(text);
+            Vector2 vector = codeTextStyle.CalcSize(new GUIContent(text));
             Rect position = GUILayoutUtility.GetRect(vector.x + 50f, vector.y).AddXMin(4f).AddY(2f);
             EditorGUI.SelectableLabel(position,config.Name.IsNullOrEmpty()  ? "请输入文件名称以预览脚本" : text,codeTextStyle);
             EditorGUILayout.EndVertical();

@@ -11,6 +11,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using YukiFrameWork.Extension;
+using System.Linq;
+
+
 
 
 #if UNITY_EDITOR
@@ -108,10 +111,24 @@ namespace YukiFrameWork.Behaviours
                 {
                     GraphBehaviourView.Create(typeof(AIRootBehaviour), behaviourTree, this, evt.mousePosition);
                 });
-                
+
             }
             else
+            {
+                if (evt.target is GraphBehaviourView view)
+                {
+                    if (view.Behaviour && view.Behaviour.GetType() != typeof(AIRootBehaviour))
+                    {
+                        evt.menu.AppendAction("Edit Script", arg => 
+                        {
+                           
+                            AssetDatabase.GetAllAssetPaths().Select(AssetDatabase.LoadAssetAtPath<MonoScript>)
+                            .FirstOrDefault(x => x && x.GetClass() != null && x.GetClass() == view.Behaviour.GetType()).Open();
+                        });
+                    }
+                }
                 base.BuildContextualMenu(evt);
+            }
         }
 
         /// <summary>

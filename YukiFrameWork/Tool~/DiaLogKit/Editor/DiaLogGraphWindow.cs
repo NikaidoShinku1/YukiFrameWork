@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -72,6 +74,7 @@ namespace YukiFrameWork.DiaLogue
 
         private BackGroundView backGroundView;
         private InspectorView inspectorView;
+        private DropdownField dropdownField;
         private ObjectField objectField;
         private VisualElement root => rootVisualElement;
 
@@ -105,7 +108,7 @@ namespace YukiFrameWork.DiaLogue
             Button saveBtn = root.Q<Button>("SaveButton");
 
             saveBtn.clicked += delegate 
-            {
+            {              
                 OnValidate?.Invoke();
                 Repaint();
                 AssetDatabase.SaveAssets(); 
@@ -115,9 +118,38 @@ namespace YukiFrameWork.DiaLogue
             objectField.objectType = typeof(NodeTree);
             objectField.value = nodeTree;
             backGroundView.Pop(nodeTree);
-            objectField.RegisterValueChangedCallback(OnNodeTreeChanged);         
-          
-        }        
+            objectField.RegisterValueChangedCallback(OnNodeTreeChanged);
+            dropdownField = root.Q<DropdownField>("RuntimeNode");
+
+            dropdownField.RegisterValueChangedCallback(OnDropDownFieldChanged);
+            RepaintRuntimeTree();
+        }
+
+        private void OnDropDownFieldChanged(ChangeEvent<string> evt)
+        {
+            if (evt.newValue == "None") return;
+
+            if (DiaLogKit.DiaLogs.ContainsKey(evt.newValue))
+            {
+                nodeTree = DiaLogKit.DiaLogs[evt.newValue].tree;
+                objectField.value =  DiaLogKit.DiaLogs[evt.newValue].tree;
+                if (backGroundView != null)
+                    backGroundView.Pop(nodeTree);
+            }
+        }
+
+        private void RepaintRuntimeTree()
+        {
+            if (!Application.isPlaying)
+            {
+                dropdownField.choices = new System.Collections.Generic.List<string>() { "None" };
+                dropdownField.index = 0;
+            }
+            else
+            {
+                dropdownField.choices = DiaLogKit.DiaLogs.Keys.ToList();
+            }
+        }
         private void OnNodeTreeChanged(ChangeEvent<UnityEngine.Object> evt)
         {
             nodeTree = evt.newValue as NodeTree;

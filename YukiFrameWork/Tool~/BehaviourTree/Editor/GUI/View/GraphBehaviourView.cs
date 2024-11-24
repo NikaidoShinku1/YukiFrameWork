@@ -150,7 +150,7 @@ namespace YukiFrameWork.Behaviours
                 inputContainer.Add(inputPort);
             }
 
-            if ((Behaviour is Action))
+            if ((Behaviour is Action) || (Behaviour is Condition))
                 return;
             if (!Behaviour.GetType().HasCustomAttribute<ChildModeInfoAttribute>(true, out ChildModeInfoAttribute capacityInfo))
                 return;

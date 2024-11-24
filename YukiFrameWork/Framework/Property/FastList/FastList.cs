@@ -1042,7 +1042,7 @@ namespace YukiFrameWork
             IEnumerator IEnumerable.GetEnumerator()
             {
                 object root = _root;
-                IEnumerator result;
+                IEnumerator result; 
                 lock (root)
                 {
                     result = _list.GetEnumerator();

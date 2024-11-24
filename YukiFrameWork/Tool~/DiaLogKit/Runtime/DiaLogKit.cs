@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using Sirenix.OdinInspector;
+using System.Linq;
 namespace YukiFrameWork.DiaLogue
 {
     public enum DiaLogLoadMode
@@ -41,19 +42,11 @@ namespace YukiFrameWork.DiaLogue
         private static IDiaLogLoader loader;     
         private static Dictionary<string, DiaLog> diaLogController;
 
+        public static IReadOnlyDictionary<string, DiaLog> DiaLogs => diaLogController;
+
         static DiaLogKit()
         {            
             diaLogController = new Dictionary<string, DiaLog>();
-            if (Application.isPlaying)
-            {
-                MonoHelper.Destroy_AddListener(_ =>
-                {
-                    foreach (var item in diaLogController.Values)
-                    {
-                        item.GlobalRelease();
-                    }
-                });
-            }
         }
 
         public static void Init(string projectName)
@@ -93,12 +86,12 @@ namespace YukiFrameWork.DiaLogue
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static DiaLog CreateDiaLogue(string path)
-            => CreateDiaLogue(loader.Load<NodeTree>(path));
+        public static DiaLog CreateDiaLogue(string key,string path)
+            => CreateDiaLogue(key,loader.Load<NodeTree>(path));
     
-        public static void CreateDiaLogueAsync(string path, Action<DiaLog> onCompleted)
+        public static void CreateDiaLogueAsync(string key,string path, Action<DiaLog> onCompleted)
         {
-            loader.LoadAsync<NodeTree>(path, tree => onCompleted?.Invoke(CreateDiaLogue(tree)));
+            loader.LoadAsync<NodeTree>(path, tree => onCompleted?.Invoke(CreateDiaLogue(key,tree)));
         }
 
         /// <summary>
@@ -109,9 +102,8 @@ namespace YukiFrameWork.DiaLogue
         /// <param name="autoRelease">是否自动回收，开启后在结束运行时会将整个对话树初始化</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static DiaLog CreateDiaLogue(NodeTree nodeTree)
-        {
-            string key = nodeTree.nodekey;
+        public static DiaLog CreateDiaLogue(string key,NodeTree nodeTree)
+        {           
             if (diaLogController.ContainsKey(key))
             {
                 throw new Exception("当前已经存在该标识的对话控制器 Key：" + key);
@@ -180,8 +172,30 @@ namespace YukiFrameWork.DiaLogue
             if (isInited) return;
             isInited = true;
             this.DiaLogKey = key;
-            this.tree = nodeTree;
-        
+            this.tree = nodeTree.Instantiate();
+            this.tree.nodes = nodeTree.nodes.Select(x => x.Instantiate()).ToList();       
+            foreach (var item in this.tree.nodes)
+            {
+
+                for (int i = 0; i < item.randomItems.Count; i++)
+                {
+                    item.randomItems[i] = this.tree.nodes.Find(x => x.nodeId == item.randomItems[i].nodeId);
+                }
+                
+                for (int i = 0; i < item.optionItems.Count; i++)
+                {
+                    var option = item.optionItems[i];
+                    if (option.nextNode)
+                        option.nextNode = this.tree.nodes.Find(x => x.nodeId == option.nextNode.nodeId);
+                }
+
+                if (item.child)
+                {
+                    item.child = tree.nodes.Find(x => x.nodeId == item.child.nodeId);
+                }
+            }
+
+            this.tree.rootNode = this.tree.nodes.FirstOrDefault(x => x.IsRoot);
             MonoHelper.Update_AddListener(Update);
             MonoHelper.FixedUpdate_AddListener(FixedUpdate);
             MonoHelper.LateUpdate_AddListener(LateUpdate);
@@ -222,12 +236,14 @@ namespace YukiFrameWork.DiaLogue
                 tree.onFailedCallBack.UnRegisterAllEvent();
                 DiaLogKit.RemoveDiaLogue(DiaLogKey);
                 End();
-            }           
+            }
+            tree.Destroy();
             tree = null;
             isInited = false;            
             MonoHelper.Update_RemoveListener(Update);
             MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);
             MonoHelper.LateUpdate_RemoveListener(LateUpdate);
+            
         }
 
         public void Start()

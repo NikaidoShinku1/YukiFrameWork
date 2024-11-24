@@ -134,7 +134,7 @@ namespace XFABManager
         /// 加载出来的资源的hash_code 对应的project_name
         /// </summary>
         internal static Dictionary<int, string> asset_hash_project_name = new Dictionary<int, string>();
-
+       
 #if UNITY_EDITOR
         // 缓存从 Assetdatabase 加载的资源 如果每次都加载会出现卡顿的情况
         private static Dictionary<string,UnityEngine.Object> EditorAssets = new Dictionary<string, UnityEngine.Object>();
@@ -150,7 +150,7 @@ namespace XFABManager
         private static List<SceneObject> unloadedSceneObjects = new List<SceneObject>();
 
         #endregion
-
+        
         #region 属性
 
         /// <summary>
@@ -241,6 +241,7 @@ namespace XFABManager
         /// <returns></returns>
         public static ReadyResRequest ReadyRes(CheckUpdateResult result) 
         {
+           
             return ReadyRes(new CheckUpdateResult[] { result });
         }
 
@@ -1852,7 +1853,9 @@ namespace XFABManager
             // 之前是判断有没有 XFABConst.project_build_info 这个文件
             // 后来修改之后XFABConst.project_build_info这个文件在客户端不一定存在，可有可无，所以修改为判断有没有XFABConst.asset_bundle_mapping
             string path = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping);
-
+            string path_upgrade = XFABTools.LocalResPath(projectName, XFABConst.asset_bundle_mapping_upgrade);
+            // 数据目录是否有该资源
+            bool isHaveLocalRes = File.Exists(path) || File.Exists(path_upgrade);
             bool isHaveBuildIn = false;
 
             if (XFABTools.StreamingAssetsReadable()) { 
@@ -1863,7 +1866,7 @@ namespace XFABManager
             // 数据目录或者内置目录只要一个目录有数据就算本地有数据，
             // 如果内置目录有数据，说明内置一定是可读的，如果不可读会一直返回false
 
-            return File.Exists(path) || isHaveBuildIn;
+            return isHaveLocalRes || isHaveBuildIn;
         }
 
         /// <summary>

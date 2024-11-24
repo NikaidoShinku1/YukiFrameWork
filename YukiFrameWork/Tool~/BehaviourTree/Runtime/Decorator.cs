@@ -63,12 +63,12 @@ namespace YukiFrameWork.Behaviours
 
         public override void OnFixedUpdate()
         {
-            if (child != null && child.Status == BehaviourStatus.Running)
+            if (child && child.Status == BehaviourStatus.Running)
                 child.OnFixedUpdate();
         }
         public override void OnLateUpdate()
         {
-            if (child != null && child.Status == BehaviourStatus.Running)
+            if (child && child.Status == BehaviourStatus.Running)
                 child.OnLateUpdate();
         }
     }

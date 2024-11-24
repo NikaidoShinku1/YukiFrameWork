@@ -47,7 +47,7 @@ namespace YukiFrameWork.Behaviours
       
         protected override bool CanExecute()
         {
-            return Status  == BehaviourStatus.Running; 
+            return Status != BehaviourStatus.InActive; 
         }
 
         protected internal override void Self()
@@ -58,6 +58,7 @@ namespace YukiFrameWork.Behaviours
                 case ParallelMode.FirstSuccess:
                     for (int i = 0; i < childs.Count; i++)
                     {
+                        if (childs[i].Status == BehaviourStatus.Running) continue;
                         if (childs[i].Status == BehaviourStatus.Failed)
                         {
                             if (childs[i].OnUpdate() == BehaviourStatus.Success)
@@ -66,6 +67,7 @@ namespace YukiFrameWork.Behaviours
                                 for (int j = 0; j < childs.Count; j++)
                                 {
                                     if (childs[j] == childs[i]) continue;
+                                    childs[j].OnInterruption();
                                     childs[j].ResetBehaviour();
                                 }
                                 Status = BehaviourStatus.Success;
@@ -76,6 +78,7 @@ namespace YukiFrameWork.Behaviours
                 case ParallelMode.FirstFailed:
                     for (int i = 0; i < childs.Count; i++)
                     {
+                        if (childs[i].Status == BehaviourStatus.Running) continue;
                         if (childs[i].Status == BehaviourStatus.Success)
                         {
                             if (childs[i].OnUpdate() == BehaviourStatus.Failed)
@@ -84,6 +87,7 @@ namespace YukiFrameWork.Behaviours
                                 for (int j = 0; j < childs.Count; j++)
                                 {
                                     if (childs[j] == childs[i]) continue;
+                                    childs[j].OnInterruption();
                                     childs[j].ResetBehaviour();
                                 }
                                 Status = BehaviourStatus.Failed;

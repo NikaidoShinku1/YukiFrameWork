@@ -47,7 +47,7 @@ namespace YukiFrameWork.DiaLogue
                 Pop(tree);
             };
 
-        } 
+        }    
        
         public void Pop(NodeTree tree)
         {

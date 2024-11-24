@@ -14,6 +14,7 @@
                 <uie:Toolbar style="flex-shrink: 0; flex-grow: 1;">
                     <ui:Label text="DiaLogWindow" display-tooltip-when-elided="true" style="flex-grow: 1; -unity-text-align: middle-center; color: rgb(0, 255, 255); -unity-font-style: bold;" />
                 </uie:Toolbar>
+                <ui:DropdownField label="RuntimeTree:" index="-1" choices="Key,Close" name="RuntimeNode" />
                 <ui:Button text="刷新脚本" display-tooltip-when-elided="true" name="SaveButton" />
             </uie:Toolbar>
             <ui:VisualElement name="RightContent" style="flex-grow: 1;">

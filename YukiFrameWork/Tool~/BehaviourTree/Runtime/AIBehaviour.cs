@@ -57,11 +57,17 @@ namespace YukiFrameWork.Behaviours
     public abstract class AIBehaviour : ScriptableObject
     {       
         [NonSerialized,HideInInspector]
-        private BindableProperty<BehaviourStatus> status = new BindableProperty<BehaviourStatus>();      
+        private BindableProperty<BehaviourStatus> status;
+
+        
         [JsonIgnore]
         public BehaviourStatus Status
         {
-            get => status.Value;
+            get
+            {              
+                status ??= new BindableProperty<BehaviourStatus>();
+                return status.Value;
+            }
             internal protected set => status.Value = value;
         }      
         [field: SerializeField, HideInInspector]
@@ -73,6 +79,7 @@ namespace YukiFrameWork.Behaviours
         [JsonProperty]
         internal string behaviourType;
 
+        internal bool Isinited;
         /// <summary>
         /// 这个节点是否是根?
         /// </summary>
@@ -118,7 +125,8 @@ namespace YukiFrameWork.Behaviours
                         break;
                 }
             });
-            OnInit();          
+            OnInit();
+            Isinited = true;
         }     
         private void Inject_All_Params()
         {
@@ -134,7 +142,7 @@ namespace YukiFrameWork.Behaviours
                 if (item.HasCustomAttribute(true, out BehaviourParamAttribute attribute))
                 {
                     if (!BehaviourTree.paramViews.ContainsKey(ID))
-                        throw new Exception("参数同步异常，ID不符");
+                        continue;
                     string paramName = BehaviourTree.paramViews[ID].FirstOrDefault(x => x.fieldName == item.Name)?.paramName;
                     if (paramName.IsNullOrEmpty()) continue;
                     if (item is FieldInfo fieldInfo)
@@ -174,13 +182,10 @@ namespace YukiFrameWork.Behaviours
             OnStart();
         }       
 
-        public virtual void OnCancel()
-        { }
-
         internal void Update()
         {
-            OnInternalUpdate();
-            Status = OnUpdate();
+            if (!Isinited) return;           
+            Status = OnUpdate();           
         }      
 
         /// <summary>
@@ -200,6 +205,11 @@ namespace YukiFrameWork.Behaviours
 
         public virtual void OnFailed() { }
 
+        /// <summary>
+        /// 被打断时触发
+        /// </summary>
+        public virtual void OnInterruption() { }
+
         internal virtual void ReLoadChild() { }
 
         public abstract void AddChild(AIBehaviour behaviour);
@@ -209,9 +219,18 @@ namespace YukiFrameWork.Behaviours
         public abstract void ForEach(Action<AIBehaviour> each);       
        
         public void ResetBehaviour() 
-        {         
-            Status = BehaviourStatus.InActive;        
+        {
+            if (Status == BehaviourStatus.InActive) return;
+            Status = BehaviourStatus.InActive;
+            OnCancel();
+            ForEach(child => 
+            {
+                if(child)
+                child.ResetBehaviour();
+            });
         }
+
+        public virtual void OnCancel() { }
 
         public void Dispose()
         {

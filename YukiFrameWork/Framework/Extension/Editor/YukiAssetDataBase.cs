@@ -120,6 +120,11 @@ namespace YukiFrameWork
 			return null;
         }
 
+		public static void Open(this UnityEngine.Object asset)
+		{			
+			AssetDatabase.OpenAsset(asset);
+		}
+
     }
 }
 #endif

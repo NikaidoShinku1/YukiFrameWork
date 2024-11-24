@@ -17,6 +17,43 @@ namespace YukiFrameWork.Extension
 
         #region Module Info
 
+        public static string GetModuleInfo(string key)
+        {
+            if (key == "ActionKit")
+                return ActionKitInfo;
+            else if (key == "Bezier")
+                return BezierInfo;
+            else if (key == "SaveTool")
+                return SaveToolInfo;
+            else if (key == "StateManager")
+                return StateManagerInfo;
+            else if (key == "IOCContainer")
+                return IOCInfo;
+            else if (key == "DiaLogKit")
+                return DiaLogInfo;
+            else if (key == "BuffKit")
+                return BuffKitInfo;
+            else if (key == "SkillKit")
+                return SkillInfo;
+            else if (key == "UI")
+                return UIInfo;
+            else if (key == "Audio")
+                return AudioInfo;
+            else if (key == "ItemKit")
+                return KnapsackInfo;
+            else if (key == "NavMeshPlus")
+                return NavMeshPlusInfo;
+            else if (key == "MissionKit")
+                return MissionInfo;
+            else if (key == "BehaviourTree")
+                return BehaviourTreeInfo;
+            else if (key == "Hyclr")
+                return ImportHyCLR;
+            else if (key == "StateMechine")
+                return StateMechineInfo;
+            return default;
+        }
+
         public static string SerializationInfo => !IsEN ? "框架序列化工具,可以将类转换成Json,Xml,Bytes文件流,集成ExcelToJson转换插件" : "Framework serialization tool, can convert classes to Json,Xml,Bytes file streams, integrated ExcelToJson conversion plug-in";
 
         public static string ActionKitInfo => !IsEN ? "ActionKit动作时序套件,可以完成例如定时、队列、事件循环、强化Update、等待帧回调等强化功能实现" : "ActionKit Action timing suite, you can complete such as timing, queue, event loop, enhanced Update, wait for frame callback and other enhanced functions";
@@ -57,6 +94,9 @@ namespace YukiFrameWork.Extension
         public static string ReImportAllModuleInfo => !IsEN ? "重新导入已经导入的模块" : "Re-import modules that have already been imported";
 
         public static string ImportClickInfo => !IsEN ? "反导已经导入的模块" : "Import already imported modules";
+
+        public static string ImportHyCLR => !IsEN ? "导入HYCLR热更新模块" : "Import HYCLR modules";
+
         //public string 
 
     }
