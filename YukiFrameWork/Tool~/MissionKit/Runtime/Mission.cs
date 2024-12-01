@@ -24,7 +24,8 @@ namespace YukiFrameWork.Missions
 
 		public IMissionData MissionData => missionData;
 		public MissionGroup Group { get; }
-		public MissionStatus Status { get; internal set; }		
+		public MissionStatus Status { get; internal set; }
+		[Obsolete("任务可选参数调用已经过时! 推荐直接使用全局MissionKit.Missions_runtime_params属性获取参数")]
 		public MissionParams Params { get; }
 		/// <summary>
 		/// 任务基类进行实例注册访问的容器

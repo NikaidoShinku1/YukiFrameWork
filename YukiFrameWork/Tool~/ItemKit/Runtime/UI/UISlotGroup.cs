@@ -55,14 +55,16 @@ namespace YukiFrameWork.Item
         public List<UISlot> existSlots = new List<UISlot>();     
 
         private void Start()
-        {           
+        {
+            if (firstRefresh) return;
             Refresh();    
         }
-
+        private bool firstRefresh;
         private void Refresh()
         {
             //如果没有标识就不初始化
             if (GroupKey.IsNullOrEmpty()) return;
+            firstRefresh = true;
             if (Type == UISlotGenericType.Template)
             {
                 UISlotPrefab.Hide();

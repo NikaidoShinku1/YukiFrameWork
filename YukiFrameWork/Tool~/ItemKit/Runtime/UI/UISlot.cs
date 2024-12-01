@@ -11,6 +11,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
+using Sirenix.OdinInspector;
 namespace YukiFrameWork.Item
 {
     [DisableViewWarning]
@@ -55,9 +56,11 @@ namespace YukiFrameWork.Item
             Slot.slotGroup.SlotInitInvoke(this);
             return this;
         }
-
+        [LabelText("是否支持默认拖拽事件注册")]
+        public bool IsAutoRegisterDrag = true;
         private void Start()
-        {           
+        {
+            if (!IsAutoRegisterDrag) return;
             this.BindBeginDragEvent(OnBeginDrag);
             this.BindDragEvent(OnDrag);
             this.BindEndDragEvent(OnEndDrag);

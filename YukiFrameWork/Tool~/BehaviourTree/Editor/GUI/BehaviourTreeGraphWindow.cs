@@ -45,7 +45,9 @@ namespace YukiFrameWork.Behaviours
                 if (inspectorView.drawIndex == 0) return;
                 inspectorView.drawIndex = 0;
                 inspectorView.Clear();
-                foreach (var item in backGroundView.nodes) 
+                var qNodes = backGroundView.nodes;
+#if UNITY_2021_1_OR_NEWER
+                foreach (var item in qNodes)
                 {
                     if (item is GraphBehaviourView view)
                     {
@@ -53,6 +55,17 @@ namespace YukiFrameWork.Behaviours
                             inspectorView.Update_InspectorView(view);
                     }
                 }
+#else
+                foreach (var item in qNodes.ToList())
+                {
+                    if (item is GraphBehaviourView view)
+                    {
+                        if (view.selected)
+                            inspectorView.Update_InspectorView(view);
+                    }
+                }
+#endif
+
             };
             serializableBtn.clicked += () =>
             {

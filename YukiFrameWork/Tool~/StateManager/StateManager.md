@@ -6,35 +6,35 @@
 
 为对象添加StateManager组件:
 
-![请输入图片说明](Texture/1.png)
+![请输入图片说明](StateMachine/Texture/1.png)
 
 打开状态机编辑器，自由创建状态，示例如图所示：
 
-![请输入图片说明](Texture/2.png)
+![请输入图片说明](StateMachine/Texture/2.png)
 
 状态介绍:
 
 打开挂载对象的Inspector面板，选中任意一个状态如图所示:
 
-![请输入图片说明](Texture/3.png)
+![请输入图片说明](StateMachine/Texture/3.png)
 
 点击添加状态脚本如下所示:
 
-![请输入图片说明](Texture/4.png)
+![请输入图片说明](StateMachine/Texture/4.png)
 
 可以自行创建脚本以及添加现有脚本，架构选择对应框架的架构本体，包括状态类在内，下方所介绍的过渡类以及动作类都具有此功能，归属IController层。
 
 打开动作系统：
 
-![请输入图片说明](Texture/5.png)
+![请输入图片说明](StateMachine/Texture/5.png)
 
-![请输入图片说明](Texture/6.png)
+![请输入图片说明](StateMachine/Texture/6.png)
 
 可以选择如上组件设置，动作执行模式有:动作随机，动作控制，动作顺序，当只有一个动作时，三者没有任何区别。
 
 可添加动作脚本，框架自带默认的脚本ActionCore作为动作技能特效释放脚本可使用如图所示：
 
-![请输入图片说明](Texture/7.png)
+![请输入图片说明](StateMachine/Texture/7.png)
 
 |StateBehaviour Override Method API|生命周期说明|
 |---|---|
@@ -113,7 +113,7 @@ namespace YukiFrameWork.Example
 
 过渡介绍:
 
-![请输入图片说明](Texture/8.png)
+![请输入图片说明](StateMachine/Texture/8.png)
 
 过渡可选择代码控制与退出时间(Exit Time)控制，如果为Time，则到达指定时间后自动过渡到下一个状态。
 

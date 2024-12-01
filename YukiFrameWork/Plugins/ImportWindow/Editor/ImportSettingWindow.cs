@@ -210,6 +210,7 @@ namespace YukiFrameWork.Extension
                     {
                         alignment = TextAnchor.UpperLeft
                     };
+                    codeStyle.normal.textColor = Color.white;
                     
                     foreach (var path in Directory.GetFiles(dir))
                     {
@@ -406,7 +407,7 @@ namespace YukiFrameWork.Extension
                 Button("AudioKit_框架声音管理", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
                 Button("ActionKit_时序动作套件说明", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
                 Button("Old StateManager_框架可视化状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md", Color.yellow);
-                Button("StateManager_全新动作设计状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateMachine/s.StateManager.md");
+                Button("StateManager_全新动作设计状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md");
                 Button("Extension_框架拓展模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md");
                 Button("PoolsKit_框架设置简易对象池", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md");
                 Button("BindableProperty强化数据绑定类", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md");

@@ -181,6 +181,7 @@ namespace YukiFrameWork.Behaviours
         {
             Dictionary<AIBehaviour, GraphBehaviourView> nodeDict = new Dictionary<AIBehaviour, GraphBehaviourView>();
 
+#if UNITY_2021_1_OR_NEWER
             //先删掉旧的节点 线 和注释块
             foreach (Node node in nodes)
             {
@@ -191,6 +192,19 @@ namespace YukiFrameWork.Behaviours
             {
                 RemoveElement(edge);
             }
+#else
+            //先删掉旧的节点 线 和注释块
+            foreach (Node node in nodes.ToList())
+            {
+                RemoveElement(node);
+            }
+
+            foreach (Edge edge in edges.ToList())
+            {
+                RemoveElement(edge);
+            }
+#endif
+
             if (!behaviourTree) return;
             //创建节点
             CreateGraphNode(nodeDict, behaviourTree.AllNodes);

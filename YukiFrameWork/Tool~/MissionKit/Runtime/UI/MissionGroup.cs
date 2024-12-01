@@ -192,6 +192,22 @@ namespace YukiFrameWork.Missions
 			return missions.Values.ToArray();
         }
 
+		public void ForEach(Action<Mission> each)
+		{
+			foreach (var item in missions)
+			{
+				each?.Invoke(item.Value);
+			}
+		}
+
+        public void ForEach(Action<string,Mission> each)
+        {
+			foreach (var item in missions)
+			{
+				each?.Invoke(item.Key, item.Value);
+			}
+        }
+
         /// <summary>
         /// 获取所有的任务标识
         /// </summary>

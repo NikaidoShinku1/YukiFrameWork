@@ -10,7 +10,6 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace YukiFrameWork
 {
@@ -58,6 +57,34 @@ namespace YukiFrameWork
         {
             index = list.IndexOf(obj);
             return obj;
+        }
+
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumerable, Action<T> each)
+        {
+            foreach (var item in enumerable)
+            {
+                each?.Invoke(item);
+            }           
+            return enumerable;
+        }
+
+        public static IList<T> For<T>(this IList<T> list, Action<T> each)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                each?.Invoke(list[i]);
+            }
+            return list;
+        }
+
+        public static IList<T> For<T>(this IList<T> list, Func<T, bool> condition , Action<T> each)
+        {
+            for (int i = 0; condition?.Invoke(list[i]) == true; i++)
+            {
+                each?.Invoke(list[i]);
+            }
+
+            return list;
         }
 
         public static string Color(this string content, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{content}</color>";

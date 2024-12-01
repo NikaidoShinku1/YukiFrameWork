@@ -39,6 +39,26 @@ namespace YukiFrameWork.Missions
         [SerializeField, LabelText("target"), ShowIf(nameof(paramType), ParamType.String),JsonProperty]
         private string target4;
 
+        public MissionParam(ParamType paramType, object value)
+        {
+            switch (paramType)
+            {
+                case ParamType.Integer:
+                    target2 = (int)value;
+                    break;
+                case ParamType.Float:
+                    target1 = (float)value;
+                    break;
+                case ParamType.String:
+                    target4 = (string)value;
+                    break;
+                case ParamType.Boolan:
+                    target3 = (bool)value;
+                    break;
+               
+            }
+        }
+
         /// <summary>
         /// 可以通过Value属性获取到对应的参数
         /// </summary>     
@@ -105,6 +125,7 @@ namespace YukiFrameWork.Missions
         }
 
     }
+    [Obsolete]
     public class MissionParams : IEnumerable<KeyValuePair<string, MissionParam>>
     {
         private Mission mission;

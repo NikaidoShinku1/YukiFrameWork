@@ -203,7 +203,7 @@ namespace YukiFrameWork.Missions
         }
 
         /// <summary>
-        /// 添加新的任务参数。但需要手动查找任务数据并为数据中的参数标识同步添加，如果希望一次性解决这个问题，可以调用MissionKit.AddParam(string key, string missionKey, MissionParam missionParam)方法
+        /// 添加新的任务参数。
         /// </summary>
         /// <param name="key"></param>
         /// <param name="param"></param>
@@ -218,6 +218,7 @@ namespace YukiFrameWork.Missions
         /// <param name="key"></param>
         /// <param name="missionKey"></param>
         /// <param name="missionParam"></param>
+        [Obsolete("过时的添加参数方法，推荐调用MissionKit.AddParam(string key, MissionParam param)方法仅为全局添加")]
         public static void AddParam(string key, string missionKey, MissionParam missionParam)
         {
             AddParam(key, missionParam);
