@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 namespace YukiFrameWork.Missions
 {
 	public class MissionGroup
@@ -64,8 +65,18 @@ namespace YukiFrameWork.Missions
         public MissionGroup OrderBy<TKey>(Func<KeyValuePair<string,Mission>,TKey> orders)
         {
             missions = missions.OrderBy(orders).ToDictionary(x => x.Key,x => x.Value);
-			onMissionRefresh?.Invoke();
+			OnRefresh();
             return this;
+        }
+
+		/// <summary>
+		/// 任务的状态更新是在Update中调用的。当有任意操作调用了刷新UI时，可能会出现在刷新后任务事件的状态没有同步的情况。所以等待一帧再刷新
+		/// </summary>
+		/// <returns></returns>		
+		private async void OnRefresh()
+		{
+			await CoroutineTool.WaitForFrame();
+            onMissionRefresh?.Invoke();
         }
 
         /// <summary>
@@ -77,7 +88,7 @@ namespace YukiFrameWork.Missions
         public MissionGroup OrderByDescending<TKey>(Func<KeyValuePair<string, Mission>, TKey> orders)
         {
             missions = missions.OrderByDescending(orders).ToDictionary(x => x.Key, x => x.Value);
-            onMissionRefresh?.Invoke();
+            OnRefresh();
             return this;
         }
 

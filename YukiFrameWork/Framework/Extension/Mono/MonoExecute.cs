@@ -79,7 +79,9 @@ namespace YukiFrameWork
 
                 if (update.UpdateStatus == updateStatus)
                 {
-                    if (update.OnExecute(deltaTime))
+                    if (!update.IsInit) update.OnInit();
+
+                    if (update.OnExecute(deltaTime) || update.IsCompleted)
                     {
                         actionUpdateNodes.Add(update);
                     }

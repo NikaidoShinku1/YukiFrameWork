@@ -20,7 +20,7 @@ namespace YukiFrameWork
         private readonly List<IActionNode> parallelConditions = new List<IActionNode>();
 
         private static SimpleObjectPools<Parallel> simpleObjectPools
-            = new SimpleObjectPools<Parallel>(() => new Parallel(),null,10);
+            = new SimpleObjectPools<Parallel>(() => new Parallel(),x => x.actions.Clear(),10);
 
         private readonly List<IActionNode> realeaseParallel = new List<IActionNode>();
         public Parallel()

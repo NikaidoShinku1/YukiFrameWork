@@ -423,6 +423,9 @@ namespace XFABManager
         /// </summary>
         public void Refresh() {
 
+            if (allComponentAdapter.ContainsKey(targetComponentType))
+                allComponentAdapter[targetComponentType].SetValue(this, null);
+
             if (imageModel.type == ImageLoaderType.Local || imageModel.type == ImageLoaderType.Network)
                 if (string.IsNullOrEmpty(imageModel.path)) return;
 
@@ -432,12 +435,10 @@ namespace XFABManager
 
             if (!gameObject.activeInHierarchy) return;
 
-            ImageData = null;
+            ImageData = null;            
 
-            if (allComponentAdapter.ContainsKey(targetComponentType)) {
-                allComponentAdapter[targetComponentType].SetValue(this, null);
-                allComponentAdapter[targetComponentType].SetColor(this, loading_color); 
-            }
+            if (allComponentAdapter.ContainsKey(targetComponentType))
+                allComponentAdapter[targetComponentType].SetColor(this, loading_color);
 
             // 如果正在请求 立即中断
             request_image?.Abort(); 

@@ -18,7 +18,7 @@ namespace YukiFrameWork
     public class Repeat : ActionNode, IRepeat
     {
         private static SimpleObjectPools<Repeat> simpleObjectPools
-            = new SimpleObjectPools<Repeat>(() => new Repeat(), null, 10);
+            = new SimpleObjectPools<Repeat>(() => new Repeat(), x => x.actions.Clear(), 10);
         public Repeat(int count)
         {
             OnReset(count);

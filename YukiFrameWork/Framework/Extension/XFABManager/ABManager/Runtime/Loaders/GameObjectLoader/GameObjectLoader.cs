@@ -270,7 +270,7 @@ namespace XFABManager {
 
     public class GameObjectPool
     {
-        private const int DESTROY_TIME_OUT = 1 * 60; // 当游戏物体未被使用时 超过多少时间 会被销毁
+        private const int DESTROY_TIME_OUT = 10 * 60; // 当游戏物体未被使用时 超过多少时间 会被销毁
         private const int CLOSE_TIME_OUT = 10 * 60;
         /// <summary>
         /// 存放某一个预制体 创建的所有实例  key : obj hash code 

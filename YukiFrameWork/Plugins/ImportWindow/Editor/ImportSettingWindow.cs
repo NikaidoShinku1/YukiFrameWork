@@ -189,7 +189,7 @@ namespace YukiFrameWork.Extension
 
                     EditorGUILayout.BeginVertical("FrameBox",GUILayout.Width(position.width - MenuWidth));
                     EditorGUILayout.Space(20);
-                    GUILayout.Label(select.Name + "    " + "V1.0",titleStyle);
+                    GUILayout.Label(select.Name + "    " ,titleStyle);
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);

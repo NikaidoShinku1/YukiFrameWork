@@ -173,7 +173,7 @@ namespace YukiFrameWork
     public class Condition : ActionNode
     {
         private static SimpleObjectPools<Condition> simpleObjectPools
-            = new SimpleObjectPools<Condition>(() => new Condition(), null, 10);
+            = new SimpleObjectPools<Condition>(() => new Condition(), x => x.actions.Clear(), 10);
         private Func<bool> condition;
         public Condition(Func<bool> condition)
         {
@@ -228,7 +228,7 @@ namespace YukiFrameWork
     public class CallBack : ActionNode
     {
         private static SimpleObjectPools<CallBack> simpleObjectPools
-             = new SimpleObjectPools<CallBack>(() => new CallBack(), null, 10);
+             = new SimpleObjectPools<CallBack>(() => new CallBack(), x => x.actions.Clear(), 10);
         private Action callBack;
         public CallBack(Action callBack)
         {
@@ -279,7 +279,7 @@ namespace YukiFrameWork
     public class CallBack<TNode> : ActionNode where TNode : IActionNode
     {
         private static SimpleObjectPools<CallBack<TNode>> simpleObjectPools
-               = new SimpleObjectPools<CallBack<TNode>>(() => new CallBack<TNode>(), null, 10);
+               = new SimpleObjectPools<CallBack<TNode>>(() => new CallBack<TNode>(), x => x.actions.Clear(), 10);
         private TNode callBack;
         private Action<TNode> onEvent;
         public CallBack(TNode TNode, Action<TNode> onEvent)
@@ -472,7 +472,12 @@ namespace YukiFrameWork
         }  
         public IActionUpdateCondition Where(Func<bool> condition)
         {
-            Action.AddNode(YukiFrameWork.Condition.Get(condition));
+            return CallAction(YukiFrameWork.Condition.Get(condition));
+        }
+
+        public IActionUpdateCondition CallAction(IActionNode node)
+        {
+            Action.AddNode(node);
             return this;
         }
     }

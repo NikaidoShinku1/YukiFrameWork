@@ -18,7 +18,7 @@ namespace YukiFrameWork
     public class Sequence : ActionNode, ISequence
     {
         private static SimpleObjectPools<Sequence> simpleObjectPools
-            = new SimpleObjectPools<Sequence>(() => new Sequence(), null, 10);
+            = new SimpleObjectPools<Sequence>(() => new Sequence(), x => x.actions.Clear(), 10);
         private readonly Queue<IActionNode> sequenes = new Queue<IActionNode>();
 
         public Sequence()

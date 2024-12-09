@@ -69,8 +69,9 @@ namespace YukiFrameWork.Item
             {
                 UISlotPrefab.Hide();
 
-                foreach (var item in UISlotRoot.GetComponentsInChildren<UISlot>())
+                foreach (var item in UISlotRoot.GetComponentsInChildren<UISlot>(true))
                 {
+                    if (item == UISlotPrefab) continue;
                     GameObjectLoader.UnLoad(item.gameObject);
                 }
 

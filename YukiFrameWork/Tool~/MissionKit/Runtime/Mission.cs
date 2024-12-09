@@ -69,9 +69,7 @@ namespace YukiFrameWork.Missions
 		{
 			if (Status != MissionStatus.Running) return;
             bool completed = CheckConditions(completedMissionCondition);
-            bool failed = CheckConditions(failedMissionCondition);
-            if (!completed && !failed)
-                return;
+            bool failed = CheckConditions(failedMissionCondition);            
             //完成优先级大于失败
             if (completed)
                 ChangeStatus(MissionStatus.Completed);

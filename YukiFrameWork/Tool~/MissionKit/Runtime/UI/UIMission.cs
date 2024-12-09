@@ -50,7 +50,10 @@ namespace YukiFrameWork.Missions
         public UnityEvent<IMissionData> onMissionFailed;
        
 
-        public Mission Mission { get; private set; }     
+        public Mission Mission { get; private set; }
+
+        [ShowInInspector]
+        public MissionStatus MissionStatus => Mission == null ? default : Mission.Status;
         
         public void InitMission(Mission mission)
         {          
@@ -61,8 +64,7 @@ namespace YukiFrameWork.Missions
                 Mission.onMissionFailed.UnRegister(MissionFailed);
                 Mission.onMissionStarting.UnRegister(MissionStarting);
             }
-            this.Mission = mission;
-
+            this.Mission = mission;           
             Mission.onMissionIdle.RegisterEvent(MissionIdle);
             Mission.onMissionCompleted.RegisterEvent(MissionCompleted);
             Mission.onMissionFailed.RegisterEvent(MissionFailed); 

@@ -453,7 +453,13 @@ namespace XFABManager
                         filter = fileName;
                     else 
                         filter = string.Format("t:{0} {1}",files[i].filter,fileName);
-                     
+                    if (!AssetDatabase.IsValidFolder(files[i].AssetPath))
+                    {
+                        files.RemoveAt(i);
+                        i--;
+                        Project.Save();
+                        continue;
+                    }
                     // 获取到目录下面的所有文件 来比较
                     string[] assets = AssetDatabase.FindAssets(filter, new string[] { files[i].AssetPath });
 

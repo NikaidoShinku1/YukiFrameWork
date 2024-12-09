@@ -30,6 +30,7 @@ namespace YukiFrameWork
 
 #if UNITY_EDITOR 
     [CustomEditor(typeof(YukiBind))]
+    [CanEditMultipleObjects]
 	public class YukiBindEditor : Editor
 	{
         [MenuItem("YukiFrameWork/创建YukiBind %W")]

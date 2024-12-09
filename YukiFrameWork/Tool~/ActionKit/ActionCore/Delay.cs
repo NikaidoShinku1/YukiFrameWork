@@ -22,7 +22,7 @@ namespace YukiFrameWork
                (() =>
                {
                    return new Delay();
-               }, null, 10);
+               }, x => x.actions.Clear(), 10);
 
         private float maxTime;
         private float currentTime = 0;

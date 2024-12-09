@@ -18,7 +18,7 @@ namespace YukiFrameWork
     public class ExecuteFrame : ActionNode
     {
         private static SimpleObjectPools<ExecuteFrame> simpleObjectPools
-            = new SimpleObjectPools<ExecuteFrame>(() => new ExecuteFrame(), null, 10);
+            = new SimpleObjectPools<ExecuteFrame>(() => new ExecuteFrame(), x => x.actions.Clear(), 10);
         private Func<bool> predicate;
         private Action callBack;
         public ExecuteFrame(Func<bool> predicate, Action callBack)

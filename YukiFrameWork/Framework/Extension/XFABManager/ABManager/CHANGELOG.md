@@ -1,3 +1,41 @@
+## version 1.15.0 更新内容
+
+1. 优化编辑器加载资源逻辑!
+
+## version 1.14.9 更新内容
+
+1. 完善 ImageLoader !
+
+## version 1.14.8 更新内容
+
+1. 完善 ImageLoader !
+
+## version 1.14.7 更新内容
+
+1. 调整GameObjectLoader销毁的超时时间
+
+## version 1.14.6 更新内容
+
+1. 优化资源加载 
+2. 完善GameObjectLoader.UnLoad 方法
+
+## version 1.14.5 更新内容
+
+1. 优化 GameObjectLoader 加载 和 卸载 对象的方法!
+
+
+## version 1.14.4 更新内容
+
+1. 优化 GameObjectLoader 加载对象逻辑, 加载出来的对象自动放入当前活跃的场景!
+
+## version 1.14.3 更新内容
+
+1.  删除无用的命名空间引用!
+
+## version 1.14.2 更新内容
+
+1.  添加Unload脚本事件!
+
 ## version 1.14.1 更新内容
 
 1.  添加GameObjectLoader预加载资源功能!

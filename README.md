@@ -19,9 +19,11 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 2.V1.16.0开始需要删除Assets文件夹下导入的XFABManager模块，已经内置在框架package中。
 
+3.V1.34.1后Odin的导入采用UnityPackage的形式。原有Odin的项目可以忽略安装说明。
+
 ![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading.png)
 
-将Sirenix文件夹整个复制到项目Assets文件夹下，在完成这一步之后再进行导入框架的操作！
+将图片中的Odin Inspector UnityPackage包项目导入到Assets文件夹下，在完成这一步之后再进行导入框架的操作！
 
 在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
 ![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading2.png)
@@ -34,6 +36,10 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 #### [核心架构,请在使用框架前点开我查看文档信息!!!!!!](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/2.Architecture.md)
 
 #### 框架支持工具
+
+- 框架拓展工具:Extension [拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
+
+- 新动作设计状态机模块:StateManager[全新状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md)
 
 - 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md)
 
@@ -70,10 +76,6 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 - 动作时序模块:ActionKit[ActionKit介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md)
 
 - (旧版(请查看新版))状态机模块:State[状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md)
-
-- 新动作设计状态机模块:StateManager[全新状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md)
- 
-- 框架拓展工具:Extension [拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md)
 
 - 框架物理拓展工具:Extension [拓展介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/15.物理拓展.md)
 

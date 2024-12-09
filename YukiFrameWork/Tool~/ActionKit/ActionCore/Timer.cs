@@ -18,7 +18,7 @@ namespace YukiFrameWork
     public class Timer : ActionNode
     {
         private static SimpleObjectPools<Timer> simpleObjectPools
-            = new SimpleObjectPools<Timer>(() => new Timer(), null, 10);
+            = new SimpleObjectPools<Timer>(() => new Timer(), x => x.actions.Clear(), 10);
 
         public float MaxTime { get; private set; } = 0;
         private bool IsConstranit = false;

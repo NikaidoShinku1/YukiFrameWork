@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志
 
+V1.34.1 同步更新XFABManager，Hybridclr，修复ActionKit在回收时没有清理子节点的问题。OdinInspector的导入改为UnityPackage包
+
+V1.33.5 修复ActionKit中Update无法手动打断的问题。修复任务系统在刷新UI时的执行顺序问题。优化细节。
+
 V1.33.4 优化任务系统。
 
 V1.33.3 修复行为树模块编辑器在Unity6显示异常的问题。

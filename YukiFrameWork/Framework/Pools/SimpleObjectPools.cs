@@ -43,6 +43,8 @@ namespace YukiFrameWork.Pools
         public override bool Release(T obj)
         {
             if (obj == null) return false;
+            if (cacheQueue.Contains(obj))
+                return false;
             recycleMethod?.Invoke(obj);
 
             if (cacheQueue.Count < maxSize)

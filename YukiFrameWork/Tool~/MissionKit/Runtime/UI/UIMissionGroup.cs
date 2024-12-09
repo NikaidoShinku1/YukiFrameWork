@@ -70,8 +70,9 @@ namespace YukiFrameWork.Missions
             {
                 UIMissionPrefab.Hide();
 
-                foreach (var item in UIMissionRoot.GetComponentsInChildren<UIMission>())
+                foreach (var item in UIMissionRoot.GetComponentsInChildren<UIMission>(true))
                 {
+                    if (item == UIMissionPrefab) continue;
                     item.UnLoad();
                 }
 
@@ -95,6 +96,12 @@ namespace YukiFrameWork.Missions
                     existSlots[i].InitMission(missions[i]);
                 }
             }
+        }
+
+        private void OnDestroy()
+        {
+            MissionKit.GetMissionGroup(GroupKey)
+                    ?.UnRegisterMissionRefresh(Refresh);
         }
 
     }

@@ -17,7 +17,7 @@ namespace YukiFrameWork
     public class NextFrame : ActionNode
     {
         private static SimpleObjectPools<NextFrame> simpleObjectPools
-            = new SimpleObjectPools<NextFrame>(() => new NextFrame(), null, 10);
+            = new SimpleObjectPools<NextFrame>(() => new NextFrame(), x => x.actions.Clear(), 10);
         private int frameCount;
         private Action callBack;
         public NextFrame(int frameCount, Action callBack)

@@ -72,19 +72,23 @@ namespace YukiFrameWork
         OnLateUpdate = 4,
     }
 
-    public interface IActionUpdateNode
+    public interface IActionUpdateNode : IActionNode
     {
         UpdateStatus UpdateStatus { get; }     
-        IActionUpdateNode Register(Action<float> OnEvent);
-        bool OnExecute(float delta);
-        void OnFinish();
+        IActionUpdateNode Register(Action<float> OnEvent);       
     }
 
     public interface IActionUpdateCondition
     {
         ActionUpdateNode Action { get; }
         IActionUpdateNode Register(Action<float> onEvent);
-        IActionUpdateCondition Where(Func<bool> condition);        
+        IActionUpdateCondition Where(Func<bool> condition);
+        /// <summary>
+        /// 监听动作时序条件。当动作未满足不会执行Update
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        IActionUpdateCondition CallAction(IActionNode node);
     }
 
     public interface IMonoActionNode<T> : IMonoActionNode where T : Delegate
@@ -182,7 +186,7 @@ namespace YukiFrameWork
 
         public void OnReset(UpdateStatus updateStatus)
         {
-            UpdateStatus = updateStatus;
+            UpdateStatus = updateStatus;           
         }
 
         public override bool OnExecute(float delta)
