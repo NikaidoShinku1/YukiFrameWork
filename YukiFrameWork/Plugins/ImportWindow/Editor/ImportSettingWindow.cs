@@ -73,7 +73,6 @@ namespace YukiFrameWork.Extension
         /// </summary>
         internal static readonly Dictionary<string, string> moduleInfo = new Dictionary<string, string>()
         {
-            ["Hyclr"] = packagePath + "/Tool~/HyCLRToolKit",
             ["ActionKit"] = packagePath + "/Tool~/ActionKit",
             ["Bezier"] = packagePath + "/Tool~/Bezier",
             ["SaveTool"] = packagePath + "/Tool~/SaveTool",          
@@ -90,6 +89,8 @@ namespace YukiFrameWork.Extension
             ["BehaviourTree"] = packagePath + "/Tool~/BehaviourTree",
             ["StateMechine"] = packagePath + "/Tool~/StateMechine",
         };
+
+        public static string GetLocalPath(string key) => moduleInfo[key];
 
         protected override void OnEnable()
         {           

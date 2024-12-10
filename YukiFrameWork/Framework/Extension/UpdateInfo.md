@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.35.1 优化动作状态机模块。该版本开始移除Hybridclr，经考虑，该插件应与项目需求本身为准。与框架互不冲突也不依赖，应自行导入。
+
 V1.34.1 同步更新XFABManager，Hybridclr，修复ActionKit在回收时没有清理子节点的问题。OdinInspector的导入改为UnityPackage包
 
 V1.33.5 修复ActionKit中Update无法手动打断的问题。修复任务系统在刷新UI时的执行顺序问题。优化细节。

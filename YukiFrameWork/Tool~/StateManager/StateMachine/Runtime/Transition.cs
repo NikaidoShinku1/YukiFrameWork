@@ -23,6 +23,10 @@ namespace YukiFrameWork.ActionStates
         /// </summary>
 		public TransitionMode mode = TransitionMode.ScriptControl;
         /// <summary>
+        /// 下一个状态进入的动作id
+        /// </summary>
+        public int nextStateActionID = 0;
+        /// <summary>
         /// 当前时间
         /// </summary>
 		public float time;
@@ -115,7 +119,7 @@ namespace YukiFrameWork.ActionStates
             {
                 time = 0;
                 isEnterNextState = false;
-                stateMachine.ChangeState(nextStateID, 0, true);
+                stateMachine.ChangeState(nextStateID, nextStateActionID, true);
             }
         }
     }
