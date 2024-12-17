@@ -102,6 +102,7 @@ namespace YukiFrameWork.ToolBar
         [Toolbar(OnGUISide.Left,0)]
         static void OnToolBarGUILeft()
         {
+            if (!config) return;
             config.IsShowHerarchy
                 = EditorGUILayout.Popup(config.IsShowHerarchy ? 0 : 1, herar) == 0;
             if (GUILayout.Button("Open Local Configuration"))

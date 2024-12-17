@@ -137,6 +137,8 @@ namespace XFABManager
                 temp_dictionary.Clear();
                 foreach (BundleInfo info in bundleInfos)
                 {
+                    if (string.IsNullOrEmpty(info.bundleName))
+                        continue;
                     if (!temp_dictionary.ContainsKey(info.bundleName))
                         temp_dictionary.Add(info.bundleName, string.Empty);
 

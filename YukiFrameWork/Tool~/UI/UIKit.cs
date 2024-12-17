@@ -268,6 +268,7 @@ namespace YukiFrameWork.UI
                 {
                     panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);
                     uiMgr.SetPanelFieldAndProperty(panel as BasePanel);
+                    panel.OnPreInit(param);
                     panel.OnInit();
                 }
 

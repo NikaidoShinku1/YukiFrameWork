@@ -12,6 +12,12 @@ namespace YukiFrameWork.UI
 {
     public interface IPanel
     {
+        /// <summary>
+        /// 面板预初始化方法。执行在OnInit方法之前。当使用OpenPanel打开面板且是该面板第一次加载时，传递的参数会同步到该方法中!
+        /// <para>注意:该方法仅通过UIKit加载流(OpenPanel)等方法调用有效。使用临时面板:UIKit.ShowPanel方法时该方法不会有任何反应</para>
+        /// </summary>
+        /// <param name="param"></param>
+        void OnPreInit(params object[] param);     
         void OnInit();
         void Enter(params object[] param);
         void Resume();
@@ -95,12 +101,25 @@ namespace YukiFrameWork.UI
             localPosition.y = Mathf.Clamp(localPosition.y, -tempHeight, tempHeight);
             transform.localPosition = localPosition;
         }
-        #region UI面板生命周期      
-        [MethodAPI("面板初始化")]
+        #region UI面板生命周期    
+
+        /// <summary>
+        /// 面板预初始化方法。执行在OnInit方法之前。当使用OpenPanel打开面板且是该面板第一次加载时，传递的参数会同步到该方法中!
+        /// <para>注意:该方法仅通过UIKit加载流(OpenPanel)等方法调用有效。使用临时面板:UIKit.ShowPanel方法时该方法不会有任何反应</para>
+        /// </summary>
+        /// <param name="param"></param>
+        [MethodAPI("有参数的面板初始化")]
+        public virtual void OnPreInit(params object[] param)
+        {
+            
+        }
+
+        [MethodAPI("面板初始化")]     
         public virtual void OnInit()
         {
             
         }
+
 
         [MethodAPI("面板打开(进入)")]
         public virtual void OnEnter(params object[] param)
@@ -212,7 +231,7 @@ namespace YukiFrameWork.UI
             }
 
             return null;
-        }
+        }      
         #endregion
     }
 }

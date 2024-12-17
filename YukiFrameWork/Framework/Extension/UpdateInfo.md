@@ -1,5 +1,11 @@
 ﻿#### 框架更新日志
 
+V1.35.4 优化任务系统，移除过时API。示例包问题修复。
+
+V1.35.3 UIKit新增OnPreInit方法。作为面板的预初始化方法。会在OnInit之前调用。通过OpenPanel打开可以传递参数!
+
+V1.35.2 优化拓展框架标准容器类Container
+
 V1.35.1 优化动作状态机模块。该版本开始移除Hybridclr，经考虑，该插件应与项目需求本身为准。与框架互不冲突也不依赖，应自行导入。
 
 V1.34.1 同步更新XFABManager，Hybridclr，修复ActionKit在回收时没有清理子节点的问题。OdinInspector的导入改为UnityPackage包

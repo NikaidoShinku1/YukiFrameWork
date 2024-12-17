@@ -67,11 +67,7 @@ namespace YukiFrameWork.Missions
 		/// 任务可能失败的条件
 		/// </summary>
 		List<string> FailedCondition { get; }
-
-		/// <summary>
-		/// 这个任务需要使用到的参数标识配置集合
-		/// </summary>
-		List<string> MissionParams { get; }
+		
 		/// <summary>
 		/// 任务类型(可空)
 		/// </summary>
@@ -141,17 +137,7 @@ namespace YukiFrameWork.Missions
 #if UNITY_EDITOR
 		[JsonIgnore]
 		private IEnumerable Type => MissionConfigBase.MissionsTypes;
-
-		[JsonIgnore]
-		private IEnumerable Params => MissionConfigBase.MissionsParams;
-#endif
-		[SerializeField, LabelText("可选任务参数"), JsonProperty]
-#if UNITY_EDITOR
-		[ValueDropdown(nameof(Params), IsUniqueList = true)]
-#endif      
-        private List<string> missionParams = new List<string>();
-		[JsonIgnore]
-        public List<string> MissionParams => missionParams;
+#endif		
 		[JsonProperty]
         string IMissionData.Icon_Path { get ; set; }
     }

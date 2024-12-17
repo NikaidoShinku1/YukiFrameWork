@@ -10,9 +10,10 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 namespace YukiFrameWork
 {
-	
+    
     /// <summary>
     /// 框架通用基本容器类，可进行控制反转，容器会自动对注册的MonoBehaviour组件生命周期进行管理，当对象不再合法时，会自动进行对象的注销。
     /// </summary>
@@ -42,6 +43,7 @@ namespace YukiFrameWork
         private List<(Type,string)> releaseComponents = new List<(Type, string)>();
         private void Init()
         {
+            if (!Application.isPlaying) return;
             MonoHelper.Update_AddListener(Update);
         }
 
@@ -78,7 +80,7 @@ namespace YukiFrameWork
 
         public void RegisterComponent<T>(T component,string key = "") where T : Component
         {
-            key = key.IsNullOrEmpty() ? typeof(T).Name : key;
+            key = key.IsNullOrEmpty() ? component.GetType().Name : key;
             RegisterInstance(typeof(T), key,component);
         }
 
@@ -108,11 +110,19 @@ namespace YukiFrameWork
             }
 
             return null;
-        }     
+        }
+
+        public IEnumerable<T> ResolveEnumerable<T>() where T : class
+        {
+            if (!mInstances.TryGetValue(typeof(T), out var dict))
+                return null;
+            return dict.Values.ToArray().Select(x => x as T);
+        }
+
 
         public void RegisterInstance<T>(T instance, string key = "") where T : class
         {
-            key = key.IsNullOrEmpty() ? typeof(T).Name : key;
+            key = key.IsNullOrEmpty() ? instance.GetType().Name : key;//实例注册可能与泛型类型为派生关系。以真实类型名称创建标识。
             RegisterInstance(typeof(T), key, instance);
         }
 

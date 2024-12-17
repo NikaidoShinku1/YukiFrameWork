@@ -37,7 +37,7 @@ Namespace: YukiFrameWork.Missions;
 |MissionGroup CreateMissionGroup(string groupKey)|传递一个唯一的标识，创建新的任务分组(任务本身以分组的形式管理)|
 |MissionGroup GetMissionGroup(string groupKey)|获取指定的任务分组|
 |bool RemoveMissionGroup(string groupKey)|移除指定的任务分组|
-|void AddParam(string key, MissionParam param)|通过代码添加新的参数(这种情况下，已经被构建的任务基类也需要为任务数据同步添加一条该标识数据，才可以让任务基类访问到|
+|void AddParam(string key, MissionParam param)|通过代码添加新的参数
 |string SaveMissions()|保存所有的任务数据/状态/分组，转换为Json|
 |void LoadMissions(bool eventTrigger = true)|通过内置的保存读取所有的任务数据 eventTrigger代表在读取后是否需要触发事件|
 |void LoadMissions(string json,bool eventTrigger = true)|如果数据是保存在了外部，那么可以通过这个重载进行读取|
@@ -77,7 +77,6 @@ public class TestCondition : IMissionCondition
 |List< string > StartingCondition|任务的所有接受/启动条件类型，当任务基类调用StartMission方法开始任务时，会进行这里的条件判断。(字符串编辑器已优化。条件的添加至少需要具备上述示例中至少一个条件类)|
 |List< string > CompletedCondition|完成任务的所有条件。规则如上|
 |List< string > FailedCondition|任务失败的所有条件，规则如上，特殊:当没有失败条件时，任务永远都不会失败|
-|List< string > MissionParams|任务注册的所有的参数。回收上述伏笔。与MissionKit添加的任务参数对应(编辑器优化)|
 |string MissionType |任务的类型(编辑器优化)|
 
 任务基类本身需要通过已有的分组MissionGroup进行创建

@@ -211,19 +211,7 @@ namespace YukiFrameWork.Missions
         {
             missions_runtime_params[key] = param;
         }
-
-        /// <summary>
-        /// 添加新的任务参数，并会为指定的任务数据添加新的参数标识
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="missionKey"></param>
-        /// <param name="missionParam"></param>
-        [Obsolete("过时的添加参数方法，推荐调用MissionKit.AddParam(string key, MissionParam param)方法仅为全局添加")]
-        public static void AddParam(string key, string missionKey, MissionParam missionParam)
-        {
-            AddParam(key, missionParam);
-            missions_runtime_dicts[missionKey].MissionParams.Add(key);
-        }
+        
         [Serializable]
         public class Mission_Runtime_Data
         {

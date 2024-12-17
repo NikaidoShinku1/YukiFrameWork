@@ -125,57 +125,5 @@ namespace YukiFrameWork.Missions
         }
 
     }
-    [Obsolete]
-    public class MissionParams : IEnumerable<KeyValuePair<string, MissionParam>>
-    {
-        private Mission mission;
-
-        private List<KeyValuePair<string,MissionParam>> _params;
-
-        private List<KeyValuePair<string, MissionParam>> Params
-        {
-            get
-            {
-
-                var param = mission.MissionData.MissionParams;
-                //如果数据是空的或者数据与参数的数量不对则重新初始化一次
-                if (_params == null || _params.Count != param.Count)
-                {
-                    _params = new List<KeyValuePair<string, MissionParam>>(param.Count);
-                    for (int i = 0; i < param.Count; i++)
-                    {
-                        var key = param[i];
-                        _params.Add(new KeyValuePair<string, MissionParam>(key, MissionKit.Missions_runtime_params[key]));
-
-                    }
-                }
-
-                return _params;
-            }
-        }
-        public MissionParams(Mission mission)
-        {
-            this.mission = mission;           
-        }
-       
-        public MissionParam this[int index]
-        {
-            get => Params[index].Value;
-        }     
-
-        public MissionParam this[string paramKey]
-        {
-            get => Params.Find(x => x.Key == paramKey).Value;
-        }
-
-        public IEnumerator<KeyValuePair<string, MissionParam>> GetEnumerator()
-        {
-            return Params.GetEnumerator();
-        }
-        [DisableEnumeratorWarning]
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
+   
 }
