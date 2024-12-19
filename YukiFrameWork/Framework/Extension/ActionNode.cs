@@ -64,7 +64,7 @@ namespace YukiFrameWork
     {
 
     }
-   // [Flags]
+    [Flags]
     public enum UpdateStatus
     {
         OnUpdate = 1,

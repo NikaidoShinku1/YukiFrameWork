@@ -179,7 +179,7 @@ namespace YukiFrameWork.ActionStates
         /// <summary>
         /// 进入状态
         /// </summary>
-		public void Enter(int actionIdx)
+		public void Enter(int actionId)
         {
             if (Type == StateType.SubStateMachine)
             {
@@ -189,12 +189,14 @@ namespace YukiFrameWork.ActionStates
                     if (states[i].Type == StateType.Parent)
                     {
                         if (states[i].transitions.Length > 0)
-                            subStateMachine.ChangeChildState(states[i].transitions[0].nextStateID);
+                            subStateMachine.ChangeChildState(states[i].transitions[0].nextStateID,actionId);
                         else
-                            subStateMachine.ChangeChildState(subStateMachine.DefaultState.ID);
-                        break;
+                            subStateMachine.ChangeChildState(subStateMachine.DefaultState.ID,actionId);
+                        return;
                     }
                 }
+                // 没有状态可进就进入默认状态
+                subStateMachine.ChangeChildState(subStateMachine.DefaultState.ID,actionId);
                 return;
             }
             if (Type == StateType.Parent)
@@ -207,12 +209,13 @@ namespace YukiFrameWork.ActionStates
                     if (states[i].subStateMachine == stateMachine)
                     {
                         if (states[i].transitions.Length > 0)
-                            stateMachine.Parent.ChangeChildState(states[i].transitions[0].nextStateID,0);
+                            stateMachine.Parent.ChangeChildState(states[i].transitions[0].nextStateID,actionId);
                         else
-                            stateMachine.Parent.ChangeChildState(stateMachine.Parent.DefaultState.ID,0);
-                        break;
+                            stateMachine.Parent.ChangeChildState(stateMachine.Parent.DefaultState.ID,actionId);
+                        return;
                     }
                 }
+                stateMachine.Parent.ChangeChildState(stateMachine.Parent.DefaultState.ID, actionId); //没有状态可进就进入默认状态
                 return;
             }
             IsPlaying = true;
@@ -221,7 +224,7 @@ namespace YukiFrameWork.ActionStates
             else if (animPlayMode == AnimPlayMode.Sequence)
                 actionIndex++;
             else
-                actionIndex = actionIdx;
+                actionIndex = actionId;
             for (int i = 0; i < behaviours.Length; i++)
             {
                 var behaviour = behaviours[i] as StateBehaviour;
@@ -232,7 +235,7 @@ namespace YukiFrameWork.ActionStates
             {
                 var transition = transitions[i];
                 transition.time = 0;
-            }
+            }          
             if (actionSystem)
                 Action.Enter(this);
         }

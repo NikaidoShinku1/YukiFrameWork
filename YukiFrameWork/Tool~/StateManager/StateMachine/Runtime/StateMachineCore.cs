@@ -171,11 +171,12 @@ namespace YukiFrameWork.ActionStates
                 return;
             if (states.Length == 0)
                 return;
-            if (stateId != nextId)
+            if (stateId != nextId || IsEnterState)
             {
                 //不允许在非Update调用时切换
                 if (updateStatus != UpdateStatus.OnUpdate)
                     return;
+                IsEnterState = false;
                 var currIdTemo = stateId;
                 var nextIdTemp = nextId; //防止进入或退出行为又执行了EnterNextState切换了状态
                 stateId = nextId;
@@ -198,6 +199,7 @@ namespace YukiFrameWork.ActionStates
         /// <param name="stateID"></param>
         public void StatusEntry(int stateID, int actionId = 0) => ChangeState(stateID, actionId);
 
+        private bool IsEnterState;
         /// <summary>
         /// 切换状态
         /// </summary>
@@ -207,9 +209,8 @@ namespace YukiFrameWork.ActionStates
         {
             if (force)
             {
-                states[this.stateId].Exit();
-                states[stateId].Enter(actionId);
-                nextId = this.stateId = stateId;
+                IsEnterState = true;
+                nextId = stateId;
                 nextActionId = actionId;
             }
             else if (nextId != stateId)
@@ -227,6 +228,7 @@ namespace YukiFrameWork.ActionStates
         public void ChangeChildState(int stateId, int actionId = 0)
         {
             states[stateId].Enter(actionId);
+            
             nextId = this.stateId = stateId;
             nextActionId = actionId;
         }

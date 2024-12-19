@@ -83,10 +83,17 @@ namespace YukiFrameWork.Item
         {
             InitItemTypeByDataBase();
             var items = FindAssets();
+            YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
+            foreach (var item in items)
+            {            
+                foreach (var dict in item.mItemTypeDicts)
+                {
+                    mItemTypeDicts[dict.Key] = dict.Value;
+                }
+            }
 
             foreach (var item in items)
             {
-                if (item.Equals(this)) continue;
                 item.mItemTypeDicts = mItemTypeDicts;
             }
 
@@ -111,7 +118,7 @@ namespace YukiFrameWork.Item
     }
     public abstract class ItemDataBase<Item> : ItemDataBase where Item : class, IItem
     {
-        [SerializeField, Searchable, FoldoutGroup("物品管理", -1), TableList]
+        [SerializeField, Searchable, FoldoutGroup("物品管理", -1), ListDrawerSettings(ListElementLabelName = "GetName", NumberOfItemsPerPage = 5)]
         internal Item[] items = new Item[0];
         protected override void ResetItemType()
         {
