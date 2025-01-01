@@ -60,16 +60,17 @@ namespace XFABManager
             if (request.isNetworkError || request.isHttpError)
 #endif
             {
-                error = request.error;
                 if ( request.responseCode == 404 ) 
                 {
                     Debug.LogErrorFormat("网络路径:{0} 不存在!请检查 url 填写是否正确!",request_url);
                 }
+                Completed(request.error);
+                yield break;
             }
             else {
                 text = request.downloadHandler.text;
             }
-            isCompleted = true;
+            Completed();
         }
     }
 }

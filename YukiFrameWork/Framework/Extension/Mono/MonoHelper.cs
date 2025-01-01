@@ -62,6 +62,8 @@ namespace YukiFrameWork
 
         private event Action<MonoHelper> onDestroyEvent;
 
+        private event Action<MonoHelper> onApplicationQuitEvent;
+
         public static void Update_AddListener(Action<MonoHelper> onUpdateEvent)
         {          
             Instance.onUpdateEvent += onUpdateEvent;
@@ -102,6 +104,17 @@ namespace YukiFrameWork
             Instance.onDestroyEvent -= onDestroyEvent;
         }
 
+        public static void ApplicationQuit_AddListener(Action<MonoHelper> onEvent)
+        {
+            Instance.onApplicationQuitEvent += onEvent;
+        }
+
+        public static void ApplicationQuit_RemoveListener(Action<MonoHelper> onEvent)
+        {
+            Instance.onApplicationQuitEvent -= onEvent;
+        }
+
+
         public static Coroutine Start(IEnumerator enumerator)
         {
             if (I.IsDestroy()) return null;
@@ -133,6 +146,11 @@ namespace YukiFrameWork
             onLateUpdateEvent?.Invoke(this);
         }
 
+        private void OnApplicationQuit()
+        {
+            onApplicationQuitEvent?.Invoke(null);
+        }
+
         public override void OnDestroy()
         {
             base.OnDestroy();            
@@ -141,6 +159,7 @@ namespace YukiFrameWork
             onLateUpdateEvent = null;
             onDestroyEvent?.Invoke(this);
             onDestroyEvent = null;
+            onApplicationQuitEvent = null;
 
         }
     }

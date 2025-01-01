@@ -57,7 +57,7 @@ namespace YukiFrameWork
 
     public interface IActionNodeController
     {
-        
+      
     }
 
     public interface IActionUpdateNodeController : IActionNodeController

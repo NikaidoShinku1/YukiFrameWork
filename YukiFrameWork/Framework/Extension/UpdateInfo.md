@@ -1,5 +1,11 @@
 ﻿#### 框架更新日志
 
+V1.36.1 架构为Model/System层新增IAsync_InitModule接口，这两个层级继承该接口时，在准备架构时可以自动进行异步的初始化行为。优化细节
+
+V1.35.7 新增集合拓展方法RandomEnumerable与RandomChoose方法，MonoHelper类新增ApplicationQuit_AddListener方法。优化细节
+
+V1.35.6 修复UIKit自带的拖拽功能会强制令鼠标位置为面板正中心的问题。
+
 V1.35.5 修复状态机模块切换自身动作时的异常问题。修正Animator作为状态机动作组件时，偶现鬼畜问题。
 
 V1.35.4 优化任务系统，移除过时API。示例包问题修复。

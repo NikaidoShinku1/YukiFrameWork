@@ -109,7 +109,6 @@ namespace XFABManager {
         public static void UnLoad(GameObject obj)
         {
 #if UNITY_EDITOR
-
             if (!EditorApplicationTool.isPlaying)
             {
                 // 如果是编辑器非运行模式 直接销毁
@@ -117,7 +116,6 @@ namespace XFABManager {
                     GameObject.Destroy(obj); 
                 return;
             }
-
 #endif
 
             // 如果为空 或者 已经被销毁了，可以不用处理
@@ -143,10 +141,10 @@ namespace XFABManager {
         public static void UnLoad(Transform parent)
         {
             if (!parent) return;
-
-            for (int i = 0; i < parent.childCount; i++)
+            
+            foreach(var item in parent)
             {
-                Transform child = parent.GetChild(i);
+                Transform child = item as Transform;
                 if (!child) continue;
                 GameObject obj = child.gameObject;
                 if (!obj.activeSelf) continue;
@@ -285,6 +283,10 @@ namespace XFABManager {
 
         private Transform _parent;
 
+        private bool isInValidScene = false;
+
+        private bool isHaveParent = false;
+
         public GameObject Prefab => prefab;
 
         public bool IsEmpty => allObjs.Count == 0;
@@ -325,6 +327,9 @@ namespace XFABManager {
             if (!prefab) throw new System.Exception("prefab is null!");
             this.prefab = prefab;
             IsAutoUnload = true;
+
+            isHaveParent = prefab.transform.parent != null;
+            isInValidScene = prefab.scene.IsValid();
         }
 
         // 创建一个实例
@@ -333,6 +338,10 @@ namespace XFABManager {
 
             GameObject obj = null;
 
+            // 预制体有父节点 并且 在场景中， 需要把这个预制体隐藏
+            // 如果没有 说明这个预制体是通过AssetBundle加载出来的，不需要隐藏和处理
+            if (isHaveParent && isInValidScene)
+                prefab.SetActive(false);
 
             invalidObjs.Clear();
 

@@ -52,7 +52,7 @@ namespace XFABManager
                 if (!isDone)
                     return CHECKING_ERROR;
                 return _error;
-            } protected set 
+            } private set 
             {
                 _error = value;
             }

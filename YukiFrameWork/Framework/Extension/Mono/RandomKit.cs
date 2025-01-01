@@ -119,6 +119,32 @@ namespace YukiFrameWork
             get => URandom.state;
         }
 
+        public static IEnumerable<T> RandomForEach<T>(this IList<T> enumerable, Action<T> each, int count)
+        {
+            return enumerable.RandomEnumerable(count).ForEach(each);
+        }
+
+        /// <summary>
+        /// 随机列表，会获得随机之后的列表。
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public static IEnumerable<T> RandomEnumerable<T>(this IEnumerable<T> enumerable, int count)
+        {
+            if (count > enumerable.Count())
+                throw new IndexOutOfRangeException("传递的数量超出总数量");
+            List<T> copy = new List<T>(enumerable);
+            for (int i = 0; i < count; i++)
+            {
+                int randomIndex = RandomKit.Range(i, copy.Count);
+                (copy[i], copy[randomIndex]) = (copy[randomIndex], copy[i]); // 交换
+            }
+            // 返回前 count 个元素
+            return copy.Take(count);
+        }
         //
         // 摘要:
         //     Generates a random color from HSV and alpha ranges.
@@ -182,6 +208,7 @@ namespace YukiFrameWork
         /// <typeparam name="T"></typeparam>
         /// <param name="t"></param>
         /// <returns></returns>
+        [Obsolete("该方法已过时，请使用RandomKit.Random方法随机取值")]
         public static T RangeGetter<T>(this IEnumerable<T> t) 
         {
             int current = 0;
@@ -195,6 +222,17 @@ namespace YukiFrameWork
             }
 
             return default;
+        }       
+
+        public static T Random<T>(this IEnumerable<T> t)
+        {
+            T[] targets = t.ToArray();
+            return targets[Range(0, targets.Length)];
+        }
+
+        public static T RandomChoose<T>(params T[] param)
+        {
+            return param[Range(0, param.Length)];
         }
         
         /// <summary>

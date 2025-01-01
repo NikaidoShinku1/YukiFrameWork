@@ -17,6 +17,30 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 namespace YukiFrameWork
 {
+    public enum ReadyType
+    {
+        /// <summary>
+        /// 构建阶段
+        /// </summary>
+        Constructor,
+        /// <summary>
+        /// 初始化阶段
+        /// </summary>
+        Initialize,     
+        /// <summary>
+        /// 如果有默认进入的场景，则会有ReadyType为LoadDefaultScene的时候。
+        /// </summary>
+        LoadDefaultScene,
+        /// <summary>
+        /// 异常
+        /// </summary>
+        Error,
+        /// <summary>
+        /// 完成
+        /// </summary>
+        Completed,
+
+    }
     public class ArchitectureStartUpRequest : CustomYieldInstruction
     {
         public override bool keepWaiting => !_isDone;
@@ -24,6 +48,7 @@ namespace YukiFrameWork
         internal bool _isDone = false;
 
         public bool isDone => _isDone;
+        public ReadyType ReadyType { get; private set; }
 
         private Type[] allRolds;
 
@@ -111,9 +136,9 @@ namespace YukiFrameWork
         private FastList<OrderController> controllers = new FastList<OrderController>();
         
         private RoleContainer container => architecture.RoleContainer;
-
+        [DisableEnumeratorWarning]
         private IEnumerator StartModule()
-        {          
+        {            
             if (container == null)
             {
                 OnCompleted("丢失架构容器，模块启动失败! 请检查 ArchitectureType:" + architectureType);
@@ -126,6 +151,7 @@ namespace YukiFrameWork
             }           
             float allCount = allRolds.Length;
             float currentCount = 0;
+            ReadyType = ReadyType.Constructor;
             for (int i = 0; i < allRolds.Length; i++)
             {
                 yield return null;
@@ -192,52 +218,50 @@ namespace YukiFrameWork
                 }
             }
 
-            try
+            ReadyType = ReadyType.Initialize;
+            architecture.Init();
+            var orderModels = models
+                .OrderByDescending(m => m.order);
+
+            foreach (var model in orderModels)
             {
-                architecture.Init();
-                var orderModels = models
-                    .OrderByDescending(m => m.order);
-
-                foreach (var model in orderModels)
-                {
-                    model.Value.SetArchitecture(architecture);
-                    if (model.Value.GetType().HasCustomAttribute<AutoInjectConfigAttribute>())                    
-                        InjectAllFieldByModel(model.Value);
-                    
-                    model.Value.Init();
-                }               
-                var orderSystems = systems
-                    .OrderByDescending(s => s.order);
-
-                foreach (var system in orderSystems)
-                {
-                    system.Value.SetArchitecture(architecture);                   
-                    system.Value.Init();
-                }
-
-                var orderControllers = controllers
-                    .OrderByDescending(c => c.order);
-
-                foreach (var controller in orderControllers)
-                {                   
-                    if(controller.Value is AbstractController abstractController)
-                        abstractController.OnInit();
-                }
-
-                models.Clear();
-                systems.Clear();
-                controllers.Clear(); 
+                model.Value.SetArchitecture(architecture);
+                if (model.Value.GetType().HasCustomAttribute<AutoInjectConfigAttribute>())
+                    InjectAllFieldByModel(model.Value);
+                if (model.Value is IAsync_InitModule _Init)                
+                    yield return _Init.Async_Init();               
+                model.Value.Init();
             }
-            catch(Exception ex)
+            var orderSystems = systems
+                .OrderByDescending(s => s.order);
+
+            foreach (var system in orderSystems)
             {
-                OnCompleted(string.Format("{0}\n------------> \nReal StackTrace(捕捉时机堆栈坐标) --> \n{1}\n\n------------------\n Default StackTrace(Unity 默认捕捉) ",ex.Message,ex.StackTrace));
-                yield break;
+                system.Value.SetArchitecture(architecture);
+                if (system.Value is IAsync_InitModule _Init)
+                    yield return _Init.Async_Init();
+                system.Value.Init();
             }
+
+            var orderControllers = controllers
+                .OrderByDescending(c => c.order);
+
+            foreach (var controller in orderControllers)
+            {
+                if (controller.Value is AbstractController abstractController)
+                    abstractController.OnInit();
+            }
+
+            models.Clear();
+            systems.Clear();
+            controllers.Clear();
+
+
 
             (string sceneName, SceneLoadType loadType) = architecture.DefaultSceneName;
             if (!sceneName.IsNullOrEmpty())
             {
-               
+                ReadyType = ReadyType.LoadDefaultScene;
                 switch (loadType)
                 {
                     case SceneLoadType.Local:
@@ -259,7 +283,7 @@ namespace YukiFrameWork
                         break;                  
                 }
             }                
-            MonoHelper.Destroy_AddListener(OnArchitectureDispose);
+            MonoHelper.ApplicationQuit_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
         }
 
@@ -383,6 +407,9 @@ namespace YukiFrameWork
         internal void OnCompleted(string error)
         {
             this.error = error;
+            if (!this.error.IsNullOrEmpty())
+                ReadyType = ReadyType.Error;
+            else ReadyType = ReadyType.Completed;
             progress = 1;
             _isDone = true;
         }

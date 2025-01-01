@@ -29,7 +29,7 @@ namespace YukiFrameWork
             builder.AppendLine("/// - NameSpace:     " + nameSpace);
             builder.AppendLine("/// - Description:   通过本地的代码生成器创建的脚本");
             builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2025");
             builder.AppendLine("/// -  All Rights Reserved.");
             builder.AppendLine("///=====================================================");
 

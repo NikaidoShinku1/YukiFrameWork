@@ -34,8 +34,7 @@ namespace XFABManager{
         {
             if (updateModel == UpdateMode.LOCAL)
             {
-                error = "测试模式下使用内置资源,无需版本信息!";
-                isCompleted = true;
+                Completed("测试模式下使用内置资源,无需版本信息!");              
                 yield break;
             }
 
@@ -52,12 +51,13 @@ namespace XFABManager{
             else
             {
                 // 获取失败
-                error = getProjectVersion.Error();
+                Completed(getProjectVersion.Error());
+                yield break;
             }
 
-            isCompleted = true;
-
+           
             AssetBundleManager.ReleaseProjectVersionInstance(getProjectVersion);
+            Completed();
 
         }
 

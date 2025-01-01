@@ -1,3 +1,27 @@
+## version 1.15.7 更新内容
+
+1. 优化 GameObjectLoader 回收资源逻辑!
+
+## version 1.15.6 更新内容
+
+1. 优化 GameObjectLoader 加载资源 和 预加载资源逻辑!
+
+## version 1.15.5 更新内容
+
+1. 优化资源加载失败的原因处理!
+
+## version 1.15.4 更新内容
+
+1. 优化 GameObjectLoader 回收 Transform 的方法!
+
+## version 1.15.3 更新内容
+
+1. 优化协程启动器!
+
+## version 1.15.2 更新内容
+
+1. 优化复制文件夹的方法!
+
 ## version 1.15.1 更新内容
 
 1. 优化本地资源管理!

@@ -68,7 +68,8 @@ namespace XFABManager
             }
             else
             {
-                error = string.Format("资源{0}/{1}/{2}加载失败!", projectName, bundle_name, assetName);
+                Completed(string.Format("资源{0}/{1}/{2}加载失败!", projectName, bundle_name, assetName));
+                yield break;
             }
             Completed();
 

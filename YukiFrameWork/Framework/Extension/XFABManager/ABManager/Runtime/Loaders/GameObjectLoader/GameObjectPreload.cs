@@ -92,6 +92,11 @@ internal class GameObjectPreload
                 PreloadInfo info = needPreLoadAssets.Dequeue();
                 
                 LoadAssetRequest request = AssetBundleManager.LoadAssetAsync<GameObject>(info.projectName, info.assetName);
+                if (request == null)
+                {
+                    Debug.LogWarningFormat("资源 {0}/{1} 预加载失败!", info.projectName, info.assetName);
+                    continue;
+                }
                 request.AddCompleteEvent((r) =>
                 {
                     GameObject prefab = r.asset as GameObject;

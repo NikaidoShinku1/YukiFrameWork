@@ -150,6 +150,6 @@ namespace YukiFrameWork
             this.Value = PlayerPrefs.GetString(key, value);
             this.Register(item => PlayerPrefs.SetString(key, item));
         }
-    }
+    }    
     #endregion
 }

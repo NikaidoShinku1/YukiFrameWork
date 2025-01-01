@@ -59,6 +59,7 @@ public static class ArrayExtend
     /// <returns></returns>
     public static T Random<T>(this T[] self)
     {
+        if (self == null || self.Length == 0) return default;
         return self[UnityEngine.Random.Range(0, self.Length)];
     }
 

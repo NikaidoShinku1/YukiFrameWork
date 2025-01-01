@@ -20,6 +20,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Reflection;
 using YukiFrameWork.Events;
+using System.Collections;
 
 namespace YukiFrameWork
 {
@@ -121,6 +122,18 @@ namespace YukiFrameWork
     {
 
     }
+    /// <summary>
+    /// 模块异步初始化接口，可注册模块会自动执行并进行正常等待,仅对于Model/System生效,会晚于默认的Init方法执行。可在架构准备的过程中随时访问进度
+    /// </summary>
+    public interface IAsync_InitModule 
+    {     
+#if UNITY_2021_1_OR_NEWER
+        YieldTask Async_Init();
+
+#else
+        IEnumerator Async_Init();
+#endif
+    }
 
     #endregion
 
@@ -141,7 +154,7 @@ namespace YukiFrameWork
     #region Model
     public interface IModel : ISetArchitecture, ISendEvent , IGetUtility, IGetArchitecture,IDestroy,IGetConfig
     {                             
-        void Init();        
+        void Init();
     }
     #endregion
 
@@ -149,7 +162,7 @@ namespace YukiFrameWork
     #region System
     public interface ISystem : IGetRegisterEvent,IGetUtility,ISendEvent,IGetModel,IGetSystem,IGetArchitecture,ISetArchitecture,IDestroy,IGetContainer
     {
-        void Init();      
+        void Init();
     }
     #endregion
 

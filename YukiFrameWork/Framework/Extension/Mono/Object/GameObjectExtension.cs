@@ -34,7 +34,7 @@ namespace YukiFrameWork
         #endregion
 
         #region Core
-        public static T Core<T>(this T core,Action<T> coreEvent)
+        public static T Core<T>(this T core, Action<T> coreEvent)
         {
             coreEvent?.Invoke(core);
             return core;
@@ -55,13 +55,13 @@ namespace YukiFrameWork
             return core;
         }
 
-        public static GameObject ShowOrHide(this GameObject core,bool active)
+        public static GameObject ShowOrHide(this GameObject core, bool active)
         {
             core.SetActive(active);
             return core;
         }
 
-        public static T ShowOrHide<T>(this T component,bool active) where T : Component
+        public static T ShowOrHide<T>(this T component, bool active) where T : Component
         {
             ShowOrHide(component.gameObject, active);
             return component;
@@ -140,7 +140,7 @@ namespace YukiFrameWork
                 components[i].Hide();
             }
             return components;
-        }       
+        }
 
         public static List<GameObject> Hide(this List<GameObject> gameObjects)
         {
@@ -185,10 +185,19 @@ namespace YukiFrameWork
             {
                 return false;
             }
-        }       
+        }
         public static bool Destroy<T>(this T obj) where T : Object
             => Destroy(obj, 0);
 
+        public static bool DestroyGameObject<T>(this T obj) where T : Component
+        {
+            return Destroy(obj.gameObject);
+        }
+
+        public static bool DestroyGameObject(this GameObject obj) 
+        {
+            return Destroy(obj);
+        }
         /// <summary>
         /// 判断是否已经销毁
         /// </summary>
@@ -326,7 +335,7 @@ namespace YukiFrameWork
             {
                 var item = core.transform.GetChild(i);
                 if (condition.Invoke(item))
-                    GameObjectLoader.UnLoad(item.gameObject,true);
+                    GameObjectLoader.UnLoad(item.gameObject);
             }
             return core;
         }

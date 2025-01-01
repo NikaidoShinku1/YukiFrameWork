@@ -83,5 +83,5 @@ namespace YukiFrameWork
             }
             i.gameObject.SetActive(false);
         }    
-    }       
+    }
 }

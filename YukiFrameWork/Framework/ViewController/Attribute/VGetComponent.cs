@@ -14,6 +14,7 @@ namespace YukiFrameWork
     /// <summary>
     ///  GameObject GetComponent,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
 	public sealed class VGetComponent : BaseComponentAttribute
     {
 		public VGetComponent()
@@ -25,6 +26,7 @@ namespace YukiFrameWork
     /// <summary>
     /// GameObject AddComponent,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VAddComponent : BaseComponentAttribute
     {
 		public VAddComponent()
@@ -36,6 +38,7 @@ namespace YukiFrameWork
     /// <summary>
     /// GameObject AddComponent Or GetComponent,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VGetOrAddComponent : BaseComponentAttribute
     {
         public VGetOrAddComponent()
@@ -43,10 +46,11 @@ namespace YukiFrameWork
            
         }
     }
-   
+
     /// <summary>
     /// GameObject GetComponentInChildren,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VGetComponentInChildren : BaseComponentAttribute
     {   
         public bool Include { get; }
@@ -59,6 +63,7 @@ namespace YukiFrameWork
     /// <summary>
     /// 通过子对象/自身的名称进行组件赋值,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VFindChildComponentByName : BaseComponentAttribute
     {
         public string name { get; }
@@ -72,6 +77,7 @@ namespace YukiFrameWork
     /// <summary>
     /// 与Transform.Find相同，需要输入完整路径,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VFindChildComponentByPath : BaseComponentAttribute
     {
         public string path { get; }
@@ -87,6 +93,7 @@ namespace YukiFrameWork
     /// <summary>
     /// GameObject FindObjectOfType,仅对象派生自框架提供的YMonoBehaviour有效
     /// </summary>
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VFindObjectOfType : BaseComponentAttribute
     {
         internal FindObjectsInactive ObjectsInactive { get; }
@@ -96,6 +103,7 @@ namespace YukiFrameWork
         }
     }
 #else
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     public sealed class VFindObjectOfType : BaseComponentAttribute
     {
         internal bool includeInactive { get; }
@@ -105,6 +113,7 @@ namespace YukiFrameWork
         }
     }
 #endif
+    [Obsolete("因作用与性能问题已不再使用，请自行通过this.Find框架拓展API进行组件的名称查找。")]
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field,AllowMultiple = false,Inherited = true)]
     public class BaseComponentAttribute : Attribute
     {

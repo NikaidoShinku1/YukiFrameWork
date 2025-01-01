@@ -169,7 +169,7 @@ namespace YukiFrameWork
                 if (instance == null)
                 {
                     if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))                  
-                        instance = SingletonFectory.CreateMonoSingleton(typeof(T), true) as T;
+                        instance = SingletonFectory.CreateMonoSingleton(typeof(T), false) as T;
                     
                     else if (typeof(T).IsSubclassOf(typeof(ScriptableObject)))                    
                         instance = SingletonFectory.CreateScriptableObjectSingleton(typeof(T)) as T;                   

@@ -86,19 +86,32 @@ namespace YukiFrameWork.UI
             transform = base.transform as RectTransform;
             canvasGroup = GetComponent<CanvasGroup>();         
             this.BindDragEvent(DefaultDragEvent).UnRegisterWaitGameObjectDestroy(this);
+            this.BindPointerDownEvent(DefaultDragDownEvent).UnRegisterWaitGameObjectDestroy(this);
         }
 
-        private void DefaultDragEvent(PointerEventData eventData)
+        private void DefaultDragDownEvent(PointerEventData eventData)
         {
             if (!IsPanelDrag) return;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, null, out var locaoPosition);
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, null, out var localPosition);          
+            offest = (Vector3)locaoPosition - transform.localPosition;
+           
+        }
+
+        private Vector2 offest;
+        private void DefaultDragEvent(PointerEventData eventData)
+        {
+            if (!IsPanelDrag) return;          
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition , null, out Vector2 localPosition);
+           
             float width = UIManager.I.transform.rect.width;
             float height = UIManager.I.transform.rect.height;          
             float tempWidth = width / 2 - transform.rect.width / 4;
             float tempHeight = height / 2 - transform.rect.height / 2;
+            localPosition -= offest;
             localPosition.x = Mathf.Clamp(localPosition.x, -tempWidth, tempWidth);
             localPosition.y = Mathf.Clamp(localPosition.y, -tempHeight, tempHeight);
+          
             transform.localPosition = localPosition;
         }
         #region UI面板生命周期    

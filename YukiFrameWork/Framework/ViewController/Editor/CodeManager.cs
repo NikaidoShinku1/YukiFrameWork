@@ -37,7 +37,7 @@ namespace YukiFrameWork
             builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
             builder.AppendLine("/// - Description:   框架自定ViewController");
             builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2025");
             builder.AppendLine("/// -  All Rights Reserved.");
             builder.AppendLine("///=====================================================");
 
@@ -76,7 +76,7 @@ namespace YukiFrameWork
             builder.AppendLine("/// - NameSpace:     " + Data?.ScriptNamespace);
             builder.AppendLine("/// - Description:   框架自定BasePanel");
             builder.AppendLine("/// - Creation Time: " + System.DateTime.Now.ToString());
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2025");
             builder.AppendLine("/// -  All Rights Reserved.");
             builder.AppendLine("///=====================================================");
 
@@ -183,7 +183,7 @@ namespace YukiFrameWork
             builder.AppendLine("/// - NameSpace:     " + nameSpace);
             builder.AppendLine("/// - Description:   " + description);
             builder.AppendLine("/// - Creation Time: " + dateTime);
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2024");
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2025");
             builder.AppendLine("/// -  All Rights Reserved.");
             builder.AppendLine("///=====================================================");
             return this;
@@ -612,6 +612,28 @@ namespace YukiFrameWork
         public static bool CheckViewBindder(ISerializedFieldInfo info, YukiBind[] binds)
         {
             return (info.GetSerializeFields().Count() > 0 || (binds != null && binds.Length > 0));
+        }
+
+        [MenuItem("Assets/Create/YukiFrameWork/生成文件夹字符串代码")]
+        static void GeneratorFolderScripts()
+        {           
+            string folderPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs.FirstOrDefault());
+            if (folderPath.IsNullOrEmpty())
+                throw new Exception("丢失路径");
+            Debug.Log(folderPath);
+            var core = CodeCore.CreateCodeCore();
+            string folderName = Path.GetFileName(folderPath);
+          
+            CodeWriter codeWriter = new CodeWriter();
+           
+            foreach (var path in Directory.GetFiles(folderPath,"*").Where(x => !x.EndsWith(".meta")))
+            {
+                string name = Path.GetFileNameWithoutExtension(path);
+                codeWriter.CustomCode($"public const string _{name} = \"{name}\";");
+            }
+            core.Descripton(folderName, string.Empty, "框架生成的字符串快捷类")
+                .CodeSetting(string.Empty, folderName, string.Empty, codeWriter, true)
+              .Create(folderName, folderPath);
         }
     }
 }
