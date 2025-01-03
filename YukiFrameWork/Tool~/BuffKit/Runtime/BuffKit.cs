@@ -62,6 +62,8 @@ namespace YukiFrameWork.Buffer
             {
                 AddBuff(buff);
             }
+            if(loader != null)
+                loader.UnLoad(buffDataBase);
         }
 
         public static void BindController<T>(string buffKey) where T : IBuffController

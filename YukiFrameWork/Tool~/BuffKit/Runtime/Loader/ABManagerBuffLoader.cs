@@ -14,7 +14,7 @@ namespace YukiFrameWork.Buffer
 {
     public class ABManagerBuffLoader : IBuffLoader
     {
-        private readonly string projectName;
+        private readonly string projectName;      
         public ABManagerBuffLoader(string projectName)
         {
             this.projectName = projectName;
@@ -28,6 +28,11 @@ namespace YukiFrameWork.Buffer
         {
             AssetBundleManager.LoadAssetAsync<TItem>(projectName, path)
                 .AddCompleteEvent(v => callBack?.Invoke(v.asset as TItem));
+        }
+
+        public void UnLoad(BuffDataBase item)
+        {
+            AssetBundleManager.UnloadAsset(item);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.37.1 框架资源加载器新增UnLoad释放方法。同步更新所有的模块。
+
 V1.36.1 架构为Model/System层新增IAsync_InitModule接口，这两个层级继承该接口时，在准备架构时可以自动进行异步的初始化行为。优化细节
 
 V1.35.7 新增集合拓展方法RandomEnumerable与RandomChoose方法，MonoHelper类新增ApplicationQuit_AddListener方法。优化细节

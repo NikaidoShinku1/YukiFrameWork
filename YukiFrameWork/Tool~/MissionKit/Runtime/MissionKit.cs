@@ -183,6 +183,8 @@ namespace YukiFrameWork.Missions
 
             foreach (var item in missions)
                 AddMissionData(item);
+
+            loader?.UnLoad(configBase);
         }
 
         public static void LoadMissionConfig(string path)

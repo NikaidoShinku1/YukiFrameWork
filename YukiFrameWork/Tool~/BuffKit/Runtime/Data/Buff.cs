@@ -139,13 +139,11 @@ namespace YukiFrameWork.Buffer
                 .FirstOrDefault(x => x?.GetClass() == this.GetType()));
 #endif
         }
-        [JsonIgnore]
-        internal BuffDataBase dataBase;
 
         #region Buff自带依赖ID转换于编辑器显示
         [Searchable]
         [JsonIgnore]
-        internal IEnumerable names => dataBase.buffConfigs.Where(x => x != this).Select(x => new ValueDropdownItem(x.GetBuffName, x.GetBuffKey));
+        internal IEnumerable names => BuffDataBase.allBuffNames;
         #endregion
     }
 }

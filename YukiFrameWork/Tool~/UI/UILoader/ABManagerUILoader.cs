@@ -37,5 +37,10 @@ namespace YukiFrameWork.UI
                 onCompleted?.Invoke(panel);
             });
         }
+
+        public void UnLoad(BasePanel item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
     }
 }

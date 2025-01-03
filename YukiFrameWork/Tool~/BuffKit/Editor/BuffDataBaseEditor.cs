@@ -41,6 +41,7 @@ namespace YukiFrameWork.Buffer
             names = null;
             foreach (var item in dataBase.buffConfigs)
             {
+                if (!item) continue;
                 string key = string.Format("{0}_{1}", item.GetBuffKey, item.GetInstanceID());
                 buff_Info_Dicts.Add(key, (OdinEditor)OdinEditor.CreateEditor(item, typeof(OdinEditor)));
                 show_Info_Dicts.Add(key, item.GetBuffName);

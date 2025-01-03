@@ -34,5 +34,10 @@ namespace YukiFrameWork.Missions
             var item = await AssetBundleManager.LoadAssetAsync<TItem>(projectName, name);
             onCompleted?.Invoke(item);
         }
+
+        public void UnLoad(MissionConfigBase item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
     }
 }

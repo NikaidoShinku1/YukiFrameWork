@@ -67,7 +67,7 @@ namespace YukiFrameWork.Skill
 
 		public static void LoadSkillDataBase(string path)
 		{
-			LoadSkillDataBase(loader.Load(path));
+			LoadSkillDataBase(loader.Load<SkillDataBase>(path));
 		}
 
 		public static void LoadSkillDataBase(SkillDataBase skillDataBase)
@@ -78,6 +78,8 @@ namespace YukiFrameWork.Skill
 				if (skill == null) continue;
 				AddSkill(skill);
 			}
+
+			loader?.UnLoad(skillDataBase);
 		}
 
 		public static void AddSkill(ISkillData skill)
@@ -138,7 +140,7 @@ namespace YukiFrameWork.Skill
 		{
 			bool completed = false;
 
-			loader.LoadAsync(path, data => 
+			loader.LoadAsync<SkillDataBase>(path, data => 
 			{
 				LoadSkillDataBase(data);
 				completed = true;

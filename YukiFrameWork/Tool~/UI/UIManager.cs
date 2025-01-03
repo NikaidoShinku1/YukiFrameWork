@@ -22,7 +22,7 @@ namespace YukiFrameWork.UI
         public EventSystem EventSystem { get; private set; }
         private Dictionary<UILevel, RectTransform> levelDicts = DictionaryPools<UILevel, RectTransform>.Get();
 
-        private Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();
+        internal Dictionary<Type,IPanel> panelCore = new Dictionary<Type,IPanel>();
 
         internal UIPrefabExector Exector { get; private set; }
 
@@ -148,46 +148,7 @@ namespace YukiFrameWork.UI
         public void AddPanelCore(IPanel panel)
         {
             panelCore[panel.GetType()] = panel;         
-        }
-      
-        public void SetPanelFieldAndProperty(BasePanel panel)
-        {
-            Type type = panel.GetType();
-            //(panel as IYMonoBehaviour).InitAllFields();
-        }
-
-        [Obsolete]
-        private void SetPanelFieldsAndProperties(Type type,BasePanel panel)
-        {
-            foreach (var members in type.GetMembers(BindingFlags.Public
-                | BindingFlags.NonPublic
-                | BindingFlags.Instance
-                | BindingFlags.Static
-                | BindingFlags.SetProperty))
-            {
-                UIAutoMationAttribute attribute = members.GetCustomAttribute<UIAutoMationAttribute>();
-
-                if (attribute == null) continue;
-
-                string name = attribute.Name;
-
-                if (members is FieldInfo field)               
-                    field.SetValue(panel, string.IsNullOrEmpty(name) ? panel.GetComponent(field.FieldType) : FindPanelTransform(panel, name).GetComponent(field.FieldType));                               
-                else if(members is PropertyInfo property)
-                    property.SetValue(panel, string.IsNullOrEmpty(name) ? panel.GetComponent(property.PropertyType) : FindPanelTransform(panel, name).GetComponent(property.PropertyType));
-            }
-        }
-       
-        private Transform FindPanelTransform(BasePanel panel,string name)
-        {
-            Transform[] transform = panel.GetComponentsInChildren<Transform>();
-            for (int i = 0; i < transform.Length; i++)
-            {
-                if (transform[i].name.Equals(name))
-                    return transform[i];
-            }          
-            return null;
-        }
+        }                     
 
         public T GetPanelCore<T>() where T : class, IPanel
         {
@@ -204,15 +165,12 @@ namespace YukiFrameWork.UI
             reloadLevelSafe = false;
             reloadSystemSafe = false;
             IsLevelInited = false;
-            if (UIKit.Default)
-            {
-                foreach (var obj in panelCore)
-                {
-                    AssetBundleManager.UnloadAsset(obj);
-                }
-            }
-            panelCore.Clear();
+                       
             ScreenTool.OnScreenChanged.UnRegister(UpdateScreenAspect);
+            Type[] panelTypes = panelCore.Keys.ToArray();
+            foreach (var type in panelTypes)           
+                UIKit.UnLoadPanel(type);          
+            panelCore.Clear();
             UIKit.Release();
             MonoHelper.Destroy_RemoveListener(Release);
         }

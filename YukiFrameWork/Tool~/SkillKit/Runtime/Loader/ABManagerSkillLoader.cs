@@ -18,17 +18,21 @@ namespace YukiFrameWork.Skill
         private readonly string projectName;
         public ABManagerSkillLoader(string projectName)
             => this.projectName = projectName;
-        public SkillDataBase Load(string path)
+        public T Load<T>(string path) where T : SkillDataBase
         {
-            return AssetBundleManager.LoadAsset<SkillDataBase>(projectName,path);
+            return AssetBundleManager.LoadAsset<T>(projectName,path);
         }
 
-        public void LoadAsync(string path, Action<SkillDataBase> onCompleted)
+        public void LoadAsync<T>(string path, Action<T> onCompleted) where T : SkillDataBase
         {
             AssetBundleManager
                 .LoadAssetAsync<SkillDataBase>(projectName, path)
-                .AddCompleteEvent(request => onCompleted?.Invoke(request.asset as SkillDataBase));
+                .AddCompleteEvent(request => onCompleted?.Invoke(request.asset as T));
         }
-  
+
+        public void UnLoad(SkillDataBase item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
     }
 }

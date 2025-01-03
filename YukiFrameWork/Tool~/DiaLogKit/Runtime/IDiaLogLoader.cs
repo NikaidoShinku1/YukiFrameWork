@@ -31,5 +31,10 @@ namespace YukiFrameWork.DiaLogue
             AssetBundleManager.LoadAssetAsync<TItem>(projectName, name)
                 .AddCompleteEvent(v => onCompleted?.Invoke(v.asset as TItem));
         }
+
+        public void UnLoad(NodeTree item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
     }
 }

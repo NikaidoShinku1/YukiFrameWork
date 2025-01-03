@@ -113,6 +113,7 @@ namespace YukiFrameWork.DiaLogue
             log.Init(key, nodeTree);
 
             diaLogController.Add(key, log);
+            loader?.UnLoad(nodeTree);
             return log;
         }
 
@@ -198,7 +199,7 @@ namespace YukiFrameWork.DiaLogue
             this.tree.rootNode = this.tree.nodes.FirstOrDefault(x => x.IsRoot);
             MonoHelper.Update_AddListener(Update);
             MonoHelper.FixedUpdate_AddListener(FixedUpdate);
-            MonoHelper.LateUpdate_AddListener(LateUpdate);
+            MonoHelper.LateUpdate_AddListener(LateUpdate);           
         }
 
         private void Update(MonoHelper helper)

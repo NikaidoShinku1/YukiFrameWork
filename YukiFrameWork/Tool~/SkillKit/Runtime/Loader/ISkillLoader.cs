@@ -11,11 +11,9 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Skill
 {
-	public interface ISkillLoader
+	public interface ISkillLoader : IResLoader<SkillDataBase>
 	{
-		SkillDataBase Load(string path);
-
-		void LoadAsync(string path, Action<SkillDataBase> onCompleted);
+	
 	
 	}
 }

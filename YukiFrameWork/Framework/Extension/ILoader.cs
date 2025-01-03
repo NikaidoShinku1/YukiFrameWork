@@ -16,5 +16,7 @@ namespace YukiFrameWork
 		public TItem Load<TItem>(string name) where TItem : T;
 
 		public void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : T;
+
+		void UnLoad(T item);
 	}
 }

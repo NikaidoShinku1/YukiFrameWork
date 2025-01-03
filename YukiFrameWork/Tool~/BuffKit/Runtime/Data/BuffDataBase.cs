@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using YukiFrameWork.Extension;
+using System.Collections;
 namespace YukiFrameWork.Buffer
 {
     [CreateAssetMenu(fileName = "BuffDataBase",menuName = "YukiFrameWork/BuffDataBase")]
@@ -32,6 +33,7 @@ namespace YukiFrameWork.Buffer
         private string nameSpace = "YukiFrameWork.Buffer";
 
 #if UNITY_EDITOR
+        public static IEnumerable allBuffNames => YukiAssetDataBase.FindAssets<BuffDataBase>().SelectMany(x => x.buffConfigs).Select(x => new ValueDropdownItem() { Text = x.GetBuffName,Value = x.GetBuffKey});
         [HideInInspector, SerializeField]
         public int selectIndex;
         [Button("生成Buff代码"), GUIColor("green"), FoldoutGroup("代码设置")]
@@ -124,22 +126,13 @@ namespace YukiFrameWork.Buffer
             }).CreateFileStream(jsonPath,jsonName,".json");
         }      
 #endif
-        
-        private void OnValidate()
-        {                     
-            for (int i = 0; i < buffConfigs.Count; i++)
-            {
-                if (buffConfigs[i])
-                buffConfigs[i].dataBase = this;
-            }
-        }
-   
+             
         internal void CreateBuff(Type buffType)
         {           
             Buff buff = Buff.CreateInstance(buffType.Name, buffType);
                       
             buffConfigs.Add(buff);
-            OnValidate();
+           
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(buff,this);
             this.Save();

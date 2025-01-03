@@ -141,6 +141,8 @@ namespace YukiFrameWork.Item
             {
                 AddItemConfig(item);
             }
+            
+            loader?.UnLoad(itemDataBase);
         }
 
         public static void AddItemConfig(IItem item)

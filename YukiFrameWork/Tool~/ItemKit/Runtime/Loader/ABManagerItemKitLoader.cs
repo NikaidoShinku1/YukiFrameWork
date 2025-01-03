@@ -29,6 +29,11 @@ namespace YukiFrameWork.Item
         public void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : ItemDataBase
         {
             AssetBundleManager.LoadAssetAsync<TItem>(projectName,name).AddCompleteEvent(v => onCompleted?.Invoke(v.asset as TItem));
-        }  
+        }
+
+        public void UnLoad(ItemDataBase item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
     }
 }

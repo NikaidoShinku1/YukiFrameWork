@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -20,8 +21,7 @@ namespace YukiFrameWork.UI
         private static IUIConfigLoader loader = null;
 
         public static UITable Table { get; } = new UITable();     
-        
-        public static bool Default { get; private set; } = false;
+          
 
         public static UIPrefabExector Exector => UIManager.Instance.Exector;
         /// <summary>
@@ -32,7 +32,7 @@ namespace YukiFrameWork.UI
         public static void Init(string projectName)
         {           
             loader = new ABManagerUILoader(projectName);
-            Default = true;
+           
             UIManager.I.InitLevel();
         }
 
@@ -62,7 +62,7 @@ namespace YukiFrameWork.UI
         public static void Init(IUIConfigLoader loader)
         {      
             UIKit.loader = loader;           
-            Default = false;
+            
             UIManager.I.InitLevel();
         }   
 
@@ -266,8 +266,7 @@ namespace YukiFrameWork.UI
 
                 if (panel == null)
                 {
-                    panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);
-                    uiMgr.SetPanelFieldAndProperty(panel as BasePanel);
+                    panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);                  
                     panel.OnPreInit(param);
                     panel.OnInit();
                 }
@@ -368,6 +367,49 @@ namespace YukiFrameWork.UI
             return Table.GetActivityPanel(type, level,PanelOpenType.Single) as BasePanel;
         }
 
+
+        /// <summary>
+        /// 卸载/释放指定类型的面板资源。
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void UnLoadPanel<T>() where T : BasePanel
+        {
+            UnLoadPanel(typeof(T));
+        }
+
+        /// <summary>
+        /// 卸载/释放指定类型的面板资源。
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void UnLoadPanel(Type type)
+        {
+            if (!type.IsSubclassOf(typeof(BasePanel)))
+                throw new Exception("类型不是面板无法释放");
+#if UNITY_2020_1_OR_NEWER
+            if (UIManager.Instance.panelCore.TryGetValue(type, out var panel))
+            {
+                //遍历全层级移除已打开的面板
+                for (UILevel level = UILevel.BG; level <= UILevel.Top; level++)
+                {
+                    IPanel[] activePanel = Table.GetActivityPanels(type, level);
+                    if (activePanel != null && activePanel.Length != 0)
+                    {
+                        foreach (var item in activePanel)
+                        {
+                            UIKit.ClosePanel(item);
+                            item.gameObject.Destroy();
+                        }
+                    }
+                }
+                //卸载缓存。
+                UIManager.Instance.panelCore.Remove(type);
+                loader.UnLoad(panel as BasePanel);
+
+            }
+#endif
+        }
+
+
         /// <summary>
         /// 通过层级获取已经加载的该类型所有缓存面板
         /// </summary>
@@ -451,8 +493,7 @@ namespace YukiFrameWork.UI
       
         public static void Release()
         {
-            Table.Dispose();         
-            Default = false;
+            Table.Dispose();                      
         }
 
         /// <summary>
