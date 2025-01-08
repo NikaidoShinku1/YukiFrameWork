@@ -1,5 +1,15 @@
 ﻿#### 框架更新日志
 
+V1.37.6 ActionKit新增Lerp插值方法
+
+V1.37.5 修复XFABManager通过ab包加载资源数据不正确的问题。优化GameObjectLoader预加载。优化架构初始化异步执行。修复对象池套件在池子满的情况下无法取出池内对象的问题。
+
+V1.37.4 统一UI模块释放操作。只需要调用UIKit.Release方法即可
+
+V1.37.3 修复UI模块调用UIManager.Instance.Dispose方法后重新初始化层级丢失的问题
+
+V1.37.2 优化AudioKit资源池释放管理。优化UIKit的释放面板方法。新增BindableProperty拓展方法，修复架构初始化时机不正确的问题。
+
 V1.37.1 框架资源加载器新增UnLoad释放方法。同步更新所有的模块。
 
 V1.36.1 架构为Model/System层新增IAsync_InitModule接口，这两个层级继承该接口时，在准备架构时可以自动进行异步的初始化行为。优化细节

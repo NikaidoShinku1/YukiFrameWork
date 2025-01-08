@@ -157,6 +157,8 @@ namespace YukiFrameWork.Events
                     }
                     break;             
             }
+
+            unRegister?.UnRegisterAllEvent();
         }
 #endif
     }

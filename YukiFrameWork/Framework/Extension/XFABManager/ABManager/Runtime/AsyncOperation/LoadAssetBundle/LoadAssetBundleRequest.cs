@@ -25,9 +25,9 @@ namespace XFABManager
             {
                 AssetBundleManager.AssetBundles.Add(projectName, new Dictionary<string, AssetBundle>());
             }
-          
+
             string[] dependences = AssetBundleManager.GetAssetBundleDependences(projectName, bundleName);
-            
+
             // 判断是否已经加载了这个AssetBundle
             if (AssetBundleManager.IsLoadedAssetBundle(projectName, bundleName))
             {
@@ -52,6 +52,10 @@ namespace XFABManager
             //need_load_bundle.Add(bundleName);        // 加载自己
             //need_load_bundle.AddRange(dependences);  // 加载依赖项目
 
+#if XFABMANAGER_LOG_OPEN_TESTING
+            Debug.LogFormat("加载依赖Bundle:{0}", dependences.Length);
+#endif
+
             ExecuteMultipleAsyncOperation<LoadAssetBundleDependRequest> load_assetbundle_requests = new ExecuteMultipleAsyncOperation<LoadAssetBundleDependRequest>(100);
 
             Queue<string> need_load_dependences = new Queue<string>(dependences);
@@ -59,6 +63,7 @@ namespace XFABManager
             int loaded_count = 0;
 
             // 加载依赖的 AssetBundle
+
             while (need_load_dependences.Count > 0 || !load_assetbundle_requests.IsDone())
             {
                 // 可以下载
@@ -90,9 +95,27 @@ namespace XFABManager
             }
 
 
+
             // 加载Bundle
             string bundle_path = AssetBundleManager.GetAssetBundlePath(projectName, bundleName, suffix);
-            AssetBundleCreateRequest request_bundle = AssetBundleManager.LoadAssetBundleFromFilePathAsync(bundle_path,projectName);
+            AssetBundleCreateRequest request_bundle = null;
+
+            try
+            {
+                request_bundle = AssetBundleManager.LoadAssetBundleFromFilePathAsync(bundle_path, projectName);
+            }
+            catch (System.Exception e)
+            {
+                if (AssetBundleManager.AssetBundles[projectName].ContainsKey(bundleName))
+                {
+                    assetBundle = AssetBundleManager.AssetBundles[projectName][bundleName];
+                    Completed();
+                }
+                else
+                    Completed(string.Format("AssetBundle加载失败:{0}", e.Message));
+                yield break;
+            }
+
             //yield return request_bundle;
 
             while (request_bundle != null && !request_bundle.isDone)
@@ -103,7 +126,13 @@ namespace XFABManager
 
             if (request_bundle == null || request_bundle.assetBundle == null)
             {
-
+                // 虽然异步加载失败了 但是bundle列表中 已经有这个包了 应该通过其他方式加载了
+                if (AssetBundleManager.AssetBundles[projectName].ContainsKey(bundleName))
+                {
+                    assetBundle = AssetBundleManager.AssetBundles[projectName][bundleName];
+                    Completed();
+                    yield break;
+                }
                 if (File.Exists(bundle_path))
                     Completed(string.Format("AssetBundle:{0}加载失败,请检测文件是否损坏或密钥是否填写正确!", bundle_path));
                 else
@@ -113,8 +142,9 @@ namespace XFABManager
                 yield break;
             }
             AssetBundleManager.DeleteDependencesBundles(request_bundle.assetBundle);
-            AssetBundleManager.AssetBundles[projectName].Add(bundleName, request_bundle.assetBundle);
-            assetBundle = request_bundle.assetBundle; 
+            if (!AssetBundleManager.AssetBundles[projectName].ContainsKey(bundleName))
+                AssetBundleManager.AssetBundles[projectName].Add(bundleName, request_bundle.assetBundle);
+            assetBundle = request_bundle.assetBundle;
             Completed();
         }
     }

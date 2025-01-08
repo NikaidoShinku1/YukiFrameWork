@@ -61,6 +61,21 @@ namespace YukiFrameWork
         {
             return YukiFrameWork.Timer.Get(maxTime,CallTemp,CallBack,isConstranit,isRealTime);
         }
+        /// <summary>
+        /// 插值计算
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="duration"></param>
+        /// <param name="onLerp"></param>
+        /// <param name="onLerpFinish"></param>
+        /// <param name="isRealTime"></param>
+        /// <returns></returns>
+        [MethodAPI("插值")]
+        public static IActionNode Lerp(float a, float b, float duration, Action<float> onLerp, Action onLerpFinish = null, bool isRealTime = false)
+        {
+            return YukiFrameWork.Lerp.Get(a, b, duration, onLerp, onLerpFinish, isRealTime);
+        }
 
         /// <summary>
         /// 事件等待判断：当predicate返回True时，结束该任务

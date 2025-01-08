@@ -31,9 +31,11 @@ namespace XFABManager
 
         internal IEnumerator LoadSceneAsyncInternal(string projectName , string sceneName, LoadSceneMode mode)
         {
-#if YukiFrameWork_DEBUGINFO
-            float time = Time.time; 
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+            float start_load_time = Time.time; 
 #endif
+
             while (IsHaveSameNameRequest(sceneName))
             {
                 yield return null;
@@ -95,7 +97,8 @@ namespace XFABManager
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
-            
+             
+
             LoadAssetBundleRequest request_bundle = AssetBundleManager.LoadAssetBundleAsync(projectName, bundle_name);
 
             while (!request_bundle.isDone) {
@@ -109,12 +112,16 @@ namespace XFABManager
                 yield break;
             }
 
+#if XFABMANAGER_LOG_OPEN_TESTING
+            float load_ab_completed_time = Time.time;
+#endif
+
             AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName, mode);
             
             while (!operation.isDone)
             {
                 yield return null;  
-                progress = 0.5f + operation.progress *  0.5f;
+                progress =0.5f + operation.progress * 0.5f;
             } 
 
             progress = 1;
@@ -132,9 +139,10 @@ namespace XFABManager
                 AssetBundleManager.AddAssetCache(projectName, bundleName, s);
             }
 
-#if YukiFrameWork_DEBUGINFO
-            Debug.LogFormat("异步加载场景:{0}/{1}/{2} 耗时:{3}", projectName, sceneName, mode,Time.time - time);
+#if XFABMANAGER_LOG_OPEN_TESTING 
+            Debug.LogFormat("异步加载场景:{0}/{1}/{2} 总耗时:{3} 加载ab耗时:{4} 加载场景耗时:{5}", projectName, sceneName, mode,Time.time - start_load_time, load_ab_completed_time - start_load_time, Time.time - load_ab_completed_time);
 #endif
+
             if (Scene.IsValid())
             { 
                 Completed();

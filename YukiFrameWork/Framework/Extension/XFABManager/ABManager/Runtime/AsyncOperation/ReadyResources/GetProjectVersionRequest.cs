@@ -33,8 +33,8 @@ namespace XFABManager{
         internal virtual IEnumerator GetProjectVersion(string projectName , UpdateMode updateModel)
         {
             if (updateModel == UpdateMode.LOCAL)
-            {
-                Completed("测试模式下使用内置资源,无需版本信息!");              
+            { 
+                Completed("测试模式下使用内置资源,无需版本信息!");
                 yield break;
             }
 
@@ -50,15 +50,13 @@ namespace XFABManager{
             }
             else
             {
-                // 获取失败
+                // 获取失败 
                 Completed(getProjectVersion.Error());
                 yield break;
             }
-
-           
-            AssetBundleManager.ReleaseProjectVersionInstance(getProjectVersion);
-            Completed();
-
+             
+            AssetBundleManager.ReleaseProjectVersionInstance(getProjectVersion); 
+            Completed(); 
         }
 
     }

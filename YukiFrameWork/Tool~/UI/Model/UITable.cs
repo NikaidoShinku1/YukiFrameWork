@@ -17,8 +17,13 @@ namespace YukiFrameWork.UI
 {
 	public class UITable : IDisposable
 	{
-		private ActivityPanelTable activityTable = new ActivityPanelTable();
-        private StackPanelTable stackPanelTable = new StackPanelTable();       
+		private ActivityPanelTable activityTable;
+        private StackPanelTable stackPanelTable;   
+        public UITable()
+        {
+            activityTable = new ActivityPanelTable();
+            stackPanelTable = new StackPanelTable();
+        }
         public void Dispose()
         {
             activityTable.Dispose();

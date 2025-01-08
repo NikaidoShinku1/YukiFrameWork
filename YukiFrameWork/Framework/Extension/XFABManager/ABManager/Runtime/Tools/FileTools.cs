@@ -17,8 +17,8 @@ namespace XFABManager
         /// <param name="destDir">目标文件夹</param>
         /// <param name="progress">进度改变的回调 第一个参数是正在复制的文件名称 第二个是复制的进度</param>
         /// <param excludeSuffix="excludeSuffix">不需要复制的文件的后缀</param>
-        public static bool CopyDirectory(string sourceDir, string destDir, Action<string, float> progress = null, string[] excludeSuffix = null)
-        {
+        public static bool CopyDirectory(string sourceDir, string destDir, Action<string, float> progress = null,string[] excludeSuffix = null)
+        { 
             // If the destination directory doesn't exist, create it.
             if (!Directory.Exists(destDir))
             {
@@ -31,33 +31,31 @@ namespace XFABManager
                 return false;
             }
 
-
+     
             string[] files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
-
+           
             for (int i = 0; i < files.Length; i++)
-            {
-                if (excludeSuffix != null && excludeSuffix.Length != 0)
-                {
+            { 
+                if (excludeSuffix!=null && excludeSuffix.Length != 0) {
                     bool isContinue = false;
                     foreach (var item in excludeSuffix)
                     {
-                        if (Path.GetExtension(files[i]).Equals(item))
-                        {
+                        if (Path.GetExtension(files[i]).Equals(item)) {
                             isContinue = true;
                             Debug.LogFormat("跳过文件:{0} 后缀:{1} 过滤后缀:{2}", files[i], Path.GetExtension(files[i]), item);
                             break;
                         }
                     }
-                    if (isContinue) continue;
+                    if (isContinue) continue; 
                 }
-
+                  
                 var file_path_no_dir = files[i].Replace("\\", "/");
 
                 file_path_no_dir = file_path_no_dir.Substring(sourceDir.Length, file_path_no_dir.Length - sourceDir.Length);
 
 
                 // 把结尾的/去掉
-                if (destDir.EndsWith("/"))
+                if(destDir.EndsWith("/"))
                     destDir = destDir.Substring(0, destDir.Length - 1);
 
                 // 把开头的/去掉

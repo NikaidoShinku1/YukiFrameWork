@@ -22,6 +22,8 @@ namespace YukiFrameWork.Pools
             InitPools(resetMethod, recycleMethod, initSize,maxSize);
         }
 
+        public SimpleObjectPools() { }
+
         public SimpleObjectPools(Func<T> resetMethod, int initSize,int maxSize = 200)
         {
             InitPools(resetMethod, null, initSize,maxSize);

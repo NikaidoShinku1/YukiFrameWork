@@ -14,11 +14,13 @@ namespace XFABManager
     /// </summary>
     public class CoroutineStarter
     {
+        
+                   
         /// <summary>
         /// 启动协程（适用于在非继承自MonoBehaviour的脚本中启动协程）,且通过该方法启动的协程不会因为切换场景而停止
         /// </summary>
         /// <param name="enumerator"></param>
-        public static Coroutine Start(IEnumerator enumerator)
+        public static Coroutine Start(IEnumerator enumerator) 
         {
             return MonoHelper.Start(enumerator);
         }

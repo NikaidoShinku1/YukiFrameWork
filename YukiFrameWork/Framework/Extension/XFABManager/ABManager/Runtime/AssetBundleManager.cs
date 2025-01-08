@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -217,6 +218,7 @@ namespace XFABManager
             unloadedSceneObjects.Add(s);
         }
 
+       
 
         #region 更新和下载资源
 
@@ -1292,16 +1294,25 @@ namespace XFABManager
         // 异步加载资源 
         internal static LoadAssetRequest<T> LoadAssetAsyncInternal<T>(string projectName, string bundleName, string assetName) where T : UnityEngine.Object
         {
-            LoadAssetRequest<T> request = new LoadAssetRequest<T>();
-            //CoroutineStarter.Start(request.LoadAssetAsync<T>(projectName, bundleName, assetName)); 
-            CoroutineStarter.Start(request.LoadAssetAsync(projectName, bundleName, assetName, typeof(T))); 
-            return request;
+            string key = string.Format("LoadAssetAsyncInternal:{0}_{1}_{2}", projectName, bundleName, assetName);
+
+            return ExecuteOnlyOnceAtATime<LoadAssetRequest<T>>(key, () =>
+            {
+                LoadAssetRequest<T> request = new LoadAssetRequest<T>();
+                CoroutineStarter.Start(request.LoadAssetAsync(projectName, bundleName, assetName, typeof(T)));
+                return request;
+            });
         }
         internal static LoadAssetRequest LoadAssetAsyncInternal(string projectName, string bundleName, string assetName, Type type)
         {
-            LoadAssetRequest request = new LoadAssetRequest();
-            CoroutineStarter.Start(request.LoadAssetAsync(projectName, bundleName, assetName, type));
-            return request;
+            string key = string.Format("LoadAssetAsyncInternal:{0}_{1}_{2}", projectName, bundleName, assetName);
+
+            return ExecuteOnlyOnceAtATime<LoadAssetRequest>(key, () =>
+            {
+                LoadAssetRequest request = new LoadAssetRequest();
+                CoroutineStarter.Start(request.LoadAssetAsync(projectName, bundleName, assetName, typeof(T)));
+                return request;
+            });
         }
 
         internal static T LoadSubAssetInternal<T>(string projectName, string bundleName, string mainAssetName, string subAssetName)where T : UnityEngine.Object

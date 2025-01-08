@@ -61,7 +61,10 @@ namespace YukiFrameWork.Audio
         /// </summary>
         private static Dictionary<string, List<AudioPlayer>> soundActivities = DictionaryPools<string, List<AudioPlayer>>.Get();
 
-        private static Dictionary<string, IAudioLoader> audioLoaderDict = DictionaryPools<string, IAudioLoader>.Get();
+        /// <summary>
+        /// 活动中的音频加载器
+        /// </summary>
+        internal static Dictionary<string, IAudioLoader> audioLoaderDict = DictionaryPools<string, IAudioLoader>.Get();
 
         [MethodAPI("播放音乐，适用于背景等")]
         public static void PlayMusic(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null,bool isRealTime = false,AudioSourceSoundSetting setting = default)
@@ -534,6 +537,11 @@ namespace YukiFrameWork.Audio
 
             foreach (var sounds in soundActivities.Values)
             {
+                foreach (var sound in sounds)
+                {
+                    sound.Stop();
+                    AudioManager.Instance.Release(sound);
+                }
                 sounds.Clear();
             }
 
@@ -541,7 +549,7 @@ namespace YukiFrameWork.Audio
 
             foreach (var loader in audioLoaderDict.Values)
             {
-                loader.UnLoad();
+                Config.LoaderPools.Release(loader);
             }
 
             audioLoaderDict.Release();

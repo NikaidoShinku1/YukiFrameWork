@@ -5,10 +5,6 @@ using XFABManager;
 
 namespace XFABManager
 {
-    public class LoadSubAssetRequest<T> : LoadSubAssetRequest where T : UnityEngine.Object
-    {
-        public new T asset => base.asset as T;
-    }
     public class LoadSubAssetRequest : CustomAsyncOperation<LoadSubAssetRequest>
     {
         // Fix编码
@@ -86,8 +82,9 @@ namespace XFABManager
                 AssetBundleManager.AddAssetCache(projectName, bundleName, asset);
             }
             else
-            {
+            { 
                 Completed(string.Format("资源{0}/{1}/{2}加载失败!", projectName, bundle_name, mainAssetName));
+                yield break;
             }
             Completed();
 

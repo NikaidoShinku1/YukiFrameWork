@@ -149,6 +149,7 @@ namespace YukiFrameWork
         private void OnApplicationQuit()
         {
             onApplicationQuitEvent?.Invoke(null);
+            onApplicationQuitEvent = null;
         }
 
         public override void OnDestroy()
@@ -159,7 +160,7 @@ namespace YukiFrameWork
             onLateUpdateEvent = null;
             onDestroyEvent?.Invoke(this);
             onDestroyEvent = null;
-            onApplicationQuitEvent = null;
+            
 
         }
     }

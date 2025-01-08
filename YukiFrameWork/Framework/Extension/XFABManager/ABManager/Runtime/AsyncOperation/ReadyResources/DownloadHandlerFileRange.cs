@@ -80,11 +80,7 @@ namespace XFABManager
         /// 已经下载的文件大小
         /// </summary>
         public long DownloadedSize => CurFileSize;
-
-        private List<Task> tasks = new List<Task>();
-
-        private List<Task> temp_task = new List<Task>();
-
+          
         #endregion
 
         #region 公共方法
@@ -207,25 +203,11 @@ namespace XFABManager
 
             try
             {
-                Task task = FileStream.WriteAsync(data, 0, dataLength);
-                if (!tasks.Contains(task))
-                    tasks.Add(task);
 
-                temp_task.Clear();
-                foreach (var item in tasks)
-                    if (item.IsCompleted) temp_task.Add(item);
-
-                foreach (var item in temp_task)
-                    tasks.Remove(item);
-
-                CurFileSize += dataLength;
-
-                DownloadedSizeUpdateEvent?.Invoke((ulong)CurFileSize);
-
-                Task task_flush = FileStream.FlushAsync();
-                if (!tasks.Contains(task_flush))
-                    tasks.Add(task_flush);
-
+                FileStream.Write(data, 0, dataLength);
+                FileStream.Flush();  
+                CurFileSize += dataLength; 
+                DownloadedSizeUpdateEvent?.Invoke((ulong)CurFileSize);  
             }
             catch (Exception)
             {
@@ -253,15 +235,7 @@ namespace XFABManager
 
             return true;
         }
-
-        public bool AllTaskCompleted()
-        {
-            if (tasks.Count == 0) return true;
-            foreach (var task in tasks)
-                if (!task.IsCompleted) return false;
-            return true;
-        }
-
+         
         #endregion
 
 

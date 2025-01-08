@@ -453,13 +453,16 @@ namespace XFABManager
                         filter = fileName;
                     else 
                         filter = string.Format("t:{0} {1}",files[i].filter,fileName);
-                    if (!AssetDatabase.IsValidFolder(files[i].AssetPath))
+
+                    // 路径无效 移除
+                    if (!AssetDatabase.IsValidFolder(files[i].AssetPath)) 
                     {
                         files.RemoveAt(i);
                         i--;
                         Project.Save();
                         continue;
                     }
+
                     // 获取到目录下面的所有文件 来比较
                     string[] assets = AssetDatabase.FindAssets(filter, new string[] { files[i].AssetPath });
 
@@ -478,7 +481,7 @@ namespace XFABManager
 
                             if (assetType != type && !assetType.IsSubclassOf(type)) continue; 
 
-                            FileAssetPathCache.Add(AssetBundleTools.GetAssetNameWithType(fileName,type), assetPath);
+                            FileAssetPathCache.Add(AssetBundleTools.GetAssetNameWithType(fileName, type), assetPath);
                             return assetPath;
                         }
                     }

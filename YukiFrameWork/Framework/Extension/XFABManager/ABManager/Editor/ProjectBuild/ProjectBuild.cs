@@ -289,8 +289,8 @@ namespace XFABManager
             }
             string path = string.Format("{0}/{1}", out_path, XFABConst.asset_bundle_mapping_upgrade);
 
-            File.WriteAllText(path,  JsonConvert.SerializeObject(mappings));
-             
+            File.WriteAllText(path, JsonConvert.SerializeObject(mappings, Formatting.Indented));
+
         }
 
         private static void SaveSuffix(XFABProject project, BuildTarget buildTarget) {
@@ -324,25 +324,21 @@ namespace XFABManager
         // 构建Bundle文件列表
         private static BundleInfo[] BuildBundlesInfo(XFABProject project,BuildTarget buildTarget)
         {
-            //string file_list = string.Format("{0}/{1}", output_path, XFABConst.files);
-            //if (File.Exists(file_list)) File.Delete(file_list);
-
             bundles.Add(new AssetBundleBuild() { assetBundleName = buildTarget.ToString() });
             bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.asset_bundle_mapping }); // 文件名称与bundle的映射 
             bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.asset_bundle_mapping_upgrade }); // 文件名称与bundle的映射 
             bundles.Add(new AssetBundleBuild() { assetBundleName = XFABConst.bundles_suffix_info }); // 文件名称与bundle的映射
-            //List<BundleInfo> bundleInfos = new List<BundleInfo>( bundles.Count );
-
-            BundleInfo[] bundleInfos = new BundleInfo[bundles.Count];
+           
+            List<BundleInfo> bundleInfos = new List<BundleInfo>(bundles.Count);
             // 构建bundle的
             for (int i = 0; i < bundles.Count; i++)
             {
                 string file = string.Format("{0}/{1}", project.temp_out_path(buildTarget), bundles[i].assetBundleName);
                 if (!File.Exists(file)) continue;
-                bundleInfos[i] = BuildBundleFileInfo(file, bundles[i].assetBundleName);
+                bundleInfos.Add(BuildBundleFileInfo(file, bundles[i].assetBundleName));
             }
 
-            return bundleInfos;
+            return bundleInfos.ToArray();
         }
 
         private static BundleInfo BuildBundleFileInfo(string filePath, string fileName)

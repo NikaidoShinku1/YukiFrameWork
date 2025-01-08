@@ -19,6 +19,7 @@ namespace XFABManager
             get; protected set;
         }
 
+
         internal IEnumerator LoadAssetAsync(string projectName, string bundleName, string assetName, Type type )
         {
             // 防空判断
@@ -53,7 +54,8 @@ namespace XFABManager
                 Completed(string.Format("加载AssetBundle:{0}/{1}出错:{2}", projectName, bundle_name, requestBundle.error));
                 yield break;
             }
-            AssetBundleRequest requestAsset = requestBundle.assetBundle.LoadAssetAsync(assetName, type);          
+            AssetBundleRequest requestAsset = requestBundle.assetBundle.LoadAssetAsync(assetName, type);
+            //yield return requestAsset;
 
             while (!requestAsset.isDone)
             {
@@ -67,7 +69,7 @@ namespace XFABManager
                 AssetBundleManager.AddAssetCache(projectName, bundleName, asset);
             }
             else
-            {
+            { 
                 Completed(string.Format("资源{0}/{1}/{2}加载失败!", projectName, bundle_name, assetName));
                 yield break;
             }

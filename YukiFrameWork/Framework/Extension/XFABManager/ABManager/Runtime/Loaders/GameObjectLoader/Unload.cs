@@ -1,28 +1,25 @@
-﻿using Sirenix.OdinInspector;
-using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using UnityEngine.Events;
-using YukiFrameWork;
 
 namespace XFABManager
 {
-    public class Unload : YMonoBehaviour
+    public class Unload : MonoBehaviour
     {
 
-        [LabelText("持续时间")]
+        [Header("持续时间")]
         [Tooltip("持续时间")]
         public float duration = 1;
 
-        [LabelText("忽略时间缩放")]
+        [Header("忽略时间缩放")]
         [Tooltip("忽略时间缩放")]
         public bool ingoreTimeScale;
 
         private float timer = 0;
 
-        [LabelText("当对象回收时触发")]
-        [Tooltip("当对象回收时触发")]
-        public UnityEvent onUnLoad;
+        [Tooltip("被回收时触发")]
+        [Header("被回收时触发")]
+        public UnityEvent onUnload;
 
         private void OnEnable()
         {
@@ -35,18 +32,16 @@ namespace XFABManager
 
             if (timer >= duration) 
             {
-                UnLoadObj();
+                Close();
                 timer = 0;
-            }
-             
+            } 
         }
 
-        private void UnLoadObj()
+        private void Close() 
         {
             GameObjectLoader.UnLoad(gameObject);
-            onUnLoad?.Invoke();
+            onUnload?.Invoke();
         }
-
 
     }
 

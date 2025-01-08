@@ -192,6 +192,9 @@ namespace XFABManager
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
                     {
+                        if (!assembly.FullName.StartsWith("XFABManager"))
+                            continue;
+
                         foreach (var item in assembly.GetTypes())
                         {
                             if (XFABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
@@ -421,8 +424,10 @@ namespace XFABManager
         /// <summary>
         /// 刷新 (如果加载图片失败,可调用此方法重新加载)
         /// </summary>
-        public void Refresh() {
+        public void Refresh() 
+        {
 
+            // 图片设置为空
             if (allComponentAdapter.ContainsKey(targetComponentType))
                 allComponentAdapter[targetComponentType].SetValue(this, null);
 
@@ -435,11 +440,12 @@ namespace XFABManager
 
             if (!gameObject.activeInHierarchy) return;
 
-            ImageData = null;            
+            ImageData = null;
 
-            if (allComponentAdapter.ContainsKey(targetComponentType))
+            // 修改颜色
+            if (allComponentAdapter.ContainsKey(targetComponentType)) 
                 allComponentAdapter[targetComponentType].SetColor(this, loading_color);
-
+            
             // 如果正在请求 立即中断
             request_image?.Abort(); 
 
@@ -484,10 +490,16 @@ namespace XFABManager
 
             if (request_image != null && ImageData != null)
             {
-                if (allComponentAdapter.ContainsKey(targetComponentType)) {
+                if (allComponentAdapter.ContainsKey(targetComponentType))
+                {
                     allComponentAdapter[targetComponentType].SetColor(this, load_complete_color);
                     allComponentAdapter[targetComponentType].SetValue(this, ImageData);
                 }
+            }
+            else 
+            {
+                if (allComponentAdapter.ContainsKey(targetComponentType)) 
+                    allComponentAdapter[targetComponentType].SetValue(this, null); 
             }
 
             OnLoadCompleted?.Invoke(string.IsNullOrEmpty(request_image.error), string.IsNullOrEmpty(request_image.error) ? "success" : request_image.error);

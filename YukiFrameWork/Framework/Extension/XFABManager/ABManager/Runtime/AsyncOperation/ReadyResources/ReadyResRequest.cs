@@ -72,7 +72,7 @@ namespace XFABManager
             CheckResUpdatesRequest checkReq = AssetBundleManager.CheckResUpdates(projectName);
             yield return checkReq;
             if (!string.IsNullOrEmpty(checkReq.error))
-            {              
+            { 
                 Completed(string.Format("准备资源失败,检测更新出错:{0}", checkReq.error));
                 yield break;
             }
@@ -146,7 +146,7 @@ namespace XFABManager
                         }
 
                         if (!string.IsNullOrEmpty(extractReq.error))
-                        {
+                        { 
                             Completed(string.Format("准备资源失败,释放资源出错:{0}", extractReq.error));
                             yield break;
                         }
@@ -175,7 +175,7 @@ namespace XFABManager
                         }
                         break;
                     case UpdateType.Error:
-                        // 出错
+                        // 出错 
                         Completed(string.Format("准备资源失败,{0}", results[i].message));
                         yield break;
                 }

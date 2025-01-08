@@ -11,6 +11,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using YukiFrameWork.Pools;
 
@@ -70,7 +71,7 @@ namespace YukiFrameWork.Audio
             if (cacheLoaderPools.ContainsKey(loader.Clip.name))
                 cacheLoaderPools.Remove(loader.Clip.name);
         }
-
+        [DisableEnumeratorWarning]
         private IEnumerator AudioCacheExecuted()
         {
             while (true)
@@ -84,8 +85,22 @@ namespace YukiFrameWork.Audio
                 }
                 for (int i = 0; i < releaseCache.Count; i++)
                 {
-                    cacheLoaderPools.Remove(releaseCache[i].loader.Clip.name);
-                    releaseCache[i].loader.UnLoad();
+                    var loader = releaseCache[i].loader;
+                    cacheLoaderPools.Remove(loader.Clip.name);
+                    AudioKit.Config.LoaderPools.Release(loader);
+
+                    string cacheKey = string.Empty;
+                    foreach (var item in AudioKit.audioLoaderDict)
+                    {
+                        if (item.Value == loader)
+                        {
+                            cacheKey = item.Key;
+                            break;
+                        }
+                    }
+                    if (cacheKey.IsNullOrEmpty())
+                        continue;
+                    AudioKit.audioLoaderDict.Remove(cacheKey);
                 }
                 releaseCache.Clear();
                 yield return CoroutineTool.WaitForSeconds(AudioKit.DETECTION_INTERVAL);

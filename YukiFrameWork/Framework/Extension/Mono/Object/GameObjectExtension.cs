@@ -1,10 +1,12 @@
 ﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using XFABManager;
 using YukiFrameWork.Extension;
 using Object = UnityEngine.Object;
@@ -479,37 +481,37 @@ namespace YukiFrameWork
 
         public static GameObject SetLocalPositionX(this GameObject core, float x)
         {
-            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
+            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.localPosition.y, core.transform.localPosition.z));
             return core;
         }
 
         public static GameObject SetLocalPositionY(this GameObject core, float y)
         {
-            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.localPosition.x, y, core.transform.localPosition.z));
             return core;
         }
 
         public static GameObject SetLocalPositionZ(this GameObject core, float z)
         {
-            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.localPosition.x, core.transform.localPosition.y, z));
             return core;
         }
 
         public static T SetLocalPositionX<T>(this T core, float x) where T : Component
         {
-            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.position.y, core.transform.position.z));
+            SetLocalPosition(core.gameObject, new Vector3(x, core.transform.localPosition.y, core.transform.localPosition.z));
             return core;
         }
 
         public static T SetLocalPositionY<T>(this T core, float y) where T : Component
         {
-            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, y, core.transform.position.z));
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.localPosition.x, y, core.transform.localPosition.z));
             return core;
         }
 
         public static T SetLocalPositionZ<T>(this T core, float z) where T : Component
         {
-            SetLocalPosition(core.gameObject, new Vector3(core.transform.position.x, core.transform.position.y, z));
+            SetLocalPosition(core.gameObject, new Vector3(core.transform.localPosition.x, core.transform.localPosition.y, z));
             return core;
         }
 
@@ -923,7 +925,13 @@ namespace YukiFrameWork
         }
 
         #endregion
-
+        public static T ColorAlpha<T>(this T selfGraphic, float alpha) where T : Graphic
+        {
+            var color = selfGraphic.color;
+            color.a = alpha;
+            selfGraphic.color = color;
+            return selfGraphic;
+        }
         #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
@@ -1182,6 +1190,54 @@ namespace YukiFrameWork
     public static class BindablePropertyOrEventExtension
     {
 
+        public static IBindableProperty<T>[] Or<T>(this IBindableProperty<T> property, IBindableProperty<T> target)
+        {
+            IBindableProperty<T>[] unRegisters = new IBindableProperty<T>[] { property,target };
+            
+            return unRegisters;
+        }
+
+        public static void UnRegisterWaitGameObjectDestroy(this IUnRegister[] unRegisters, GameObject gameObject, Action onFinish = null)
+        {
+            foreach (var item in unRegisters)
+            {
+                UnRegisterWaitGameObjectDestroy(item, gameObject, onFinish);
+            }
+        }
+
+        public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister[] unRegisters, Component component, Action onFinish = null) where Component : UnityEngine.Component
+        {
+            foreach (var item in unRegisters)
+            {
+                UnRegisterWaitGameObjectDestroy(item, component, onFinish);
+            }
+        }
+
+        public static void UnRegisterWaitGameObjectDisable(this IUnRegister[] unRegisters, GameObject gameObject, Action onFinish = null)
+        {
+            foreach (var item in unRegisters)
+            {
+                UnRegisterWaitGameObjectDisable(item, gameObject);
+            }
+        }
+
+        public static void UnRegisterWaitGameObjectDisable<Component>(this IUnRegister[] unRegisters, Component component, Action onFinish = null) where Component : UnityEngine.Component
+        {
+            foreach (var item in unRegisters)
+            {
+                UnRegisterWaitGameObjectDisable(item, component);
+            }
+        }
+
+        public static IUnRegister[] Register<T>(this IBindableProperty<T>[] properties, Action onEvent)
+        {
+            IUnRegister[] unRegisters = new IUnRegister[properties.Length];
+            for (int i = 0; i < unRegisters.Length; i++)
+            {
+                unRegisters[i] = properties[i].Register(_ => onEvent());
+            }
+            return unRegisters;
+        }
         /// <summary>
         /// 注销事件，并且绑定MonoBehaviour生命周期,当销毁时自动清空事件
         /// </summary>

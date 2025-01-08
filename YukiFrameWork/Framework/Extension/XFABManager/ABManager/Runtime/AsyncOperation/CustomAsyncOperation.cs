@@ -52,7 +52,8 @@ namespace XFABManager
                 if (!isDone)
                     return CHECKING_ERROR;
                 return _error;
-            } private set 
+            } 
+            private set 
             {
                 _error = value;
             }
@@ -73,12 +74,12 @@ namespace XFABManager
 
         }
 
-        protected void Completed(string error) {
+        protected void Completed(string error = null) {
             this.error = error;
             Completed();
         }
 
-        protected void Completed() {
+        private void Completed() {
             progress = 1;
 
             if ( isCompleted ) return;

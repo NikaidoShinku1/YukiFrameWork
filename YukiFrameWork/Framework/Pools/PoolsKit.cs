@@ -45,6 +45,8 @@ namespace YukiFrameWork.Pools
 
         protected int maxSize = 10;
 
+        public int Max => maxSize;
+
         protected IFectoryPool<T> fectoryPool;
 
         protected Action<T> recycleMethod;
@@ -56,7 +58,7 @@ namespace YukiFrameWork.Pools
             => fectoryPool = new CustomSimpleObjectPools<T>(resetMethod);
 
         public virtual T Get()
-            => cacheQueue.Count == 0 || cacheQueue.Count == maxSize ? fectoryPool.Create() : cacheQueue.Dequeue();
+            => cacheQueue.Count == 0 ? fectoryPool.Create() : cacheQueue.Dequeue();
 
         public bool Contains(T t)
             => cacheQueue.Contains(t);        

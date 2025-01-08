@@ -228,21 +228,31 @@ namespace YukiFrameWork
                 model.Value.SetArchitecture(architecture);
                 if (model.Value.GetType().HasCustomAttribute<AutoInjectConfigAttribute>())
                     InjectAllFieldByModel(model.Value);
-                if (model.Value is IAsync_InitModule _Init)                
-                    yield return _Init.Async_Init();               
                 model.Value.Init();
+                if (model.Value is IAsync_InitModule _Init)
+#if UNITY_2021_1_OR_NEWER
+                    yield return _Init.Async_Init().ToCoroutine();
+#else
+                    yield return _Init.Async_Init();
+#endif
+
             }
+            progress = 0.6f;
             var orderSystems = systems
                 .OrderByDescending(s => s.order);
 
             foreach (var system in orderSystems)
             {
                 system.Value.SetArchitecture(architecture);
-                if (system.Value is IAsync_InitModule _Init)
-                    yield return _Init.Async_Init();
                 system.Value.Init();
+                if (system.Value is IAsync_InitModule _Init)
+#if UNITY_2021_1_OR_NEWER
+                    yield return _Init.Async_Init().ToCoroutine();
+#else
+                    yield return _Init.Async_Init();
+#endif
             }
-
+            progress = 0.7f;
             var orderControllers = controllers
                 .OrderByDescending(c => c.order);
 
@@ -256,8 +266,6 @@ namespace YukiFrameWork
             systems.Clear();
             controllers.Clear();
 
-
-
             (string sceneName, SceneLoadType loadType) = architecture.DefaultSceneName;
             if (!sceneName.IsNullOrEmpty())
             {
@@ -269,7 +277,7 @@ namespace YukiFrameWork
                         while (operation != null && !operation.isDone)
                         {
                             yield return null;
-                            progress = 0.5f + operation.progress * 0.5f;
+                            progress = 0.7f + operation.progress * 0.3f;
                         }
                         break;
                     case SceneLoadType.XFABManager:
@@ -278,7 +286,7 @@ namespace YukiFrameWork
                         if (request != null && !request.isDone)
                         {
                             yield return null;
-                            progress = 0.5f + request.progress * 0.5f;
+                            progress = 0.7f + request.progress * 0.3f;
                         }
                         break;                  
                 }

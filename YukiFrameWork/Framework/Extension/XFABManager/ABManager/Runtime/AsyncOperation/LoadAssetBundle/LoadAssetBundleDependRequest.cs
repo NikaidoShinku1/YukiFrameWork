@@ -28,6 +28,11 @@ namespace XFABManager
                 Completed();
                 yield break;
             }
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+            float start_load_time = Time.time;
+#endif
+             
             string bundlePath = AssetBundleManager.GetAssetBundlePath(projectName, dependence, suffix);
             AssetBundleCreateRequest request = AssetBundleManager.LoadAssetBundleFromFilePathAsync(bundlePath, projectName);
 
@@ -37,12 +42,23 @@ namespace XFABManager
                 yield return null; 
             }
 
+#if XFABMANAGER_LOG_OPEN_TESTING
+
+            if (Time.time - start_load_time > 3) 
+            { 
+                Debug.LogFormat("AssetBundle:{0}加载耗时:{1},超过3秒,可以尝试优化资源!", dependence, Time.time - start_load_time); 
+            }
+
+#endif
+
             if (request != null && request.assetBundle != null)
             {
-                // 加载成功
-                AssetBundleManager.AssetBundles[projectName].Add(dependence, request.assetBundle);
-                // 添加依赖信息
-                AssetBundleManager.AddDependencesBundles(request.assetBundle, projectName, bundleName, dependence);
+                if (!AssetBundleManager.AssetBundles[projectName].ContainsKey(dependence))
+                {
+                    AssetBundleManager.AssetBundles[projectName].Add(dependence, request.assetBundle);
+                    // 添加依赖信息
+                    AssetBundleManager.AddDependencesBundles(request.assetBundle, projectName, bundleName, dependence);
+                }
                 // 完成异步操作
                 Completed();
             }

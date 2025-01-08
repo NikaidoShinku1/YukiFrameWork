@@ -168,16 +168,9 @@ namespace XFABManager
                     else
                         timer = 0; 
                 }
-
-                if (downloadHandler != null) 
-                {                    
-                    while (!downloadHandler.AllTaskCompleted()) 
-                        yield return null;
+                 
+                downloadHandler.Close();
                 
-                    downloadHandler.Close();
-                }
-                
-
                 downloadError = string.Empty;
 
                 if (timer >= DOWNLOAD_FILE_TIME_OUT)

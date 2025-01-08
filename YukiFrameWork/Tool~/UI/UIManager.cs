@@ -48,7 +48,7 @@ namespace YukiFrameWork.UI
             CanvasScaler = Canvas.GetComponent<CanvasScaler>();
             GraphicRaycaster = Canvas.GetComponent<GraphicRaycaster>();
 
-            MonoHelper.Destroy_AddListener(I.Release);
+            //MonoHelper.ApplicationQuit_AddListener(_ => UIKit.Release());
 #if UNITY_2023_1_OR_NEWER
             var eventSystem = Object.FindAnyObjectByType<EventSystem>(FindObjectsInactive.Include);
 #else
@@ -159,20 +159,25 @@ namespace YukiFrameWork.UI
         public IPanel GetPanelCore(string name)
             => panelCore.FirstOrDefault(x => x.Value.gameObject.name == name).Value;
 
+        [Obsolete("请直接调用UIKit.Release方法进行对面板的完全释放操作。不需要进行额外的释放操作")]
         public void Release(MonoHelper monoHelper = null)
+        {
+            UIKit.Release();
+        }
+
+        public override void OnDestroy()
         {
             levelDicts.Clear();
             reloadLevelSafe = false;
             reloadSystemSafe = false;
             IsLevelInited = false;
-                       
+
             ScreenTool.OnScreenChanged.UnRegister(UpdateScreenAspect);
             Type[] panelTypes = panelCore.Keys.ToArray();
-            foreach (var type in panelTypes)           
-                UIKit.UnLoadPanel(type);          
+            foreach (var type in panelTypes)
+                UIKit.UnLoadPanel(type);
             panelCore.Clear();
-            UIKit.Release();
-            MonoHelper.Destroy_RemoveListener(Release);
+            base.OnDestroy();           
         }
     }
 }

@@ -80,57 +80,36 @@ internal class GameObjectPreload
 
         return preLoading;
     }
-
     private static IEnumerator PreLoadAsset()
     {
-        ExecuteMultipleAsyncOperation<LoadAssetRequest> operation = new ExecuteMultipleAsyncOperation<LoadAssetRequest>(30);
-
-        while (preLoading)
+        while (needPreLoadAssets.Count > 0)
         {
-            while (operation.CanAdd() && needPreLoadAssets.Count > 0) 
+            PreloadInfo info = needPreLoadAssets.Dequeue();
+
+            GameObject prefab = AssetBundleManager.LoadAsset<GameObject>(info.projectName, info.assetName);
+
+            if (prefab)
             {
-                PreloadInfo info = needPreLoadAssets.Dequeue();
-                
-                LoadAssetRequest request = AssetBundleManager.LoadAssetAsync<GameObject>(info.projectName, info.assetName);
-                if (request == null)
+                // 添加到 GameObjectLoader的对象池中
+                GameObjectPool pool = GameObjectLoader.GetOrCreatePool(prefab);
+                if (pool != null)
                 {
-                    Debug.LogWarningFormat("资源 {0}/{1} 预加载失败!", info.projectName, info.assetName);
-                    continue;
-                }
-                request.AddCompleteEvent((r) =>
-                {
-                    GameObject prefab = r.asset as GameObject;
-                    if (prefab) 
-                    {
-                        // 添加到 GameObjectLoader的对象池中
-                        GameObjectPool pool = GameObjectLoader.GetOrCreatePool(prefab);
-                        if (pool != null) 
-                        { 
-                            pool.ProjectName = info.projectName;
-                            pool.AssetName = info.assetName;
-                            pool.IsAutoUnload = info.autoUnload;
+                    pool.ProjectName = info.projectName;
+                    pool.AssetName = info.assetName;
+                    pool.IsAutoUnload = info.autoUnload;
 
 #if XFABMANAGER_LOG_OPEN_TESTING
-                            Debug.LogFormat("资源预加载成功:{0} asset:{1}",info.projectName,info.assetName);
-#endif 
-                        }
-                    }
-                });
-
-                operation.Add(request);
+                        Debug.LogFormat("资源预加载成功:{0} asset:{1}", info.projectName, info.assetName);
+#endif
+                }
             }
 
-
-            if (operation.IsDone() && needPreLoadAssets.Count == 0) 
-            {
-                // 说明全部加载完成 直接跳出循环即可
-                preLoading = false;
-                yield break;
-            }
-            
             yield return null;
         }
 
+
+        preLoading = false;
     }
+
 
 }

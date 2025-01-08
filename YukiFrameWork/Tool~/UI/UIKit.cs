@@ -12,6 +12,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 namespace YukiFrameWork.UI
@@ -20,7 +21,7 @@ namespace YukiFrameWork.UI
     {
         private static IUIConfigLoader loader = null;
 
-        public static UITable Table { get; } = new UITable();     
+        public static UITable Table { get; private set; }    
           
 
         public static UIPrefabExector Exector => UIManager.Instance.Exector;
@@ -30,10 +31,8 @@ namespace YukiFrameWork.UI
         /// </summary>
         /// <param name="projectName"></param>      
         public static void Init(string projectName)
-        {           
-            loader = new ABManagerUILoader(projectName);
-           
-            UIManager.I.InitLevel();
+        {
+            Init(new ABManagerUILoader(projectName));
         }
 
         /// <summary>
@@ -60,7 +59,8 @@ namespace YukiFrameWork.UI
         /// </summary>
         /// <param name="loader">自定义加载器</param>         
         public static void Init(IUIConfigLoader loader)
-        {      
+        {
+            Table = new UITable();
             UIKit.loader = loader;           
             
             UIManager.I.InitLevel();
@@ -344,6 +344,7 @@ namespace YukiFrameWork.UI
         {
             if (panel == null) return;
             PanelInfo info = new PanelInfo();
+            
             info.panelName = panel.gameObject.name;
             info.level = panel.Level;
             info.panelType = panel.GetType();
@@ -365,17 +366,7 @@ namespace YukiFrameWork.UI
         internal static BasePanel GetPanelInternal(Type type, UILevel level)
         {
             return Table.GetActivityPanel(type, level,PanelOpenType.Single) as BasePanel;
-        }
-
-
-        /// <summary>
-        /// 卸载/释放指定类型的面板资源。
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public static void UnLoadPanel<T>() where T : BasePanel
-        {
-            UnLoadPanel(typeof(T));
-        }
+        }       
 
         /// <summary>
         /// 卸载/释放指定类型的面板资源。
@@ -396,8 +387,11 @@ namespace YukiFrameWork.UI
                     {
                         foreach (var item in activePanel)
                         {
-                            UIKit.ClosePanel(item);
-                            item.gameObject.Destroy();
+                            if (item as BasePanel && item.gameObject)
+                            {
+                                UIKit.ClosePanel(item);
+                                item.gameObject.Destroy();
+                            }
                         }
                     }
                 }
@@ -493,6 +487,7 @@ namespace YukiFrameWork.UI
       
         public static void Release()
         {
+            UIManager.Instance.Dispose();
             Table.Dispose();                      
         }
 

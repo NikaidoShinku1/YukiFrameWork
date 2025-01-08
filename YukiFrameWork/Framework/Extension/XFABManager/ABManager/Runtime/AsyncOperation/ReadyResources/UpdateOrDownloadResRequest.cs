@@ -235,6 +235,10 @@ namespace XFABManager
                         request.AddCompleteEvent((response) =>
                         {
 
+#if XFABMANAGER_LOG_OPEN_TESTING
+                            UnityEngine.Debug.LogFormat("XFABMANAGER DownloadFiles Completed localfile:{0} md5:{1} server_md5:{2} equal:{3}", info.localfile, response.md5, bundleInfo.md5, response.md5.Equals(bundleInfo.md5));
+#endif
+
                             if (response.md5.Equals(bundleInfo.md5))
                             {
                                 // 文件校验通过 更新配置
@@ -320,6 +324,11 @@ namespace XFABManager
                 }
                 else 
                 {
+
+#if XFABMANAGER_LOG_OPEN_TESTING
+                    UnityEngine.Debug.LogFormat("校验资源失败:{0}", requestUpdate.result.ToString());
+#endif
+
                     if (string.IsNullOrEmpty(requestUpdate.error) && requestUpdate.result.updateType != UpdateType.DontNeedUpdate)
                     {
                         // 说明资源不匹配 需要重新下载

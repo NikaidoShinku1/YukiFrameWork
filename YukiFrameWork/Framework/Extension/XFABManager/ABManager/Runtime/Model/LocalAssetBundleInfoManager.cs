@@ -53,6 +53,8 @@ namespace XFABManager
 
         internal string GetAssetBundleMd5(string projectName, string bundleName) 
         {
+            if (string.IsNullOrEmpty(bundleName))
+                return string.Empty;
             if (bundle_md5_infos.ContainsKey(projectName) && bundle_md5_infos[projectName].ContainsKey(bundleName))
                 return bundle_md5_infos[projectName][bundleName]; 
              
@@ -133,12 +135,14 @@ namespace XFABManager
 
             
  
-            await Task.Run(() => {
+            await Task.Run(() => 
+            {
                 temp_dictionary.Clear();
                 foreach (BundleInfo info in bundleInfos)
                 {
                     if (string.IsNullOrEmpty(info.bundleName))
                         continue;
+
                     if (!temp_dictionary.ContainsKey(info.bundleName))
                         temp_dictionary.Add(info.bundleName, string.Empty);
 

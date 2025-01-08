@@ -56,8 +56,7 @@ namespace XFABManager {
             LoadAssetBundleRequest requestBundle = AssetBundleManager.LoadAssetBundleAsync(projectName, bundle_name);
             yield return requestBundle;
             if (!string.IsNullOrEmpty(requestBundle.error))
-            {
-               // error = string.Format("加载AssetBundle:{0}/{1} 失败:{2}", projectName, bundle_name, requestBundle.error);
+            { 
                 Completed(string.Format("加载AssetBundle:{0}/{1} 失败:{2}", projectName, bundle_name, requestBundle.error));
                 yield break;
             }
@@ -71,7 +70,7 @@ namespace XFABManager {
                 AssetBundleManager.AddAssetCache(projectName, bundleName, assets);
             }
             else
-            {
+            { 
                 Completed(string.Format("资源{0}/{1}加载失败!", projectName, bundle_name));
                 yield break;
             }
@@ -109,7 +108,7 @@ namespace XFABManager {
             yield return requestBundle;
 
             if (!string.IsNullOrEmpty(requestBundle.error))
-            {               
+            { 
                 Completed(string.Format("加载AssetBundle:{0}/{1} 失败:{2}", projectName, bundle_name, requestBundle.error));
                 yield break;
             }
@@ -121,8 +120,8 @@ namespace XFABManager {
                 assets = request.allAssets;
                 AssetBundleManager.AddAssetCache(projectName,bundleName,assets);
             }
-            else {
-                Completed(string.Format("资源{0}/{1}加载失败!",projectName, bundle_name));
+            else { 
+                Completed(string.Format("资源{0}/{1}加载失败!", projectName, bundle_name));
                 yield break;
             }
 
@@ -154,7 +153,7 @@ namespace XFABManager {
             LoadAssetBundleRequest requestBundle = AssetBundleManager.LoadAssetBundleAsync(projectName, bundle_name);
             yield return requestBundle;
             if (!string.IsNullOrEmpty(requestBundle.error))
-            {               
+            { 
                 Completed(string.Format("加载AssetBundle:{0}/{1} 失败:{2}", projectName, bundle_name, requestBundle.error));
                 yield break;
             }
@@ -167,7 +166,7 @@ namespace XFABManager {
                 AssetBundleManager.AddAssetCache(projectName,bundleName,assets);
             }
             else
-            {
+            { 
                 Completed(string.Format("资源{0}/{1}加载失败!", projectName, bundle_name));
                 yield break;
             }

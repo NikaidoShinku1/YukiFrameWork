@@ -1,3 +1,27 @@
+## version 1.16.2 更新内容
+
+1. 调整预加载资源的方式为同步!
+
+## version 1.16.1 更新内容
+
+1. 优化AssetBundle加载逻辑!
+2. 优化资源检测更新代码!
+
+## version 1.16.0 更新内容
+
+1. 优化AssetBundle加载逻辑!
+2. 优化 GameObjectLoader 函数重载!
+3. 优化资源检测逻辑!
+
+## version 1.15.9 更新内容
+
+1. 修复同时下载多个大文件时导致的文件损坏!
+2. 删除 GameObjectLoader 加载游戏物体默认修改位置和旋转的代码，提供对应的重载函数!
+
+## version 1.15.8 更新内容
+
+1. 修复检测资源更新报错!
+
 ## version 1.15.7 更新内容
 
 1. 优化 GameObjectLoader 回收资源逻辑!
