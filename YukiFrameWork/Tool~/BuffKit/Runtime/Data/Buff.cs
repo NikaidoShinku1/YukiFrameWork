@@ -112,12 +112,16 @@ namespace YukiFrameWork.Buffer
         }
 
         [field:SerializeField,JsonProperty,LabelText("该Buff会与指定相互抵消的BuffID")]
+#if UNITY_EDITOR
         [field:ValueDropdown(nameof(names))]
+#endif
         [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
         public string[] BuffCounteractID { get ; set ; }
 
         [field:SerializeField,JsonProperty,LabelText("该Buff运作时禁止添加的BuffID")]
+#if UNITY_EDITOR
         [field: ValueDropdown(nameof(names))]
+#endif
         [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
         public string[] BuffDisableID { get ; set ; }
         [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50)]
@@ -141,9 +145,12 @@ namespace YukiFrameWork.Buffer
         }
 
         #region Buff自带依赖ID转换于编辑器显示
+#if UNITY_EDITOR
         [Searchable]
         [JsonIgnore]
+
         internal IEnumerable names => BuffDataBase.allBuffNames;
-        #endregion
+#endif
+#endregion
     }
 }
