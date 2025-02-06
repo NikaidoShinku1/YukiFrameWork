@@ -13,7 +13,19 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Audio
 {
-    public class AudioSetting
+    public interface IAudioSetting
+    {
+        BindableProperty<bool> IsMusicOn { get; }
+        BindableProperty<bool> IsVoiceOn { get; }
+        BindableProperty<bool> IsSoundOn { get; }
+
+        BindableProperty<bool> IsAudioOn { get; }
+
+        BindableProperty<float> MusicVolume { get; }
+        BindableProperty<float> VoiceVolume { get; }
+        BindableProperty<float> SoundVolume { get; }
+    }
+    public class AudioSetting : IAudioSetting
     {
         internal const string MUSICPLAYERPREFS_VOLUME_KEY = nameof(MUSICPLAYERPREFS_VOLUME_KEY);
         internal const string VOICEPLAYERPREFS_VOLUME_KEY = nameof(VOICEPLAYERPREFS_VOLUME_KEY);
@@ -25,16 +37,16 @@ namespace YukiFrameWork.Audio
 
         internal const string AUDIOPLAYERPREFS_ON_KEY = nameof(AUDIOPLAYERPREFS_ON_KEY);
 
-        public BindablePropertyPlayerPrefsByFloat MusicVolume { get; private set; }
-        public BindablePropertyPlayerPrefsByFloat VoiceVolume { get; private set; }
-        public BindablePropertyPlayerPrefsByFloat SoundVolume { get; private set; }
+        public BindableProperty<float> MusicVolume { get; private set; }
+        public BindableProperty<float> VoiceVolume { get; private set; }
+        public BindableProperty<float> SoundVolume { get; private set; }
 
-        public BindablePropertyPlayerPrefsByBoolan IsMusicOn { get; private set; }
-        public BindablePropertyPlayerPrefsByBoolan IsVoiceOn { get; private set; }
-        public BindablePropertyPlayerPrefsByBoolan IsSoundOn { get; private set; }
+        public BindableProperty<bool> IsMusicOn { get; private set; }
+        public BindableProperty<bool> IsVoiceOn { get; private set; }
+        public BindableProperty<bool> IsSoundOn { get; private set; }
 
         //设置全部音频
-        public BindablePropertyPlayerPrefsByBoolan IsAudioOn { get; private set; }
+        public BindableProperty<bool> IsAudioOn { get; private set; }
 
         public AudioSetting()
         {

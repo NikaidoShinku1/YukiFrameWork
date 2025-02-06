@@ -31,7 +31,7 @@ namespace XFABManager
     }
 
     [Serializable]
-    public struct ImageModel 
+    public class ImageModel 
     {
         /// <summary>
         /// 图片加载方式
@@ -191,7 +191,7 @@ namespace XFABManager
                     // 通过反射查询到所有的适配器
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
-                    {                      
+                    {                    
                         foreach (var item in assembly.GetTypes())
                         {
                             if (XFABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
@@ -219,28 +219,12 @@ namespace XFABManager
         /// </summary>
         private ImageModel ImageModel
         {
-            get { 
+            get
+            {
+                if(imageModel == null)
+                    imageModel = new ImageModel();
                 return imageModel;
-            }
-            set {
-                if (imageModel.Equals(value)) return;
-
-                if (!imageModel.IsEmpty())
-                    ImageLoaderManager.UnloadImage(imageModel, this.GetHashCode());
-
-                ImageData = null;
-
-                imageModel = value;
-                  
-#if UNITY_EDITOR
-                if (Application.isPlaying)
-                    // 刷新
-                    Refresh();
-#else 
-                // 刷新
-                Refresh();
-#endif
-            }
+            } 
         }
 
         /// <summary>
@@ -252,7 +236,7 @@ namespace XFABManager
                 ImageModel model = ImageModel;
                 model.type = value;
                 model.Initialize();
-                ImageModel = model;
+                OnImageModelChange();
             }
 
             get {
@@ -270,7 +254,7 @@ namespace XFABManager
             {
                 ImageModel model = ImageModel;
                 model.path = value;
-                ImageModel = model;
+                OnImageModelChange();
             }
 
             get
@@ -288,7 +272,7 @@ namespace XFABManager
             {
                 ImageModel model = ImageModel;
                 model.projectName = value;
-                ImageModel = model; 
+                OnImageModelChange();
             }
 
             get
@@ -308,7 +292,7 @@ namespace XFABManager
                 ImageModel model = ImageModel;
                 model.assetName = value;
                 model.Initialize();
-                ImageModel = model;
+                OnImageModelChange();
             }
 
             get
@@ -454,8 +438,9 @@ namespace XFABManager
             request_image.onProgressChange += OnProgressChange;
 
 
-            if (request_image != null)
+            if (request_image != null) 
                 request_image.AddCompleteEvent(OnRefreshFinsh); 
+            
 
             isLoading = true; // 正在加载中...
         }
@@ -510,6 +495,24 @@ namespace XFABManager
         private void OnProgressChange(float progress)
         {
             OnLoading?.Invoke(progress);
+        }
+
+
+        private void OnImageModelChange()
+        {
+            if (!ImageModel.IsEmpty())
+                ImageLoaderManager.UnloadImage(ImageModel, this.GetHashCode());
+
+            ImageData = null; 
+
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                // 刷新
+                Refresh();
+#else
+                // 刷新
+                Refresh();
+#endif
         }
 
     }

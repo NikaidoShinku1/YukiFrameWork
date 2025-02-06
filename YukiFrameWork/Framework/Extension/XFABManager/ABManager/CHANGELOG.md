@@ -1,3 +1,33 @@
+## version 1.16.9 更新内容
+
+1. 优化编辑器AssetBundle窗口资源移除逻辑!
+2. 添加获取本地资源版本号的方法!
+3. 优化ImageLoader代码!
+
+## version 1.16.8 更新内容
+
+1. 优化编辑器窗口AssetBundle列表拖拽警告输出!
+
+## version 1.16.7 更新内容
+
+1. 优化编辑器窗口AssetBundle列表拖拽效果!
+
+## version 1.16.6 更新内容
+
+1. 优化编辑器可拖拽的TreeView的数据刷新逻辑!
+
+## version 1.16.5 更新内容
+
+1. 优化编辑器界面,AssetBundle列表拖拽逻辑!
+
+## version 1.16.4 更新内容
+
+1. 优化编辑器界面,AssetBundle列表拖拽逻辑!
+
+## version 1.16.3 更新内容
+
+1. 优化编辑器GUI,添加AssetBundle列表拖拽调整顺序的功能!
+
 ## version 1.16.2 更新内容
 
 1. 调整预加载资源的方式为同步!

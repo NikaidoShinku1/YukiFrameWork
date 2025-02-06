@@ -5,6 +5,8 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -155,6 +157,28 @@ namespace XFABManager
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             File.WriteAllText(file_path, version);
+        }
+
+        /// <summary>
+        /// 查询本地某个模块缓存的资源版本号
+        /// </summary>
+        /// <param name="projectName"></param>
+        public static string GetLocalVersion(string projectName) 
+        {
+            string project_build_info_path = LocalResPath(projectName, XFABConst.project_build_info);
+            if (File.Exists(project_build_info_path))
+            { 
+                try
+                {
+                    ProjectBuildInfo info = JsonConvert.DeserializeObject<ProjectBuildInfo>(File.ReadAllText(project_build_info_path)); 
+                    return info.version;
+                }
+                catch (Exception)
+                { 
+                }
+            }
+
+            return string.Empty;
         }
 
         /// <summary>

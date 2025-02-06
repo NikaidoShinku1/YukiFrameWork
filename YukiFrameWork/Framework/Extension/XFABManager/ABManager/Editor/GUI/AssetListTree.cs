@@ -191,10 +191,25 @@ namespace XFABManager
             if (selectedNodes.Count > 0)
             {
                 GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Remove asset(s) from bundle."), false, RemoveAssets, selectedNodes);
+
+                if(AllDepathGreaterZero(selectedNodes)) 
+                    menu.AddDisabledItem(new GUIContent("Remove asset(s) from bundle."), false);
+                else
+                    menu.AddItem(new GUIContent("Remove asset(s) from bundle."), false, RemoveAssets, selectedNodes);
+
                 menu.ShowAsContext();
             }
 
+        }
+
+
+        private bool AllDepathGreaterZero(List<AssetTreeItem> assetTreeItems) {
+            foreach (var item in assetTreeItems)
+            {
+                if (item.depth <= 0) return false;
+            }
+
+            return true;
         }
 
         #endregion
@@ -298,7 +313,7 @@ namespace XFABManager
 
             if (Bundle != null)
             {
-                List<XFABManager.FileInfo> files = Bundle.GetFileInfos();
+                List<FileInfo> files = Bundle.GetFileInfos();
                 for (int i = 0; i < files.Count; i++)
                 {
                     AssetTreeItem child = new AssetTreeItem(files[i]);

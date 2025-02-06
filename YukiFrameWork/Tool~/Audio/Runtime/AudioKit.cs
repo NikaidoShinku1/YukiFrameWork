@@ -14,13 +14,14 @@ using System;
 using System.Collections.Generic;
 using YukiFrameWork.Extension;
 using YukiFrameWork.Pools;
+using System.Linq;
 
 namespace YukiFrameWork.Audio
 {
     [ClassAPI("声音管理套件")] 
     public class AudioKit
     {
-        public static AudioSetting Setting { get; private set; } = new AudioSetting();
+        public static IAudioSetting Setting { get; set; } = new AudioSetting();
 
         public static AudioConfig Config { get; } = new AudioConfig();
 
@@ -30,7 +31,30 @@ namespace YukiFrameWork.Audio
 
         private static AudioPlayer musicPlayer;
         private static AudioPlayer voicePlayer;
-       
+
+        public static bool IsMusicFree => musicPlayer.IsAudioFree;
+        public static bool IsVoiceFree => voicePlayer.IsAudioFree;
+        public static bool IsSoundFree(string name, bool IsFirstOrDefault = false)
+        {
+            if (!soundActivities.TryGetValue(name, out var players))
+                return true;
+
+            if (IsFirstOrDefault)
+            {
+                var player = players.FirstOrDefault(x => x.IsAudioFree);
+                if (player == null)
+                    return true;
+                return player.IsAudioFree;
+            }
+
+            foreach (var player in players)
+            {
+                if (player.IsAudioFree)
+                    return player.IsAudioFree;
+            }
+
+            return true;
+        }
         private static bool isInit = false;
         public static bool Init(string projectName)
         {
@@ -553,6 +577,7 @@ namespace YukiFrameWork.Audio
             }
 
             audioLoaderDict.Release();
+            isInit = false;
         }
     }
 }

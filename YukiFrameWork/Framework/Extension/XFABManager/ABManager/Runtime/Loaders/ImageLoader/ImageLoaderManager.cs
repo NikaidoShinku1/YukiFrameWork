@@ -59,10 +59,8 @@ namespace XFABManager {
         private const int UNLOAD_TIME_OUT = 5 * 60; // 5分钟 内没人使用就会卸载
         internal static Dictionary<string, ImageData> images = new Dictionary<string, ImageData>();
 
-        private static WaitForSeconds check_recovery_interval = new WaitForSeconds(10); // 检测自动回收的间隔
-
-        private static Coroutine automaticRecoveryCoroutine;
-
+        private static WaitForSeconds check_recovery_interval = new WaitForSeconds(60); // 检测自动回收的间隔
+          
         /// <summary>
         /// 通过ImageLoader请求网络图片在本地的缓存文件夹路径
         /// </summary>
@@ -81,17 +79,24 @@ namespace XFABManager {
                 PlayerPrefs.Save();
             }
         }
+         
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void Init() 
+        { 
+            images.Clear();
+        }
 
-        static ImageLoaderManager(){
-            automaticRecoveryCoroutine = CoroutineStarter.Start(AutomaticRecovery());
+        [RuntimeInitializeOnLoadMethod()]
+        static void Init2()
+        { 
+            // 这里需要启动协程 所以必须要在协程启动器之后调用 不能和上面的初始化一起
+            CoroutineStarter.Start(AutomaticRecovery());
             CoroutineStarter.Start(AutoClearCacheImage());
         }
-         
-        internal static ImageLoaderRequest LoadImage(ImageModel imageModel, int reference_hash_code)
-        {
-            if (automaticRecoveryCoroutine == null)
-                automaticRecoveryCoroutine = CoroutineStarter.Start(AutomaticRecovery());
 
+
+        internal static ImageLoaderRequest LoadImage(ImageModel imageModel, int reference_hash_code)
+        {  
             ImageLoaderRequest imageRequest = AssetBundleManager.ExecuteOnlyOnceAtATime<ImageLoaderRequest>(imageModel.Key, () => {
                 ImageLoaderRequest request = new ImageLoaderRequest();
                 request.runing = CoroutineStarter.Start(request.RequestImage(imageModel));
@@ -165,8 +170,9 @@ namespace XFABManager {
             image = null;
         }
 
-
-        private static IEnumerator AutomaticRecovery() {
+        // 监听图片是否需要卸载
+        private static IEnumerator AutomaticRecovery()
+        {
             List<ImageData> need_unload_images = new List<ImageData>();
             while (true)
             {

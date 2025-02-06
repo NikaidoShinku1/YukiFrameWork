@@ -22,7 +22,7 @@ namespace YukiFrameWork.Audio
         private bool isRealTime;
         private IAudioLoader loader;
         public bool IsAudioFree { get; private set; } = true;
-
+        
         internal bool IsAudioSource => mAudioSource && mAudioSource.gameObject;
         public float Volume
         {

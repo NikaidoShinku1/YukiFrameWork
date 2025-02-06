@@ -366,8 +366,12 @@ namespace YukiFrameWork.UI
         internal static BasePanel GetPanelInternal(Type type, UILevel level)
         {
             return Table.GetActivityPanel(type, level,PanelOpenType.Single) as BasePanel;
-        }       
+        }
 
+        public static void UnLoadPanel<T>() where T : BasePanel
+        {
+            UnLoadPanel(typeof(T));
+        }
         /// <summary>
         /// 卸载/释放指定类型的面板资源。
         /// </summary>
@@ -577,5 +581,9 @@ namespace YukiFrameWork.UI
 
         public static T HidePanel<T>(this T temp) where T : BasePanel, IPanel
             => UIKit.HidePanel<T>();
+
+        public static void UnLoadPanel<T>(this T panel) where T : BasePanel,IPanel        
+            => UIKit.UnLoadPanel<T>();
+        
     }
 }

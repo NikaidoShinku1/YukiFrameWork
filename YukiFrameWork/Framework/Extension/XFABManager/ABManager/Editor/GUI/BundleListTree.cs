@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections;
+﻿using System; 
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Text.RegularExpressions; 
+using Newtonsoft.Json;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using XFABManager;
+using XFABManager; 
 
-public class BundleListTree : TreeView
+public class BundleListTree : DragableTreeView<XFABAssetBundle>
 {
 
     #region 变量
-
-    
-
+     
     //private XFABProject project;
     private XFAssetBundleProjectMain mainWindow;
     private bool isContextClickItem = false;
@@ -40,10 +38,7 @@ public class BundleListTree : TreeView
     {
         return CreateView();
     }
-    protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
-    {
-        return base.BuildRows(root);
-    }
+
 
     protected override void ContextClicked()
     {
@@ -62,6 +57,7 @@ public class BundleListTree : TreeView
     }
     protected override void ContextClickedItem(int id)
     {
+        base.ContextClickedItem(id);
 
         //Debug.Log(" context click item: "+id);
         isContextClickItem = true;
@@ -125,6 +121,12 @@ public class BundleListTree : TreeView
         return true;
     }
 
+    protected override void DoubleClickedItem(int id)
+    {
+        base.DoubleClickedItem(id);
+        RenameBundle(id);
+    }
+
     protected override void SelectionChanged(IList<int> selectedIds) {
 
         string bundle_name = null;
@@ -162,7 +164,9 @@ public class BundleListTree : TreeView
     }
 
     protected override void RowGUI(RowGUIArgs args)
-    {
+    { 
+        if (args.isRenaming) return;
+        
         XFABAssetBundle bundle = mainWindow.Project.GetAssetBundle(args.item.displayName);
         if (bundle != null && bundle.bundleType == XFBundleType.Group)
         {
@@ -212,9 +216,9 @@ public class BundleListTree : TreeView
                 menu.DropDown(r);
             }
         }
-
-        
-
+         
+        args.rowRect.x -= 30;
+        GUI.Box(args.rowRect, string.Empty, "CN Box");
     }
 
 
@@ -223,12 +227,14 @@ public class BundleListTree : TreeView
 
     #region 方法
 
-    public BundleListTree(TreeViewState state, XFAssetBundleProjectMain mainWindow, AssetBundlesPanel bundlesPanel  ) : base(state )
+    public BundleListTree(TreeViewState state, XFAssetBundleProjectMain mainWindow, AssetBundlesPanel bundlesPanel) : base(mainWindow.Project,mainWindow.Project.assetBundles,state)
     { 
         showBorder = true;
         //this.project = mainWindow.Project;
         this.mainWindow = mainWindow;
         this.bundlesPanel = bundlesPanel;
+
+        this.rowHeight = 21;
     }
 
     public TreeViewItem CreateView()
@@ -364,9 +370,9 @@ public class BundleListTree : TreeView
                         return DragAndDropVisualMode.None;
                     }
                 }
-                 
+
                 string bundleName = GetBundleName(filename).ToLower();
-                XFABAssetBundle bundle = new XFABAssetBundle(bundleName,mainWindow.Project.name);
+                XFABAssetBundle bundle = new XFABAssetBundle(bundleName, mainWindow.Project.name);
 
                 for (int i = 0; i < DragAndDrop.paths.Length; i++)
                 {
@@ -377,14 +383,22 @@ public class BundleListTree : TreeView
                 // 保存
                 mainWindow.Project.Save();
 
-                //Debug.LogFormat("bundleName:{0} contain:{1}", bundleName, mainWindow.Project.IsContainAssetBundleName(bundleName));
-
                 Reload();
             }
 
             return DragAndDropVisualMode.Copy;
         }
-        return DragAndDropVisualMode.None;
+        else
+        {
+
+            if (DragAndDrop.paths != null && DragAndDrop.paths.Length > 0) 
+            {
+                Debug.LogFormat("p:{0}",JsonConvert.SerializeObject(DragAndDrop.paths));
+                return DragAndDropVisualMode.None;
+            }
+        }
+
+        return base.HandleDragAndDrop(args);
     }
 
 

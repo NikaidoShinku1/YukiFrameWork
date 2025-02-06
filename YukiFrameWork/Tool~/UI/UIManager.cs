@@ -47,8 +47,7 @@ namespace YukiFrameWork.UI
 
             CanvasScaler = Canvas.GetComponent<CanvasScaler>();
             GraphicRaycaster = Canvas.GetComponent<GraphicRaycaster>();
-
-            //MonoHelper.ApplicationQuit_AddListener(_ => UIKit.Release());
+           
 #if UNITY_2023_1_OR_NEWER
             var eventSystem = Object.FindAnyObjectByType<EventSystem>(FindObjectsInactive.Include);
 #else
@@ -75,10 +74,14 @@ namespace YukiFrameWork.UI
             LogKit.I("UIKit Initialization Succeeded!");           
 
             UpdateScreenAspect();
-            ScreenTool.OnScreenChanged.RegisterEvent(UpdateScreenAspect);
+            ScreenTool.OnScreenChanged  .RegisterEvent(UpdateScreenAspect);
         }
         int currentWidth;
         int currentHeight;
+
+        /// <summary>
+        /// 可根据当前分辨率进行更新CanvasScaler画布比例方法
+        /// </summary>
         public void UpdateScreenAspect()
         {
             if (Screen.width == currentWidth || Screen.height == currentHeight)
@@ -137,6 +140,7 @@ namespace YukiFrameWork.UI
             }
 
             I.Exector.Hide().Show();
+            MonoHelper.ApplicationQuit_AddListener(_ => UIKit.Release());
         }
 
         public RectTransform GetPanelLevel(UILevel level)

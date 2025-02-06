@@ -60,7 +60,7 @@ namespace XFABManager
     public class AssetBundleManager
     {
   
-        [RuntimeInitializeOnLoadMethod()]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Init() 
         {  
             Initialize();
@@ -904,7 +904,9 @@ namespace XFABManager
         //[System.Obsolete("该方法已经过时,请")]
         public static T LoadAsset<T>(string projectName , string assetName) where T : UnityEngine.Object
         {
-
+#if XFABMANAGER_LOG_OPEN_TESTING
+            Debug.LogFormat("LoadAsset:{0}/{1} type:{2}",projectName,assetName,typeof(T).FullName); 
+#endif
             //if (LoaderTips.AllLoaderTips.ContainsKey(typeof(T)))
             //{
             //    if (LoaderTips.AllLoaderTips[typeof(T)].IsThrowException)

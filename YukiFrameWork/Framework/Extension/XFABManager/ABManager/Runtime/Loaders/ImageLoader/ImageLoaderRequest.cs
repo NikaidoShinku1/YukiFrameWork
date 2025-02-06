@@ -48,6 +48,8 @@ namespace XFABManager
                 Texture2D texture = null;
                 Sprite sprite = null;
 
+                Debug.Log(imageModel.load_type);
+
                 if (imageModel.load_type == ImageLoadType.ASync)
                 {
                     if (imageModel.IsSubAsset)
@@ -79,12 +81,13 @@ namespace XFABManager
                     if (imageModel.IsSubAsset)
                     {
                         texture = null;
-                        sprite = AssetBundleManager.LoadSubAssetWithoutTip<Sprite>(imageModel.projectName, imageModel.MainAssetName, imageModel.SubAssetName);
+                        sprite = AssetBundleManager.LoadSubAsset<Sprite>(imageModel.projectName, imageModel.MainAssetName, imageModel.SubAssetName);
                     }
                     else 
-                    {                    
-                        texture = AssetBundleManager.LoadAssetWithoutTips<Texture2D>(imageModel.projectName,imageModel.assetName);
-                        sprite = AssetBundleManager.LoadAssetWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
+                    {
+                        Debug.LogFormat("加载图片:{0}/{1}",imageModel.projectName,imageModel.assetName);
+                        texture = AssetBundleManager.LoadAsset<Texture2D>(imageModel.projectName,imageModel.assetName);
+                        sprite = AssetBundleManager.LoadAsset<Sprite>(imageModel.projectName, imageModel.assetName);
                     }
 
                 }
