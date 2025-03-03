@@ -488,6 +488,22 @@ namespace YukiFrameWork.UI
 
             return false;
         }
+
+        /// <summary>
+        /// 全层级判断面板是否激活并且开启(仅限缓存面板)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="openType"></param>
+        /// <returns></returns>
+        public static bool IsPanelActive<T>(PanelOpenType openType = PanelOpenType.Single) where T : BasePanel
+        {
+            for (UILevel level = UILevel.BG; level <= UILevel.Top; level++)
+            {
+                if (IsPanelActive<T>(level, openType))
+                    return true;
+            }
+            return false;
+        }
       
         public static void Release()
         {

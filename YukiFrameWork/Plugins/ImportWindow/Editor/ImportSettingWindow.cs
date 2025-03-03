@@ -67,30 +67,34 @@ namespace YukiFrameWork.Extension
                 customData = JsonUtility.FromJson<Data>(text.text);              
             }
             return customData;
-        }        
+        }
+       
         /// <summary>
         /// Key:Name  Value:Path
         /// </summary>
-        internal static readonly Dictionary<string, string> moduleInfo = new Dictionary<string, string>()
+        internal static readonly Dictionary<string, (string,bool,string)> moduleInfo = new Dictionary<string, (string, bool,string)>()
         {
-            ["ActionKit"] = packagePath + "/Tool~/ActionKit",
-            ["Bezier"] = packagePath + "/Tool~/Bezier",
-            ["SaveTool"] = packagePath + "/Tool~/SaveTool",          
-            ["StateManager"] = packagePath + "/Tool~/StateManager",
-            ["IOCContainer"] = packagePath + "/Tool~/IOCContainer",
-            ["DiaLogKit"] = packagePath + "/Tool~/DiaLogKit",
-            ["BuffKit"] = packagePath + "/Tool~/BuffKit",
-            ["SkillKit"] = packagePath + "/Tool~/SkillKit",
-            ["UI"] = packagePath + "/Tool~/UI",
-            ["Audio"] = packagePath + "/Tool~/Audio",
-            ["ItemKit"] = packagePath + "/Tool~/ItemKit",          
-            ["NavMeshPlus"] = packagePath + "/Tool~/NavMeshPlus",
-            ["MissionKit"] = packagePath + "/Tool~/MissionKit",
-            ["BehaviourTree"] = packagePath + "/Tool~/BehaviourTree",
-            ["StateMechine"] = packagePath + "/Tool~/StateMechine",
-        };
+            ["ActionKit"] = (packagePath + "/Tool~/ActionKit",true,string.Empty),
+            ["Bezier"] = (packagePath + "/Tool~/Bezier",true,string.Empty),
+            ["Entities"] = (packagePath + "/Tool~/Entities", false, "导入该包之前，需要打开PackageManager 在Unity Registry中搜索Collections安装Unity的可用于Job与Burst编译代码的非托管数据结构包，否则无法使用"),
+            ["SaveTool"] = (packagePath + "/Tool~/SaveTool",true,string.Empty),
+            ["StateManager"] = (packagePath + "/Tool~/StateManager",true,string.Empty),
+            ["IOCContainer"] = (packagePath + "/Tool~/IOCContainer",true,string.Empty),
+            ["DiaLogKit"] = (packagePath + "/Tool~/DiaLogKit",true,string.Empty),
+            ["BuffKit"] = (packagePath + "/Tool~/BuffKit",true,string.Empty),
+            ["SkillKit"] = (packagePath + "/Tool~/SkillKit",true,string.Empty),
+            ["UI"] = (packagePath + "/Tool~/UI",true,string.Empty),
+            ["Audio"] = (packagePath + "/Tool~/Audio",true,string.Empty),
+            ["ItemKit"] = (packagePath + "/Tool~/ItemKit",true,string.Empty),
+            ["NavMeshPlus"] = (packagePath + "/Tool~/NavMeshPlus",true,string.Empty),
+            ["MissionKit"] = (packagePath + "/Tool~/MissionKit",true,string.Empty),
+            ["BehaviourTree"] = (packagePath + "/Tool~/BehaviourTree",true,string.Empty),
+            ["StateMechine"] = (packagePath + "/Tool~/StateMechine",true,string.Empty),
+            
+        };      
 
-        public static string GetLocalPath(string key) => moduleInfo[key];
+
+        public static string GetLocalPath(string key) => moduleInfo[key].Item1;
 
         protected override void OnEnable()
         {           
@@ -194,9 +198,16 @@ namespace YukiFrameWork.Extension
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);
-
+                    if (!string.IsNullOrEmpty(moduleInfo[select.Name].Item3))
+                    {
+                        EditorGUILayout.HelpBox(moduleInfo[select.Name].Item3, MessageType.Warning);
+                        EditorGUILayout.Space();
+                    }
+                    bool isImport = moduleInfo[select.Name].Item2;
+                    if (!isImport)
+                        EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(select.Name == "StateMechine" ? Color.yellow : Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name]);
+                    DrawBoxGUI(select.Name == "StateMechine" ? Color.yellow : Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].Item1, isImport);
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
 
@@ -206,13 +217,13 @@ namespace YukiFrameWork.Extension
                     EditorGUILayout.HelpBox("具体文档请打开下方内置工具文档示例使用,该快捷方式投射底层文本", MessageType.Info);
                     EditorGUILayout.Space();
                     GUI.color = Color.white;
-                    string dir = moduleInfo[select.Name];
+                    string dir = moduleInfo[select.Name].Item1;
                     codeStyle ??= new GUIStyle(GUI.skin.box)
                     {
                         alignment = TextAnchor.UpperLeft
                     };
                     codeStyle.normal.textColor = Color.white;
-                    
+                    if (!Directory.Exists(dir)) continue;
                     foreach (var path in Directory.GetFiles(dir))
                     {
                                             
@@ -237,41 +248,23 @@ namespace YukiFrameWork.Extension
                     return;
                 Application.OpenURL(url);
             }
-        }
+        }   
 
-      /*  private void DrawReverBoxGUI(Color color,string message,MessageType Info, string name)
-        {
-            EditorGUILayout.HelpBox(message, Info);
-            EditorGUILayout.BeginHorizontal();           
-            GUI.color = color;
-            if (GUILayout.Button($"{name}{(ImportWindowInfo.IsEN ? "": "模块")}", GUILayout.Height(20)))
-            {
-                foreach (var key in moduleInfo.Keys)
-                {
-                    string path = string.Format("{0}/YukiFrameWork/", Application.dataPath);
-                    if (Directory.Exists(path + key))
-                    {                       
-                        ReverImport(moduleInfo[key], key);
-                    }
-                }
-            }
-
-            EditorGUILayout.EndHorizontal();
-        }*/
-
-        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "")
+        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "",bool isImport = true)
         {         
-            GUI.color = color;
+            GUI.color = color;          
             EditorGUILayout.BeginHorizontal();           
-            DrawButtonGUI(path, name,copyPath);          
+            DrawButtonGUI(path, name,copyPath,isImport);          
             EditorGUILayout.EndHorizontal();
             GUI.color = Color.white;
         }
 
-        private void DrawButtonGUI(string path,string name,string copyPath)
+        private void DrawButtonGUI(string path,string name,string copyPath,bool isImport)
         {
+                     
             EditorGUILayout.BeginHorizontal();
-            if (Directory.Exists(path))
+          
+            if (Directory.Exists(path) && isImport)
             {
               
                 GUI.color = Color.white;
@@ -301,10 +294,13 @@ namespace YukiFrameWork.Extension
             }
             else
             {
+                GUI.enabled = isImport;
+               
                 if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Import {name} Module":$"导入{name}模块", GUILayout.Height(20)))
                 {
                     Import(copyPath,name);                 
                 }
+                GUI.enabled = true;
             }
             EditorGUILayout.EndHorizontal();
         }

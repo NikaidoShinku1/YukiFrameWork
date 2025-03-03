@@ -77,6 +77,12 @@ namespace YukiFrameWork
             return YukiFrameWork.Lerp.Get(a, b, duration, onLerp, onLerpFinish, isRealTime);
         }
 
+        [MethodAPI("插值")]
+        public static IActionNode Lerp01(float duration, Action<float> onLerp, Action onLerpFinish = null, bool isRealTime = false)
+        {
+            return YukiFrameWork.Lerp.Get(0, 1, duration, onLerp, onLerpFinish, isRealTime);
+        }
+
         /// <summary>
         /// 事件等待判断：当predicate返回True时，结束该任务
         /// </summary>

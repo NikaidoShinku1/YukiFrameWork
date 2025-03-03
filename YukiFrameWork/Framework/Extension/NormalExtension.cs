@@ -45,7 +45,7 @@ namespace YukiFrameWork
         {
             list.Add(obj);
             return obj;
-        }
+        }       
 
         public static T Remove<T>(this T obj, IList<T> list)
         {
@@ -85,6 +85,13 @@ namespace YukiFrameWork
             }
 
             return list;
+        }
+
+        public static HashSet<T> AddRange<T>(this HashSet<T> core, IEnumerable<T> enumerable)
+        {
+            foreach (var item in enumerable)
+                core.Add(item);
+            return core;
         }
 
         public static string Color(this string content, Color color) => $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{content}</color>";

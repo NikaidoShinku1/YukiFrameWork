@@ -51,8 +51,12 @@ namespace YukiFrameWork.Extension
                 return ImportHyCLR;
             else if (key == "StateMechine")
                 return StateMechineInfo;
+            else if (key == "Entities")
+                return EntitiesInfo;
             return default;
         }
+
+        public static string EntitiesInfo => !IsEN ? "框架特殊魔改实验性ECS模块，仅在融合ECS的风格方式与Mono结合。契合日常使用Mono的Unity开发的ECS，不专门强化性能，以人性化设计角度出发的ECS模块" : "\"Framework special magic changes the experimental ECS module, only in the fusion of ECS style with Mono. ECS developed in accordance with the daily use of Mono's Unity, not specifically enhanced performance, ECS modules from the perspective of human design\"";
 
         public static string SerializationInfo => !IsEN ? "框架序列化工具,可以将类转换成Json,Xml,Bytes文件流,集成ExcelToJson转换插件" : "Framework serialization tool, can convert classes to Json,Xml,Bytes file streams, integrated ExcelToJson conversion plug-in";
 

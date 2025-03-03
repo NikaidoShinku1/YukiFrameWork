@@ -55,13 +55,15 @@ namespace YukiFrameWork
                 Dispose();
             });
         }
+
+        public readonly static IList<Assembly> runtime_local_assemblies = new List<Assembly>();
         
         private static void Loading(string name,bool depend = false)
         {
             Assembly assembly = null;
             try
             {
-                assembly = Assembly.Load(name);
+                assembly = Assembly.Load(name);              
             }
             catch (Exception ex)
             {
@@ -70,13 +72,11 @@ namespace YukiFrameWork
             }
 
             if (assembly == null) return;
-
+            runtime_local_assemblies.Add(assembly);
             Type[] types = assembly.GetTypes();
             Type[] architectureTypes = types.Where(type => typeof(IArchitecture).IsAssignableFrom(type)).ToArray();
 
-            LoadingArchitecture(architectureTypes);       
-
-           
+            LoadingArchitecture(architectureTypes);                  
         }
 
         private static void LoadingArchitecture(Type[] types)

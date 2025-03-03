@@ -74,6 +74,12 @@ namespace YukiFrameWork
 
 			if (!config)
 			{
+				if (!System.IO.Directory.Exists("Assets/Resources"))
+				{
+					System.IO.Directory.CreateDirectory("Assets/Resources");
+					AssetDatabase.Refresh();
+
+                }
 				config = YukiAssetDataBase.CreateScriptableAsset<ExpertCodeConfig>(nameof(ExpertCodeConfig),"Assets/Resources/" + nameof(ExpertCodeConfig) + ".asset");
 			}
 			Instance = config;

@@ -84,7 +84,7 @@ namespace XFABManager
                 //}
             }
         }
-
+        private List<string> _files;
         /// <summary>
         /// 返回所有的文件路径
         /// </summary>
@@ -92,29 +92,40 @@ namespace XFABManager
         {
             get
             {
-                List<string> files = new List<string>();
+                if (_files == null)
+                    _files = new List<string>();
+
+                _files.Clear();
+
+
                 if (type == XFBundleFileType.Directory)
                 {
 
                     string[] guids = null;
 
-                    if (string.IsNullOrEmpty(filter) || filter.Equals("All") || filter.Equals("all") || filter.Equals("ALL"))
-                        guids = AssetDatabase.FindAssets("", new string[] { AssetPath });
-                    else 
-                        guids = AssetDatabase.FindAssets(string.Format("t:{0}",filter), new string[] { AssetPath });
-                    
-                    // 去除重复的
-                    for (int i = 0; i < guids.Length; i++)
+                    string asset_path = AssetPath;
+
+                    if (!string.IsNullOrEmpty(asset_path))
                     {
-                        string file_path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                        if (!files.Contains(file_path) && AssetBundleTools.IsValidAssetBundleFile(file_path))
-                            files.Add(file_path);
+                        if (string.IsNullOrEmpty(filter) || filter.ToLower().Equals("all"))
+                            guids = AssetDatabase.FindAssets("", new string[] { asset_path });
+                        else
+                            guids = AssetDatabase.FindAssets(string.Format("t:{0}", filter), new string[] { asset_path });
+
+
+                        // 去除重复的
+                        for (int i = 0; i < guids.Length; i++)
+                        {
+                            string file_path = AssetDatabase.GUIDToAssetPath(guids[i]);
+                            if (!_files.Contains(file_path) && AssetBundleTools.IsValidAssetBundleFile(file_path))
+                                _files.Add(file_path);
+                        }
                     }
                 }
                 else if (type == XFBundleFileType.File)
-                    files.Add(AssetPath);
+                    _files.Add(AssetPath);
 
-                return files.ToArray();
+                return _files.ToArray();
             }
         }
         public FileInfo() { }

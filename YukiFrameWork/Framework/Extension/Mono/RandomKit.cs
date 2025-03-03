@@ -261,7 +261,7 @@ namespace YukiFrameWork
         /// <param name="max"></param>
         /// <returns></returns>
         public static string RandomCode(int length, int min, int max)
-        {
+        {           
             var result = new System.Text.StringBuilder();
             for (var i = 0; i < length; i++)
             {
@@ -270,5 +270,6 @@ namespace YukiFrameWork
             }
             return result.ToString();
         }
+
     }
 }

@@ -932,6 +932,14 @@ namespace YukiFrameWork
             selfGraphic.color = color;
             return selfGraphic;
         }
+
+        public static SpriteRenderer ColorAlpha(this SpriteRenderer spriteRenderer, float alpha)
+        {
+            var color = spriteRenderer.color;
+            color.a = alpha;
+            spriteRenderer.color = color;
+            return spriteRenderer;
+        }
         #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
