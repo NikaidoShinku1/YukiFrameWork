@@ -33,8 +33,8 @@ namespace YukiFrameWork
     {              
         [field: MultiLineProperty,JsonProperty]
         [field: SerializeField]
-        public string Context { get; set ; }             
-        
+        public string Context { get; set ; }
+
         [JsonIgnore]
         [field: PreviewField(50)]
         [field: SerializeField]

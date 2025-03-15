@@ -104,6 +104,16 @@ namespace XFABManager
             _completed = null;
         }
 
+        public void Abort()
+        {
+            Completed("request abort!");
+            OnAbort();
+        }
+
+        protected virtual void OnAbort()
+        {
+
+        }
     }
 
 }

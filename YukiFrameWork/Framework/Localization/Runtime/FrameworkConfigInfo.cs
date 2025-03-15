@@ -51,6 +51,8 @@ namespace YukiFrameWork
     [HideMonoScript]
     public class FrameworkConfigInfo : ScriptableObject
     {
+        public static FrameworkConfigInfo GetFrameworkConfig()
+            => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
         enum Mode
         {
             [LabelText("脚本生成设置")]
@@ -95,6 +97,19 @@ namespace YukiFrameWork
         public Language defaultLanguage;
         [LabelText("本地配置"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
         public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();
+
+        [HideInInspector]
+        public ScriptableObject excelConvertConfig;
+
+        [HideInInspector]
+        public int excelInstanceId;
+        [HideInInspector]
+        public string excelDataPath;
+        [HideInInspector]
+        public string excelTempPath;
+
+        [HideInInspector]
+        public int excelHeader;
       
         public int SelectIndex => (int)mode;
 #if UNITY_EDITOR

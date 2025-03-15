@@ -24,7 +24,7 @@ namespace YukiFrameWork.DiaLogue
         public Port outputport { get; private set; }       
         public GraphNodeView(Node node)
         {          
-            this.node = node;
+            this.node = node;         
             this.name = node.name;
             title = node.GetType().Name + "  " + node.GetName();
             titleContainer.style.color = Color.blue;

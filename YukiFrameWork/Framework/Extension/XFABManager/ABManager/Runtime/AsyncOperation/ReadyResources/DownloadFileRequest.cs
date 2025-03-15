@@ -241,31 +241,23 @@ namespace XFABManager
 
         /// <summary>
         /// 中断下载
-        /// </summary>
-        public void Abort() {
-            try
-            {
-                if (downloadFile.downloadHandler != null)
-                {
-                    DownloadHandlerFileRange range = downloadFile.downloadHandler as DownloadHandlerFileRange;
-                    if (range != null) range.Close();
-                }
-                downloadFile?.Abort();
-                downloadFile?.Dispose();
+        /// </summary> 
+        protected override void OnAbort()
+        {
+            base.OnAbort();
 
-                if (runing_coroutine != null)
-                    CoroutineStarter.Stop(runing_coroutine);
-            }
-            catch (System.Exception)
+            if (downloadFile.downloadHandler != null)
             {
+                DownloadHandlerFileRange range = downloadFile.downloadHandler as DownloadHandlerFileRange;
+                if (range != null) range.Close();
             }
-            finally {
-                Completed("request abort!");
-            }
+            downloadFile?.Abort();
+            downloadFile?.Dispose();
 
+            if (runing_coroutine != null)
+                CoroutineStarter.Stop(runing_coroutine);
         }
-         
-        
+
     }
 
 }

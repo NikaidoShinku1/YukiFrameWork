@@ -13,6 +13,8 @@ using YukiFrameWork.Extension;
 using UnityEngine.U2D;
 using System.Linq;
 using System.Text;
+using System.Collections;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -116,7 +118,7 @@ namespace YukiFrameWork.Item
         [InfoBox("所有的物品配置，都可以单独设置物品的类型，但全局共享，如果有相同的Key/Value，则数据共享，访问Item.ItemType以Key为主", InfoMessageType.Info)]
         private YDictionary<string, string> mItemTypeDicts = new YDictionary<string, string>();
     }
-    public abstract class ItemDataBase<Item> : ItemDataBase where Item : class, IItem
+    public abstract class ItemDataBase<Item> : ItemDataBase,IExcelSyncScriptableObject where Item : class, IItem
     {
         [SerializeField, Searchable, FoldoutGroup("物品管理", -1), ListDrawerSettings(ListElementLabelName = "GetName", NumberOfItemsPerPage = 5)]
         internal Item[] items = new Item[0];
@@ -133,7 +135,22 @@ namespace YukiFrameWork.Item
             get => items.Select(x => x as IItem).ToArray();
             set => items = value.Select(x => x as Item).ToArray();
         }
+        public IList Array => items;
 
+        public Type ImportType => typeof(Item);
+
+        public bool ScriptableObjectConfigImport => true;
+
+        public void Create(int maxLength)
+        {
+            items = new Item[maxLength];
+        }
+
+        public void Import(int index, object userData)
+        {
+            items[index] = (Item)userData;
+        }
+        public void Completed() { }
 #if UNITY_EDITOR
         public override void OnEnable()
         {
@@ -152,6 +169,9 @@ namespace YukiFrameWork.Item
         [SerializeField, LabelText("脚本名称/文件名称"), FoldoutGroup("Code Setting")]
         string fileName;
         private bool DoNotNullOrEmpty => !string.IsNullOrEmpty(filePath);
+
+       
+
         [Button("生成代码"), FoldoutGroup("Code Setting")]
         void CreateCode()
         {
@@ -209,54 +229,12 @@ namespace YukiFrameWork.Item
 
             AssetDatabase.Refresh();
 
-        }
-        [SerializeField, LabelText("配置文件:"), FoldoutGroup("配置表设置")]
-        TextAsset textAsset;
-        [Button("导入", ButtonHeight = 30), PropertySpace, FoldoutGroup("配置表设置")]
-        [InfoBox("Item中对于精灵/精灵图集的路径配置，必须是以Assets为开头的完整包含后缀的路径")]
-        void Import()
-        {
-            if (textAsset == null)
-            {
-                Debug.LogError("无法导入，当前没有添加Json配置文件");
-                return;
-            }
-
-            List<Item> items = SerializationTool.DeserializedObject<List<Item>>(textAsset.text);
-            foreach (Item item in items)
-            {
-                item.GetIcon = string.IsNullOrEmpty(item.SpriteAtlas)
-                        ? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(item.Sprite)
-                        : UnityEditor.AssetDatabase.LoadAssetAtPath<SpriteAtlas>(item.SpriteAtlas).GetSprite(item.Sprite);
-            }
-
-            Items = items.Select(x => x as IItem).ToArray();
-        }
-        [LabelText("导出路径"), FoldoutGroup("配置表设置"), SerializeField]
-        string reImportPath = "Assets/ItemKitData";
-        [LabelText("导出文件名称"), FoldoutGroup("配置表设置"), SerializeField]
-        string reImportName = "Item";
-        [Button("将现有物品导出配表", ButtonHeight = 30), FoldoutGroup("配置表设置"), PropertySpace(15)]
-        void ReImport()
-        {
-            if (this.Items?.Length == 0)
-            {
-                return;
-            }
-            foreach (var item in Items)
-            {
-                if (item.GetIcon != null)
-                {
-                    item.Sprite = AssetDatabase.GetAssetPath(item.GetIcon);
-                }
-            }
-            SerializationTool.SerializedObject(Items).CreateFileStream(reImportPath, reImportName, ".json");
-        }
+        }       
         [Button("打开Item编辑器窗口(Plus)", ButtonHeight = 40)]
         void OpenWindow()
         {
             ItemDesignerWindow.OpenWindow();
-        }
+        }       
 #endif
     }
 }

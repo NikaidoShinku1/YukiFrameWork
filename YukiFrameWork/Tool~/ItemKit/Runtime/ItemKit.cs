@@ -87,6 +87,17 @@ namespace YukiFrameWork.Item
             }                
         }
 
+        /// <summary>
+        /// 将所有的分组物品清空
+        /// </summary>
+        public static void ClearAllSlogGroup()
+        {
+            foreach (var slotGroup in SlotGroupDicts.Values)
+            {
+                slotGroup.ClearItem();
+            }
+        }
+
         internal static ILocalizationData GetLocalization(string Key)
         {
             return LocalizationKit.GetContent(ItemKit.LocalizationConfigKey, Key, LocalizationKit.LanguageType);                                 
@@ -223,7 +234,10 @@ namespace YukiFrameWork.Item
                 var slotGroup = ItemKit.GetSlotGroup(key);
                 slotGroup ??= CreateSlotGroup(key);
                 var data = saveDatas[key];
-                for (int i = 0; i < data.Count; i++)
+                uint count = (uint)data.Count;
+                slotGroup.ClearItem();
+                slotGroup.CreateSlotsByCount(count);
+                for (int i = 0; i < count; i++)
                 {
                     var slot = data[i];
                     var item = string.IsNullOrEmpty(slot.itemKey) ? null : ItemKit.ItemDicts[slot.itemKey];

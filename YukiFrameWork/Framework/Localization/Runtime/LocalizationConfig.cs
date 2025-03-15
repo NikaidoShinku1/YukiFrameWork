@@ -14,6 +14,7 @@ using YukiFrameWork.Extension;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.U2D;
+using System.Collections;
 
 #if UNITY_EDITOR
 using UnityEditor.Callbacks;
@@ -29,10 +30,11 @@ namespace YukiFrameWork
 
         public abstract void Init();
 
-        public abstract string[] ConfigKeys { get; }
+      
+        public abstract string[] ConfigKeys { get; }     
     }
   
-    public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase where LocalizationData : ILocalizationData,new()
+    public abstract class LocalizationConfigBase<LocalizationData> : LocalizationConfigBase, IExcelSyncScriptableObject where LocalizationData : ILocalizationData,new()
     {      
         [LabelText("打开配置表导入:"),BoxGroup(groupName)]
         [JsonIgnore]
@@ -48,6 +50,7 @@ namespace YukiFrameWork
         [JsonIgnore]
         [NonSerialized]
         public Dictionary<string, Dictionary<Language, LocalizationData>> runtimeConfigs = new Dictionary<string, Dictionary<Language, LocalizationData>>();      
+
 
         public override ILocalizationData GetLocalizationData(Language language,string key)
         {
@@ -72,6 +75,10 @@ namespace YukiFrameWork
         }
 
         public override string[] ConfigKeys => config.Keys.ToArray();
+        public IList Array => config.ToList();
+        public Type ImportType => typeof(KeyValuePair<string, YDictionary<Language, LocalizationData>>);
+
+        public bool ScriptableObjectConfigImport => true;
 #if UNITY_EDITOR
 
         [Button("一键应用精灵修改(传入标识，被修改的精灵，应用选择的精灵)"),BoxGroup(groupName), PropertySpace(10)]
@@ -198,8 +205,25 @@ namespace YukiFrameWork
                 }
             }
 
-        }     
+        }
 #endif
+
+        public void Create(int maxLength)
+        {
+            config.Clear();
+        }
+
+        public void Import(int index, object userData)
+        {
+            KeyValuePair<string, YDictionary<Language, LocalizationData>> keyValuePair = (KeyValuePair<string, YDictionary<Language, LocalizationData>>)userData;
+
+            config.Add(keyValuePair);
+        }
+
+        public void Completed()
+        {
+
+        }
     }
     [CreateAssetMenu(fileName = "LocalizationConfig", menuName = "YukiFrameWork/LocalizationConfig")]
     public class LocalizationConfig : LocalizationConfigBase<LocalizationData>

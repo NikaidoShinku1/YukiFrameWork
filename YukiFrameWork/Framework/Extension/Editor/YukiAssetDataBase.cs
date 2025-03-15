@@ -30,8 +30,8 @@ namespace YukiFrameWork
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static T[] FindAssets<T>() where T : UnityEngine.Object
-		{
-			string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).FullName}");
+		{			
+			string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
 			return guids
 				.Select(g => AssetDatabase.GUIDToAssetPath(g))
 				.Select(AssetDatabase.LoadAssetAtPath<T>).ToArray();
@@ -44,7 +44,7 @@ namespace YukiFrameWork
 		/// <returns></returns>
 		public static UnityEngine.Object[] FindAssets(Type type)
 		{		
-            string[] guids = AssetDatabase.FindAssets($"t:{type.FullName}");
+            string[] guids = AssetDatabase.FindAssets($"t:{type.Name}");
             return guids
                 .Select(g => AssetDatabase.GUIDToAssetPath(g))
                 .Select(x => AssetDatabase.LoadAssetAtPath(x,type)).ToArray();

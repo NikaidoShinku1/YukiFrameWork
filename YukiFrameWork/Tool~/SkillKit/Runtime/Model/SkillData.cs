@@ -13,6 +13,7 @@ using Sirenix.OdinInspector;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
+using YukiFrameWork.Extension;
 
 
 #if UNITY_EDITOR
@@ -34,14 +35,14 @@ namespace YukiFrameWork.Skill
         [SerializeField, LabelText("Skill的名称"), JsonProperty(PropertyName = nameof(SkillName))]
         private string skillName;
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public string SkillName => SkillKit.UseLocalizationConfig 
             ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[0] : skillName;
 
         [SerializeField,LabelText("技能介绍"),JsonProperty(PropertyName = nameof(Description)),TextArea]
         private string description;
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public string Description => SkillKit.UseLocalizationConfig
             ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[1] : description;
 
@@ -65,7 +66,7 @@ namespace YukiFrameWork.Skill
         [JsonProperty]
         public bool IsSkillMaxLevel { get; set; }
 
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         private bool skillMaxLevel => IsSkillLavel && IsSkillMaxLevel;
 
         [field: SerializeField, LabelText("技能最大等级"),ShowIf(nameof(skillMaxLevel))]
@@ -79,11 +80,11 @@ namespace YukiFrameWork.Skill
         [JsonProperty]
         internal string Sprite;
 
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         private bool IsNotReleaseAndIsInfin => IsInfiniteTime;
         [SerializeField,LabelText("技能释放时间"),JsonProperty(nameof(RealeaseTime)),HideIf(nameof(IsNotReleaseAndIsInfin))]
         private float releaseTime;
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         public float RealeaseTime
         {
             get => releaseTime;
@@ -97,7 +98,7 @@ namespace YukiFrameWork.Skill
         [SerializeField,LabelText("技能冷却时间"),JsonProperty(nameof(CoolDownTime))]
         private float coolDownTime;
 
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         public float CoolDownTime
         {
             get => coolDownTime;
@@ -116,10 +117,10 @@ namespace YukiFrameWork.Skill
         public string[] SimultaneousSkillKeys{ get; set; }
 
        
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         internal SkillDataBase root;
 
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         IEnumerable list => root.SkillDataConfigs.Where(x => x != this).Select((Func<SkillData, ValueDropdownItem>)(x => new ValueDropdownItem(x.SkillName, (object)x.SkillKey)));
         public static SkillData CreateInstance(string skillName, Type type)
         {

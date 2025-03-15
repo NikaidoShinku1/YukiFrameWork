@@ -48,7 +48,7 @@ namespace XFABManager
                 Texture2D texture = null;
                 Sprite sprite = null;
 
-                Debug.Log(imageModel.load_type);
+                //Debug.Log(imageModel.load_type);
 
                 if (imageModel.load_type == ImageLoadType.ASync)
                 {
@@ -85,7 +85,7 @@ namespace XFABManager
                     }
                     else 
                     {
-                        Debug.LogFormat("加载图片:{0}/{1}",imageModel.projectName,imageModel.assetName);
+                      //  Debug.LogFormat("加载图片:{0}/{1}",imageModel.projectName,imageModel.assetName);
                         texture = AssetBundleManager.LoadAsset<Texture2D>(imageModel.projectName,imageModel.assetName);
                         sprite = AssetBundleManager.LoadAsset<Sprite>(imageModel.projectName, imageModel.assetName);
                     }
@@ -225,15 +225,17 @@ namespace XFABManager
 
         /// <summary>
         /// 中断请求
-        /// </summary>
-        public void Abort()
+        /// </summary> 
+
+        protected override void OnAbort()
         {
+            base.OnAbort();
+
             if (runing == null) return;
             CoroutineStarter.Stop(runing);
             request_file?.Abort();
             request_local_file?.Abort();
             if (currentDownloadCount > 0) currentDownloadCount--;
-            Completed("request abort!");
         }
 
     }

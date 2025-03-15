@@ -1,5 +1,15 @@
 ﻿#### 框架更新日志
 
+V1.40.1 移除老版本有限状态机，新增全新纯粹有限状态机。文档已在官网标注。框架工具导入窗口样式优化。打开文档链接更醒目。同步更新XFABManager
+
+V1.39.1 框架新增Excel-So转换工具。为MissionKit，ItemKit，BuffKit，SkillKit，DiaLogKit完成Excel转换适配
+
+V1.38.5 框架新增BindablePropertyStruct属性绑定类，BindableProperty的少gc消耗版本，仅为结构体打造
+
+V1.38.4 新增UI背景分辨率适组件BackgroundAdaptation 边界适配分辨率组件BorderAdaptation，修复ItemKit OnSlotSelect方法委托不正确的问题
+
+V1.38.3 优化ItemKit，修复读取存档还存在上一个背包数据，添加部分API
+
 V1.38.2 UiKit新增全层级判断面板是否开启API，新增Type的几个获取的拓展方法，ActionKit新增Lerp01方法
 
 V1.38.1 框架新增红点系统。在主页更新文档示例链接。优化细节

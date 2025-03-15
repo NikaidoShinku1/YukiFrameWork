@@ -102,9 +102,9 @@ namespace YukiFrameWork
             {              
                 { $"框架基本设置", config, Sirenix.OdinInspector.SdfIconType.File },
 
-                { $"框架序列化工具/C#转文件流",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
-                { $"框架序列化工具/Excel转Json工具",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
-                { $"框架序列化工具/Json可视化器",JsonSerializeEditor.instance,SdfIconType.ViewList}
+                { $"框架简单序列化工具/C#转文件流",new SerializationWindow(0),Sirenix.OdinInspector.SdfIconType.SegmentedNav},
+                { $"框架简单序列化工具/Excel转Json工具",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
+                { $"框架简单序列化工具/Json可视化器",JsonSerializeEditor.instance,SdfIconType.ViewList},              
             };
 
             foreach (var item in YukiAssetDataBase.FindAssets<LocalizationConfig>())
@@ -221,54 +221,7 @@ namespace YukiFrameWork
         {
             EditorUtility.SetDirty(core);
             AssetDatabase.SaveAssets();          
-        }
-
-        public static List<SerializedProperty> GetAllSerializedProperty(this SerializedObject serializedObject)
-        {
-            List<SerializedProperty> properties = new List<SerializedProperty>();
-
-            Type type = serializedObject.targetObject.GetType();
-
-            List<FieldInfo> fields = GetFields(type);
-
-            foreach (FieldInfo field in fields)
-            {
-                if (!field.IsInitOnly) // 忽略只读字段 
-                {
-                    SerializedProperty property = serializedObject.FindProperty(field.Name);
-                    if (property == null) continue;
-                    if (IsContainProperty(property, properties)) continue;
-                    properties.Add(property);
-                }
-            }
-
-            return properties;
-        }
-
-        private static bool IsContainProperty(SerializedProperty property, List<SerializedProperty> properties)
-        {           
-            foreach (var item in properties)
-            {
-                if (item == null) continue;
-                if (item.name == property.name) return true;
-            }
-
-            return false;
-        }
-
-        private static List<FieldInfo> GetFields(Type type)
-        {
-
-            if (type == null) return null;
-
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
-            if (type.BaseType != null)
-                fields.AddRange(GetFields(type.BaseType));
-            return fields;
-        }
-
+        }     
       
         /// <summary>
         /// 在Scene视图绘制2D胶囊体

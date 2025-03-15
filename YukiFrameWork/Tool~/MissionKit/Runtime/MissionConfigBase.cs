@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using System.Linq;
 using YukiFrameWork.Extension;
+using System.Collections;
 
 
 #if UNITY_EDITOR
@@ -163,8 +164,8 @@ namespace YukiFrameWork.Missions
         [InfoBox("所有的配置中的任务参数均同步共享，a配置有的任务参数在b配置中也可以为参数选择使用!"), FoldoutGroup("任务参数标识添加")]
         [DictionaryDrawerSettings(KeyLabel = "参数名称/标识",ValueLabel = "可配置数据项")]
         internal YDictionary<string, MissionParam> mMissionParams_dict = new YDictionary<string, MissionParam>();
-	} 
-    public class MissionConfigBase<T> : MissionConfigBase where T : IMissionData
+	}
+    public class MissionConfigBase<T> : MissionConfigBase, IExcelSyncScriptableObject where T : IMissionData
     {
 		[SerializeField,LabelText("任务集合"),ListDrawerSettings(ListElementLabelName = "Name",NumberOfItemsPerPage = 5),Searchable(), FoldoutGroup("任务集合")]
 		private T[] missions;
@@ -178,30 +179,13 @@ namespace YukiFrameWork.Missions
 				return runtime_missions;
 			}
 		}
-#if UNITY_EDITOR
-        [Button("将任务数据导出Json"), FoldoutGroup("任务集合")]
-        void CreateData(string filePath = "Assets/Mission", string fileName = "missionData")
-        {
-            foreach (var item in missions)
-            {
-                item.Icon_Path = UnityEditor.AssetDatabase.GetAssetPath(item.Icon);
-            }
-            SerializationTool.SerializedObject(missions).CreateFileStream(filePath, fileName, ".json");
-        }
 
-        [Button("导入任务数据Json"), FoldoutGroup("任务集合"), PropertySpace(10)]
-        void LoadData(TextAsset textAsset)
-        {
-            if (!textAsset) return;
-            
-            missions = SerializationTool.DeserializedObject<T[]>(textAsset.text);
+        public IList Array => missions;
 
-            foreach (var item in missions)
-            {
-                item.Icon = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(item.Icon_Path);
-            }
-        }
-#endif
+        public Type ImportType => typeof(T);
+
+        public bool ScriptableObjectConfigImport => true;
+
         protected override void ResetAllMissionsType()
         {
 			foreach (var item in missions)
@@ -209,5 +193,17 @@ namespace YukiFrameWork.Missions
 				item.MissionType = string.Empty;
 			}
         }
+
+        public void Create(int maxLength)
+        {
+            missions = new T[maxLength];
+        }
+
+        public void Import(int index, object userData)
+        {
+            missions[index] = (T)userData;
+        }
+
+        public void Completed() { }
     } 
 }

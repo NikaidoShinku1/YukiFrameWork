@@ -219,15 +219,31 @@ namespace XFABManager
                 RefreshDatas();
             }
         }
-         
-        protected virtual void RefreshDatas()
+
+        // 判断当前数据是否全为空
+        private bool IsAllEmpty()
         {
-            for (int i = datas.Count - 1; i >= 0; i--)
+            if (datas == null) return true;
+
+            for (int i = 0; i < datas.Count; i++)
             {
-                if (datas[i] != null) continue;
-                datas.RemoveAt(i);
+                if (datas[i] != null)
+                    return false;
             }
 
+            return true;
+        }
+        protected virtual void RefreshDatas()
+        {
+            if (!IsAllEmpty())
+            {
+                // 清空为空的数据
+                for (int i = datas.Count - 1; i >= 0; i--)
+                {
+                    if (datas[i] != null) continue;
+                    datas.RemoveAt(i);
+                }
+            }
             Reload();
 
             if (scriptableObject != null)

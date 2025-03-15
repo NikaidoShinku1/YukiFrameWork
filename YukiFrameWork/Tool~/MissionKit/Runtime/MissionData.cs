@@ -73,7 +73,7 @@ namespace YukiFrameWork.Missions
 		/// </summary>
 		string MissionType { get; set; }
 
-		string Icon_Path { internal get; set; }
+		
 	}
 	/// <summary>
 	/// 任务数据
@@ -104,9 +104,9 @@ namespace YukiFrameWork.Missions
 		[JsonIgnore]
 		public List<string> FailedCondition => mFailedCondition;
 
-		[JsonIgnore]
+		[JsonIgnore,ExcelIgnore]
         private IEnumerable mAllConditionCollection;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         private IEnumerable AllConditionCollection
         {
             get
@@ -135,10 +135,8 @@ namespace YukiFrameWork.Missions
 #endif
 		public string MissionType { get; set; }
 #if UNITY_EDITOR
-		[JsonIgnore]
+		[JsonIgnore,ExcelIgnore]
 		private IEnumerable Type => MissionConfigBase.MissionsTypes;
 #endif		
-		[JsonProperty]
-        string IMissionData.Icon_Path { get ; set; }
     }
 }

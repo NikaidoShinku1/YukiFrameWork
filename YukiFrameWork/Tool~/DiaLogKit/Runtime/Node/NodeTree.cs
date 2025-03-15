@@ -22,18 +22,90 @@ namespace YukiFrameWork.DiaLogue
         Failed,//推进失败       
     }
     [CreateAssetMenu(fileName = "NodeTree", menuName = "YukiFrameWork/NodeTree")]
-    public class NodeTree : ScriptableObject
+    public class NodeTree : ScriptableObject,IExcelSyncScriptableObject
     {     
         // 对话树的开始 根节点
         [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] internal Node rootNode;
         // 当前正在播放的对话
         public Node runningNode { get; private set; }
+
+        public IList Array => nodes;
+
+        public Type ImportType => typeof(Node);
+
+        public bool ScriptableObjectConfigImport => false;
+
         // 所有对话内容的存储列表
-        [LabelText("所有对话内容的存储列表"),SerializeField, ReadOnly, FoldoutGroup("配置")]
+        [LabelText("所有对话内容的存储列表"),SerializeField,  FoldoutGroup("配置")]
         internal List<Node> nodes = new List<Node>();
 
         private Coroutine mEnterCoroutine;
-        
+
+        void IExcelSyncScriptableObject.Create(int maxLength)
+        {
+#if UNITY_EDITOR
+            while (nodes.Count > 0)
+                DeleteNode(nodes[nodes.Count - 1]);
+#endif
+        }
+
+        void IExcelSyncScriptableObject.Import(int index, object userData)
+        {
+            var node = userData as Node;
+            if (!Application.isPlaying)
+            {
+#if UNITY_EDITOR
+                AssetDatabase.AddObjectToAsset(node, this);
+#endif
+            }
+            nodes.Add(node);
+            if (node.IsRoot && !rootNode)
+                rootNode = node;
+#if UNITY_EDITOR
+            Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
+            // EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
+#endif
+        }
+
+        void IExcelSyncScriptableObject.Completed()
+        {
+            foreach (var node in nodes)
+            {
+                foreach (var randomId in node.randomIdItems)
+                {
+                    var temp = nodes.Find(x => x.nodeId == randomId);
+                    if (!temp) continue;
+                    node.randomItems.Add(temp);
+
+                    
+                }
+
+                for (int i = 0; i < node.optionIdItems.Count; i++)
+                {
+                    var temp = node.optionItems[i];
+
+                    if (!temp.nextNode)
+                    {
+                        int id = node.optionIdItems[i];
+                        if (id != default)
+                        {
+                            temp.nextNode = nodes.Find(x => x.nodeId == id);
+                        }
+                    }
+                }
+
+                if (node.IsRoot || node.IsSingle)
+                {
+                    var child = nodes.Find(x => x.nodeId == node.childNodeId);
+                    if (child)
+                    {
+                        node.child = child;
+                    }
+                }
+            }
+        }
+
         // 判断当前对话树和对话内容都是运行中状态则进行OnUpdate()方法更新
         internal MoveNodeState MoveNext()
         {
@@ -106,14 +178,7 @@ namespace YukiFrameWork.DiaLogue
         }
         private void OnValidate()
         {
-            for(int i = 0;i<nodes.Count;i++)
-            {
-                var node = nodes[i];
-                if (node)
-                {
-                    node.nodeId = (1000) + i;
-                }
-            }
+           
         }
         internal MoveNodeState MoveNode(Node node)
         {            
@@ -202,10 +267,7 @@ namespace YukiFrameWork.DiaLogue
         void ReImport(string assetPath = "Assets/DiaLogData",string assetName = "DiaLogConfig")
         {        
             foreach (var item in nodes)
-            {                
-                if (item.GetIcon() != null)
-                    item.spritePath = AssetDatabase.GetAssetPath(item.GetIcon());
-                else item.spritePath = string.Empty;
+            {                               
                 item.linkIds.Clear();
                 if (item.IsRoot || item.IsSingle)
                 {
@@ -223,7 +285,7 @@ namespace YukiFrameWork.DiaLogue
                     if(item.optionItems != null && item.optionItems.Count > 0)
                         item.linkIds = item.optionItems.Select(x => x.nextNode).Select(x => x.nodeId).ToList();
                 }
-                item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
+                //item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
             }
             string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore });                 
             json.CreateFileStream(assetPath, assetName, ".json");         
@@ -282,7 +344,6 @@ namespace YukiFrameWork.DiaLogue
             {         
                 if (node.linkIds != null && node.linkIds.Count > 0)
                 {
-                    Debug.Log("Test");
                     if (node.IsRoot || node.IsSingle)
                         node.child = nodes.Find(x => x.nodeId == node.linkIds[0]);
                     else if (node.IsRandom)
@@ -303,8 +364,13 @@ namespace YukiFrameWork.DiaLogue
             Node node = ScriptableObject.CreateInstance(type) as Node;
             node.name = type.Name;
             node.id = GUID.Generate().ToString();
-            node.nodeType = type.FullName;
-            node.nodeId = (1000) + nodes.Count + 1;
+            int id = (1000) + nodes.Count + 1;
+            node.nodeId = id;
+            // node.nodeType = type.FullName;
+            while (nodes.Any(x => x.nodeId == id))
+            {
+                node.nodeId = ++id;
+            }
             // node.NodeIndex = nodes.Count;
             if (node.DiscernType == typeof(RootNodeAttribute))
                 rootNode = node;           
@@ -328,16 +394,11 @@ namespace YukiFrameWork.DiaLogue
         public Node DeleteNode(Node node)
         {
             Undo.RecordObject(this, "Node Tree (DeleteNode)");
-            nodes.Remove(node);
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                nodes[i].nodeId = (1000) + (i + 1);
-            }
+            nodes.Remove(node);           
             Undo.DestroyObjectImmediate(node);
             AssetDatabase.SaveAssets();
             return node;
-        }      
-
+        }        
 #endif
 
     }

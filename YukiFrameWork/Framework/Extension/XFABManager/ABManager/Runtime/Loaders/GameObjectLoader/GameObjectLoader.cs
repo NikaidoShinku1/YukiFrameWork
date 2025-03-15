@@ -69,18 +69,10 @@ namespace XFABManager {
         /// <param name="assetName"></param>
         /// <returns></returns>
         public static GameObject Load(GameObject prefab, Transform parent = null)
-        { 
+        {
             if (!prefab) return null;
-
             GameObjectPool pool = GetOrCreatePool(prefab);
-
-            GameObject obj = pool.Load(parent);
-            int key = obj.GetHashCode();
-            if (allObjPoolMapping.ContainsKey(key))
-                allObjPoolMapping[key] = pool.Prefab.GetHashCode();
-            else
-                allObjPoolMapping.Add(key, pool.Prefab.GetHashCode());
-            return obj;
+            return pool.Load(parent);
         }
        
         public static GameObject Load(string projectName, string assetName, Transform parent, bool resetTransform = false)
@@ -111,10 +103,10 @@ namespace XFABManager {
         /// 异步加载预制体并进行实例化(注:不在使用时可以直接销毁 或者 通过Unload回收!)通过该方法创建的游戏物体会进行引用计数,当引用数量为0时,会主动卸载资源(推荐使用)
         /// </summary> 
         /// <returns></returns>
-        public static GameObjectLoadRequest LoadAsync(string projectName,string assetName, Transform parent = null)
+        public static GameObjectLoadRequest LoadAsync(string projectName,string assetName, Transform parent = null,bool sameScene = false)
         { 
             GameObjectLoadRequest request = new GameObjectLoadRequest();
-            CoroutineStarter.Start(request.LoadAsync(projectName, assetName, parent));
+            CoroutineStarter.Start(request.LoadAsync(projectName, assetName, parent,sameScene));
             return request;
         }
 
@@ -211,7 +203,13 @@ namespace XFABManager {
         {
             GameObjectPreload.Preload(projectName, assetName, autoUnload);
         }
-
+        internal static void AddObjPoolMapping(int obj_hash_code, int pool_hash_code)
+        {
+            if (allObjPoolMapping.ContainsKey(obj_hash_code))
+                allObjPoolMapping[obj_hash_code] = pool_hash_code;
+            else
+                allObjPoolMapping.Add(obj_hash_code, pool_hash_code);
+        }
         /// <summary>
         /// 如果预加载时选择的是不自动卸载，可通过此方法设置为自动卸载
         /// </summary>
@@ -424,10 +422,8 @@ namespace XFABManager {
             if(obj.transform.parent)
                 obj.transform.SetAsLastSibling();
 
-            // 把游戏物体移动到当前活跃的场景中
-            //if(obj.transform.parent == null && obj.scene != SceneManager.GetActiveScene())
-            //    SceneManager.MoveGameObjectToScene(obj,SceneManager.GetActiveScene());
-             
+            // 添加 obj 和 pool 之间的映射
+            GameObjectLoader.AddObjPoolMapping(obj.GetHashCode(), Prefab.GetHashCode());
             return obj;
         }
 

@@ -37,7 +37,7 @@ namespace YukiFrameWork.Extension
             {
                 return $"本地工具包/{module.Key}";
             });
-            odinMenuTree.Add("内置工具说明文档", new FrameworkInfoByWindow());
+           
             return odinMenuTree;
         }
         public class VersionData
@@ -68,33 +68,136 @@ namespace YukiFrameWork.Extension
             }
             return customData;
         }
-       
+        [Serializable]
+        public class ToolDataInfo
+        {
+            public string key;
+            public string path;
+            public bool active;
+            public string url;
+        }
         /// <summary>
         /// Key:Name  Value:Path
         /// </summary>
-        internal static readonly Dictionary<string, (string,bool,string)> moduleInfo = new Dictionary<string, (string, bool,string)>()
+        internal static readonly Dictionary<string, ToolDataInfo> moduleInfo = new Dictionary<string, ToolDataInfo>()
         {
-            ["ActionKit"] = (packagePath + "/Tool~/ActionKit",true,string.Empty),
-            ["Bezier"] = (packagePath + "/Tool~/Bezier",true,string.Empty),
-            ["Entities"] = (packagePath + "/Tool~/Entities", false, "导入该包之前，需要打开PackageManager 在Unity Registry中搜索Collections安装Unity的可用于Job与Burst编译代码的非托管数据结构包，否则无法使用"),
-            ["SaveTool"] = (packagePath + "/Tool~/SaveTool",true,string.Empty),
-            ["StateManager"] = (packagePath + "/Tool~/StateManager",true,string.Empty),
-            ["IOCContainer"] = (packagePath + "/Tool~/IOCContainer",true,string.Empty),
-            ["DiaLogKit"] = (packagePath + "/Tool~/DiaLogKit",true,string.Empty),
-            ["BuffKit"] = (packagePath + "/Tool~/BuffKit",true,string.Empty),
-            ["SkillKit"] = (packagePath + "/Tool~/SkillKit",true,string.Empty),
-            ["UI"] = (packagePath + "/Tool~/UI",true,string.Empty),
-            ["Audio"] = (packagePath + "/Tool~/Audio",true,string.Empty),
-            ["ItemKit"] = (packagePath + "/Tool~/ItemKit",true,string.Empty),
-            ["NavMeshPlus"] = (packagePath + "/Tool~/NavMeshPlus",true,string.Empty),
-            ["MissionKit"] = (packagePath + "/Tool~/MissionKit",true,string.Empty),
-            ["BehaviourTree"] = (packagePath + "/Tool~/BehaviourTree",true,string.Empty),
-            ["StateMechine"] = (packagePath + "/Tool~/StateMechine",true,string.Empty),
-            
+            ["ActionKit"] = new ToolDataInfo()
+            {
+                key = "ActionKit",
+                path = packagePath + "/Tool~/ActionKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md"
+
+            },
+            ["Bezier"] = new ToolDataInfo()
+            {
+                key = "Bezier",
+                path = packagePath + "/Tool~/Bezier",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md"
+            },
+            ["Entities"] = new ToolDataInfo()
+            {
+                key = "Entities",
+                path = packagePath + "/Tool~/Entities",
+                url = string.Empty,
+                active = false,
+            },
+            ["SaveTool"] = new ToolDataInfo()
+            {
+                key = "SaveTool",
+                path = packagePath + "/Tool~/SaveTool",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/%E5%AD%98%E6%A1%A3%E7%B3%BB%E7%BB%9F.md"
+            },
+            ["StateMachine"] = new ToolDataInfo()
+            {
+                key = "StateMachine",
+                active = true,
+                path = packagePath + "/Tool~/StateMachine",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMachine/StateMachine.md"
+            },          
+            ["IOCContainer"] = new ToolDataInfo() 
+            {
+                key = "IOCContainer",
+                path = packagePath + "/Tool~/IOCContainer",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md"
+            },
+            ["DiaLogKit"] = new ToolDataInfo() 
+            {
+                key = "DiaLogKit",
+                path = packagePath + "/Tool~/DiaLogKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md"
+            },
+            ["BuffKit"] = new ToolDataInfo() 
+            {
+                active = true,
+                key = "BuffKit",
+                path = packagePath + "/Tool~/BuffKit",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md"
+            },
+            ["SkillKit"] = new ToolDataInfo() 
+            {
+                key = "SkillKit",
+                path = packagePath + "/Tool~/SkillKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SkillKit/SkillKit.md",
+            },
+            ["UI"] = new ToolDataInfo() 
+            {
+                key = "UI",
+                path = packagePath + "/Tool~/UI",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md"
+            },
+            ["Audio"] = new ToolDataInfo() 
+            {
+                active = true,
+                key = "Audio",
+                path = packagePath + "/Tool~/Audio",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md"
+            }, 
+            ["ItemKit"] = new ToolDataInfo() 
+            {
+                key = "ItemKit",
+                path = packagePath + "/Tool~/ItemKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md"
+            },
+            ["NavMeshPlus"] = new ToolDataInfo() 
+            {
+                key = "NavMeshPlus",
+                active = true,
+                path = packagePath + "/Tool~/NavMeshPlus",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/NavMeshPlus/README.md"
+            },
+            ["MissionKit"] = new ToolDataInfo() 
+            {
+                key = "MissionKit",
+                active = true,
+                path = packagePath + "/Tool~/MissionKit",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionKit/MissionKit.md"
+            },
+            ["BehaviourTree"] = new ToolDataInfo() 
+            {
+                key = "BehaviourTree",
+                path = packagePath + "/Tool~/BehaviourTree",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BehaviourTree/BehaviourTree.md"
+            },
+            ["StateManager"] = new ToolDataInfo()
+            {
+                key = "StateManager",
+                active = true,
+                path = packagePath + "/Tool~/StateManager",
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md"
+            },
         };      
 
 
-        public static string GetLocalPath(string key) => moduleInfo[key].Item1;
+        public static string GetLocalPath(string key) => moduleInfo[key].path;
 
         protected override void OnEnable()
         {           
@@ -198,48 +301,33 @@ namespace YukiFrameWork.Extension
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);
-                    if (!string.IsNullOrEmpty(moduleInfo[select.Name].Item3))
-                    {
-                        EditorGUILayout.HelpBox(moduleInfo[select.Name].Item3, MessageType.Warning);
-                        EditorGUILayout.Space();
-                    }
-                    bool isImport = moduleInfo[select.Name].Item2;
+                   
+                    bool isImport = moduleInfo[select.Name].active;
                     if (!isImport)
                         EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(select.Name == "StateMechine" ? Color.yellow : Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].Item1, isImport);
+                    DrawBoxGUI(select.Name == "StateMechine" ? Color.yellow : Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].path, isImport);
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
 
-                    EditorGUILayout.BeginVertical();
-                    GUI.color = Color.cyan;
-                    EditorGUILayout.LabelField("快捷代码示例文档");
-                    EditorGUILayout.HelpBox("具体文档请打开下方内置工具文档示例使用,该快捷方式投射底层文本", MessageType.Info);
-                    EditorGUILayout.Space();
-                    GUI.color = Color.white;
-                    string dir = moduleInfo[select.Name].Item1;
-                    codeStyle ??= new GUIStyle(GUI.skin.box)
-                    {
-                        alignment = TextAnchor.UpperLeft
-                    };
-                    codeStyle.normal.textColor = Color.white;
-                    if (!Directory.Exists(dir)) continue;
-                    foreach (var path in Directory.GetFiles(dir))
-                    {
-                                            
-                        if (path.Contains(".md")) 
-                        {
-                            EditorGUILayout.LabelField(File.ReadAllText(path), codeStyle);
-                        }
-                    }
-                    EditorGUILayout.EndVertical();
+                    Button(moduleInfo[select.Name].url);
+                 
                 }
             }         
 
+        }      
+        void Button(string url, Color color = default)
+        {
+            if (color != default)
+                GUI.color = color;
+            if (GUILayout.Button("文档官网", GUILayout.Height(40), GUILayout.Width(250)))
+            {
+                Application.OpenURL(url);
+            }
+            GUI.color = Color.white;
+            GUILayout.Space(5);
         }
 
-        private GUIStyle codeStyle;   
-    
         private void OpenUrl(string name,string url)
         {
             if (GUILayout.Button(name))
@@ -363,77 +451,6 @@ namespace YukiFrameWork.Extension
             }
             AssetDatabase.Refresh();
         }
-        public class FrameworkInfoByWindow
-        {
-            public string updateInfo => AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.packagePath + "/Framework/Extension/UpdateInfo.md")?.text;
-
-            [OnInspectorGUI]
-            void OnInspectorGUI()
-            {
-                var title = new GUIStyle()
-                {
-                    fontSize = 20,
-                    alignment = TextAnchor.UpperCenter,
-                    fontStyle = FontStyle.Bold
-
-                };
-                GUILayout.BeginVertical();
-                UnityEditor.EditorGUILayout.HelpBox("框架使用提示:当使用hybridclr等热更新插件时，可打开架构构造器脚本。\n因适配问题可将RuntimeInitializeOnLoadMethod特性注释，并在合适的时机手动调用ArchitectureConstructor.InitArchitecture()方法", MessageType.Warning);
-                if (GUILayout.Button("打开脚本", GUILayout.Width(100)))
-                {
-                    AssetDatabase.OpenAsset(UnityEditor.AssetDatabase.LoadAssetAtPath<MonoScript>(ImportSettingWindow.packagePath + "/Framework/ViewController/" + "ArchitectureConstructor" + ".cs"));
-                }
-                GUILayout.EndVertical();
-                title.normal.textColor = Color.white;
-                GUILayout.Label("YukiFramework", title);
-                GUILayout.Label("工具教学链接");
-                GUILayout.BeginHorizontal();
-                GUILayout.BeginVertical(GUILayout.Width(200));
-                Button("LocalizationKit_本地化套件", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md");
-                Button("DiaLogKit_对话系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md");
-                Button("BuffKit_框架Buff系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md");
-                Button("LogKit_日志工具", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/LogKit/15.%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%97%A5%E5%BF%97%E5%B7%A5%E5%85%B7.md");
-                Button("ItemKit_框架背包系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md");
-                Button("MissionKit框架任务系统", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionKit/MissionKit.md");
-                Button("SerializationTool_框架序列化工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/%E5%BA%8F%E5%88%97%E5%8C%96%E5%B7%A5%E5%85%B7.md");
-                Button("SaveTool_框架存档工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SaveTool/%E5%AD%98%E6%A1%A3%E7%B3%BB%E7%BB%9F.md");
-                Button("框架引导工具使用", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/PilotKit/PilotKit.md");
-                Button("Singleton_框架万能单例介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Singleton/9.%E5%8D%95%E4%BE%8B.md");
-                Button("EventSystem_框架广播系统介绍", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Events/7.%E6%B6%88%E6%81%AF%E5%B9%BF%E6%92%AD%E6%A8%A1%E5%9D%97.md");
-                Button("UIKit_框架UI模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md");
-                Button("AudioKit_框架声音管理", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
-                Button("ActionKit_时序动作套件说明", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md");
-                Button("Old StateManager_框架可视化状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMechine/3.%E7%8A%B6%E6%80%81%E6%9C%BA.md", Color.yellow);
-                Button("StateManager_全新动作设计状态机模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md");
-                Button("Extension_框架拓展模块", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/13.%E6%8B%93%E5%B1%95.md");
-                Button("PoolsKit_框架设置简易对象池", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Pools/12.%E5%AF%B9%E8%B1%A1%E6%B1%A0%E6%A8%A1%E5%9D%97.md");
-                Button("BindableProperty强化数据绑定类", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Abstract/11.BindableProperty.md");
-                Button("BezierUtility_框架贝塞尔曲线拓展", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md");
-                Button("XFABManager插件官网地址", "https://gitee.com/xianfengkeji/xfabmanager");
-                Button("2d NavMeshPlus 插件官网地址:", "https://github.com/h8man/NavMeshPlus/tree/master");
-                Button("BehaviourTree文档示例", "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BehaviourTree/BehaviourTree.md");
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical(GUILayout.Width(400));
-                GUILayout.Label(updateInfo, "Framebox");
-                GUILayout.EndVertical();
-                GUILayout.EndHorizontal();
-
-            }
-
-            void Button(string name, string url, Color color = default)
-            {
-                if (color != default)
-                    GUI.color = color;
-                if (GUILayout.Button(name, GUILayout.Height(40), GUILayout.Width(250)))
-                {
-                    Application.OpenURL(url);
-                }
-                GUI.color = Color.white;
-                GUILayout.Space(5);
-            }
-
-        }
-
     }
 }
 #endif

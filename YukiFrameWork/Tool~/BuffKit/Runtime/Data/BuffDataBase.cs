@@ -21,7 +21,7 @@ using System.Collections;
 namespace YukiFrameWork.Buffer
 {
     [CreateAssetMenu(fileName = "BuffDataBase",menuName = "YukiFrameWork/BuffDataBase")]
-    public class BuffDataBase : ScriptableObject
+    public class BuffDataBase : ScriptableObject,IExcelSyncScriptableObject
     {           
         [FoldoutGroup("代码设置"), SerializeField]
         private string fileName;
@@ -101,30 +101,14 @@ namespace YukiFrameWork.Buffer
         [VerticalGroup("配置")]
         [ListDrawerSettings(HideAddButton = true,CustomRemoveIndexFunction = nameof(DeleteBuff),DraggableItems = false)]
         public List<Buff> buffConfigs = new List<Buff>();
+        public IList Array => buffConfigs;
+
+        public Type ImportType => typeof(Buff);
+
+        public bool ScriptableObjectConfigImport => false;
 #if UNITY_EDITOR
-        bool reimportTable => buffConfigs.Count > 0;
-        [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
-        private string jsonName = "Buff";
-        [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonBuff"),SerializeField]
-        private string jsonPath = "Assets/BuffData";
-        [ShowIf(nameof(reimportTable)),Button("将现有配置导出Json"),FoldoutGroup("JsonBuff")]
-        void CreateTable()
-        {
-            if (buffConfigs.Count == 0) return;
-
-            foreach (var buff in buffConfigs)
-            {
-                if (buff.BuffIcon != null)
-                    buff.Sprite = AssetDatabase.GetAssetPath(buff.BuffIcon);
-
-                buff.BuffType = buff.GetType().ToString();
-            }
-
-            SerializationTool.SerializedObject(buffConfigs, settings: new Newtonsoft.Json.JsonSerializerSettings()
-            {
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-            }).CreateFileStream(jsonPath,jsonName,".json");
-        }      
+        bool reimportTable => buffConfigs.Count > 0;     
+    
 #endif
              
         internal void CreateBuff(Type buffType)
@@ -150,5 +134,25 @@ namespace YukiFrameWork.Buffer
             this.Save();
 #endif
         }
+
+        public void Create(int maxLength)
+        {
+            while (buffConfigs.Count > 0)
+                DeleteBuff(buffConfigs.Count - 1);
+        }
+
+        public void Import(int index, object userData)
+        {
+            Buff buff = userData as Buff;
+            buffConfigs.Add(buff);
+#if UNITY_EDITOR
+            AssetDatabase.AddObjectToAsset(buff, this);
+            this.Save();
+#endif
+        }
+
+        public void Completed() { }
+
+
     }
 }

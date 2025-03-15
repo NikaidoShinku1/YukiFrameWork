@@ -10,6 +10,8 @@
 
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+
 namespace YukiFrameWork
 {
     public interface IBindableProperty
@@ -23,42 +25,14 @@ namespace YukiFrameWork
         IUnRegister Register(Action<T> action);
         IUnRegister RegisterWithInitValue(Action<T> action);       
     }
-  
-    // <summary>
-    /// 属性绑定类，自增事件绑定
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    [Serializable]
-    public class BindableProperty<T> : IBindableProperty<T>
+
+    public abstract class BindablePropertyBase<T> : IBindableProperty<T>
     {
         [NonSerialized]
         protected EasyEvent<T> onValueChange = new EasyEvent<T>();
-     
-        [field: SerializeField] private T value;
-        public T Value
-        {
-            get => value;
-            set
-            {              
 
-                if (!Equals(this.value,value))
-                {
-                    this.value = value;
-                    if (value == null) return;
-                    onValueChange?.SendEvent(value);
-                }
-            }
-        }       
-        public BindableProperty(T value)
-        {
-            this.value = value;
-        }
-
-        public BindableProperty()
-        {
-            this.value = default;
-        }
-
+        [SerializeField] protected T value;
+        public abstract T Value {  get; set; }    
         public override string ToString()
         {
             return value.ToString();
@@ -83,7 +57,7 @@ namespace YukiFrameWork
         public IUnRegister RegisterWithInitValue(Action<T> action)
         {
             action.Invoke(value);
-            onValueChange.RegisterEvent(action);           
+            onValueChange.RegisterEvent(action);
             return onValueChange;
         }
 
@@ -108,6 +82,98 @@ namespace YukiFrameWork
             Value = (T)args[0];
         }
     }
+  
+    // <summary>
+    /// 属性绑定类，自增事件绑定
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Serializable]
+    public class BindableProperty<T> : BindablePropertyBase<T>
+    {
+        public override T Value
+        {
+            get => value;
+            set
+            {
+
+                if (!Equals(this.value, value))
+                {
+                    this.value = value;
+                    if (value == null) return;
+                    onValueChange?.SendEvent(value);
+                }
+            }
+        }
+        public BindableProperty(T value)
+        {
+            this.value = value;
+        }
+
+        public BindableProperty()
+        {
+            this.value = default;
+        }
+
+ 
+    }
+
+    public interface IBindablePropertyStructComparer<T> where T : struct 
+    {
+        bool Comparer(T oldValue,T newValue);
+    }
+
+    internal class DefaultBindablePropertyStructComparer<T> : IBindablePropertyStructComparer<T> where T : struct
+    {
+        private Func<T, T, bool> comparer;
+        public DefaultBindablePropertyStructComparer(Func<T,T,bool> comparer)
+        {
+            this.comparer = comparer;
+        }
+        public bool Comparer(T oldValue, T newValue)
+        {
+            return comparer(oldValue, newValue);
+        }
+    }
+
+    /// <summary>
+    /// 更快的,少GC消耗的 BindableProperty，专用于结构体
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Serializable]
+    public class BindablePropertyStruct<T> : BindablePropertyBase<T> where T : struct
+    {
+        private IBindablePropertyStructComparer<T> comparer;
+        public override T Value
+        {
+            get => value;
+            set
+            {        
+                if (!comparer.Comparer(this.value,value))
+                {
+                    this.value = value;                   
+                    onValueChange?.SendEvent(value);
+                }
+            }
+        }
+        public BindablePropertyStruct(T value,Func<T,T,bool> comparer)
+        {
+            this.value = value;
+            this.comparer = new DefaultBindablePropertyStructComparer<T>(comparer);
+        }
+
+        public BindablePropertyStruct(T value, IBindablePropertyStructComparer<T> comparer)
+        {
+            this.value = value;
+            this.comparer = comparer;
+        }
+
+        public BindablePropertyStruct(Func<T, T, bool> comparer)
+        {
+            this.value = default;
+            this.comparer = new DefaultBindablePropertyStructComparer<T>(comparer);
+        }
+
+    }    
 
     #region 快速持久化属性绑定
     public class BindablePropertyPlayerPrefsByInteger : BindableProperty<int>

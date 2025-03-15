@@ -198,6 +198,24 @@ namespace YukiFrameWork
                     {
                         throw new Exception(string.Format("bool解析异常:{0} column:{1} row:{2} file:{3} content:{4} error:{5}", type.ToLower(), column, row, fileName, obj.ToString(), e.ToString()));
                     }
+                case "objectreference":
+                    try
+                    {
+                        return obj.ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(string.Format("objectreference解析异常:{0} column:{1} row:{2} file:{3} content:{4} error:{5}", type.ToLower(), column, row, fileName, obj.ToString(), e.ToString()));
+                    }
+                case "enum":
+                    try
+                    {
+                        return obj.ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(string.Format("enum解析异常:{0} column:{1} row:{2} file:{3} content:{4} error:{5}", type.ToLower(), column, row, fileName, obj.ToString(), e.ToString()));
+                    }
                 default:
                     throw new Exception(string.Format("未知的类型:{0} column:{1} row:{2} file:{3}", type.ToLower(), column, row, fileName));
             }

@@ -31,7 +31,9 @@ namespace YukiFrameWork.Item
 
         public Action OrderRefresh { get; set; } = null;
 
-        public bool IsEmpty => slots.FirstOrDefault(x => x.Item != null) == null;
+        public bool IsEmpty => !slots.Any(x => x.Item != null);
+
+        public bool IsFull => !slots.Any(x => x.Item == null);
 
         public SlotGroup ForEach(Action<Slot> action)
         {
@@ -357,7 +359,16 @@ namespace YukiFrameWork.Item
                 return false;
 
             return RemoveItem(slot.Item, slot.ItemCount);
-        }      
+        }
+
+        public void ClearItem()
+        {
+            int count = slots.Count;
+            for (int i = 0; i < count; i++)
+            {
+                ClearItemByIndex(i);
+            }
+        }
 
         internal bool ConditionInvoke(IItem item)
             => mCondition(item);
@@ -382,7 +393,7 @@ namespace YukiFrameWork.Item
             => mOnSlotInit?.Invoke(slot);
 
         public void SlotSelectInvoke(UISlot slot)
-            => mOnSlotSelect?.Invoke(slot);
+            => mOnSlotSelect?.Invoke(slot); 
 
         public void SlotDeselectInvoke(UISlot slot)
            => mOnSlotDeselect?.Invoke(slot);
@@ -401,7 +412,7 @@ namespace YukiFrameWork.Item
 
         public SlotGroup OnSlotSelect(Action<UISlot> onSlotSelect)
         {
-            mOnSlotDeselect += onSlotSelect;
+            mOnSlotSelect += onSlotSelect;
             return this;
         }
         public SlotGroup OnSlotDeselect(Action<UISlot> onSlotDeslect)

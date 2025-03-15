@@ -363,29 +363,21 @@ namespace XFABManager
             downloadFiles.runing_coroutine = CoroutineStarter.Start(downloadFiles.Download());
             return downloadFiles;
         }
-         
         /// <summary>
         /// 中断下载
-        /// </summary>
-        public void Abort()
+        /// </summary> 
+        protected override void OnAbort()
         {
-            try
+            base.OnAbort();
+
+            if (runing_coroutine != null)
+                CoroutineStarter.Stop(runing_coroutine);
+            foreach (var item in downloadFiles)
             {
-                if (runing_coroutine != null)
-                    CoroutineStarter.Stop(runing_coroutine);
-                foreach (var item in downloadFiles)
-                {
-                    item.Abort();
-                }
+                item.Abort();
             }
-            catch (System.Exception)
-            {
-            }
-            finally {
-                Completed("request abort!");
-            }
+
         }
-         
         protected override void OnCompleted()
         {
             base.OnCompleted();

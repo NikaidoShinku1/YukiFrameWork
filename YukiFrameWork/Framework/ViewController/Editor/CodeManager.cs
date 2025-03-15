@@ -481,6 +481,7 @@ namespace YukiFrameWork
                 if (e.type == EventType.DragPerform)
                 {
                     var assets = DragAndDrop.objectReferences;
+                   
                     if (assets[0].GetType().Equals(typeof(DefaultAsset)))
                     {
                         path = AssetDatabase.GetAssetPath(assets[0]);                       

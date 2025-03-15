@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,7 +20,7 @@ namespace YukiFrameWork.Skill
 {
 	[CreateAssetMenu(fileName = "SkillDataBase",menuName = "YukiFrameWork/Skill Data Base")]
     [HideMonoScript]
-	public class SkillDataBase : ScriptableObject
+	public class SkillDataBase : ScriptableObject,IExcelSyncScriptableObject
 	{
         [FoldoutGroup("代码设置"), SerializeField]
         private string fileName;
@@ -99,32 +100,12 @@ namespace YukiFrameWork.Skill
         [VerticalGroup("配置")]
         [ListDrawerSettings(HideAddButton = true, CustomRemoveIndexFunction = nameof(DeleteSkillData), DraggableItems = false)]
         public List<SkillData> SkillDataConfigs = new List<SkillData>();
-#if UNITY_EDITOR
-        bool reimportTable => SkillDataConfigs.Count > 0;
-        [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonSkillData"), SerializeField]
-        private string jsonName = "SkillDatas";
-        [ShowIf(nameof(reimportTable)), FoldoutGroup("JsonSkillData"), SerializeField]
-        private string jsonPath = "Assets/SkillData";
-        [ShowIf(nameof(reimportTable)), Button("将现有配置导出Json"), FoldoutGroup("JsonSkillData")]
-        void CreateTable()
-        {
-            if (SkillDataConfigs.Count == 0) return;
-            foreach (var item in SkillDataConfigs)
-            {
-                if (item.Icon != null)
-                {
-                    item.Sprite = AssetDatabase.GetAssetPath(item.Icon);
-                }
 
-                item.SKillType = item.GetType().ToString();
-            }
-            SerializationTool.SerializedObject(SkillDataConfigs,settings: new Newtonsoft.Json.JsonSerializerSettings() 
-            {
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-            }).CreateFileStream(jsonPath, jsonName, ".json");
-        }
-    
-#endif     
+      
+#if UNITY_EDITOR
+
+
+#endif
 
         internal void CreateSkillData(Type SkillDataType)
         {
@@ -157,6 +138,33 @@ namespace YukiFrameWork.Skill
                 c.root = this;
             }
         }
+
+        public void Create(int maxLength)
+        {
+            while (SkillDataConfigs.Count > 0)
+                DeleteSkillData(SkillDataConfigs.Count - 1);
+        }
+
+        public void Import(int index, object userData)
+        {
+            var skill = userData as SkillData;
+
+            SkillDataConfigs.Add(skill);
+            OnValidate();
+#if UNITY_EDITOR
+            AssetDatabase.AddObjectToAsset(skill, this);
+            this.Save();
+#endif
+
+        }
+
+        public void Completed() { }
+
+        public IList Array => SkillDataConfigs;
+
+        public Type ImportType => typeof(SkillData);
+
+        public bool ScriptableObjectConfigImport => false;
     }
 }
 

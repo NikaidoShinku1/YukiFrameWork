@@ -27,8 +27,11 @@ namespace YukiFrameWork.DiaLogue
         internal string optionTexts;
         [JsonIgnore]
         public string OptionTexts => optionTexts;
-        [LabelText("推进的节点标识"), SerializeField, HideInInspector,JsonIgnore]
+        [LabelText("推进的节点标识"), SerializeField, HideInInspector, JsonIgnore,ExcelIgnore]
         internal Node nextNode;
+
+        [SerializeField]
+        internal int nextNodeId;
 
         [JsonIgnore, PreviewField(50),SerializeField]
         internal Sprite icon;
@@ -64,13 +67,19 @@ namespace YukiFrameWork.DiaLogue
         [SerializeField,ShowIf(nameof(IsComposite)),ListDrawerSettings(HideAddButton = true)]
         internal List<Option> optionItems = new List<Option>();
 
-        [SerializeField,ShowIf(nameof(IsRandom)), ListDrawerSettings(HideAddButton = true)]
+        [SerializeField,ShowIf(nameof(IsRandom)), ListDrawerSettings(HideAddButton = true),ExcelIgnore]
         internal List<Node> randomItems = new List<Node>();
+
+        [SerializeField,HideInInspector]
+        internal List<int> randomIdItems = new List<int>();
+
+        [SerializeField,HideInInspector]
+        internal List<int> optionIdItems = new List<int>();
 
         [SerializeField,HideInInspector,JsonProperty]
         internal List<int> linkIds  = new List<int>();
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public List<Option> OptionItems
         {
             get
@@ -84,7 +93,7 @@ namespace YukiFrameWork.DiaLogue
             }
         }
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public List<Node> RandomItems
         {
             get
@@ -105,39 +114,75 @@ namespace YukiFrameWork.DiaLogue
         public bool IsCompleted { get; set; } = true;
 
         private bool IsComOrRan => IsComposite || IsRandom;
-        [SerializeField,HideIf(nameof(IsComOrRan))]
-        internal Node child;              
+        [SerializeField,HideIf(nameof(IsComOrRan)),ExcelIgnore]
+        internal Node child;
+        [SerializeField]
+        internal int childNodeId;
         [SerializeField][JsonProperty,TextArea,LabelText("对话文本")] 
         internal string dialogueContext;
         [JsonIgnore, PreviewField(50)]
         [SerializeField,LabelText("对话图标")]internal Sprite icon;
         [JsonProperty,SerializeField,LabelText("对话名称")]internal string dialogueTitle;
 #if UNITY_EDITOR       
-        [SerializeField,HideInInspector,JsonProperty]
-        internal string spritePath;
-        [SerializeField,HideInInspector,JsonProperty]
-        internal string nodeType;
-        [HideInInspector,JsonIgnore]
-        public Vector2 position;
+        [HideInInspector,SerializeField]
+        public Position position;
+        [Serializable]
+        public struct Position
+        {
+            public float x;
+            public float y;
+            public Position(float x,float y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+            public static implicit operator Vector2(Position position)
+            {
+                return new Vector2(position.x,position.y);
+            }
 
+            public static implicit operator Position(Vector2 position)
+            {
+                return new Position(position.x, position.y);
+            }
+        }
+        [ExcelIgnore]
         internal Action onValidate;
 
         private void OnValidate()
         {
-            onValidate?.Invoke();         
+            onValidate?.Invoke();
+
+            if(randomItems != null)
+                randomIdItems = randomItems.Where(x => x).Select(x => x.nodeId).ToList();
+            if (optionItems != null)
+            {
+                optionIdItems = optionItems.Where(x => x.nextNode).Select(x => x.nextNode.nodeId).ToList();
+                foreach (var item in optionItems)
+                {
+                    if (item.nextNode)
+                    {
+                        item.nextNodeId = item.nextNode.nodeId;
+                    }
+                }
+            }
+            if ((IsSingle || IsRoot) && child)
+            {
+                childNodeId = child.nodeId;
+            }
         }
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         internal Type DiscernType => DiscernAttribute.GetType();
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         internal int AttributeCount => DiscernAttributes.Count();
 #endif      
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         private DiaLogueNodeAttribute mDiscernAttribute;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         internal IEnumerable<DiaLogueNodeAttribute> DiscernAttributes => this.GetType().GetCustomAttributes<DiaLogueNodeAttribute>();
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         internal DiaLogueNodeAttribute DiscernAttribute
         {
             get
@@ -146,13 +191,13 @@ namespace YukiFrameWork.DiaLogue
                 return mDiscernAttribute;
             }
         }
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public bool IsSingle => DiscernAttribute is SingleNodeAttribute;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public bool IsComposite => DiscernAttribute is CompositeNodeAttribute;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public bool IsRoot => DiscernAttribute is RootNodeAttribute;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public bool IsRandom => DiscernAttribute is RandomNodeAttribute;      
 
         public string GetContext()
@@ -178,41 +223,7 @@ namespace YukiFrameWork.DiaLogue
         public virtual void OnFixedUpdate() { }
         public virtual void OnLateUpdate() { }
 
-#if UNITY_EDITOR     
-        [Button("导入条件表"),ShowIf(nameof(IsComposite))]
-        [InfoBox("导入条件表的操作是将当前已经做好的连线(已经有的条件),按照次序从上到下同步数据，而不是创建新的条件。")]
-        void Import(TextAsset textAsset)
-        {           
-            if (optionItems == null || optionItems.Count == 0) return;      
-            List<OptionModel> models = SerializationTool.DeserializedObject<List<OptionModel>>(textAsset.text);
-            for (int i = 0; i < Mathf.Min(models.Count,optionItems.Count); i++)
-            {
-                var model = models[i];
-                if(!model.spritePath.IsNullOrEmpty())
-                    optionItems[i].icon = AssetDatabase.LoadAssetAtPath<Sprite>(models[i].spritePath);
-                optionItems[i].optionTexts = model.optionTexts;
-            }
-        }
-
-        struct OptionModel
-        {
-            public string optionTexts;
-            public string spritePath;
-            public int linkId;
-        }
-
-        [Button("导出条件表"),ShowIf(nameof(IsComposite))]
-        void ReImport(string assetPath = "Assets/DiaLogData", string assetName = "optionItems")
-        {
-            if (!IsComposite) return;
-            foreach (var option in optionItems)
-            {              
-                option.spritePath = option.Icon != null ? AssetDatabase.GetAssetPath(option.Icon) : string.Empty;
-            }
-
-            string json = SerializationTool.SerializedObject(optionItems, settings: new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-            json.CreateFileStream(assetPath, assetName, ".json");
-        }
+#if UNITY_EDITOR           
 #endif
 
 #endregion

@@ -127,13 +127,7 @@ namespace YukiFrameWork.Buffer
         [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50)]
         [JsonIgnore]
         public Sprite BuffIcon { get; set; }
-
-        [JsonProperty]
-        internal string Sprite;
-
-        [JsonProperty]
-        internal string BuffType;
-
+      
         [Button("打开脚本", ButtonHeight = 40), PropertySpace(20)]
         void OpenScript()
         {

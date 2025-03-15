@@ -42,13 +42,11 @@ namespace YukiFrameWork.Item
         /// <summary>
         /// 物品的最大堆叠数量
         /// </summary>
-        int MaxStackableCount { get; }
+        int MaxStackableCount { get; set; }
         /// <summary>
         /// 物品的类型
         /// </summary>
-        string ItemType { get; set; }           
-        internal string SpriteAtlas { get; set; }        
-        internal string Sprite { get; set; }
+        string ItemType { get; set; }                 
     }
 
     [Serializable]
@@ -175,10 +173,6 @@ namespace YukiFrameWork.Item
                 }
                 else Icon = value;
             }
-        }             
-        [LabelText("精灵所在的图集"), JsonProperty]
-        string IItem.SpriteAtlas { get; set; }
-        [LabelText("精灵的路径/名称"),JsonProperty]
-        string IItem.Sprite { get; set; }      
+        }                     
     }
 }

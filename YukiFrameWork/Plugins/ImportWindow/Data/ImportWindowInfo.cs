@@ -49,8 +49,8 @@ namespace YukiFrameWork.Extension
                 return BehaviourTreeInfo;
             else if (key == "Hyclr")
                 return ImportHyCLR;
-            else if (key == "StateMechine")
-                return StateMechineInfo;
+            else if (key == "StateMachine")
+                return StateMachineInfo;
             else if (key == "Entities")
                 return EntitiesInfo;
             return default;
@@ -72,9 +72,9 @@ namespace YukiFrameWork.Extension
 
         public static string BehaviourTreeInfo => !IsEN ? "框架行为树模块，可以实现对复杂AI的设计，复合节点的打断以及Json序列化" : "The behavior tree module can realize the design of complex AI, the interruption of composite nodes and the Json serialization";
 
-        public static string StateMechineInfo => !IsEN ? "(旧)状态机模块,可以实现对于状态的管理等操作,编辑器可视化(已停止更新,除非项目已经使用旧状态机开发，否则推荐使用新状态机StateManager模块!)" : "State machine module, can be implemented for state management and other operations, or basic action game design, editor visualization(Updates have stopped, and unless the project has been developed using the old state machine, the new StateManager module is recommended!)";
+        public static string StateMachineInfo => !IsEN ? "纯粹有限状态机模块,可以实现对于状态的管理等操作,简单好上手。编辑器可视化" : "Pure finite state machine module, can achieve state management and other operations, simple and easy to get started. Editor visualization";
 
-        public static string StateManagerInfo => !IsEN ? "全新状态机模块，在旧状态机之上，全面支持对于动作状态的设计，可完美兼容实现基础动作游戏设计，编辑器可视化" : "The new state machine module, on top of the old state machine, fully supports the design of the action state, which can be perfectly compatible with the basic action game design and editor visualization";
+        public static string StateManagerInfo => !IsEN ? "仅为基础动作游戏设计打造的状态机(非必要则选择StateMachine模块)，编辑器可视化" : "A state machine built for basic action game design only (select the StateMachine module if not necessary), visualized by the editor";
 
         public static string NavMeshPlusInfo => !IsEN ? "Unity 导航网格plus集成，该插件可以让NavMeshAgent支持2d TileMap的使用(限2021以上使用)" : "Unity Navigation Grid plus integration, which enables NavMeshAgent to support the use of 2d TileMap";
 
