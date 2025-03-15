@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.40.2 原Excel转So仅对自定的序列化类生效。修复在配置中不对Int、float等基本结构类型生效的Bug(如int[])
+
 V1.40.1 移除老版本有限状态机，新增全新纯粹有限状态机。文档已在官网标注。框架工具导入窗口样式优化。打开文档链接更醒目。同步更新XFABManager
 
 V1.39.1 框架新增Excel-So转换工具。为MissionKit，ItemKit，BuffKit，SkillKit，DiaLogKit完成Excel转换适配

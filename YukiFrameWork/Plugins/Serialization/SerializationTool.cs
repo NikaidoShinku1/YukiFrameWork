@@ -176,9 +176,9 @@ namespace YukiFrameWork.Extension
             {
                 string json = ExcelToJson(excel_path, header);
 
-                Type type = excelSyncScriptableObject.ImportType;
+                Type type = excelSyncScriptableObject.ImportType;               
                 Type generaticType = typeof(List<>).MakeGenericType(type);
-                IList values;
+                IList values = null;
                 JObject[] jObjs = SerializationTool.DeserializedObject<JObject[]>(json);
                 if (!typeof(ScriptableObject).IsAssignableFrom(type))
                 {
@@ -186,53 +186,59 @@ namespace YukiFrameWork.Extension
                     
                     for (int i = 0; i < jObjs.Length; i++)
                     {
-                        var value = jObjs[i];
-                        var data = value.ToObject(type);
-                        foreach (var item in value)
+                        var value = jObjs[i];                      
+                        object data = null;
+                       
+                        if (IsValueType(type))
                         {
-                            PropertyInfo propertyInfo = type.GetProperty(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                            if (propertyInfo == null)
+                            data = value["Element"].ToObject(type);
+                        }
+                        else
+                        {
+                            data = value.ToObject(type);
+                            foreach (var item in value)
                             {
-                                FieldInfo fieldInfo = type.GetField(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                                if (fieldInfo == null) continue;
-                                if (fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
-                                if (fieldInfo.FieldType.IsSubclassOf(typeof(UnityEngine.Object)))
+                                PropertyInfo propertyInfo = type.GetProperty(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (propertyInfo == null)
                                 {
+                                    FieldInfo fieldInfo = type.GetField(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                    if (fieldInfo == null) continue;
+                                    if (fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
+                                    if (fieldInfo.FieldType.IsSubclassOf(typeof(UnityEngine.Object)))
+                                    {
 #if UNITY_EDITOR
-                                    fieldInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), fieldInfo.FieldType));
+                                        fieldInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), fieldInfo.FieldType));
 #endif
+                                    }
+                                    else
+                                        fieldInfo.SetValue(data, item.Value.ToObject(fieldInfo.FieldType));
+
                                 }
                                 else
-                                    fieldInfo.SetValue(data, item.Value.ToObject(fieldInfo.FieldType));
+                                {
+                                    if (propertyInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
+                                    if (propertyInfo.PropertyType.IsSubclassOf(typeof(UnityEngine.Object)))
+                                    {
+#if UNITY_EDITOR
+                                        propertyInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), propertyInfo.PropertyType));
+#endif
+                                    }
+                                    else
+                                        propertyInfo.SetValue(data, item.Value.ToObject(propertyInfo.PropertyType));
+                                }
 
                             }
-                            else
-                            {
-                                if (propertyInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
-                                if (propertyInfo.PropertyType.IsSubclassOf(typeof(UnityEngine.Object)))
-                                {
-#if UNITY_EDITOR
-                                    propertyInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), propertyInfo.PropertyType));
-#endif
-                                }
-                                else
-                                    propertyInfo.SetValue(data, item.Value.ToObject(propertyInfo.PropertyType));
-                                Debug.Log(propertyInfo.PropertyType);
-                            }                                                     
-                               
                         }
                         values.Add(data);
                     }
                               
                 }
                 else
-                {
-                   
-
+                {                                 
                     values = Activator.CreateInstance(generaticType) as IList;
                     ScriptableObject target = excelSyncScriptableObject as ScriptableObject;
                     string path = soDataPath + "/" + target.name;
-                    if(Directory.Exists(path))
+                    if (Directory.Exists(path))
                         Directory.Delete(path, true);
                     for (int i = 0; i < jObjs.Length; i++)
                     {
@@ -288,7 +294,7 @@ namespace YukiFrameWork.Extension
                                         propertyInfo.SetValue(scriptable, token.ToObject(propertyInfo.PropertyType));
                                 }
                             }
-                           
+
                         }
                         if (excelSyncScriptableObject.ScriptableObjectConfigImport)
                         {
@@ -304,10 +310,12 @@ namespace YukiFrameWork.Extension
 #endif
                         }
                         values.Add(scriptable);
-                        
+
                     }
-                }              
-             
+
+
+                }
+
                 excelSyncScriptableObject.Create(values.Count);
                 for (int i = 0; i < values.Count; i++)
                 {
@@ -404,11 +412,18 @@ namespace YukiFrameWork.Extension
                             }
                             else
                             {
-                                FieldInfo field = GetFields(type).FirstOrDefault(x => x.Name == excelField.name);
-                                if (field != null)
+                                if (IsValueType(type))
                                 {
-                                    object value = ParseFiledData(field.GetValue(scriptable), excelField.type, false, field);
-                                    sheet.SetValue(index, column, value);
+                                    sheet.SetValue(index, column, scriptable);
+                                }
+                                else
+                                {
+                                    FieldInfo field = GetFields(type).FirstOrDefault(x => x.Name == excelField.name);
+                                    if (field != null)
+                                    {
+                                        object value = ParseFiledData(field.GetValue(scriptable), excelField.type, false, field);
+                                        sheet.SetValue(index, column, value);
+                                    }
                                 }
                             }
                             index++;
@@ -433,6 +448,20 @@ namespace YukiFrameWork.Extension
             return true;
         }
         private const string DATA_GENERATOR_TYPE = "DATA_GENERATOR_TYPE";
+
+        private static bool IsValueType(Type type)
+        {
+            return type == typeof(int)
+                           || type == typeof(float)
+                           || type == typeof(string)
+                           || type == typeof(long)
+                           || type == typeof(uint)
+                           || type == typeof(bool)
+                           || type == typeof(double)
+                           || type == typeof(short)
+                           || type == typeof(ushort)
+                           || type == typeof(ulong);
+        }
         private static Dictionary<int, ExcelFields> ParseFields(IList scriptables)
         {
             // 行数满足 读取所有的字段  key:列 value:字段 
@@ -457,7 +486,6 @@ namespace YukiFrameWork.Extension
                         List<SerializedProperty> properties = serializedObject.GetAllSerializedProperty();
 
                         Type type = value.GetType();
-                        Debug.Log(type);
                         foreach (var fieldInfo in GetFields(type))
                         {
                            
@@ -477,19 +505,32 @@ namespace YukiFrameWork.Extension
                     else
                     {
                         Type type = value.GetType();
-                        foreach (var fieldInfo in GetFields(type))
+
+                        if (IsValueType(type))
                         {
-                            if (scriptable_object_fields.ContainsKey(fieldInfo.Name)) continue;
-                            if (fieldInfo != null && fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
-
+                            if (scriptable_object_fields.ContainsKey("Element")) continue;
                             ExcelFields excelFields = new ExcelFields();
-                            excelFields.name = fieldInfo.Name;
-                            excelFields.type = ParseFieldType(fieldInfo);
-                            TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
+                            excelFields.name = "Element";
+                            excelFields.notes = "基本数据结构统一名称";
+                            excelFields.type = ParseFieldType(type);
+                            scriptable_object_fields.Add(excelFields.name, excelFields);
+                        }
+                        else
+                        {
+                            foreach (var fieldInfo in GetFields(type))
+                            {
+                                if (scriptable_object_fields.ContainsKey(fieldInfo.Name)) continue;
+                                if (fieldInfo != null && fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
 
-                            excelFields.notes = tooltipAttribute == null ? string.Empty : tooltipAttribute.tooltip;
+                                ExcelFields excelFields = new ExcelFields();
+                                excelFields.name = fieldInfo.Name;
+                                excelFields.type = ParseFieldType(fieldInfo);
+                                TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
 
-                            scriptable_object_fields.Add(fieldInfo.Name, excelFields);
+                                excelFields.notes = tooltipAttribute == null ? string.Empty : tooltipAttribute.tooltip;
+
+                                scriptable_object_fields.Add(fieldInfo.Name, excelFields);
+                            }
                         }
                     }
                 }
@@ -501,16 +542,13 @@ namespace YukiFrameWork.Extension
 
             foreach (var item in scriptable_object_fields.Values)
             {          
-                index++;
-                Debug.Log(item.name);
+                index++;                
                 fields.Add(index, item);
             }          
             return fields;
         }
         private static ExcelFieldsType PropertyTypeToExcelFieldsType(SerializedPropertyType propertyType, string type)
-        {
-            //Debug.LogFormat("property_type:{0} type:{1}",propertyType,type);
-
+        {         
             switch (propertyType)
             {
                 case SerializedPropertyType.Integer:
@@ -575,30 +613,35 @@ namespace YukiFrameWork.Extension
 
         private static ExcelFieldsType ParseFieldType(FieldInfo fieldInfo)
         {
-            ExcelFieldsType t = ExcelFieldsType.None;          
-            if (fieldInfo != null)
-            {
-                Type type = fieldInfo.FieldType;
+          
+            if (fieldInfo == null)
+                return ExcelFieldsType.None;
+            return ParseFieldType(fieldInfo.FieldType);
+        }
 
-                if (type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort))
-                    t = ExcelFieldsType.Int;
-                else if (type == typeof(float))
-                    t = ExcelFieldsType.Float;
-                else if (type == typeof(double))
-                    t = ExcelFieldsType.Double;
-                else if (type == typeof(string))
-                    t = ExcelFieldsType.String;
-                else if (type == typeof(bool))
-                    t = ExcelFieldsType.Bool;
-                else if (type == typeof(long))
-                    t = ExcelFieldsType.Long;
-                else if (type.IsEnum)
-                    t = ExcelFieldsType.Enum;
-                else if (type.IsSubclassOf(typeof(UnityEngine.Object)))
-                    t = ExcelFieldsType.ObjectReference;
-                else
-                    t = ExcelFieldsType.Json;
-            }
+        private static ExcelFieldsType ParseFieldType(Type type)
+        {
+
+            ExcelFieldsType t = ExcelFieldsType.None;
+            if (type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort))
+                t = ExcelFieldsType.Int;
+            else if (type == typeof(float))
+                t = ExcelFieldsType.Float;
+            else if (type == typeof(double))
+                t = ExcelFieldsType.Double;
+            else if (type == typeof(string))
+                t = ExcelFieldsType.String;
+            else if (type == typeof(bool))
+                t = ExcelFieldsType.Bool;
+            else if (type == typeof(long))
+                t = ExcelFieldsType.Long;
+            else if (type.IsEnum)
+                t = ExcelFieldsType.Enum;
+            else if (type.IsSubclassOf(typeof(UnityEngine.Object)))
+                t = ExcelFieldsType.ObjectReference;
+            else
+                t = ExcelFieldsType.Json;
+
 
             return t;
 
