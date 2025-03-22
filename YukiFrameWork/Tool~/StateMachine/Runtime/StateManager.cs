@@ -115,8 +115,9 @@ namespace YukiFrameWork.Machine
             get
             {
                return AssemblyHelper
-                .GetTypes(x => typeof(IArchitecture).IsAssignableFrom(x) && x.IsPublic && !x.IsAbstract && x.IsClass)
-                 .Select(x => new ValueDropdownItem() { Text = x.Name, Value = x.ToString() })
+                .GetTypes(x => typeof(IArchitecture)
+                .IsAssignableFrom(x) && x.IsPublic && !x.IsAbstract && x.IsClass)
+                .Select(x => new ValueDropdownItem() { Text = x.Name, Value = x.ToString() })
                 .Concat(ValueNull);
             }
         }

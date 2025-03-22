@@ -100,7 +100,7 @@ namespace YukiFrameWork.DiaLogue
         {
             base.SetPosition(newPos);
 
-            node.position = new Vector2(newPos.x,newPos.y);
+            node.position = new Node.Position(newPos.x,newPos.y);
         }
 
         public override void OnSelected()

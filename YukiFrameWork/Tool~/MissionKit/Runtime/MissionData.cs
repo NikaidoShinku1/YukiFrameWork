@@ -81,10 +81,25 @@ namespace YukiFrameWork.Missions
 	[Serializable]
     public class MissionData : IMissionData
     {
-        [JsonProperty][field:SerializeField,LabelText("任务的唯一ID")]public string Key { get ; set ; }
-        [JsonProperty][field:SerializeField, LabelText("任务名称")] public string Name { get ; set ; }
-        [JsonProperty][field:SerializeField, LabelText("任务介绍"),TextArea] public string Description { get ; set ; }
-        [JsonIgnore][field:SerializeField,LabelText("任务精灵"),PreviewField(50)]public Sprite Icon { get ; set ; }
+
+		[JsonProperty]
+		[SerializeField, LabelText("任务的唯一ID")]
+		private string key;
+		[JsonIgnore,ExcelIgnore]
+		public string Key { get => key; set => key = value; }
+		[JsonProperty]
+		[SerializeField, LabelText("任务名称")]
+		private string name;
+        [JsonIgnore, ExcelIgnore]
+        public string Name { get => name ; set => name = value; }
+		[JsonProperty]
+		[SerializeField, LabelText("任务介绍"), TextArea]
+		private string description;
+        [JsonIgnore, ExcelIgnore]
+        public string Description { get => description ; set => description = value; }
+		[SerializeField, LabelText("任务精灵"), PreviewField(50),JsonProperty]
+		private Sprite icon;
+		public Sprite Icon { get => icon; set => icon = value; }
 		
         [JsonProperty(PropertyName = nameof(StartingCondition)), LabelText("开始任务所有的条件"), ValueDropdown(nameof(AllConditionCollection))]
 		[InfoBox("对于任务的开始，需要手动调用Mission任务基类的非静态.Start方法。当没有开始条件时，调用Start方法即视为任务启动。",InfoMessageType.Warning)]
@@ -93,15 +108,16 @@ namespace YukiFrameWork.Missions
         [JsonProperty(PropertyName = nameof(CompletedCondition)),LabelText("完成任务所有的条件"), ValueDropdown(nameof(AllConditionCollection))]
 		[SerializeField]private List<string> mCompletedCondition = new List<string>();
 
-		[JsonIgnore]
+        [JsonProperty(PropertyName = nameof(FailedCondition)), LabelText("任务失败所有的条件"), InfoBox("如果没有失败条件，则任务永远不会失败"), ValueDropdown(nameof(AllConditionCollection))]
+        [SerializeField] private List<string> mFailedCondition = new List<string>();
+
+        [JsonIgnore,ExcelIgnore]
 		public List<string> CompletedCondition => mCompletedCondition;
 
-		[JsonIgnore]
+		[JsonIgnore,ExcelIgnore]
         public List<string> StartingCondition => mStartingCondition;
-
-		[JsonProperty(PropertyName = nameof(FailedCondition)), LabelText("任务失败所有的条件"),InfoBox("如果没有失败条件，则任务永远不会失败"),ValueDropdown(nameof(AllConditionCollection))]
-		[SerializeField]private List<string> mFailedCondition = new List<string>();		
-		[JsonIgnore]
+		
+		[JsonIgnore,ExcelIgnore]
 		public List<string> FailedCondition => mFailedCondition;
 
 		[JsonIgnore,ExcelIgnore]
@@ -128,15 +144,17 @@ namespace YukiFrameWork.Missions
 		/// <summary>
 		/// 任务的类型(默认是没有的)
 		/// </summary>
-		[field:SerializeField,LabelText("任务类型")]
+		[SerializeField, LabelText("任务类型")]
 		[JsonProperty]
 #if UNITY_EDITOR
-		[field: ValueDropdown(nameof(Type))]
+		[ValueDropdown(nameof(Type))]
 #endif
-		public string MissionType { get; set; }
+		private string missionType;
+		[ExcelIgnore,JsonIgnore]
+		public string MissionType { get => missionType; set => missionType = value; }
 #if UNITY_EDITOR
 		[JsonIgnore,ExcelIgnore]
-		private IEnumerable Type => MissionConfigBase.MissionsTypes;
+		private IEnumerable Type => MissionConfigManager.MissionTypes;
 #endif		
     }
 }

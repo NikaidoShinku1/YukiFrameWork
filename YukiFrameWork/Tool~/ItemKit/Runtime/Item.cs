@@ -11,6 +11,7 @@ using System;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
 using System.Collections;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork.Item
 {
     public interface IItem
@@ -18,19 +19,19 @@ namespace YukiFrameWork.Item
         /// <summary>
         /// 获取物品的唯一标识
         /// </summary>
-        string GetKey { get;  }
+        string Key { get;  }
         /// <summary>
         /// 获取物品的名称
         /// </summary>
-        string GetName { get; }
+        string Name { get; }
         /// <summary>
         /// 获取物品的介绍
         /// </summary>
-        string GetDescription { get; }
+        string Description { get; }
         /// <summary>
         /// 获取物品的图标
         /// </summary>
-        Sprite GetIcon { get; set; }    
+        Sprite Icon { get; }    
         /// <summary>
         /// 物品是否是可堆叠的
         /// </summary>
@@ -53,126 +54,63 @@ namespace YukiFrameWork.Item
     public class Item : IItem 
     {
         [SerializeField, LabelText("唯一标识"),JsonProperty]
-        private string Key;
+        private string key;
         [JsonIgnore]
-        public string GetKey
+        public string Key
         {
-            get => Key;
-            set => Key = value;
+            get => key;
+            set => key = value;
         }
         [SerializeField, LabelText("名称"),JsonProperty] 
-        private string Name;
+        private string name;
         [JsonIgnore]
-        public string GetName
-        {
-            get
-            {
-                if (ItemKit.UseLocalizationConfig)
-                {
-                    var localization = ItemKit.GetLocalization(Key);
-                    string[] contexts = localization.Context.Split(ItemKit.Spilt);
-                    return contexts[0];
-                }
-                return Name;
-            }
-            set
-            {
-                ///如果开启了本地化配置使用
-                if (ItemKit.UseLocalizationConfig)
-                {
-                    ILocalizationData localization = ItemKit.GetLocalization(Key);
-                    ///改变本地化的数据值
-                    localization.Context = $"{value}{ItemKit.Spilt}{GetDescription}";                
-                }
-                else
-                {
-                    ///修改名称
-                    Name = value;
-                }                
-            }
-        }
+        public string Name => name;
+        
         [SerializeField, LabelText("描述"), TextArea(minLines: 1, maxLines: 3),JsonProperty]
-        private string Description;
+        private string description;
         [JsonIgnore]
-        public string GetDescription
-        {
-            get
-            {
-                if (ItemKit.UseLocalizationConfig) 
-                {
-                    var localization = ItemKit.GetLocalization(Key);
-                    string[] contexts = localization.Context.Split(ItemKit.Spilt);
-                    return contexts[1];
-                }
-                return Description;
-            }
-            set
-            {
-                ///如果开启了本地化配置使用
-                if (ItemKit.UseLocalizationConfig)
-                {
-                    ILocalizationData localization = ItemKit.GetLocalization(Key);
-                    ///改变本地化的数据值
-                    localization.Context = $"{GetName}{ItemKit.Spilt}{value}";
-                }
-                else
-                {
-                    ///修改名称
-                    Description = value;
-                }
-            }
-        }
+        public string Description => description;
+        
         public Item(string name, string key, Sprite icon, string itemType = "")
         {
-            this.Name = name;
-            this.Key = key;
-            this.Icon = icon;
+            this.name = name;
+            this.key = key;
+            this.icon = icon;
             this.ItemType = itemType;
         }
 
         public Item() { }
 #if UNITY_EDITOR
-        private IEnumerable allItemTypes => ItemDataBase.AllItemTypes;
+        private IEnumerable allItemTypes => ItemDataManager.AllManager_ItemTypes;
 #endif
-        [field: SerializeField, LabelText("物品类型")]
+        [SerializeField, LabelText("物品类型")]
 #if UNITY_EDITOR
-        [field: ValueDropdown(nameof(allItemTypes))]
+        [ValueDropdown(nameof(allItemTypes))]
 #endif
+        private string itemType;
+        [JsonIgnore,ExcelIgnore]
+        public string ItemType { get => itemType; set => itemType = value; }
+        [SerializeField, LabelText("是否可堆叠")]
         [JsonProperty]
-        public string ItemType { get; set; }
-        [field: SerializeField, LabelText("是否可堆叠")]
+        private bool isStackable = true;
+        [JsonIgnore,ExcelIgnore]
+        public bool IsStackable { get => isStackable; set => isStackable = value; }
+        [SerializeField, LabelText("是否有堆叠上限"), ShowIf(nameof(IsStackable))]
         [JsonProperty]
-        public bool IsStackable { get; set; } = true;
-        [field: SerializeField, LabelText("是否有堆叠上限"),ShowIf(nameof(IsStackable))]
+        private bool isMaxStackableCount;
+        [JsonIgnore,ExcelIgnore]
+        public bool IsMaxStackableCount { get => isMaxStackableCount ; set => isMaxStackableCount = value; }
+        [SerializeField, LabelText("上限的数量"), ShowIf(nameof(IsMeet))]
         [JsonProperty]
-        public bool IsMaxStackableCount { get ; set ; }
-        [field: SerializeField, LabelText("上限的数量"),ShowIf(nameof(IsMeet))]
-        [JsonProperty]
-        public int MaxStackableCount { get ; set ; }
-        [JsonIgnore]
+        private int maxStackableCount;
+        [JsonIgnore, ExcelIgnore]
+        public int MaxStackableCount { get => maxStackableCount; set => maxStackableCount = value; }
+        [JsonIgnore,ExcelIgnore]
         private bool IsMeet => IsMaxStackableCount && IsStackable;
-        [field: SerializeField, LabelText("图标"), PreviewField(50)]
-        [JsonIgnore]
-        private Sprite Icon;
-        [JsonIgnore]
-        public Sprite GetIcon
-        {
-            get
-            {
-                if (ItemKit.UseLocalizationConfig)
-                {
-                    return ItemKit.GetLocalization(Key).Sprite;
-                }                            
-                return Icon;
-            }
-            set
-            {
-                if (ItemKit.UseLocalizationConfig)
-                {
-                    ItemKit.GetLocalization(Key).Sprite = value;
-                }
-                else Icon = value;
-            }
-        }                     
+        [SerializeField, LabelText("图标"), PreviewField(50)]       
+        private Sprite icon;
+        [JsonIgnore,ExcelIgnore]
+        public Sprite Icon => icon;
+            
     }
 }

@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using YukiFrameWork.Events;
 using System.Collections;
+using UnityEngine;
 
 namespace YukiFrameWork
 {
@@ -47,8 +48,8 @@ namespace YukiFrameWork
         /// <para> 注意:使用XFABManager加载场景必须重写OnProjectName属性 </para>
         /// </summary>
         (string, SceneLoadType) DefaultSceneName { get; }
-
-        void Init();
+       
+        void Init();     
         void OnDestroy();
         [Obsolete("建议在Model类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
         void RegisterModel<T>(T model) where T : class, IModel;

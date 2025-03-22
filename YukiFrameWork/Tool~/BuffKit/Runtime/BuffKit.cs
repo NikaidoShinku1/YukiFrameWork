@@ -118,23 +118,7 @@ namespace YukiFrameWork.Buffer
             buffItems.TryGetValue(key, out var buffBindder);
             return buffBindder?.buff;
         }
-
-        public static void DependLocalizationConfig(string configKey,char spilt = ':')
-        {
-            LocalizationConfigKey = configKey;
-            Spilt = spilt;
-            UseLocalizationConfig = true;
-        }
-
-        internal static bool UseLocalizationConfig { get; private set; } = false;
-
-        internal static string LocalizationConfigKey { get; private set; }
-
-        public static char Spilt { get; private set; }
-
-        internal static ILocalizationData GetContent(string buffKey)
-            => LocalizationKit.GetContent(LocalizationConfigKey, buffKey);
-
+     
         public static void AddBuffer(this IBuffExecutor executor,IBuff buff)
         {
             executor.Handler.AddBuffer(buff,executor);

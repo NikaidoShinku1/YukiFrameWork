@@ -30,19 +30,18 @@ namespace YukiFrameWork.DiaLogue
         [LabelText("推进的节点标识"), SerializeField, HideInInspector, JsonIgnore,ExcelIgnore]
         internal Node nextNode;
 
-        [SerializeField]
+        [SerializeField,JsonProperty]
         internal int nextNodeId;
 
-        [JsonIgnore, PreviewField(50),SerializeField]
+        [SerializeField,HideInInspector,JsonProperty]
+        internal string iconGUID;
+        [JsonIgnore, PreviewField(50),SerializeField,ExcelIgnore]
         internal Sprite icon;
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public Sprite Icon => icon;
-
-        [JsonProperty]
-        internal string spritePath;
-
-        [ShowInInspector,LabelText("配对文本:"),JsonIgnore]
+        
+        [ShowInInspector,LabelText("配对文本:"),JsonIgnore,ExcelIgnore]
         private string ShowName
         {
             get
@@ -131,20 +130,11 @@ namespace YukiFrameWork.DiaLogue
         {
             public float x;
             public float y;
-            public Position(float x,float y)
+            public Position(float x,float y) 
             {
                 this.x = x;
                 this.y = y;
-            }
-            public static implicit operator Vector2(Position position)
-            {
-                return new Vector2(position.x,position.y);
-            }
-
-            public static implicit operator Position(Vector2 position)
-            {
-                return new Position(position.x, position.y);
-            }
+            }          
         }
         [ExcelIgnore]
         internal Action onValidate;
@@ -164,6 +154,13 @@ namespace YukiFrameWork.DiaLogue
                     {
                         item.nextNodeId = item.nextNode.nodeId;
                     }
+#if UNITY_EDITOR
+                    if (item.Icon)
+                        item.iconGUID = YukiAssetDataBase.InstanceToGUID(item.icon);
+                    else if (!item.iconGUID.IsNullOrEmpty())
+                        item.icon = YukiAssetDataBase.GUIDToInstance<Sprite>(item.iconGUID);
+#endif
+                   
                 }
             }
             if ((IsSingle || IsRoot) && child)

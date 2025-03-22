@@ -4,23 +4,24 @@ Namespace: YukiFrameWork.Missions;
 
 可以导入模块文件夹中的示例包查看任务示例。
 
-在Assets文件夹目录下通过右键 Create/YukiFrameWork/MissionData创建一个新的任务数据。
+在Assets文件夹目录下右键创建任务配置管理器:
 
 ![1](Texture/1.png)
 
-配置如图所示:
-![2](Texture/2.png)
+在配置管理器上可以添加全局可用的参数。在这里的参数Runtime下获取是只读的。如设置金币获取数量，大于100金币后完成任务。可以在这里添加数值为100 Integer类型的参数。在Runtime下访问。
 
-可以为任务添加任务类型、任务参数、在最下方添加新的任务集合，其中任务参数与任务类型，无论有多少个so配置，始终自动保持唯一。
+在配置管理器上可以添加全局可用的任务类型，在这里添加的类型可以在配表窗口上配置具体任务时设置类型。类型Assets下全MissionConfigManager通用。
 
-且可以将数据导出为Json，也可以将数据Json导入。
+双击配置:
+![1](Texture/2.png)
+框架提供了默认的任务配置。可以进行添加并进行配置
 
 任务配置加载器接口:IMissionLoader
 
 |Loader API|加载器需要实现的方法|
 |--|--|
-|MissionDataBase Load(string path)|同步加载配置方法|
-|void LoadAsync(string path,Action< MissionDataBase > onCompleted)|异步加载配置方法|
+|MissionConfigManager Load(string path)|同步加载配置方法|
+|void LoadAsync(string path,Action< MissionConfigManager > onCompleted)|异步加载配置方法|
 
 框架已经实现了内置的加载器。也可以通过自定义加载器继承接口并实现。
 
@@ -28,9 +29,9 @@ Namespace: YukiFrameWork.Missions;
 |--|--|
 |void Init(string projectName)|初始化任务套件，需要传递模块名称，使用内置XFABManager插件进行加载资源|
 |void Init(IMissionLoader loader)|初始化任务套件，传递自定义的加载器|
-|void LoadMissionConfig(string path)|通过路径加载配置(泛型)，以实现的加载器为主|
-|void LoadMissionConfig(MissionDataBase config)|直接传递配置|
-|IEnumerator LoadMissionConfigAsync(string path)|异步加载配置|
+|void LoadMissionConfigManager(string path)|通过路径加载配置(泛型)，以实现的加载器为主|
+|void LoadMissionConfigManager(MissionDataBase config)|直接传递配置|
+|IEnumerator LoadMissionConfigManagerAsync(string path)|异步加载配置|
 |void AddMissionData(IMissionData missionData)|手动添加一个新的任务数据，适合自己写任务数据逻辑时|
 |bool RemoveMissionData(string key)|根据标识移除某一个任务数据|
 |IMissionData GetMissionData(string key)|根据标识获取某一个任务|

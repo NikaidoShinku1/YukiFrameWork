@@ -56,9 +56,7 @@ namespace YukiFrameWork
         enum Mode
         {
             [LabelText("脚本生成设置")]
-            Tool,
-            [LabelText("本地化配置")]
-            Script,          
+            Tool,        
             [LabelText("程序集设置")]
             Assembly,          
 
@@ -89,15 +87,10 @@ namespace YukiFrameWork
         [HideInInspector]
         public bool IsParent;
         [InfoBox("项目(架构)脚本所依赖的程序集定义(非必要不更改):",InfoMessageType.Warning,IconColor = "red")]
-        [ShowIf(nameof(SelectIndex), 2),LabelText("默认程序集：")]
+        [ShowIf(nameof(SelectIndex), 1),LabelText("默认程序集：")]
         public string assembly = "Assembly-CSharp";
-        [ShowIf(nameof(SelectIndex),2),LabelText("程序集依赖项(有多个Assembly时可以使用)")]
-        public string[] assemblies = new string[0];      
-        [LabelText("运行时的默认语言:"), PropertySpace(6), ShowIf(nameof(SelectIndex), 1)]
-        public Language defaultLanguage;
-        [LabelText("本地配置"),PropertySpace, ShowIf(nameof(SelectIndex), 1)]
-        public YDictionary<string, LocalizationConfigBase> dependConfigs = new YDictionary<string, LocalizationConfigBase>();
-
+        [ShowIf(nameof(SelectIndex),1),LabelText("程序集依赖项(有多个Assembly时可以使用)")]
+        public string[] assemblies = new string[0];           
         [HideInInspector]
         public ScriptableObject excelConvertConfig;
 
@@ -107,10 +100,6 @@ namespace YukiFrameWork
         public string excelDataPath;
         [HideInInspector]
         public string excelTempPath;
-
-        [HideInInspector]
-        public int excelHeader;
-      
         public int SelectIndex => (int)mode;
 #if UNITY_EDITOR
         private LocalScriptGenerator generator = new LocalScriptGenerator();       
@@ -166,37 +155,7 @@ namespace YukiFrameWork
         }
 #endif
 #endif
-#if UNITY_EDITOR
-        [Button("为配置生成代码"), ShowIf(nameof(SelectIndex), 1)]
-        [InfoBox("生成的代码为配置的标识,类名为Localization,请注意:配置标识跟配置内对应文本的标识不能出现一致的情况，否则会出问题")]
-        void GenericCode(string codePath = "Assets/Scripts/YukiFrameWork/Code")
-        {         
-            if (dependConfigs.Count == 0)
-            {
-                Debug.LogWarning("没有添加配置无法生成代码");
-                return;
-            }
-            CodeCore codeCore = new CodeCore();
-            CodeWriter codeWriter = new CodeWriter();
-            foreach (var value in dependConfigs)
-            {
-                string configKey = value.Key;
-                codeWriter.CustomCode($"public static string ConfigKey_{configKey} = \"{configKey}\";");
-                LocalizationConfigBase localizationConfig = value.Value;
-                foreach (var key in localizationConfig.ConfigKeys)
-                {
-                    codeWriter.CustomCode($"public static string Key_{key} = \"{key}\";");
-                }
-            }
-            codeCore.Descripton("LocalizationKit", nameSpace, "这是本地化套件生成的用于快速调用标识的类，用于标记所有的标识", System.DateTime.Now.ToString());
-            codeCore.Using("UnityEngine")
-            .Using("System")
-            .Using(nameSpace)
-            .EmptyLine()
-            .CodeSetting(nameSpace, "Localization", string.Empty, codeWriter, false, false, false)
-            .builder.CreateFileStream(codePath, "Localization", ".cs");
-
-        }
+#if UNITY_EDITOR     
        
         [InitializeOnLoadMethod]
         internal static void CreateConfig()

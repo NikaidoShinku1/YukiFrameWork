@@ -9,7 +9,6 @@ using YukiFrameWork.Skill;
 
 通过代码设置生成对应的代码后点击下方的创建新的技能按钮添加一个新的技能即可。例如创建一个技能InvisibleSkill：
 
-![3](Texture/3.png)
 ``` csharp
 
 using YukiFrameWork.Skill;
@@ -22,6 +21,11 @@ public class InvisibleSkill : SkillData
 }
 ```
 
+创建完成后，双击配置打开配表窗口如下:
+![3](Texture/3.png)
+
+左侧菜单右键新建配置即可。
+
 |SkillData Property API|技能配表说明|
 |---|---|
 |string SkillKey|技能的唯一标识|
@@ -30,9 +34,6 @@ public class InvisibleSkill : SkillData
 |Sprite Icon|技能图标|
 |bool IsInfiniteTime|技能是否无限时间(没有释放时间的，不受到释放时间影响)|
 |bool ActiveCancellation|技能是否可以主动取消释放|
-|bool IsSkillLevel|技能是否拥有等级|
-|bool IsSkillMaxLevel|当技能拥有等级，是否拥有最大等级|
-|int SkillMaxLevel|当技能有最大等级，则可设置技能的最大等级|
 |float RealeaseTime|技能释放时间(当没有开启无限时间时)|
 |float CoolDownTime|技能冷却时间|
 |bool SkillInterruption|技能是否可以在释放时中途打断|
@@ -77,8 +78,6 @@ public class InvisibleSkillController : SkillController
 |Action(float) onReleasing|当技能正在释放中持续触发的回调|
 |Action onCoolingComplete|当技能冷却结束时触发的回调|
 |Action onReleaseComplete|当技能释放结束时触发的回调|
-|int SkillLevel|当前的技能等级(如配表开启才有效)|
-|Action<int> onLevelChanged|当技能等级改变时触发(如配表开启才有效)|
 |ISkillData SkillData|技能配表|
 |bool IsSkillRelease|技能是否正在释放|
 |float ReleasingTime|技能已经释放的时间|
@@ -95,7 +94,6 @@ public class InvisibleSkillController : SkillController
 |void OnRelease(params object[] param)|当技能释放的时候调用一次|
 |void OnReleaseComplete()|当技能释放完成时调用|
 |void OnInterruption()|当技能被打断触发|
-|void OnLevelChanged(int level)|当技能等级改变时触发(如配表开启才有效)|
 |void OnUpdate()|仅技能释放时持续触发|
 |void OnFixedUpdate()|仅技能释放时持续触发|
 |void OnLateUpdate()|仅技能释放时持续触发|
@@ -198,7 +196,6 @@ public class Player : ViewController,ISkillExecutor
 |ISkillController GetSkillController(string skillKey)|通过标识获得某一个已经添加的技能|
 |ReleaseSkillStatus ReleaseSkill(string skillKey, params object[] param)|释放技能，可传递参数，返回技能的释放结果|
 |void RemoveSkill(string skillKey)|移除某一个技能|
-|void SkillLevelUp(string skillKey,int level = 1)|升级某一个技能|
 |void RemoveAllSkills()|移除所有的技能|
 |void ResetSkillCoolingTime(string skillKey)|重置指定技能的冷却时间|
 |void ResetSkillReleasingTime(string skillKey)|重置指定技能的释放时间|

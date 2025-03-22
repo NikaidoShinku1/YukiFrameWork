@@ -12,6 +12,7 @@ using Sirenix.OdinInspector;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork.Buffer
 {
     public abstract class Buff : ScriptableObject, IBuff
@@ -37,60 +38,50 @@ namespace YukiFrameWork.Buffer
         [SerializeField, LabelText("Buff名称:"),JsonProperty]
         private string BuffName;
         [JsonIgnore]
-        public string GetBuffName
-        {
-            get
-            {
-                return BuffKit.UseLocalizationConfig ? BuffKit.GetContent(BuffKey).Context.Split(BuffKit.Spilt)[0] : BuffName;
-            }
-            set
-            {
-                if (BuffKit.UseLocalizationConfig)
-                    BuffKit.GetContent(BuffKey).Context = $"{value}{BuffKit.Spilt}{GetDescription}";
-                else BuffName = value;
-            }
-        }
+        public string GetBuffName => BuffName;
+       
         [SerializeField, LabelText("Buff的介绍:"),JsonProperty,TextArea]
         private string Description;
         [JsonIgnore]
-        public string GetDescription
-        {
-            get => BuffKit.UseLocalizationConfig ? BuffKit.GetContent(BuffKey).Context.Split(BuffKit.Spilt)[1] : Description;
-            set
-            {
-
-                if (BuffKit.UseLocalizationConfig)
-                    BuffKit.GetContent(BuffKey).Context = $"{GetBuffName}{BuffKit.Spilt}{value}";
-                else Description = value;
-            }
-        }
+        public string GetDescription => Description;
+       
         [SerializeField, LabelText("Buff重复添加的类型:"),JsonProperty]
         private BuffRepeatAdditionType additionType;
 
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         public BuffRepeatAdditionType AdditionType
         {
             get => additionType;
             set => additionType = value;
         }
-        [JsonIgnore]
+        [JsonIgnore, ExcelIgnore]
         private bool IsAddition => AdditionType == BuffRepeatAdditionType.Multiple || AdditionType == BuffRepeatAdditionType.MultipleAndReset;
 
-        [field:SerializeField,LabelText("是否缓慢移除"),ShowIf(nameof(IsAddition)),InfoBox("如果Buff是可叠加的，当该属性为True时，Buff是一层一层减少，False则一次性消失")]
-        public bool IsBuffRemoveBySlowly { get; set; }
+        [SerializeField, LabelText("是否缓慢移除"), ShowIf(nameof(IsAddition)), InfoBox("如果Buff是可叠加的，当该属性为True时，Buff是一层一层减少，False则一次性消失")]
+        private bool isBuffRemoveBySlowly;
+        [JsonIgnore,ExcelIgnore]
+        public bool IsBuffRemoveBySlowly
+        {
+            get => isBuffRemoveBySlowly;
+            set => isBuffRemoveBySlowly = value;
+        }
 
-        [field: SerializeField, LabelText("是否存在层数上限"), ShowIf(nameof(IsAddition))]
-        public bool IsMaxStackableLayer { get; set; }
+        [SerializeField, LabelText("是否存在层数上限"), ShowIf(nameof(IsAddition))]
+        private bool isMaxStackableLayer;
+        [JsonIgnore,ExcelIgnore]
+        public bool IsMaxStackableLayer { get => isMaxStackableLayer; set => isMaxStackableLayer = value; }
 
-        [field: SerializeField, LabelText("上限层数"), ShowIf(nameof(isMax)),MinValue(1)]
-        public int MaxStackableLayer { get; set; }
+        [SerializeField, LabelText("上限层数"), ShowIf(nameof(isMax)), MinValue(1)]
+        private int maxStackableLayer;
+        [JsonIgnore,ExcelIgnore]
+        public int MaxStackableLayer { get => maxStackableLayer; set => maxStackableLayer = value; }
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         private bool isMax => IsAddition && IsMaxStackableLayer;
 
         [SerializeField,LabelText("Buff的周期类型:")]
         private BuffSurvivalType survivalType;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public BuffSurvivalType SurvivalType
         {
             get => survivalType;
@@ -99,6 +90,7 @@ namespace YukiFrameWork.Buffer
 
         [SerializeField,LabelText("Buff的持续时间(单位秒)"),ShowIf(nameof(survivalType),BuffSurvivalType.Timer)]
         private float buffTimer = 1;
+       
 
         [JsonIgnore]
         public float BuffTimer
@@ -111,24 +103,33 @@ namespace YukiFrameWork.Buffer
             }
         }
 
-        [field:SerializeField,JsonProperty,LabelText("该Buff会与指定相互抵消的BuffID")]
+        [SerializeField, JsonProperty, LabelText("该Buff会与指定相互抵消的BuffID")]
 #if UNITY_EDITOR
-        [field:ValueDropdown(nameof(names))]
+        [ValueDropdown(nameof(names))]
 #endif
-        [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
-        public string[] BuffCounteractID { get ; set ; }
+        [InfoBox("Buff没有设置标识时无法添加")]
+        private string[] buffCounteractID;
+       
 
-        [field:SerializeField,JsonProperty,LabelText("该Buff运作时禁止添加的BuffID")]
+        [JsonIgnore,ExcelIgnore]
+        public string[] BuffCounteractID { get => buffCounteractID; set => buffCounteractID = value; }
+
+        [SerializeField, JsonProperty, LabelText("该Buff运作时禁止添加的BuffID")]
 #if UNITY_EDITOR
-        [field: ValueDropdown(nameof(names))]
+        [ValueDropdown(nameof(names))]
 #endif
-        [field:InfoBox("仅实现IBuff接口无法将ID在编辑器下转换成展开列表可视化，仅开发区别，无实际区别，只有派生自Buff时享受")]
-        public string[] BuffDisableID { get ; set ; }
-        [field: SerializeField, LabelText("Buff的图标样式"), JsonIgnore, PreviewField(50)]
-        [JsonIgnore]
-        public Sprite BuffIcon { get; set; }
+        [InfoBox("Buff没有设置标识时无法添加")]
+        private string[] buffDisableID;
       
-        [Button("打开脚本", ButtonHeight = 40), PropertySpace(20)]
+
+        [JsonIgnore,ExcelIgnore]
+        public string[] BuffDisableID { get => buffDisableID; set => buffDisableID = value; }
+        [SerializeField, LabelText("Buff的图标样式"), PreviewField(50)]
+        private Sprite buffIcon;
+        [JsonIgnore,ExcelIgnore]
+        public Sprite BuffIcon { get => buffIcon; set => buffIcon = value; }
+
+        [Button("打开脚本", ButtonHeight = 20), PropertySpace(20)]
         void OpenScript()
         {
 #if UNITY_EDITOR
@@ -136,13 +137,13 @@ namespace YukiFrameWork.Buffer
                 .Select(x => UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.MonoScript>(x))
                 .FirstOrDefault(x => x?.GetClass() == this.GetType()));
 #endif
-        }
+        }       
 
         #region Buff自带依赖ID转换于编辑器显示
 #if UNITY_EDITOR
         [Searchable]
         [JsonIgnore]
-
+        [ExcelIgnore]
         internal IEnumerable names => BuffDataBase.allBuffNames;
 #endif
 #endregion

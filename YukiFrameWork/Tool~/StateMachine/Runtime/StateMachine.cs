@@ -162,9 +162,9 @@ namespace YukiFrameWork.Machine
         /// </summary>
         /// <param name="state"></param>
         /// <param name="transition"></param>
-        internal void SwitchState(StateBase state,StateTransition transition)
+        internal void SwitchState(StateBase state,StateTransition transition,bool lastSwithState = true)
         {
-            StateMachineCore.SwitchEnqueue(() =>
+            void Switch()
             {
                 int second = Mathf.FloorToInt(Time.time);
 
@@ -186,7 +186,10 @@ namespace YukiFrameWork.Machine
 
                 // 检测当前状态是否有已经满足的条件
                 CheckConditionAndSwitch();
-            });
+            }
+            if (lastSwithState)
+                StateMachineCore.SwitchEnqueue(Switch);
+            else Switch();         
         }        
         private void EnterState(StateBase stateBase)
         {
@@ -216,9 +219,8 @@ namespace YukiFrameWork.Machine
         private void ExitState()
         {           
             if (CurrentState == null) return;
-            // 如果当前运行的状态是子状态机则先退出子状态机
-            var childMachine = GetChildMachine(CurrentState.Name);
-            childMachine?.ExitState();
+            if (CurrentState.Runtime_StateData.IsSubStateMachine)            
+                CurrentChildMachine.ExitState();            
             CurrentState.Exit();
             CurrentState = null;
             CurrentChildMachine = null;
@@ -234,7 +236,7 @@ namespace YukiFrameWork.Machine
                 if (item.CheckConditionAndSwitch())
                     break;
             }
-        }
+        }     
 
         /// <summary>
         /// 添加计数
@@ -249,9 +251,10 @@ namespace YukiFrameWork.Machine
 
             if (state_count[stateName] > 30)
             {
-                StringBuilder stringBuilder = new StringBuilder();
+                StringBuilder stringBuilder = new StringBuilder();              
                 stringBuilder
-                    .Append("游戏物体:").Append(StateMachineCore.StateManager.gameObject.name)
+                    .Append("游戏物体:")
+                    .Append(StateMachineCore.StateManager.gameObject.name)
                     .Append("状态机:")
                     .Append(this.StateMachineCore.RuntimeStateMachineCore.name)
                     .Append("层级:")

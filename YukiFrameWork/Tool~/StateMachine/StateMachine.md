@@ -1,39 +1,39 @@
-YukiFrameWork ¶¨ÖÆÁ÷³Ì×´Ì¬»ú: ¿ÉÒÔÊ¹ÓÃ¸Ã×´Ì¬»úÍê³É¶Ô×´Ì¬µÄ¿ØÖÆ¡£ÒÔ¼°Á÷³ÌÂß¼­µÄÉè¼Æ¡£
+ï»¿YukiFrameWork å®šåˆ¶æµç¨‹çŠ¶æ€æœº: å¯ä»¥ä½¿ç”¨è¯¥çŠ¶æ€æœºå®Œæˆå¯¹çŠ¶æ€çš„æ§åˆ¶ã€‚ä»¥åŠæµç¨‹é€»è¾‘çš„è®¾è®¡ã€‚
 
-ÃüÃû¿Õ¼ä: using YukiFrameWork.Machine;
+å‘½åç©ºé—´: using YukiFrameWork.Machine;
 
-ÔÚ³¡¾°ÖĞĞÂ½¨¶ÔÏó£¬²¢Îª¶ÔÏó¹ÒÔØStateManager½Å±¾ÈçÏÂ:
+åœ¨åœºæ™¯ä¸­æ–°å»ºå¯¹è±¡ï¼Œå¹¶ä¸ºå¯¹è±¡æŒ‚è½½StateManagerè„šæœ¬å¦‚ä¸‹:
 
 ![1](Texture/1.png)
 
-ÈçÍ¼ËùÊ¾£¬ĞèÒªÎªStateManager×é¼şÌí¼ÓRuntimeStateMachineCore×´Ì¬»úÅäÖÃÎÄ¼ş
+å¦‚å›¾æ‰€ç¤ºï¼Œéœ€è¦ä¸ºStateManagerç»„ä»¶æ·»åŠ RuntimeStateMachineCoreçŠ¶æ€æœºé…ç½®æ–‡ä»¶
 
-ÔÚAssetsÎÄ¼ş¼ĞÏÂ£¬ÓÒ¼üCreate/YukiFrameWork/YukiÓĞÏŞ×´Ì¬»úĞÂ½¨Ò»¸ö×´Ì¬»úÅäÖÃÈçÏÂ:
+åœ¨Assetsæ–‡ä»¶å¤¹ä¸‹ï¼Œå³é”®Create/YukiFrameWork/Yukiæœ‰é™çŠ¶æ€æœºæ–°å»ºä¸€ä¸ªçŠ¶æ€æœºé…ç½®å¦‚ä¸‹:
 
-![4](Texture/4.png) Ë«»÷¸ÃÅäÖÃ´ò¿ª×´Ì¬»ú´°¿Ú£º
+![4](Texture/4.png) åŒå‡»è¯¥é…ç½®æ‰“å¼€çŠ¶æ€æœºçª—å£ï¼š
 
 ![2](Texture/2.png)
 
-×ó²à×´Ì¬»ú¼¯ºÏ»áÏÔÊ¾µ±Ç°µÄ×´Ì¬»úÅäÖÃ£¬ÔÚRuntimeÖĞ£¬Ñ¡ÖĞ´øÓĞStateManager×é¼şµÄ¶ÔÏó£¬µ±¶ÔÏóÓµÓĞ¸´Êı×´Ì¬»úÅäÖÃÊ±£¬»áÒ»²¢ÔÚÕâÀïÏÔÊ¾¡£
+å·¦ä¾§çŠ¶æ€æœºé›†åˆä¼šæ˜¾ç¤ºå½“å‰çš„çŠ¶æ€æœºé…ç½®ï¼Œåœ¨Runtimeä¸­ï¼Œé€‰ä¸­å¸¦æœ‰StateManagerç»„ä»¶çš„å¯¹è±¡ï¼Œå½“å¯¹è±¡æ‹¥æœ‰å¤æ•°çŠ¶æ€æœºé…ç½®æ—¶ï¼Œä¼šä¸€å¹¶åœ¨è¿™é‡Œæ˜¾ç¤ºã€‚
 
-ÔÚ×´Ì¬´°¿ÚÖĞÓÒ¼üĞÂ½¨×´Ì¬ÈçÍ¼ËùÊ¾:
+åœ¨çŠ¶æ€çª—å£ä¸­å³é”®æ–°å»ºçŠ¶æ€å¦‚å›¾æ‰€ç¤º:
 
 ![3](Texture/3.png)
 
-×´Ì¬·Ç³£¼òµ¥£¬Ö»ÓĞÃû³ÆÓë¶ÔÓ¦µÄÌí¼Ó×´Ì¬½Å±¾¹¦ÄÜ£¬ÔÚÕâÀï¿ÉÒÔ´´½¨»òÕßÌí¼Ó×´Ì¬½Å±¾£¬Ò²¿ÉÒÔÔÚÉÏ·½Í¼ÖĞÅäÖÃµÄInspectorÖĞ½øĞĞ´´½¨(ÄÇ¸ö´úÂëÉú³ÉÆ÷¸ü¾«È·)£º
+çŠ¶æ€éå¸¸ç®€å•ï¼Œåªæœ‰åç§°ä¸å¯¹åº”çš„æ·»åŠ çŠ¶æ€è„šæœ¬åŠŸèƒ½ï¼Œåœ¨è¿™é‡Œå¯ä»¥åˆ›å»ºæˆ–è€…æ·»åŠ çŠ¶æ€è„šæœ¬ï¼Œä¹Ÿå¯ä»¥åœ¨ä¸Šæ–¹å›¾ä¸­é…ç½®çš„Inspectorä¸­è¿›è¡Œåˆ›å»º(é‚£ä¸ªä»£ç ç”Ÿæˆå™¨æ›´ç²¾ç¡®)ï¼š
 
-ÔÚ×ó²àµÄ´°¿ÚÖĞ´ò¿ª²ÎÊıÁĞ±í£¬Ê¾ÀıÈçÍ¼:
+åœ¨å·¦ä¾§çš„çª—å£ä¸­æ‰“å¼€å‚æ•°åˆ—è¡¨ï¼Œç¤ºä¾‹å¦‚å›¾:
 
 ![3](Texture/5.png)
 
-ÎªÁ½¸ö×´Ì¬Ö®¼äÌí¼Ó¹ı¶É!
+ä¸ºä¸¤ä¸ªçŠ¶æ€ä¹‹é—´æ·»åŠ è¿‡æ¸¡!
 
 
 ![3](Texture/6.png)
 
-¶ÔÓÚ¹ı¶ÉµÄÌõ¼şÅĞ¶Ï£¬µ±Ò»×é¼¯ºÏÈ«²¿Âú×ãÊ±£¬×´Ì¬»á½øĞĞ¹ı¶É£¬Ò²¿ÉÒÔÌí¼Ó¶à¸öÌõ¼ş×é£¬µ±ÓĞ¸´ÊıÌõ¼ş×éÊ±£¬ÓĞÒ»¸ö×éÂú×ãÌõ¼şÔò¶¼»áÕı³£¹ı¶É¡£
+å¯¹äºè¿‡æ¸¡çš„æ¡ä»¶åˆ¤æ–­ï¼Œå½“ä¸€ç»„é›†åˆå…¨éƒ¨æ»¡è¶³æ—¶ï¼ŒçŠ¶æ€ä¼šè¿›è¡Œè¿‡æ¸¡ï¼Œä¹Ÿå¯ä»¥æ·»åŠ å¤šä¸ªæ¡ä»¶ç»„ï¼Œå½“æœ‰å¤æ•°æ¡ä»¶ç»„æ—¶ï¼Œæœ‰ä¸€ä¸ªç»„æ»¡è¶³æ¡ä»¶åˆ™éƒ½ä¼šæ­£å¸¸è¿‡æ¸¡ã€‚
 
-×´Ì¬½Å±¾Éè¼Æ:StateBehaviour ×´Ì¬Àà¶¼ĞèÒª¼Ì³ĞÕâ¸ö»ùÀàÈçÏÂ: StateBahviourÊÇÓë¿ò¼Ü¼Ü¹¹Ëù¹ØÁª£¬ÊôÓÚController²ã¼¶£¡
+çŠ¶æ€è„šæœ¬è®¾è®¡:StateBehaviour çŠ¶æ€ç±»éƒ½éœ€è¦ç»§æ‰¿è¿™ä¸ªåŸºç±»å¦‚ä¸‹: StateBahviouræ˜¯ä¸æ¡†æ¶æ¶æ„æ‰€å…³è”ï¼Œå±äºControllerå±‚çº§ï¼
 
 ``` csharp
 
@@ -46,40 +46,41 @@ public class IdleState : StateBehaviour
 
 ```
 
-|StateBehaviourAPI|×´Ì¬Ö´ĞĞ»ùÀàAPIËµÃ÷|
+|StateBehaviourAPI|çŠ¶æ€æ‰§è¡ŒåŸºç±»APIè¯´æ˜|
 |---|---|
-|Property API|ÊôĞÔAPI|
-|StateMachine StateMachine { get; }|»ñÈ¡¸Ã×´Ì¬ËùÔÚµÄ×´Ì¬»ú|
-|Transform transform { get; }|»ñÈ¡¸Ã×´Ì¬Ëù¹ØÁªµÄÓÎÏ·¶ÔÏóµÄTransform|
-|StateBase CurrentStateInfo { get; }|Õâ¸ö×´Ì¬µÄĞÅÏ¢(»ùÀà±¾Éí)|
-|Type Type { get; }|Õâ¸ö×´Ì¬ÀàµÄÕæÊµÀàĞÍ(»º´æGetTypeÓÃ)|
+|Property API|å±æ€§API|
+|StateMachine StateMachine { get; }|è·å–è¯¥çŠ¶æ€æ‰€åœ¨çš„çŠ¶æ€æœº|
+|Transform transform { get; }|è·å–è¯¥çŠ¶æ€æ‰€å…³è”çš„æ¸¸æˆå¯¹è±¡çš„Transform|
+|StateBase CurrentStateInfo { get; }|è¿™ä¸ªçŠ¶æ€çš„ä¿¡æ¯(åŸºç±»æœ¬èº«)|
+|Type Type { get; }|è¿™ä¸ªçŠ¶æ€ç±»çš„çœŸå®ç±»å‹(ç¼“å­˜GetTypeç”¨)|
 |--|--|
-|Mathod API|·½·¨API|
-|void OnInit()|µ±×´Ì¬³õÊ¼»¯(Óë×é¼şµÄ³õÊ¼»¯Ê±»úÑ¡Ôñ¹Ò¹³)|
-|void OnEnter()|µ±×´Ì¬½øÈë|
-|void OnExit()|µ±×´Ì¬ÍË³ö|
-|void Update()|µ±×´Ì¬¸üĞÂ|
-|void FixedUpdate|µ±×´Ì¬¼ä¸ô¸üĞÂ|
-|void LateUpdate|µ±×´Ì¬ÍíÓÚ¸üĞÂ|
+|Mathod API|æ–¹æ³•API|
+|void OnInit()|å½“çŠ¶æ€åˆå§‹åŒ–(ä¸ç»„ä»¶çš„åˆå§‹åŒ–æ—¶æœºé€‰æ‹©æŒ‚é’©)|
+|void OnEnter()|å½“çŠ¶æ€è¿›å…¥|
+|void OnExit()|å½“çŠ¶æ€é€€å‡º|
+|void Update()|å½“çŠ¶æ€æ›´æ–°|
+|void FixedUpdate|å½“çŠ¶æ€é—´éš”æ›´æ–°|
+|void LateUpdate|å½“çŠ¶æ€æ™šäºæ›´æ–°|
+|å¯¹ä¸‹åˆ—StateMachineCoreç±»ä¸­å‚æ•°APIæ‹“å±•å°è£…|--- å¦‚void SetFloat(string name)|
 
-¶ÔÓÚÅäÖÃRuntimeStateMachineCoreÀà£¬ÔÚÔËĞĞÊ±»á±»×ª»»ÎªStateMachineCoreÀà¡£×÷Îª×´Ì¬»ú¼¯ºÏ±¾ÌåÀàÊ¹ÓÃ¡£±£´æÕâ¸öÅäÖÃÏÂËùÓĞµÄ×´Ì¬»ú
+å¯¹äºé…ç½®RuntimeStateMachineCoreç±»ï¼Œåœ¨è¿è¡Œæ—¶ä¼šè¢«è½¬æ¢ä¸ºStateMachineCoreç±»ã€‚ä½œä¸ºçŠ¶æ€æœºé›†åˆæœ¬ä½“ç±»ä½¿ç”¨ã€‚ä¿å­˜è¿™ä¸ªé…ç½®ä¸‹æ‰€æœ‰çš„çŠ¶æ€æœº
 
-|RuntimeStateMachineCore API|×´Ì¬»ú¼¯ºÏ±¾ÌåAPIËµÃ÷|
+|StateMachineCore API|çŠ¶æ€æœºé›†åˆæœ¬ä½“APIè¯´æ˜|
 |---|---|
-|Property API|ÊôĞÔAPI|
-|bool IsActive { get; }|Õâ¸ö×´Ì¬»ú¼¯ºÏ±¾ÌåÊÇ·ñ¼¤»î|
-|StateManager StateManager { get; }|Õâ¸ö¼¯ºÏËùÔÚµÄStateManager|
-|Action onStateMachineStarted|µ±Õâ¸ö±¾ÌåÆô¶¯Ê±´¥·¢µÄ»Øµ÷|
+|Property API|å±æ€§API|
+|bool IsActive { get; }|è¿™ä¸ªçŠ¶æ€æœºé›†åˆæœ¬ä½“æ˜¯å¦æ¿€æ´»|
+|StateManager StateManager { get; }|è¿™ä¸ªé›†åˆæ‰€åœ¨çš„StateManager|
+|Action onStateMachineStarted|å½“è¿™ä¸ªæœ¬ä½“å¯åŠ¨æ—¶è§¦å‘çš„å›è°ƒ|
 |---|---|
-|Method API|·½·¨APIËµÃ÷|
-|void Start()|Æô¶¯ÔËĞĞ×´Ì¬»ú¼¯ºÏ|
-|StateBase GetCurrentStateInfo()|»ñÈ¡µ±Ç°ÕıÔÚÔËĞĞµÄ×´Ì¬ĞÅÏ¢(Õâ¸ö·½·¨ÏÂ»á¾«È·µ½×Ó×´Ì¬»úµÄ×´Ì¬ĞÅÏ¢)|
-|StateBase GetCurrentMachineStateInfo(string name)|»ñÈ¡Ö¸¶¨×´Ì¬»úÏÂµÄÔËĞĞ×´Ì¬ĞÅÏ¢|
-|void Cancel()|¹Ø±ÕÕâ¸ö×´Ì¬»ú¼¯ºÏ|
-|StateParameterData GetStateParameterData(string parameterName)|¸ù¾İÃû³Æ»ñÈ¡µ½Ö¸¶¨µÄ²ÎÊıĞÅÏ¢|
-|StateMachine GetRuntimeMachine(string machineName)|¸ù¾İ×´Ì¬»úÃû³Æ»ñÈ¡µ½Ö¸¶¨µÄ×´Ì¬»ú¡£Ä¬ÈÏ²ãµÄ×´Ì¬»úÃû³ÆÎª:"Base Layer"|
+|Method API|æ–¹æ³•APIè¯´æ˜|
+|void Start()|å¯åŠ¨è¿è¡ŒçŠ¶æ€æœºé›†åˆ|
+|StateBase GetCurrentStateInfo()|è·å–å½“å‰æ­£åœ¨è¿è¡Œçš„çŠ¶æ€ä¿¡æ¯(è¿™ä¸ªæ–¹æ³•ä¸‹ä¼šç²¾ç¡®åˆ°å­çŠ¶æ€æœºçš„çŠ¶æ€ä¿¡æ¯)|
+|StateBase GetCurrentMachineStateInfo(string name)|è·å–æŒ‡å®šçŠ¶æ€æœºä¸‹çš„è¿è¡ŒçŠ¶æ€ä¿¡æ¯|
+|void Cancel()|å…³é—­è¿™ä¸ªçŠ¶æ€æœºé›†åˆ|
+|StateParameterData GetStateParameterData(string parameterName)|æ ¹æ®åç§°è·å–åˆ°æŒ‡å®šçš„å‚æ•°ä¿¡æ¯|
+|StateMachine GetRuntimeMachine(string machineName)|æ ¹æ®çŠ¶æ€æœºåç§°è·å–åˆ°æŒ‡å®šçš„çŠ¶æ€æœºã€‚é»˜è®¤å±‚çš„çŠ¶æ€æœºåç§°ä¸º:"Base Layer"|
 |---|---|
-|Parameter API|²ÎÊıÉèÖÃAPI|
+|Parameter API|å‚æ•°è®¾ç½®API|
 |void SetBool(string name, bool value)|--|
 |void SetBool(int nameToHash,bool value)|--|
 |void SetFloat(string name,float value)|--|
@@ -88,8 +89,8 @@ public class IdleState : StateBehaviour
 |void SetInt(int nameToHash,int value)|--|
 |void SetTrigger(string name)|--|
 |void SetTrigger(int nameToHash)|--|
-|void ResetTrigger(string name)|ÖØÖÃTrigger|
-|void ResetTrigger(int nameToHash)|ÈçÉÏ|
+|void ResetTrigger(string name)|é‡ç½®Trigger|
+|void ResetTrigger(int nameToHash)|å¦‚ä¸Š|
 |bool GetBool(string name)|--|
 |bool GetBool(int nameToHash)|--|
 |float GetFloat(string name)|--|
@@ -99,20 +100,38 @@ public class IdleState : StateBehaviour
 |bool GetTrigger(string name)|--|
 |bool GetTrigger(int nameToHash)|--|
 
-Tip£º¶ÔÓÚÉÏÊö²ÎÊıAPI Ãû³Æ»á±»×ª»»ÎªHash£¬¿ÉÓÃStateManager.HashToString½øĞĞ×ª»»¡£
+Tipï¼šå¯¹äºä¸Šè¿°å‚æ•°API åç§°ä¼šè¢«è½¬æ¢ä¸ºHashï¼Œå¯ç”¨StateManager.HashToStringè¿›è¡Œè½¬æ¢ã€‚
 
-ÔÚStateMachineCore»á±£´æËùÓĞµÄ×´Ì¬»ú(Ä¬ÈÏ²ãÒÔ¼°ËùÓĞµÄ×Ó×´Ì¬»ú)StateMachineÀà
+åœ¨StateMachineCoreä¼šä¿å­˜æ‰€æœ‰çš„çŠ¶æ€æœº(é»˜è®¤å±‚ä»¥åŠæ‰€æœ‰çš„å­çŠ¶æ€æœº)StateMachineç±»
 
-|StateMachine API|×´Ì¬»úAPIËµÃ÷|
+|StateMachine API|çŠ¶æ€æœºAPIè¯´æ˜|
 |--|--|
-|Property API|ÊôĞÔAPIËµÃ÷|
-|StateMachine Parent { get; }|Èç¹ûÊÇ×Ó×´Ì¬»ú£¬Ôò»áÓĞÓëÖ®¹ØÁªµÄ¸¸×´Ì¬»ú¡£BaseLayer²ãµÄ×´Ì¬»úParentºã¶¨Îª¿Õ|
-|StateMachineCore StateMachineCore { get; }|×´Ì¬»ú¼¯ºÏ±¾Ìå|
-|StateBase GetState(string name)|¸ù¾İ×´Ì¬Ãû³Æ²éÕÒµ½Ö¸¶¨µÄ×´Ì¬»ùÀà|
-|StateMachine GetChildMachine(string machineName)|²éÕÒÕâ¸ö×´Ì¬»úÏÂÖ¸¶¨µÄ×Ó×´Ì¬»ú|
-|StateBase CurrentState { get; }|µ±Ç°Õâ¸ö×´Ì¬»úµÄÔËĞĞ×´Ì¬|
-|StateMachine CurrentChildMachine { get; }|Èç¹û×´Ì¬±»±ê¼ÇÎª×´Ì¬»ú£¬Ôò¸ÃÖµ²»Îª¿Õ|
-|StateBase DefaultState { get; }|Õâ¸ö×´Ì¬»úµÄÄ¬ÈÏ×´Ì¬|
-|StateBase GetCurrentStateInfo()|µ±CurrentState²»ÊÇ×Ó×´Ì¬»ú£¬ÔòµÈÍ¬ÓÚCurrentStateÊôĞÔ£¬·ñÔò¾«È·¶¨Î»µ½×Ó×´Ì¬»úµÄ¾ßÌå×´Ì¬|
-|StateTransition CurrentTransition { get; }|µ±Ç°Õâ¸ö×´Ì¬»ú³É¹¦ÇĞ»»×´Ì¬µÄÌõ¼ş¹ı¶É|
+|Property API|å±æ€§APIè¯´æ˜|
+|StateMachine Parent { get; }|å¦‚æœæ˜¯å­çŠ¶æ€æœºï¼Œåˆ™ä¼šæœ‰ä¸ä¹‹å…³è”çš„çˆ¶çŠ¶æ€æœºã€‚BaseLayerå±‚çš„çŠ¶æ€æœºParentæ’å®šä¸ºç©º|
+|StateMachineCore StateMachineCore { get; }|çŠ¶æ€æœºé›†åˆæœ¬ä½“|
+|StateBase GetState(string name)|æ ¹æ®çŠ¶æ€åç§°æŸ¥æ‰¾åˆ°æŒ‡å®šçš„çŠ¶æ€åŸºç±»|
+|StateMachine GetChildMachine(string machineName)|æŸ¥æ‰¾è¿™ä¸ªçŠ¶æ€æœºä¸‹æŒ‡å®šçš„å­çŠ¶æ€æœº|
+|StateBase CurrentState { get; }|å½“å‰è¿™ä¸ªçŠ¶æ€æœºçš„è¿è¡ŒçŠ¶æ€|
+|StateMachine CurrentChildMachine { get; }|å¦‚æœçŠ¶æ€è¢«æ ‡è®°ä¸ºçŠ¶æ€æœºï¼Œåˆ™è¯¥å€¼ä¸ä¸ºç©º|
+|StateBase DefaultState { get; }|è¿™ä¸ªçŠ¶æ€æœºçš„é»˜è®¤çŠ¶æ€|
+|StateBase GetCurrentStateInfo()|å½“CurrentStateä¸æ˜¯å­çŠ¶æ€æœºï¼Œåˆ™ç­‰åŒäºCurrentStateå±æ€§ï¼Œå¦åˆ™ç²¾ç¡®å®šä½åˆ°å­çŠ¶æ€æœºçš„å…·ä½“çŠ¶æ€|
+|StateTransition CurrentTransition { get; }|å½“å‰è¿™ä¸ªçŠ¶æ€æœºæˆåŠŸåˆ‡æ¢çŠ¶æ€çš„æ¡ä»¶è¿‡æ¸¡|
+
+å¯¹äºæŒ‚è½½ç»„ä»¶StateManagerï¼ŒAPIå¦‚ä¸‹:
+
+|StateManager API|çŠ¶æ€æœºç®¡ç†ç»„ä»¶API|
+|--|--|
+|UnityEvent onInitialized|å½“çŠ¶æ€æœºåˆå§‹åŒ–å®Œæˆåè°ƒç”¨|
+|UnityEvent<StateMachineCore,StateMachine, string>|å½“çŠ¶æ€æœºåˆ‡æ¢çŠ¶æ€åè°ƒç”¨.ä¼šä¼ é€’çŠ¶æ€æœºé›†åˆç±»ä¸çŠ¶æ€æœºç±»ä»¥åŠåˆ‡æ¢çŠ¶æ€çš„åç§°|
+|StateMachineCore DefaultStateMachineCore { get; }|å½“çŠ¶æ€æœºé…ç½®ä»…å­˜ä¸€ä¸ªæ—¶ï¼Œè¿è¡Œæ—¶è·å–åˆ°è¿™ä¸ªé»˜è®¤çš„çŠ¶æ€æœºé›†åˆ|
+|bool IsInitialized { get; }|çŠ¶æ€æœºç®¡ç†å™¨æ˜¯å¦å·²ç»åˆå§‹åŒ–å®Œæˆ|
+|StateBase GetCurrentStateInfo(string layerName)|æ ¹æ®å”¯ä¸€æ ‡è¯†è·å–çŠ¶æ€æœºé›†åˆæœ¬ä½“åæŸ¥æ‰¾å½“å‰è¿è¡ŒçŠ¶æ€ä¿¡æ¯|
+|StateMachineCore GetRuntimeMachineCore(string layerName)|æ ¹æ®å”¯ä¸€æ ‡è¯†è·å–æŒ‡å®šçš„è¿è¡Œæ—¶çŠ¶æ€æœºé›†åˆ|
+|void ForEach(Action< StateMachineCore > each)|éå†æ‰€æœ‰çš„çŠ¶æ€æœºé›†åˆ(StateManagerå®ç°IEnumerableæ–¹æ³•ï¼Œå¯ç›´æ¥foreach)|
+|---|---|
+|static Method API|çŠ¶æ€æœºç®¡ç†å™¨é™æ€API|
+|int StringToHash(string event_name)|å°†åç§°è½¬æ¢ä¸ºå“ˆå¸Œå€¼|
+|StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default)|å¯åŠ¨ä¸€ä¸ªä¸è¿›è¡ŒStateManagerç»„ä»¶æŒ‚è½½çš„çŠ¶æ€æœºå¹¶è¿”å›|
+|StateManager GetGlobalStateManager(string machineName)|è·å–ä¸€ä¸ªé€šè¿‡StartMachineæ–¹æ³•å¯åŠ¨çš„çŠ¶æ€æœºç®¡ç†å™¨|
+|bool RemoveMachine(string machineName)|æ ¹æ®StartMachineæ–¹æ³•åˆ›å»ºçš„çŠ¶æ€æœºåç§°è¿›è¡Œå¯¹å…¨å±€çŠ¶æ€æœºçš„ç§»é™¤|
 

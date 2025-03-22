@@ -173,36 +173,38 @@ namespace YukiFrameWork.Missions
         private static Dictionary<string, Type> missions_runtime_condition_dicts = new Dictionary<string, Type>();
 
         public static IReadOnlyDictionary<string, Type> Missions_runtime_condition_dicts => missions_runtime_condition_dicts;    
+        
 
-        public static void LoadMissionConfig(MissionConfigBase configBase)
+        public static void LoadMissionConfigManager(MissionConfigManager missionConfigManager)
         {
-            var missions = configBase.Missions;
-
-            foreach (var dict in configBase.mMissionParams_dict)
+            foreach (var dict in missionConfigManager.missionParams_dict)
                 AddParam(dict.Key, dict.Value);
-
-            foreach (var item in missions)
-                AddMissionData(item);
-
-            loader?.UnLoad(configBase);
+            foreach (var configBase in missionConfigManager.missionConfigBases)
+            {
+                var missions = configBase.Missions;
+                foreach (var item in missions)
+                    AddMissionData(item);              
+            }
+            loader?.UnLoad(missionConfigManager);
         }
 
-        public static void LoadMissionConfig(string path)
+        public static void LoadMissionConfigManager(string path)
         {
-            LoadMissionConfig(loader.Load<MissionConfigBase>(path));
+            LoadMissionConfigManager(loader.Load<MissionConfigManager>(path));
         }
 
         [DisableEnumeratorWarning]
-        public static IEnumerator LoadMissionConfigAsync(string path)
+        public static IEnumerator LoadMissionConfigManagerAsync(string path)
         {
             bool completed = false;
-            loader.LoadAsync<MissionConfigBase>(path, item => {
-                LoadMissionConfig(item);
+            loader.LoadAsync<MissionConfigManager>(path, item => {
+                LoadMissionConfigManager(item);
                 completed = true;
             });
 
             yield return CoroutineTool.WaitUntil(() => completed);
         }
+
 
         /// <summary>
         /// 添加新的任务参数。

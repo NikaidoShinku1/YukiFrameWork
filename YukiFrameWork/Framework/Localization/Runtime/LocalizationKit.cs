@@ -10,61 +10,90 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using XFABManager;
+using System.Collections;
 namespace YukiFrameWork
 {
+    public interface ILocalizationLoader : IResLoader<LocalizationManager>
+    {
+
+    }
+
+    public class ABManagerLocalizationLoader : ILocalizationLoader
+    {
+        private readonly string projectName;
+        public ABManagerLocalizationLoader(string projectName)
+            => this.projectName = projectName;
+        public TItem Load<TItem>(string name) where TItem : LocalizationManager
+        {
+            return AssetBundleManager.LoadAsset<TItem>(projectName, name);
+        }
+
+        public async void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : LocalizationManager
+        {
+            var item = await AssetBundleManager.LoadAssetAsync<TItem>(projectName, name);
+            onCompleted?.Invoke(item);
+        }
+
+        public void UnLoad(LocalizationManager item)
+        {
+            AssetBundleManager.UnloadAsset(item);
+        }
+    }
+
+    /// <summary>
+    /// 语言本地化保存序列化器。该接口可以序列化/反序列化当前的语言。持久化保存
+    /// </summary>
+    public interface ILocalizationSerializer
+    {
+        void Serialize(Language language);
+        Language DeSerialize();
+    }
+    public class DefaultLocalizationSerializer : ILocalizationSerializer
+    {
+        public Language DeSerialize()
+        {
+            return Enum.GetValues(typeof(Language)).Cast<Language>().FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
+        }
+
+        public void Serialize(Language language)
+        {
+            int value = (int)language;
+            PlayerPrefs.SetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY, value);
+        }
+    }
     /// <summary>
     /// 框架运行时本地化管理器
     /// </summary>
-    public class LocalizationKit : Singleton<LocalizationKit>
-	{
-        private LocalizationKit() { }      
-        private static Dictionary<string,LocalizationConfigBase> dependConfigs = new Dictionary<string, LocalizationConfigBase>();
-        private const string DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY = "DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY";
+    public static class LocalizationKit
+	{    
+        private static ILocalizationLoader loader;
+        private static Dictionary<string, Dictionary<Language, ILocalizationData[]>> localizationManagers = new Dictionary<string, Dictionary<Language, ILocalizationData[]>>();
+        internal const string DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY = "DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY";
 
         /// <summary>
-        /// 本地序列化语言器，用于将默认的语言持久化保存,与反序列化器成对,如果自行添加则需要两个一起都实现
+        /// 本地化套件的序列化器
         /// </summary>
-        public static event Action<Language> OnSerializeLanguage = language =>
-        {
-            int value = (int)language;
-            PlayerPrefs.SetInt(DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY, value);         
-        };
-
-        /// <summary>
-        /// 本地反序列化语言器，用于启动时加载默认的语言，与序列化器成对,如果自行添加则需要两个一起都实现
-        /// </summary>
-        public static event Func<Language> OnDeSerializeLanguage = () =>
-        {
-            return Enum.GetValues(typeof(Language)).Cast<Language>().FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
-        };
-
-        /// <summary>
-        /// 得到框架的配置文件
-        /// </summary>
-        private FrameworkConfigInfo framework;
-
-        private static bool Isinited = false;
+        public static ILocalizationSerializer Serializer { get; set; } = new DefaultLocalizationSerializer();
+           
         /// <summary>
         /// 注册语言改变时的事件
         /// </summary>
-        private EasyEvent<Language> Update_Language = new EasyEvent<Language>();
+        private static EasyEvent<Language> Update_Language = new EasyEvent<Language>();
 
-        private Language languageType;       
+        private static Language languageType;       
         /// <summary>
         /// 框架当前的语言类型设置
         /// </summary>
         public static Language LanguageType
         {
-            get => I.languageType;
+            get => languageType;
             set
             {              
-                if (I.languageType != value)
+                if (languageType != value)
                 {
-#if UNITY_EDITOR
-                    I.framework.defaultLanguage = value;
-#endif
-                    I.languageType = value;
-                    OnSerializeLanguage(LanguageType);
+                    languageType = value;
+                    Serializer.Serialize(languageType);
                     OnLanguageValueChanged();
                 }
             }
@@ -77,7 +106,7 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static IUnRegister RegisterLanguageEvent(Action<Language> action)
         {
-            return I.Update_Language.RegisterEvent(action);
+            return Update_Language.RegisterEvent(action);
         }
 
         /// <summary>
@@ -86,7 +115,7 @@ namespace YukiFrameWork
         /// <param name="action"></param>
         public static void UnRegisterLanguageEvent(Action<Language> action)
         {
-            I.Update_Language.UnRegister(action);
+            Update_Language.UnRegister(action);
         }
 
         /// <summary>
@@ -94,40 +123,17 @@ namespace YukiFrameWork
         /// </summary>
         public static void OnLanguageValueChanged()
         {
-            if (!Isinited) return;
-            I.Update_Language.SendEvent(LanguageType);
+            Update_Language.SendEvent(LanguageType);
         }       
-        public override void OnInit()
-        {            
-            if (Isinited) return;      
-            FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
+        public static void Init(string projectName)
+        {
+            Init(new ABManagerLocalizationLoader(projectName));
+        }
 
-            if (info == null)
-            {
-                Debug.LogError("框架本体配置丢失!请检查Resources文件夹下是否生成了FrameworkConfigInfo");
-                return;
-            }        
-            framework = info;
-            Isinited = true;
-            
-            dependConfigs = info.dependConfigs.ToDictionary(key => key.Key,value => value.Value);
-
-            foreach (var key in dependConfigs.Keys)
-            {
-                LocalizationConfigBase depend = dependConfigs[key];
-                if (depend == null)
-                {
-                    Debug.LogWarning("该id对应的配置不存在，请检查! id---- " + key);
-                    continue;
-                }
-                depend.Init();
-            }
-#if UNITY_EDITOR
-             languageType = info.defaultLanguage;
-#else
-             languageType = OnDeSerializeLanguage();
-#endif
-
+        public static void Init(ILocalizationLoader loader)
+        {          
+            LocalizationKit.loader = loader;
+            languageType = Serializer.DeSerialize();
         }
 
         /// <summary>
@@ -135,54 +141,100 @@ namespace YukiFrameWork
         /// </summary>
         /// <param name="key"></param>
         /// <param name="config"></param>
-        public static void AddDependConfig(string key, LocalizationConfigBase config)
+        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfig方法!")]
+        public static void AddDependConfig(string key, LocalizationManager configManager)
         {
-            try
-            {
-                dependConfigs.Add(key, config);
-                config.Init();
-            }
-            catch(Exception ex) 
-            {
-                LogKit.Exception(new Exception(string.Format("该本地配置已经存在!LocalizationConfig Key -- {0} --- {1}", key, ex)));
-            }
+            LoadLocalizationManagerConfigInternal(key, configManager, false);
         }
 
-        public static ILocalizationData GetContent(string configKey,string key, Language language)
+        internal static void LoadLocalizationManagerConfigInternal(string key, LocalizationManager configManager, bool isLoaderLoad)
         {
-            return I.GetContentByKey(configKey, key, language);
+            if (localizationManagers.ContainsKey(key))
+                throw new Exception("该本地配置已存在! Config Key:" + key);
+            var datas = configManager.localizationConfig_language_dict;
+            localizationManagers[key] = configManager.localizationConfig_language_dict
+                .ToDictionary(x => x.Key,x => x.Value.LocalizationDatas);
+            
+            if(isLoaderLoad)
+            loader.UnLoad(configManager);
+        }
+        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfig方法!")]
+        public static void AddDependConfig(string key, string path)
+            => LoadLocalizationManagerConfigInternal(key, loader.Load<LocalizationManager>(path),true);
+
+        [DisableEnumeratorWarning]
+        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfigAsync方法!")]
+        public static IEnumerator AddDependConfigAsync(string key, string path)
+        {
+            bool completed = false;
+            loader.LoadAsync<LocalizationManager>(path,config => 
+            {
+                LoadLocalizationManagerConfigInternal(key, config,true);
+                completed = true;
+            });
+            yield return CoroutineTool.WaitUntil(() => completed);
         }
 
-        public static ILocalizationData GetContent(string configKey, string key)
+        /// <summary>
+        /// 手动添加配置
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="config"></param>
+      
+        public static void LoadLocalizationManagerConfig(string key, LocalizationManager configManager)
         {
-            return I.GetContentByKey(configKey, key, LanguageType);
+            LoadLocalizationManagerConfigInternal(key, configManager, false);
+        }
+           
+        public static void LoadLocalizationManagerConfig(string key, string path)
+            => LoadLocalizationManagerConfigInternal(key, loader.Load<LocalizationManager>(path), true);
+
+        [DisableEnumeratorWarning]
+        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfigAsync方法!")]
+        public static IEnumerator LoadLocalizationManagerConfigAsync(string key, string path)
+        {
+            bool completed = false;
+            loader.LoadAsync<LocalizationManager>(path, config =>
+            {
+                LoadLocalizationManagerConfigInternal(key, config, true);
+                completed = true;
+            });
+            yield return CoroutineTool.WaitUntil(() => completed);
         }
 
-        internal ILocalizationData GetContentByKey(string configKey,string key, Language language)
+        public static ILocalizationData GetContent(string managerKey,string key, Language language)
         {
-            if (!Isinited)
-            {
-                throw new Exception("没有对LocalizationKit进行初始化!请调用一次LocalizationKit.Init()方法!");
-            }
+            return GetContentByKey(managerKey, key, language);
+        }
 
-            if (!dependConfigs.TryGetValue(configKey, out var config))
+        public static ILocalizationData GetContent(string managerKey, string key)
+        {
+            return GetContentByKey(managerKey, key, LanguageType);
+        }
+
+        internal static ILocalizationData GetContentByKey(string managerKey,string key, Language language)
+        {          
+            if (!localizationManagers.TryGetValue(managerKey, out var configManager))
             {
-                Debug.LogError("依赖的配置文件不存在请于左上角打开YukiFrameWork/LocalConfiguration查看是否进行添加，configKey--- " + configKey);
+                Debug.LogError("没有添加指定标识的本地化管理器资源，managerKey--- " + managerKey);
                 return default;
             }
 
-            ILocalizationData data = config.GetLocalizationData(language, key);
+            ILocalizationData data = null;
+
+            if (configManager.TryGetValue(language, out var config))
+            {
+                for (int i = 0; i < config.Length; i++)
+                {
+                    if (config[i].Key == key)
+                    {
+                        data = config[i];
+                        break;
+                    }
+                }
+            }                  
 
             return data;
-        }
-         
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            Resources.UnloadAsset(framework);
-            framework = null;
-            dependConfigs.Clear();          
-        }
+        }      
     }
 }

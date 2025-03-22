@@ -18,7 +18,7 @@ namespace YukiFrameWork.Item
 	public class SlotGroup
 	{
         [field:JsonProperty,SerializeField]
-		public string Key { get; set; }
+		public string Key { get; internal set; }
 
         [JsonProperty,SerializeField]
         private List<Slot> slots = new List<Slot>();
@@ -29,7 +29,7 @@ namespace YukiFrameWork.Item
         [JsonIgnore]
 		public IReadOnlyList<Slot> Slots => slots;
 
-        public Action OrderRefresh { get; set; } = null;
+        private event Action OrderRefresh  = null;
 
         public bool IsEmpty => !slots.Any(x => x.Item != null);
 
@@ -147,7 +147,7 @@ namespace YukiFrameWork.Item
         /// </summary>
         /// <param name="itemKey"></param>
         /// <returns></returns>
-        public Slot FindSlotByKey(string itemKey) => slots.Find(x => x.Item != null && x.Item.GetKey == itemKey && x.ItemCount != 0);
+        public Slot FindSlotByKey(string itemKey) => slots.Find(x => x.Item != null && x.Item.Key == itemKey && x.ItemCount != 0);
 
         /// <summary>
         /// 查找到空插槽
@@ -194,7 +194,7 @@ namespace YukiFrameWork.Item
         {
             foreach (var slot in slots)
             {
-                if (slot.ItemCount != 0 && slot.Item.GetKey == itemKey && slot.ItemCount < slot.Item.MaxStackableCount)
+                if (slot.ItemCount != 0 && slot.Item.Key == itemKey && slot.ItemCount < slot.Item.MaxStackableCount)
                 {
                     return slot;
                 }
@@ -237,7 +237,7 @@ namespace YukiFrameWork.Item
             Slot slot = slots[index];
             slot.ItemCount = 0;
             slot.Item = null;
-            if (slot.Item?.GetKey == item.GetKey)
+            if (slot.Item?.Key == item.Key)
             {              
                 return StoreItem(item,addCount);
             }           
@@ -273,7 +273,7 @@ namespace YukiFrameWork.Item
             {
                 do
                 {
-                    var slot = FindAddableMaxStackableCountSlot(item.GetKey);
+                    var slot = FindAddableMaxStackableCountSlot(item.Key);
                     if (slot != null)
                     {
                         var tempCount = slot.Item.MaxStackableCount - slot.ItemCount;
@@ -300,7 +300,7 @@ namespace YukiFrameWork.Item
             }
             else
             {
-                var slot = FindAddableSlot(item.GetKey);
+                var slot = FindAddableSlot(item.Key);
 
                 if (slot == null)
                 {
@@ -343,7 +343,7 @@ namespace YukiFrameWork.Item
         /// <returns></returns>
         public bool RemoveItem(IItem item, int removeCount = 1)
         {
-            return RemoveItem(item.GetKey, removeCount);
+            return RemoveItem(item.Key, removeCount);
         }
 
         /// <summary>
@@ -361,6 +361,9 @@ namespace YukiFrameWork.Item
             return RemoveItem(slot.Item, slot.ItemCount);
         }
 
+        /// <summary>
+        /// 清空所有的物品
+        /// </summary>
         public void ClearItem()
         {
             int count = slots.Count;

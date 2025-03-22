@@ -167,7 +167,7 @@ namespace YukiFrameWork.Machine
         /// <param name="name"></param>
         /// <returns></returns>
         public StateBase GetCurrentMachineStateInfo(string name)
-        {
+        {           
             if (runtime_Machines.TryGetValue(name, out var machine))
             {
                 return machine.CurrentState;
@@ -216,7 +216,7 @@ namespace YukiFrameWork.Machine
         {
             IsActive = false;
             //切换到空状态     
-            baseMachine.SwitchState(null, null);
+            baseMachine.SwitchState(null, null,false);
             //走一趟退出队列的执行                 
             //重置所有的参数
             ResetParameters();

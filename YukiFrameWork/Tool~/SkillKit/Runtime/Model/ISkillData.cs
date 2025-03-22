@@ -42,20 +42,6 @@ namespace YukiFrameWork.Skill
 		bool ActiveCancellation { get; }
 
 		/// <summary>
-		/// 技能是否拥有等级制度
-		/// </summary>
-		bool IsSkillLavel { get; }
-
-		/// <summary>
-		/// 技能是否拥有最大等级
-		/// </summary>
-		bool IsSkillMaxLevel { get; }
-
-		/// <summary>
-		/// 技能最大等级
-		/// </summary>
-		int SkillMaxLevel { get; set; }
-		/// <summary>
 		/// 技能释放时间
 		/// </summary>
 		float RealeaseTime { get; set; }

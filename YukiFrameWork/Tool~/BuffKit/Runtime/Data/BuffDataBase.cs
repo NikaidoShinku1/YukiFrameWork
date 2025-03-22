@@ -32,6 +32,8 @@ namespace YukiFrameWork.Buffer
         [FoldoutGroup("代码设置"), SerializeField]
         private string nameSpace = "YukiFrameWork.Buffer";
 
+        public Action onValidate;     
+
 #if UNITY_EDITOR
         public static IEnumerable allBuffNames => YukiAssetDataBase.FindAssets<BuffDataBase>().SelectMany(x => x.buffConfigs).Select(x => new ValueDropdownItem() { Text = x.GetBuffName,Value = x.GetBuffKey});
         [HideInInspector, SerializeField]
@@ -99,7 +101,7 @@ namespace YukiFrameWork.Buffer
         [SerializeField,LabelText("Buff配置")]      
         [InfoBox("添加Buff配置需要选择Buff的类型，当项目中没有任何Buff类文件时，无法新建Buff配置，且删除对应文件时，会自动消除对应的类",InfoMessageType.Warning)]
         [VerticalGroup("配置")]
-        [ListDrawerSettings(HideAddButton = true,CustomRemoveIndexFunction = nameof(DeleteBuff),DraggableItems = false)]
+        [ReadOnly]
         public List<Buff> buffConfigs = new List<Buff>();
         public IList Array => buffConfigs;
 
@@ -111,30 +113,45 @@ namespace YukiFrameWork.Buffer
     
 #endif
              
-        internal void CreateBuff(Type buffType)
+        internal Buff CreateBuff(Type buffType,string name = "")
         {           
             Buff buff = Buff.CreateInstance(buffType.Name, buffType);
-                      
+            buff.name = name;
             buffConfigs.Add(buff);
            
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(buff,this);
             this.Save();
 #endif
+            return buff;
         }
 
         public void DeleteBuff(int index)
         {
-            var buff = buffConfigs[index];
+            DeleteBuff(buffConfigs[index]);
+        }
 
-            buffConfigs.RemoveAt(index);
-
+        public void DeleteBuff(Buff buff)
+        {
+            buffConfigs.Remove(buff);
 #if UNITY_EDITOR
-            AssetDatabase.RemoveObjectFromAsset(buff);           
+            if(buff)
+            AssetDatabase.RemoveObjectFromAsset(buff);
             this.Save();
 #endif
         }
-
+#if UNITY_EDITOR
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        private static bool OnOpenAsset(int insId, int line)
+        {
+           BuffDataBase obj = EditorUtility.InstanceIDToObject(insId) as BuffDataBase;
+            if (obj != null)
+            {
+                BuffDataBaseEditorWindow.ShowWindow();
+            }
+            return obj != null;
+        }
+#endif   
         public void Create(int maxLength)
         {
             while (buffConfigs.Count > 0)
@@ -151,7 +168,39 @@ namespace YukiFrameWork.Buffer
 #endif
         }
 
-        public void Completed() { }
+        public void Completed()
+        {
+#if UNITY_EDITOR
+            if (BuffDataBaseEditorWindow.Instance)
+            {
+                BuffDataBaseEditorWindow.Instance.ForceMenuTreeRebuild();
+            }
+#endif
+        }
+
+        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
+        public string excelPath;
+#if UNITY_EDITOR
+        [Button("导出Excel"), HorizontalGroup("Excel")]
+        void CreateExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ScriptableObjectToExcel(this, excelPath, out string error))
+                Debug.Log("导出成功");
+            else throw new Exception(error);
+        }
+        [Button("导入Excel"), HorizontalGroup("Excel")]
+        void ImportExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
+            {
+                Debug.Log("导入成功");
+            }
+        }
+#endif
 
 
     }

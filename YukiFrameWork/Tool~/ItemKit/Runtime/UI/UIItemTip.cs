@@ -41,9 +41,9 @@ namespace YukiFrameWork.Item
 		{
 			if (slot.Slot?.Item != null)
 			{               
-				this.icon.sprite = slot.Slot.Item.GetIcon;
-				this.itemName.text = slot.Slot.Item.GetName;
-				this.description.text = slot.Slot.Item.GetDescription;
+				this.icon.sprite = slot.Slot.Item.Icon;
+				this.itemName.text = slot.Slot.Item.Name;
+				this.description.text = slot.Slot.Item.Description;
 				this.Show();               
                 if (positionSync)
                 {

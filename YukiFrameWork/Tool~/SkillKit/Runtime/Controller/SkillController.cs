@@ -43,7 +43,7 @@ namespace YukiFrameWork.Skill
         float ISkillController.ReleasingTime { get => ReleasingTime; set => ReleasingTime = value; }
         bool ISkillController.IsSkillCoolDown { get => IsSkillCoolDown; set => IsSkillCoolDown = value; }
         float ISkillController.CoolDownTime { get => CoolDownTime; set => CoolDownTime = value; }
-        int ISkillController.SkillLevel { get => SkillLevel; set => SkillLevel = value; }       
+        int ISkillController.SkillLevel { get ; set ; }       
         #endregion
 
         public ISkillExecutor Player { get;private set; }
@@ -56,39 +56,7 @@ namespace YukiFrameWork.Skill
 
         public float ReleasingTime { get; private set; }           
 
-        public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();
-
-        private int skillLevel = 0;
-
-        public int SkillLevel
-        {
-            get
-            {
-                if (!SkillData.IsSkillLavel)
-                    return 0;
-                else return skillLevel;
-            }
-            internal protected set
-            {
-                if (!SkillData.IsSkillLavel)
-                {
-                    return;
-                }
-                else
-                {
-                    value = SkillData.IsSkillMaxLevel 
-                        ? (int)Mathf.Clamp(value,0,SkillData.SkillMaxLevel) 
-                        : value;
-                    if (skillLevel != value)
-                    {
-                        skillLevel = value;
-                        onLevelChanged?.Invoke(skillLevel);
-                        OnLevelChanged(skillLevel);                    
-                    }
-                    
-                }
-            }
-        }
+        public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();      
 
         public float ReleasingProgress
         {
@@ -172,12 +140,7 @@ namespace YukiFrameWork.Skill
         public virtual void OnInterruption()
         {
             
-        }
-
-        public virtual void OnLevelChanged(int level)
-        {
-            
-        }
+        }     
 
         public virtual void OnLateUpdate()
         {

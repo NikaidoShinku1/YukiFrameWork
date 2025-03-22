@@ -11,33 +11,88 @@ using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using YukiFrameWork.Extension;
+using Newtonsoft.Json.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 namespace YukiFrameWork
-{ 
+{
     /// <summary>
     /// 本地数据接口
     /// </summary>
     public interface ILocalizationData
-	{		
+    {
+        string Key { get; }
         /// <summary>
         /// 文本内容
         /// </summary>
-		string Context { get; set; }
+		string Context { get; }
         /// <summary>
         /// 精灵(图片)
         /// </summary>
-		Sprite Sprite { get; set; }
-    } 
-    
-    [Serializable]
-    public class LocalizationData : ILocalizationData
-    {              
-        [field: MultiLineProperty,JsonProperty]
-        [field: SerializeField]
-        public string Context { get; set ; }
+		Sprite Sprite { get; }
+    }
+#if UNITY_EDITOR
+    public abstract class CustomLocalizationDataConvert<T> : JsonConverter<T> where T : ILocalizationData
+    {
+        
+    }
+    public class SpriteSerializeConvert : CustomLocalizationDataConvert<LocalizationData>
+    {
 
-        [JsonIgnore]
-        [field: PreviewField(50)]
-        [field: SerializeField]
-        public Sprite Sprite { get; set; }      
+        public override LocalizationData ReadJson(JsonReader reader, Type objectType, LocalizationData existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            JObject obj = JObject.Load(reader);
+            LocalizationData localizationData = new LocalizationData();
+
+            string guid = obj["sprite"].ToString();
+            localizationData.context = obj["context"].ToString();
+            localizationData.key = obj["key"].ToString(); 
+            if(!guid.IsNullOrEmpty())
+                localizationData.sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
+
+            return localizationData;
+        }
+       
+        public override void WriteJson(JsonWriter writer, LocalizationData value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("key");
+            writer.WriteValue(value.key);
+            writer.WritePropertyName("context");
+            writer.WriteValue(value.context);
+            writer.WritePropertyName("sprite");
+            writer.WriteValue(UnityEditor.AssetDatabase.AssetPathToGUID(UnityEditor.AssetDatabase.GetAssetPath(value.sprite)));
+            writer.WriteEndObject();
+        }
+    }
+#endif
+    [Serializable]
+#if UNITY_EDITOR
+    [JsonConverter(typeof(SpriteSerializeConvert))]
+#endif
+    public class LocalizationData : ILocalizationData
+    {
+        [SerializeField,JsonProperty,LabelText("唯一标识")]
+        [InfoBox("对于不同的语言，应保持标识始终唯一")]
+        protected internal string key;
+        [ExcelIgnore,JsonIgnore]
+
+        public string Key => key;
+        [TextArea, JsonProperty]
+        [SerializeField]
+        protected internal string context;
+
+        [JsonIgnore,ExcelIgnore]
+        public string Context => context;
+
+        [PreviewField(50)]
+        [SerializeField]       
+        protected internal Sprite sprite;
+
+        [JsonIgnore,ExcelIgnore]
+        public Sprite Sprite => Sprite;
+
+       
     }    
 }

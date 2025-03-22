@@ -44,9 +44,9 @@ namespace YukiFrameWork.Item
                     else Count.Hide();
                     Icon.Show();
 
-                    if (Slot.Item?.GetIcon)
+                    if (Slot.Item?.Icon)
                     {
-                        Icon.sprite = Slot.Item.GetIcon;
+                        Icon.sprite = Slot.Item.Icon;
                     }
                 }
             }

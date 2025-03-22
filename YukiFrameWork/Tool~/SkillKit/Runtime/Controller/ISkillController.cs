@@ -52,9 +52,7 @@ namespace YukiFrameWork.Skill
         /// 技能信息/数据
         /// </summary>
         ISkillData SkillData { get; internal set; }
-		/// <summary>
-		/// 技能当前等级(仅技能数据开启等级机制后生效)
-		/// </summary>
+		[Obsolete("已废弃的属性，技能的等级应该在指定的位置单独配表。技能系统应该更侧重于对逻辑本身的拓展")]
 		int SkillLevel { get; set; }
 		/// <summary>
 		/// 技能是否正在释放
@@ -108,12 +106,6 @@ namespace YukiFrameWork.Skill
 		/// 技能被打断时触发
 		/// </summary>
 		void OnInterruption();
-
-        /// <summary>
-        /// 等级被改变时触发(仅技能数据开启等级机制后生效)
-        /// </summary>
-        /// <param name="level"></param>
-        void OnLevelChanged(int level);
 
         #region 技能释放时触发的生命周期方法
 		/// <summary>

@@ -21,11 +21,7 @@ namespace YukiFrameWork.Item
 
         private static IItemKitLoader loader;
 
-        public static UISlot CurrentSlotPointer { get; set; } = null;
-
-        internal static bool UseLocalizationConfig { get;private set; } = false;       
-
-        internal static string LocalizationConfigKey { get; private set; }
+        public static UISlot CurrentSlotPointer { get; set; } = null;    
 
         public static EasyEvent<IItem> onLanguageChanged = new EasyEvent<IItem>();       
 
@@ -34,58 +30,26 @@ namespace YukiFrameWork.Item
         /// </summary>
         public static char Spilt { get; private set; }
 
+        public static void Init(string projectName)
+        {
+            loader = new ABManagerItemKitLoader(projectName);
+        }
+
+        public static void Init(IItemKitLoader loader)
+        {
+            ItemKit.loader = loader;          
+        }
+        [Obsolete("方法已过时，请使用ItemKit.Init进行背包物品的初始化加载!")]
         public static void InitLoader(string projectName)
         {
             loader = new ABManagerItemKitLoader(projectName);
-            Init();
         }
-
+        [Obsolete("方法已过时，请使用ItemKit.Init进行背包物品的初始化加载!")]
         public static void InitLoader(IItemKitLoader loader)
         {
             ItemKit.loader = loader;
-            Init();
         }
 
-        private static void Init()
-        {
-            MonoHelper.Destroy_AddListener(helper => 
-            {
-                loader = null;
-                foreach (var group in mSlotGroupDicts.Values)
-                {
-                    group.Clear();
-                }
-
-                mSlotGroupDicts.Clear();
-                mItemDicts.Clear();
-                CurrentSlotPointer = null;
-                LocalizationConfigKey = string.Empty;
-                onLanguageChanged.UnRegisterAllEvent();
-            });
-        }
-
-        /// <summary>
-        /// 调用一次该方法就可以将ItemKit绑定本地化系统
-        /// </summary>
-        /// <param name="DependIndex">是否是子配置，如果是的话传递对应配置下标，否则不需要</param>
-        /// <param name="spilt">分割字符，用于配置中的Context配置时，区分Name以及Description</param>
-        public static void DependLocaizationConfig(string configKey,char spilt = ':')
-        {
-            if (!UseLocalizationConfig)
-                LocalizationKit.RegisterLanguageEvent(UpdateAllItemInfo);
-            LocalizationConfigKey = configKey;
-            UseLocalizationConfig = true;
-            Spilt = spilt;
-            void UpdateAllItemInfo(Language language)
-            {
-                foreach (var item in mItemDicts.Values)
-                {
-                    _ = item.GetName;
-                    _ = item.GetDescription;
-                    onLanguageChanged.SendEvent(item);
-                }            
-            }                
-        }
 
         /// <summary>
         /// 将所有的分组物品清空
@@ -96,11 +60,6 @@ namespace YukiFrameWork.Item
             {
                 slotGroup.ClearItem();
             }
-        }
-
-        internal static ILocalizationData GetLocalization(string Key)
-        {
-            return LocalizationKit.GetContent(ItemKit.LocalizationConfigKey, Key, LocalizationKit.LanguageType);                                 
         }
 
         /// <summary>
@@ -129,42 +88,66 @@ namespace YukiFrameWork.Item
 
         public static IReadOnlyDictionary<string, IItem> ItemDicts => mItemDicts;
 
+        [Obsolete("方法已过时，请调用ItemKit.LoadItemDataManager方法进行物品管理器资源的加载！",true)]
         public static void LoadItemDataBase(string dataBaseName)
         {
-            LoadItemDataBase(loader.Load<ItemDataBase>(dataBaseName));           
+            //error
         }
-
+        [Obsolete("方法已过时，请调用ItemKit.LoadItemDataManager方法进行物品管理器资源的加载！",true)]
         public static IEnumerator LoadItemDataBaseAsync(string dataBaseName)
         {
+            yield return null;
+        }
+        [Obsolete("方法已过时，请调用ItemKit.LoadItemDataManager方法进行物品管理器资源的加载！",true)]
+        public static void LoadItemDataBase(ItemDataBase itemDataBase)
+        {
+            //error
+        }
+        /// <summary>
+        /// 加载物品配置管理器
+        /// </summary>
+        /// <param name="dataBaseName"></param>
+        public static void LoadItemDataManager(string name)
+        {
+            LoadItemDataManager(loader.Load<ItemDataManager>(name));
+        }
+        /// <summary>
+        /// 异步加载物品配置管理器
+        /// </summary>
+        /// <param name="name"></param>
+        public static IEnumerator LoadItemDataManagerAsync(string name)
+        {
             bool loadCompleted = false;
-            loader.LoadAsync<ItemDataBase>(dataBaseName, v =>
+            loader.LoadAsync<ItemDataManager>(name, v =>
             {
-                LoadItemDataBase(v);
+                LoadItemDataManager(v);
                 loadCompleted = true;
             });
             yield return CoroutineTool.WaitUntil(() => loadCompleted);
         }
-
-        public static void LoadItemDataBase(ItemDataBase itemDataBase)
+      
+        public static void LoadItemDataManager(ItemDataManager itemDataManager)
         {
-            var items = itemDataBase.Items;
-            foreach (var item in items)
+            foreach (var manager in itemDataManager.itemDataBases)
             {
-                AddItemConfig(item);
-            }
-            
-            loader?.UnLoad(itemDataBase);
+                var items = manager.Items;
+                foreach (var item in items)
+                {
+                    AddItem(item);
+                }
+            }          
+            loader?.UnLoad(itemDataManager);
         }
 
-        public static void AddItemConfig(IItem item)
+        public static void AddItem(IItem item)
         {
-            mItemDicts.Add(item.GetKey, item);
+            mItemDicts.Add(item.Key, item);
         }
 
-        public static bool RemoveItemConfig(string Key)
+        public static bool RemoveItem(string Key)
         {
 #if UNITY_2021_1_OR_NEWER
-            return RemoveItemConfig(Key, out _);
+            return RemoveItem(Key, out _);
 #else
             return mItemDicts.Remove(Key);
 #endif
@@ -172,7 +155,7 @@ namespace YukiFrameWork.Item
         }
 
 #if UNITY_2021_1_OR_NEWER
-        public static bool RemoveItemConfig(string Key,out IItem item)
+        public static bool RemoveItem(string Key,out IItem item)
         {
             return mItemDicts.Remove(Key,out item);
         }
@@ -209,7 +192,7 @@ namespace YukiFrameWork.Item
                 }
                 value = slotGroup.Slots.Select(x => new SlotSaveData()
                 {
-                    itemKey = x.Item != null ? x.Item.GetKey : null,
+                    itemKey = x.Item != null ? x.Item.Key : null,
                     itemCount = x.ItemCount
                 }).ToList();
                 slotSaveDatas[slotGroup.Key] = value;

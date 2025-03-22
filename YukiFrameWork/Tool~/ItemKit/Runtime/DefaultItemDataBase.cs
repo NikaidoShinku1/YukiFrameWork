@@ -8,8 +8,10 @@
 ///=====================================================
 using UnityEngine;
 namespace YukiFrameWork.Item
-{
-    [CreateAssetMenu(menuName = "YukiFrameWork/Default Item DataBase", fileName = nameof(DefaultItemDataBase))]
+{  
+    /// <summary>
+    /// 框架提供的默认背包数据结构
+    /// </summary>
     public class DefaultItemDataBase : ItemDataBase<Item>
     {
         

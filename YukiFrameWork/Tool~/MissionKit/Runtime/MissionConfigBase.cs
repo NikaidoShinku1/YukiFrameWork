@@ -23,149 +23,13 @@ namespace YukiFrameWork.Missions
 {
 	public abstract class MissionConfigBase : ScriptableObject
 	{
-		public abstract IEnumerable<IMissionData> Missions { get; }		
-
-		protected abstract void ResetAllMissionsType();
-
-#if UNITY_EDITOR
-        private static ValueDropdownList<string> mMissionsTypes;
-
-        internal static ValueDropdownList<string> MissionsTypes
-        {
-            get
-            {
-                if (mMissionsTypes == null)
-                    mMissionsTypes = new ValueDropdownList<string>();
-
-                mMissionsTypes.Clear();
-
-                var configs =YukiAssetDataBase.FindAssets<MissionConfigBase>();
-
-                foreach (var config in configs)
-                {                  
-					foreach (var type in config.mMissionTypes_dict)
-					{
-						ValueDropdownItem<string> temp = mMissionsTypes.Find(x => x.Value == type.Key);
-                   
-						if (temp.Value == type.Key)
-							continue;
-                        
-						mMissionsTypes.Add(type.Value.IsNullOrEmpty() ? type.Key : type.Value, type.Key);
-					}
-                }
-
-				return mMissionsTypes;
-
-            }
-        }
-        private static ValueDropdownList<string> mMissionsParams;
-
-        internal static ValueDropdownList<string> MissionsParams
-        {
-            get
-            {
-                if (mMissionsParams == null)
-                    mMissionsParams = new ValueDropdownList<string>();
-
-                mMissionsParams.Clear();
-
-                var configs = YukiAssetDataBase.FindAssets<MissionConfigBase>();
-
-                foreach (var config in configs)
-                {
-                    foreach (var type in config.mMissionParams_dict)
-                    {
-                        ValueDropdownItem<string> temp = mMissionsParams.Find(x => x.Text == type.Key);
-
-                        if (temp.Text == type.Key)
-                            continue;
-
-                        if (type.Key.IsNullOrEmpty()) continue;
-
-                        mMissionsParams.Add(type.Key);
-                    }
-                }
-
-                return mMissionsParams;
-
-            }
-        }
-        [Button("将任务类型导出Json"), FoldoutGroup("任务类型添加")]
-        void CreateType(string filePath = "Assets/Mission", string fileName = "missionTypeData")
-        {
-            SerializationTool.SerializedObject(mMissionTypes_dict).CreateFileStream(filePath,fileName,".json");
-        }
-
-        [Button("将任务参数导出Json"), FoldoutGroup("任务参数标识添加")]
-        void CreateParam(string filePath = "Assets/Mission", string fileName = "missionParamData")
-        {
-            SerializationTool.SerializedObject(mMissionParams_dict).CreateFileStream(filePath, fileName, ".json");
-        }
-
-        [Button("导入任务类型Json"), FoldoutGroup("任务类型添加"), PropertySpace(10)]
-        void LoadType(TextAsset textAsset)
-        {
-            if (!textAsset) return;
-            mMissionTypes_dict = SerializationTool.DeserializedObject<YDictionary<string, string>>(textAsset.text);
-        }
-
-        [Button("导入任务参数Json"), FoldoutGroup("任务参数标识添加"),PropertySpace(10)]
-        void LoadParam(TextAsset textAsset)
-        {
-            if (!textAsset) return;
-            mMissionParams_dict = SerializationTool.DeserializedObject<YDictionary<string, MissionParam>>(textAsset.text);
-        }
-
-        [Button("打开任务配置窗口集合(Plus)",ButtonHeight = 50),PropertySpace(30)]
-		static void OpenWindow()
-		{
-			MissionDesignWindow.OpenWindow();
-		}
-
-        private void Reset()
-        {
-            OnValidate();
-        }
-
-        private void OnValidate()
-        {
-            var items = YukiAssetDataBase.FindAssets<MissionConfigBase>();
-
-            YDictionary<string, string> mMissionTypes = new YDictionary<string, string>();
-            YDictionary<string, MissionParam> mMissionParams = new YDictionary<string, MissionParam>();
-            foreach (var item in items)
-            {
-                foreach (var dict in item.mMissionParams_dict)
-                {
-                    mMissionParams[dict.Key] = dict.Value;
-                }
-                foreach (var dict in item.mMissionTypes_dict)
-                {
-                    mMissionTypes[dict.Key] = dict.Value;
-                }         
-                
-            }
-
-            foreach (var item in items)
-            {
-                item.mMissionTypes_dict = mMissionTypes;
-                item.mMissionParams_dict = mMissionParams;
-            }
-           
-
-        }
-#endif
-        [SerializeField,LabelText("任务类型")]
-		[InfoBox("所有的配置中的任务类型均同步共享，a配置有的任务类型在b配置中也可以为任务选择使用!"),FoldoutGroup("任务类型添加")]
-        [DictionaryDrawerSettings(KeyLabel = "任务类型",ValueLabel = "编辑器显示")]
-		private YDictionary<string, string> mMissionTypes_dict = new YDictionary<string, string>();
-
-        [SerializeField,LabelText("任务参数")]
-        [InfoBox("所有的配置中的任务参数均同步共享，a配置有的任务参数在b配置中也可以为参数选择使用!"), FoldoutGroup("任务参数标识添加")]
-        [DictionaryDrawerSettings(KeyLabel = "参数名称/标识",ValueLabel = "可配置数据项")]
-        internal YDictionary<string, MissionParam> mMissionParams_dict = new YDictionary<string, MissionParam>();
+		[LabelText("编辑器显示名称")]
+		[InfoBox("当该值为空，则显示默认名称")]
+		public string displayName;
+		public abstract IEnumerable<IMissionData> Missions { get; }		      
+   
 	}
-    public class MissionConfigBase<T> : MissionConfigBase, IExcelSyncScriptableObject where T : IMissionData
+    public abstract class MissionConfigBase<T> : MissionConfigBase, IExcelSyncScriptableObject where T : IMissionData
     {
 		[SerializeField,LabelText("任务集合"),ListDrawerSettings(ListElementLabelName = "Name",NumberOfItemsPerPage = 5),Searchable(), FoldoutGroup("任务集合")]
 		private T[] missions;
@@ -184,16 +48,7 @@ namespace YukiFrameWork.Missions
 
         public Type ImportType => typeof(T);
 
-        public bool ScriptableObjectConfigImport => true;
-
-        protected override void ResetAllMissionsType()
-        {
-			foreach (var item in missions)
-			{
-				item.MissionType = string.Empty;
-			}
-        }
-
+        public bool ScriptableObjectConfigImport => true;      
         public void Create(int maxLength)
         {
             missions = new T[maxLength];
@@ -204,6 +59,35 @@ namespace YukiFrameWork.Missions
             missions[index] = (T)userData;
         }
 
-        public void Completed() { }
-    } 
+        public void Completed()
+        {
+#if UNITY_EDITOR
+            if (MissionConfigBaseEditorWindow.Instance)
+                MissionConfigBaseEditorWindow.Instance.ForceMenuTreeRebuild();
+#endif
+        }
+        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
+        public string excelPath;
+#if UNITY_EDITOR
+        [Button("导出Excel"), HorizontalGroup("Excel")]
+        void CreateExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ScriptableObjectToExcel(this, excelPath, out string error))
+                Debug.Log("导出成功");
+            else throw new Exception(error);
+        }
+        [Button("导入Excel"), HorizontalGroup("Excel")]
+        void ImportExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
+            {
+                Debug.Log("导入成功");
+            }
+        }
+#endif
+    }
 }

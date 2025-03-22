@@ -27,7 +27,13 @@ namespace YukiFrameWork
             window.Open();
             window.titleContent = new GUIContent("Excel转SO工具");
         }
-
+        internal static void OpenWindow(IExcelSyncScriptableObject excelSyncScriptableObject)
+        {
+            var window = GetWindow<ScriptableObjectExtensionEditorWindow>();
+            window.Open();
+            window.titleContent = new GUIContent("Excel转SO工具");
+            window.configInfo.excelConvertConfig = excelSyncScriptableObject as ScriptableObject;
+        }
         FrameworkConfigInfo configInfo;       
        
         protected override void OnEnable()
@@ -39,10 +45,17 @@ namespace YukiFrameWork
         {
             EditorGUILayout.HelpBox("试验性功能", MessageType.Info);
             EditorGUILayout.Space();
+#if UNITY_2021_1_OR_NEWER
             if (configInfo.excelConvertConfig && configInfo.excelConvertConfig is not IExcelSyncScriptableObject)
             {
                 EditorGUILayout.HelpBox("传递的配置必须是继承自IExcelSyncScriptableObject的接口!", MessageType.Error);
+            }          
+#else
+            if (configInfo.excelConvertConfig && !(configInfo.excelConvertConfig is IExcelSyncScriptableObject))
+            {
+                EditorGUILayout.HelpBox("传递的配置必须是继承自IExcelSyncScriptableObject的接口!", MessageType.Error);
             }
+#endif
             EditorGUILayout.BeginHorizontal();
             configInfo.excelConvertConfig = (ScriptableObject)EditorGUILayout.ObjectField("配置", configInfo.excelConvertConfig, typeof(ScriptableObject), true);
             if (configInfo.excelConvertConfig is IExcelSyncScriptableObject && configInfo.excelConvertConfig && GUILayout.Button("刷新配置",GUILayout.Width(80)))
@@ -55,7 +68,7 @@ namespace YukiFrameWork
             {               
                 if (configInfo.excelConvertConfig is IExcelSyncScriptableObject excel)
                 {
-                                    
+                                     
                     EditorGUILayout.Space();
                     if (GUILayout.Button("选中配置查看"))
                     {
@@ -73,10 +86,7 @@ namespace YukiFrameWork
                             configInfo.excelDataPath =  CodeManager.SelectFolder(configInfo.excelDataPath);                          
                         }
                         EditorGUILayout.EndHorizontal();
-                    }
-                    configInfo.excelHeader = EditorGUILayout.IntField("表头:", configInfo.excelHeader);
-                    if (configInfo.excelHeader <= 0)
-                        configInfo.excelHeader = 3;
+                    }                 
                     var tempRect = EditorGUILayout.BeginHorizontal();
                     configInfo.excelTempPath = EditorGUILayout.TextField("Excel路径:", configInfo.excelTempPath);
                     CodeManager.DragObject(tempRect,out var path);
@@ -96,7 +106,7 @@ namespace YukiFrameWork
                     EditorGUILayout.Space();
                     if (GUILayout.Button("导入Excel"))
                     {
-                        if (SerializationTool.ExcelToScriptableObject(configInfo.excelTempPath, configInfo.excelHeader, excel,configInfo.excelDataPath))
+                        if (SerializationTool.ExcelToScriptableObject(configInfo.excelTempPath, 3, excel,configInfo.excelDataPath))
                         {
                             Debug.Log("导入成功!");
                             this.ShowNotification(new GUIContent("导入成功!"));
@@ -134,7 +144,7 @@ namespace YukiFrameWork
         private void Init()
         {
             if (MenuTree == null) return;
-            MenuTree.MenuItems?.Clear();
+            ForceMenuTreeRebuild();
             string path = configInfo.excelConvertConfig.name + "_" + configInfo.excelInstanceId;
             MenuTree.Add(path, configInfo.excelConvertConfig,Sirenix.OdinInspector.SdfIconType.Instagram);          
             IExcelSyncScriptableObject excelSyncScriptableObject = configInfo.excelConvertConfig as IExcelSyncScriptableObject;
@@ -145,6 +155,7 @@ namespace YukiFrameWork
                 int index = i;
                 MenuTree.Add(path + "/" + index, list[i]);
             }
+            Repaint();
         }
 
         protected override OdinMenuTree BuildMenuTree()

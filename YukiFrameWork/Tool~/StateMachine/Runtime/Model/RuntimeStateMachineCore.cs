@@ -161,9 +161,10 @@ namespace YukiFrameWork.Machine
 #if UNITY_EDITOR
         private void Awake()
         {
-            if (!Application.isPlaying)
+            var item = FrameworkConfigInfo.GetFrameworkConfig();
+            if (!Application.isPlaying && item)
             {
-                nameSpace = FrameworkConfigInfo.GetFrameworkConfig().nameSpace;
+                nameSpace = item.nameSpace;
             }
         }
         [PropertySpace(10)]

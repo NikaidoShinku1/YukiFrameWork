@@ -26,63 +26,44 @@ namespace YukiFrameWork.Skill
     public class SkillData : ScriptableObject, ISkillData
     {
         
-        [SerializeField,LabelText("Skill的唯一标识"),InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"),JsonProperty(PropertyName = nameof(SkillKey))]
+        [SerializeField,LabelText("Skill的唯一标识"),InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"),JsonProperty()]
         private string skillKey;
 
         [JsonIgnore]
         public string SkillKey => skillKey;
 
-        [SerializeField, LabelText("Skill的名称"), JsonProperty(PropertyName = nameof(SkillName))]
+        [SerializeField, LabelText("Skill的名称"), JsonProperty()]
         private string skillName;
 
         [JsonIgnore,ExcelIgnore]
-        public string SkillName => SkillKit.UseLocalizationConfig 
-            ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[0] : skillName;
+        public string SkillName => skillName;
 
-        [SerializeField,LabelText("技能介绍"),JsonProperty(PropertyName = nameof(Description)),TextArea]
+        [SerializeField,LabelText("技能介绍"),JsonProperty(),TextArea]
         private string description;
 
         [JsonIgnore,ExcelIgnore]
-        public string Description => SkillKit.UseLocalizationConfig
-            ? SkillKit.GetContent(SkillKey).Context.Split(SkillKit.Spilt)[1] : description;
+        public string Description => description;
 
-        [field:SerializeField,LabelText("技能是否不受到时间影响")]
+        [SerializeField, LabelText("技能是否不受到时间影响")]
         [JsonProperty]
-        public bool IsInfiniteTime { get; set; }
+        private bool isInfiniteTime;
+        [JsonIgnore,ExcelIgnore]
+        public bool IsInfiniteTime { get => isInfiniteTime; set => isInfiniteTime = value; }
 
-        [field:SerializeField,LabelText("技能是否可以主动取消")]
+        [SerializeField, LabelText("技能是否可以主动取消")]
         [JsonProperty]
-        public bool ActiveCancellation { get; set; }
-
-        [field: SerializeField, LabelText("技能是否是可以被中途打断的")]
-        [JsonProperty]
-        public bool SkillInterruption { get; set; }
-
-        [field:SerializeField,LabelText("技能是否拥有等级")]
-        [JsonProperty]
-		public bool IsSkillLavel { get; set; }
-
-        [field: SerializeField, LabelText("技能是否拥有最大等级限制"),ShowIf(nameof(IsSkillLavel))]
-        [JsonProperty]
-        public bool IsSkillMaxLevel { get; set; }
-
+        private bool activeCancellation;
         [JsonIgnore, ExcelIgnore]
-        private bool skillMaxLevel => IsSkillLavel && IsSkillMaxLevel;
+        public bool ActiveCancellation { get => activeCancellation; set => activeCancellation = value; }
 
-        [field: SerializeField, LabelText("技能最大等级"),ShowIf(nameof(skillMaxLevel))]
+        [SerializeField, LabelText("技能是否是可以被中途打断的")]
         [JsonProperty]
-        public int SkillMaxLevel { get; set; }   
-
-        [field:SerializeField,LabelText("技能图标/静态"),PreviewField(50)]
-        [JsonIgnore]
-        public Sprite Icon { get; set; }
-     
-        [JsonProperty]
-        internal string Sprite;
-
+        private bool skillInterruption;
+        [JsonIgnore, ExcelIgnore]
+        public bool SkillInterruption { get => skillInterruption; set => skillInterruption = value; }
         [JsonIgnore, ExcelIgnore]
         private bool IsNotReleaseAndIsInfin => IsInfiniteTime;
-        [SerializeField,LabelText("技能释放时间"),JsonProperty(nameof(RealeaseTime)),HideIf(nameof(IsNotReleaseAndIsInfin))]
+        [SerializeField, LabelText("技能释放时间"), JsonProperty(), HideIf(nameof(IsNotReleaseAndIsInfin))]
         private float releaseTime;
         [JsonIgnore, ExcelIgnore]
         public float RealeaseTime
@@ -95,7 +76,7 @@ namespace YukiFrameWork.Skill
             }
         }
 
-        [SerializeField,LabelText("技能冷却时间"),JsonProperty(nameof(CoolDownTime))]
+        [SerializeField, LabelText("技能冷却时间"), JsonProperty()]
         private float coolDownTime;
 
         [JsonIgnore, ExcelIgnore]
@@ -108,20 +89,25 @@ namespace YukiFrameWork.Skill
                 coolDownTime = value;
             }
         }
-
-        [JsonProperty]
-        internal string SKillType;
-
-        [field:SerializeField,LabelText("在该技能释放期间可以同时释放的技能标识"),ValueDropdown(nameof(list))]
-        [JsonProperty]
-        public string[] SimultaneousSkillKeys{ get; set; }
-
+        [SerializeField, LabelText("技能图标/静态"), PreviewField(50)]        
+        private Sprite icon;
+        [JsonIgnore,ExcelIgnore]
+        public Sprite Icon { get => icon; set => icon = value; }
+         
        
-        [JsonIgnore, ExcelIgnore]
-        internal SkillDataBase root;
 
+        [SerializeField, LabelText("在该技能释放期间可以同时释放的技能标识")]
+#if UNITY_EDITOR
+        [ValueDropdown(nameof(list))]
+#endif
+        [JsonProperty]
+        private string[] simultaneousSkillKeys;
+        [JsonIgnore,ExcelIgnore]
+        public string[] SimultaneousSkillKeys{ get => simultaneousSkillKeys; set => simultaneousSkillKeys = value; }
+#if UNITY_EDITOR
         [JsonIgnore, ExcelIgnore]
-        IEnumerable list => root.SkillDataConfigs.Where(x => x != this).Select((Func<SkillData, ValueDropdownItem>)(x => new ValueDropdownItem(x.SkillName, (object)x.SkillKey)));
+        IEnumerable list => SkillDataBase.allSkillNames;
+#endif
         public static SkillData CreateInstance(string skillName, Type type)
         {
             SkillData skillData = ScriptableObject.CreateInstance(type) as SkillData;
@@ -132,7 +118,7 @@ namespace YukiFrameWork.Skill
 
         public SkillData Clone() => GameObject.Instantiate(this);     
       
-        [Button("打开脚本",ButtonHeight = 40),PropertySpace(20)]
+        [Button("打开脚本",ButtonHeight = 20),PropertySpace(20)]
         void OpenScript()
         {
 #if UNITY_EDITOR

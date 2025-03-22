@@ -90,6 +90,16 @@ namespace YukiFrameWork
 			allpath = path;
 		}
 
+		public static T GUIDToInstance<T>(string guid) where T : UnityEngine.Object
+        {
+			return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+		}
+
+		public static string InstanceToGUID<T>(T item) where T : UnityEngine.Object
+		{
+			return AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(item));
+		}
+
 		/// <summary>
 		/// 通过资产名称加载对象，可取代AssetDataBase.LoadAssetAtPath,但注意，资源必须保持名称唯一
 		/// </summary>

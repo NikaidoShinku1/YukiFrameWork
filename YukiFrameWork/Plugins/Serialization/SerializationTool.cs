@@ -19,6 +19,8 @@ using System.Reflection;
 using System.Collections;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Sirenix.OdinInspector;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -497,7 +499,10 @@ namespace YukiFrameWork.Extension
                             excelFields.type = ParseFieldType(fieldInfo);
                             TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
                             excelFields.notes = tooltipAttribute == null ? string.Empty : tooltipAttribute.tooltip;
-
+                            LabelTextAttribute labelTextAttribute = fieldInfo.GetCustomAttribute<LabelTextAttribute>();
+                            //LabelText优先级更高
+                            if (labelTextAttribute != null)
+                                excelFields.notes = labelTextAttribute.Text;
                             scriptable_object_fields.Add(fieldInfo.Name, excelFields);                           
                         }
                        
@@ -528,7 +533,10 @@ namespace YukiFrameWork.Extension
                                 TooltipAttribute tooltipAttribute = fieldInfo.GetCustomAttribute<TooltipAttribute>();
 
                                 excelFields.notes = tooltipAttribute == null ? string.Empty : tooltipAttribute.tooltip;
-
+                                LabelTextAttribute labelTextAttribute = fieldInfo.GetCustomAttribute<LabelTextAttribute>();
+                                //LabelText优先级更高
+                                if (labelTextAttribute != null)
+                                    excelFields.notes = labelTextAttribute.Text;
                                 scriptable_object_fields.Add(fieldInfo.Name, excelFields);
                             }
                         }

@@ -6,53 +6,28 @@
 
 ![输入图片说明](Texture/1.png)
 
-配置表预览如下:
+双击配置表打开本地化配置窗口:
 
 ![输入图片说明](Texture/2.png)
 
-在本地数据配置处点击加号添加数据
-示例如下：
+左侧右键为配置创建语言的单独配置。
 
-![输入图片说明](Texture/3.png)
+![3](Texture/3.png)
+![4](Texture/4.png)
 
-可以在下方将已经配置好的数据导出Json，也支持拖入Json文件转换为配置
+在配置中，不同的语言需要同步。必须保证标识是唯一且一致的。
 
-在标识设置好之后，每个语言都可以设置自己的文本跟精灵，对于精灵的设置，如果有多个语言应用同一个精灵，可以在下方一键应用:
+可以在下方将已经配置好的数据导出Excel，也支持对已有数据的Excel文件转换为配置
 
-![输入图片说明](Texture/4.png)
+Excel示例数据如下:
+![5](Texture/5.png)
 
-图中的参数Key:对应要应用的标识,ValidateLanguage:精灵被应用的语言，Languages数组对应后续同步应用的语言
-
-打开YukiFrameWork/LocalConfiguration选择本地化配置窗口将配置拖入，设置初始时的默认语言,在持有全局配置时，可以继续添加多个配置在子配置项内，如果有需要的话
-
-![输入图片说明](Texture/5.png)
-
-对于本地化的配置，支持Excel配表的功能，本地化通过另外的逻辑进行Excel转Json的逻辑。所以Excel格式较为特殊，模板如下:
-
-![输入图片说明](Texture/8.png)
-
-每一个语言都应该设置一个单独的表，如图所示，且表名应与框架提供的语言标识名称(枚举)相同，设置对应文本的标识Key以及文本内容Context，多表不同语言的配置，Key应该始终保持统一
-还可以自由设置Sprite精灵的路径以及SpriteAtlas精灵图集的路径，设置精灵图集的路径后，Sprite应该是精灵的名称。在导入配置表时会自动的将图片赋值
-路径的注意事项：必须是从Assets开始的完整路径(包括后缀)
-
-配置好之后，查阅框架SerializationTool文档进行Excel转Json的操作即可
-
-[序列化工具文档跳转](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Plugins/Serialization/序列化工具.md)
-
-示例的Excel模板转换的Json文件如下:
-
-![输入图片说明](Texture/9.png)
-
-将Json文件拖入这个位置:
-
-![输入图片说明](Texture/10.png)
-
-直接点击导入，即可同步当前的配置到config的字典中！
+图中的数据是语言为English的情况，每一个语言，都需要一个Excel文件表来进行数据转换。Tip：必须是后缀为xlsx的Excel文件。
 
 
 运行时使用示例代码：
 
-```
+``` csharp
 using YukiFrameWork;
 using UnityEngine;
 using System;
@@ -66,6 +41,10 @@ namespace YukiFrameWork.Example
         private string info;
         private void Start()
         {
+            ///本地化套件采用与其他工具一致通过XFABManager进行默认加载的方式，需要调用一次Init方法
+
+            LocalizationKit.Init(projectName:"");
+            LocalizationKit.Add
             ///注册切换语言时的事件回调，事件可以在初始化之前与之后注册，没有限制
             LocalizationKit.RegisterLanguageEvent(language =>
             {
@@ -114,45 +93,29 @@ namespace YukiFrameWork.Example
         }
     }
 }
-
 ```
 
-如果希望在代码中自定义Data的数据，可以自行实现ILocalizationData接口如下
+|LocalizationKit static API|本地化套件类静态API说明|
+|---|---|
+|void Init(string projectName)|初始化方法,本地化套件使用框架自带XFABManager进行资源加载|
+|void Init(ILocalizationLoader loader)|初始化方法，用户自定义初始化器|
+|IUnRegister RegisterLanguageEvent(Action< Language > action)|注册当语言变更时的回调|
+|void UnRegisterLanguageEvent(Action< Language > action)|注销当语言变更时的回调|
+|void OnLanguageValueChanged()|发送当语言变更时的事件|
+|void LoadLocalizationManagerConfig(string key, LocalizationManager configManager)|添加配置(该API无需初始化加载器)|
+|void LoadLocalizationManagerConfig(string key, string path)|根据路径从加载器加载后添加配置|
+|IEnumerator LoadLocalizationManagerConfigAsync(string key, string path)|如上，但是异步|
+|ILocalizationData GetContent(string managerKey,string key, Language language)|传递添加的管理器标识，语言数据唯一标识，语言类型获得本地化数据|
+|ILocalizationData GetContent(string managerKey, string key)|通过内部的语言判断获取语言数据，如上|
+|---|---|
+|LocalizationKit static Property API|本地化套件类静态属性API说明|
+|Language LanguageType { get; set; }|本地化当前的语言|
+|ILocalizationSerializer Serializer { get;set; }|本地持久化语言序列化器|
 
-```
-[Serializable]
-public class LocalizationCustomData : ILocalizationData
-{
-    //标记序列化特性让其可以在编辑器修改
-    [field: SerializeField]
-    public string Context { get ; set ; }
-    [field: SerializeField]
-    public Sprite Sprite { get ; set ; }
-}
-
-```
-
-同时进行配置的自定义，派生自LocalizationConfigBase<T>类
-
-```
-[CreateAssetMenu(fileName = "LocalizationCustomConfig", menuName = "YukiFrameWork/LocalizationCustomConfig")]
-public class LocalizationCustomConfig : LocalizationConfigBase<LocalizationCustomData>//泛型定义为我们实现的自定义Data
-{
-    
-}
-```
-
-实现完毕后创建配置拖入LocalConfiguration中的本地化配置即可!
-
-static LocalizationKit API:
-
-    - Language LanguageType //可修改的本地语言属性
-    - IUnRegister RegisterLanguageEvent(Action<Language> action) //注册修改语言时触发的回调
-    - void UnRegisterLanguageEvent(Action<Language> action) //注销修改语言时触发的回调
-    - void OnLanguageValueChanged()//调用回调
-    - ILocalizationData GetContent(string key, Language language)//根据语言以及标识得到本地数据
-    - ILocalizationData GetContentFromDepend(int id, string key, Language language);//根据id得到子配置项，然后根据语言以及标识得到本地数据
-
+|ILocalizationSerializer API|本地序列化器接口说明|
+|--|--|
+|Language DeSerialize()|反序列化|
+|void Serialize(Language language)|序列化|
 
 对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,一个Component只能使用一个配置
 ![输入图片说明](Texture/6.png)
@@ -187,38 +150,5 @@ public class LocalizationTest : MonoBehaviour
 }
 ```
 
-Component API:
 
-    ///初始化解析器，可以自行传入解析器来完成同步的回调
-    - void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver);
-
-本地序列化器:
-
-``` csharp
-        /// <summary>
-        /// 本地序列化语言器，用于将默认的语言持久化保存,与反序列化器成对,如果自行添加则需要两个一起都实现
-        /// </summary>
-        public static event Action<Language> OnSerializeLanguage;    
-
-        /// <summary>
-        /// 本地反序列化语言器，用于启动时加载默认的语言，与序列化器成对,如果自行添加则需要两个一起都实现
-        /// </summary>
-        public static event Func<Language> OnDeSerializeLanguage;
-       
-```
-
-``` csharp
-public class TestScripts : MonoBehaviour
-{
-    void Start()
-    {
-        //如需对序列化器改动，则必须在任何LocalizationKit与LocalizationComponent的调用之前，对两个事件进行编写:
-
-       // 如:
-
-       LocalizationKit.OnSerializeLanguage += language =>{ };
-       LocalizationKit.OnDeSerializeLanguage += () => { return Language.Chinese;  }//返回你通过自己的方式加载的语言枚举。
-    }
-}
-```
 

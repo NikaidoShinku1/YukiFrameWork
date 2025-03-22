@@ -12,6 +12,8 @@ using System;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -31,6 +33,7 @@ namespace YukiFrameWork.Skill
         [FoldoutGroup("代码设置"), SerializeField]
         private string nameSpace = "YukiFrameWork.Skill";
 
+        public Action onValidate;     
 
 #if UNITY_EDITOR
         [HideInInspector, SerializeField]
@@ -98,13 +101,23 @@ namespace YukiFrameWork.Skill
         [SerializeField, LabelText("SkillData配置")]
         [InfoBox("添加SkillData配置需要选择SkillData的类型，当项目中没有任何SkillData类文件时，无法新建SkillData配置，且删除对应文件时，会自动消除对应的类", InfoMessageType.Warning)]
         [VerticalGroup("配置")]
-        [ListDrawerSettings(HideAddButton = true, CustomRemoveIndexFunction = nameof(DeleteSkillData), DraggableItems = false)]
+        [ListDrawerSettings(HideAddButton = true,DraggableItems = false)]
         public List<SkillData> SkillDataConfigs = new List<SkillData>();
 
-      
+
 #if UNITY_EDITOR
 
-
+        [UnityEditor.Callbacks.OnOpenAsset(0)]
+        private static bool OnOpenAsset(int insId, int line)
+        {
+            SkillDataBase obj = EditorUtility.InstanceIDToObject(insId) as SkillDataBase ;
+            if (obj != null)
+            {
+                SkillDataBaseEditorWindow.ShowWindow();
+            }
+            return obj != null;
+        }
+        public static IEnumerable allSkillNames => YukiAssetDataBase.FindAssets<SkillDataBase>().SelectMany(x => x.SkillDataConfigs).Select(x => new ValueDropdownItem() { Text = x.SkillName, Value = x.SkillKey });
 #endif
 
         internal void CreateSkillData(Type SkillDataType)
@@ -112,7 +125,6 @@ namespace YukiFrameWork.Skill
             SkillData SkillData = SkillData.CreateInstance(SkillDataType.Name, SkillDataType);
        
             SkillDataConfigs.Add(SkillData);
-            OnValidate();
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(SkillData, this);
             this.Save();
@@ -122,21 +134,18 @@ namespace YukiFrameWork.Skill
         public void DeleteSkillData(int index)
         {
             var SkillData = SkillDataConfigs[index];
-
-            SkillDataConfigs.RemoveAt(index);
-          
-#if UNITY_EDITOR
-            AssetDatabase.RemoveObjectFromAsset(SkillData);          
-            this.Save();
-#endif
+            DeleteSkillData(SkillData);
         }
 
-        private void OnValidate()
-        {
-            foreach (var c in SkillDataConfigs)
-            {
-                c.root = this;
-            }
+        public void DeleteSkillData(SkillData data)
+        {        
+            SkillDataConfigs.Remove(data);
+
+#if UNITY_EDITOR
+            if(data)
+            AssetDatabase.RemoveObjectFromAsset(data);
+            this.Save();
+#endif
         }
 
         public void Create(int maxLength)
@@ -149,8 +158,7 @@ namespace YukiFrameWork.Skill
         {
             var skill = userData as SkillData;
 
-            SkillDataConfigs.Add(skill);
-            OnValidate();
+            SkillDataConfigs.Add(skill);          
 #if UNITY_EDITOR
             AssetDatabase.AddObjectToAsset(skill, this);
             this.Save();
@@ -158,13 +166,43 @@ namespace YukiFrameWork.Skill
 
         }
 
-        public void Completed() { }
+        public void Completed()
+        {
+#if UNITY_EDITOR
+            if (SkillDataBaseEditorWindow.Instance)
+                SkillDataBaseEditorWindow.Instance.ForceMenuTreeRebuild();
+#endif
+        }
 
         public IList Array => SkillDataConfigs;
 
         public Type ImportType => typeof(SkillData);
 
         public bool ScriptableObjectConfigImport => false;
+
+#if UNITY_EDITOR
+        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
+        public string excelPath;
+        [Button("导出Excel"), HorizontalGroup("Excel")]
+        void CreateExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ScriptableObjectToExcel(this, excelPath, out string error))
+                Debug.Log("导出成功");
+            else throw new Exception(error);
+        }
+        [Button("导入Excel"), HorizontalGroup("Excel")]
+        void ImportExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
+            {
+                Debug.Log("导入成功");
+            }
+        }
+#endif
     }
 }
 

@@ -36,12 +36,7 @@ namespace YukiFrameWork.Skill
         /// 释放失败,当前技能释放条件不满足
         /// </summary>
         [LabelText("释放失败,当前技能释放条件不满足")]
-        DonotMeetTheCondition,
-        /// <summary>
-        /// 开启了等级机制但等级是0
-        /// </summary>
-        [LabelText("开启了等级机制但等级是0")]        
-        Undergrade,
+        DonotMeetTheCondition,       
         /// <summary>
         /// 释放失败,该技能正在冷却中
         /// </summary>
@@ -117,7 +112,6 @@ namespace YukiFrameWork.Skill
             var skillController = SkillKit.CreateSkillController(skillData.SkillKey);
             skillController.Player = player;
             skillController.SkillData = skillData;
-            skillController.SkillLevel = 0;
             skillController.IsSkillCoolDown = true;
             if (skillData.SimultaneousSkillKeys != null || skillData.SimultaneousSkillKeys.Length > 0)
                 skillController.SimultaneousSkillKeys.AddRange(skillData.SimultaneousSkillKeys);
@@ -176,11 +170,7 @@ namespace YukiFrameWork.Skill
 
             //如果所有运行中技能的可同时释放技能标识里面没有该技能，则无法释放
             if (!CheckRuntimeSkillRelease(skillKey))
-                return ReleaseSkillStatus.OtherReleasing;
-
-            //如果开启了等级机制但是等级是0则无法释放
-            if (controller.SkillData.IsSkillLavel && controller.SkillLevel == 0)
-                return ReleaseSkillStatus.Undergrade;
+                return ReleaseSkillStatus.OtherReleasing;        
 
             controller.CoolDownTime = 0;
             controller.ReleasingTime = 0;
@@ -200,62 +190,7 @@ namespace YukiFrameWork.Skill
             Remove(controller);
         }
 
-        public void SkillLevelUp(string skillKey,int level = 1)
-        {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
-            {
-                return;
-            }
-
-            if (!controller.SkillData.IsSkillLavel)
-            {
-#if YukiFrameWork_DEBUGFULL
-                LogKit.W("无法为没有等级机制的技能升级 SkillKey:" + skillKey);
-#endif
-                return;
-            }
-
-            if (controller.SkillData.IsSkillMaxLevel && controller.SkillLevel >= controller.SkillData.SkillMaxLevel)
-            {
-#if YukiFrameWork_DEBUGFULL
-                LogKit.W("技能已经是最高等级 SkillKey:" + skillKey);
-#endif
-                return;
-            }
-
-            if (controller.SkillLevel + level > controller.SkillData.SkillMaxLevel)
-                controller.SkillLevel = controller.SkillData.SkillMaxLevel;
-            else
-                controller.SkillLevel += level;
-        }
-
-        public void SkillLevelDown(string skillKey,int level = 1)
-        {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
-            {
-                return;
-            }
-
-            if (!controller.SkillData.IsSkillLavel)
-            {
-#if YukiFrameWork_DEBUGFULL
-                LogKit.W("无法为没有等级机制的技能降级 SkillKey:" + skillKey);
-#endif
-                return;
-            }
-
-            if (controller.SkillLevel <= 0)
-            {
-#if YukiFrameWork_DEBUGFULL
-                LogKit.W("技能已经是最低等级 SkillKey:" + skillKey);
-#endif
-                return;
-            }
-            if (controller.SkillLevel - level < 0)            
-                controller.SkillLevel = 0;           
-            else
-                controller.SkillLevel -= level;
-        }
+          
 
         private void Remove(ISkillController controller)
         {           

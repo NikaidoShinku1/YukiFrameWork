@@ -47,6 +47,7 @@ namespace YukiFrameWork.DiaLogue
         public SingleNodeAttribute() { }
     }
 
+    [Obsolete("已过时的特性，对话系统采用Excel转换配置，该特性不再使用，如果有不需要序列化的字段，标记ExcelIgnore即可")]
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class DeSerializedNodeFieldAttribute : Attribute
     { 

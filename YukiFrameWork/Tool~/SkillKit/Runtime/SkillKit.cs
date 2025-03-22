@@ -228,23 +228,6 @@ namespace YukiFrameWork.Skill
 		public static void RemoveSkill(this ISkillExecutor executor, string skillKey)
 		{
 			executor.Handler.RemoveSkill(skillKey);
-		}
-
-        public static void DependLocalizationConfig(string configKey, char spilt = ':')
-        {
-            LocalizationConfigKey = configKey;
-            Spilt = spilt;
-            UseLocalizationConfig = true;
-        }
-
-		public static bool UseLocalizationConfig { get; private set; } = false;
-
-		public static string LocalizationConfigKey { get; private set; }
-
-        public static char Spilt { get; private set; }
-
-		public static ILocalizationData GetContent(string skillKey)
-            => LocalizationKit.GetContent(LocalizationConfigKey, skillKey);
-
+		}    
     }
 }

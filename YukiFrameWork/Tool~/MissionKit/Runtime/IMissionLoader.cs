@@ -12,7 +12,7 @@ using System;
 using XFABManager;
 namespace YukiFrameWork.Missions
 {
-    public interface IMissionLoader : IResLoader<MissionConfigBase>
+    public interface IMissionLoader : IResLoader<MissionConfigManager>
     {
        
     }
@@ -24,18 +24,18 @@ namespace YukiFrameWork.Missions
         {
             this.projectName = projectName;
         }
-        public TItem Load<TItem>(string name) where TItem : MissionConfigBase
+        public TItem Load<TItem>(string name) where TItem : MissionConfigManager
         {
             return AssetBundleManager.LoadAsset<TItem>(projectName,name);
         }
 
-        public async void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : MissionConfigBase
+        public async void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : MissionConfigManager
         {
             var item = await AssetBundleManager.LoadAssetAsync<TItem>(projectName, name);
             onCompleted?.Invoke(item);
         }
 
-        public void UnLoad(MissionConfigBase item)
+        public void UnLoad(MissionConfigManager item)
         {
             AssetBundleManager.UnloadAsset(item);
         }

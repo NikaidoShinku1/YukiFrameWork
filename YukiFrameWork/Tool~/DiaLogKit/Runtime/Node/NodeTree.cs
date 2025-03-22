@@ -62,6 +62,16 @@ namespace YukiFrameWork.DiaLogue
             if (node.IsRoot && !rootNode)
                 rootNode = node;
 #if UNITY_EDITOR
+            if (node.IsComposite)
+            {
+                foreach (var item in node.optionItems)
+                {
+                    if (item.iconGUID.IsNullOrEmpty()) continue;
+                    item.icon = YukiAssetDataBase.GUIDToInstance<Sprite>(item.iconGUID);
+                }
+            }
+#endif
+#if UNITY_EDITOR
             Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
             // EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
@@ -257,108 +267,33 @@ namespace YukiFrameWork.DiaLogue
 
 #if UNITY_EDITOR
 
-        [Button("Edit Graph", ButtonHeight = 30)]
+       
+        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
+        public string excelPath;
+        [Button("导出Excel"), HorizontalGroup("Excel")]
+        void CreateExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ScriptableObjectToExcel(this, excelPath, out string error))
+                Debug.Log("导出成功");
+            else throw new Exception(error);
+        }
+        [Button("导入Excel"), HorizontalGroup("Excel")]
+        void ImportExcel()
+        {
+            if (excelPath.IsNullOrEmpty() || !System.IO.File.Exists(excelPath))
+                throw new NullReferenceException("路径为空或不存在!");
+            if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
+            {
+                Debug.Log("导入成功");
+            }
+        }
+        [Button("Edit Graph", ButtonHeight = 30),PropertySpace(20)] 
         void OpenWindow()
         {
             DiaLogGraphWindow.ShowExample(this);
         }
-   
-        [Button("导出Json配置表", ButtonHeight = 30),InfoBox("该配置表为基本数据的配表，不支持对分支节点中的Option进行配置，应该自行在编辑器设置")]
-        void ReImport(string assetPath = "Assets/DiaLogData",string assetName = "DiaLogConfig")
-        {        
-            foreach (var item in nodes)
-            {                               
-                item.linkIds.Clear();
-                if (item.IsRoot || item.IsSingle)
-                {
-                    if (item.child != null)
-                        item.linkIds.Add(item.child.nodeId);
-
-                }
-                else if (item.IsRandom)
-                {
-                    if (item.randomItems != null && item.randomItems.Count > 0)
-                        item.linkIds = item.randomItems.Select(x => x.nodeId).ToList();
-                }
-                else if (item.IsComposite)
-                {
-                    if(item.optionItems != null && item.optionItems.Count > 0)
-                        item.linkIds = item.optionItems.Select(x => x.nextNode).Select(x => x.nodeId).ToList();
-                }
-                //item.nodeType = item.nodeType.IsNullOrEmpty() ? item.GetType().FullName : item.nodeType;
-            }
-            string json = SerializationTool.SerializedObject(nodes,settings:new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore });                 
-            json.CreateFileStream(assetPath, assetName, ".json");         
-        }        
-
-        [Button("Json配置表导入", ButtonHeight = 30)]
-        void Import(TextAsset textAsset,bool nodeClear = true)
-        {
-            List<JObject> models = SerializationTool.DeserializedObject<List<JObject>>(textAsset.text);
-
-            if (nodeClear)
-            {
-                while (nodes.Count > 0)
-                {
-                    DeleteNode(nodes[nodes.Count - 1]);
-                }
-            }
-
-            foreach (var model in models)
-            {
-                string nodeType = model[nameof(nodeType)].ToString();
-                string title = model["dialogueTitle"].ToString();
-                string context = model["dialogueContext"].ToString();
-                string spritePath = model["spritePath"].ToString();
-
-                Type type = AssemblyHelper.GetType(nodeType);
-                var node = CreateNode(type, true);
-                node.dialogueTitle = title;
-                node.dialogueContext = context;
-                if (!spritePath.IsNullOrEmpty())
-                    node.icon = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
-                node.nodeId = model["nodeId"].Value<int>();
-                node.linkIds = model["linkIds"].ToArray().Select(x => x.Value<int>()).ToList();
-                foreach (var field in type.GetRuntimeFields())
-                {                   
-                    if (field.HasCustomAttribute<DeSerializedNodeFieldAttribute>(true))
-                    {
-                        JToken token = model[field.Name];
-                        if (token == null) continue;                        
-                        field.SetValue(node, token.ToObject(field.FieldType));
-                    }
-                }
-
-                foreach (var field in type.GetRuntimeProperties())
-                {
-                    if (field.HasCustomAttribute<DeSerializedNodeFieldAttribute>(true))
-                    {
-                        JToken token = model[field.Name];
-                        if (token == null) continue;
-                        field.SetValue(node, token.ToObject(field.PropertyType));
-                    }
-                }
-            }
-
-            foreach (var node in nodes)
-            {         
-                if (node.linkIds != null && node.linkIds.Count > 0)
-                {
-                    if (node.IsRoot || node.IsSingle)
-                        node.child = nodes.Find(x => x.nodeId == node.linkIds[0]);
-                    else if (node.IsRandom)
-                        node.randomItems.AddRange(node.linkIds.Select(x => nodes.Find(a => a.nodeId == x)));
-                    else if (node.IsComposite)
-                        node.optionItems.AddRange(node.linkIds.Select(x => new Option 
-                        {
-                            nextNode = nodes.Find(a => a.nodeId == x)
-                        }));
-                }
-            }
-            EditorUtility.SetDirty(this);
-            AssetDatabase.SaveAssets();
-        }
-   
         public Node CreateNode(System.Type type,bool IsCustomPosition = false)
         {          
             Node node = ScriptableObject.CreateInstance(type) as Node;
@@ -379,7 +314,7 @@ namespace YukiFrameWork.DiaLogue
             nodes.Add(node);
             if (IsCustomPosition)
             {
-                node.position = new Vector2(nodes.Count * 100, 0);
+                node.position = new Node.Position(nodes.Count * 100, 0);
             }
             if (!Application.isPlaying)
             {

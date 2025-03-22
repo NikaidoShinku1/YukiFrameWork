@@ -60,26 +60,6 @@ public class RandomDiaLogue : Node
 
 ![输入图片说明](Texture/5.png)
 
-可在NodeTree Inspector中进行对对话节点数据的导表，完成后如图所示：
-
-![输入图片说明](Texture/6.png)
-
-派生类中存在多的数据时，同样会被正常导出
-
-对表的导入直接在编辑器使用即可，特殊拓展如下:
-
-|API|说明|
-|---|---|
-|DeSerializedNodeFieldAttribute|标记派生类中或者用户自己定义的字段/属性，进行反序列化操作，如没有该特性，将表导入时，不会同步自定义字段|
-
-``` csharp
-[SingleNode]//标记该特性代表该类为默认的单一节点
-public class NormalDiaLogue : Node
-{
-    [DeSerializedNodeField]//标记该特性，当Json配表存在该数据时，导入会自动同步
-    public string data;
-}
-```
 
 使用部分:
 

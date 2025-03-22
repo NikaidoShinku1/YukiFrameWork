@@ -11,7 +11,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Item
 {
-	public interface IItemKitLoader : IResLoader<ItemDataBase>
+	public interface IItemKitLoader : IResLoader<ItemDataManager>
 	{
 		
     }
