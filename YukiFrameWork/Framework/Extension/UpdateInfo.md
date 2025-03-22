@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.42.2 优化SkillKit与BuffKit的接口限制。以自定的形式绘制配表的Icon
+
 V1.42.1 MissionKit、ItemKit、BuffKit、SkillKit 文档更新优化。编辑器全面重做。代码优化。DiaLogKit优化部分细节。
 
 V1.41.1 移除1.25以下更新信息。本地化套件全面升级。优化文档

@@ -107,10 +107,24 @@ namespace YukiFrameWork.Item
         public int MaxStackableCount { get => maxStackableCount; set => maxStackableCount = value; }
         [JsonIgnore,ExcelIgnore]
         private bool IsMeet => IsMaxStackableCount && IsStackable;
-        [SerializeField, LabelText("图标"), PreviewField(50)]       
+        [SerializeField]
+#if UNITY_EDITOR
+        [CustomValueDrawer(nameof(DrawPreview))]
+#endif
         private Sprite icon;
         [JsonIgnore,ExcelIgnore]
         public Sprite Icon => icon;
-            
+#if UNITY_EDITOR
+        private void DrawPreview()
+        {
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("图标");
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            GUILayout.EndHorizontal();
+        }
+#endif
     }
+
 }

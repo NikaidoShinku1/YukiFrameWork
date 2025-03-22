@@ -17,15 +17,15 @@ namespace YukiFrameWork.Skill
 		/// <summary>
 		/// 技能标识(唯一)
 		/// </summary>
-		string SkillKey { get; }
+		string SkillKey { get; set; }
 		/// <summary>
 		/// 技能名称
 		/// </summary>
-		string SkillName { get; }	
+		string SkillName { get; set; }	
 		/// <summary>
 		/// 技能介绍
 		/// </summary>
-		string Description { get; }
+		string Description { get; set; }
 		/// <summary>
 		/// 技能图标
 		/// </summary>
@@ -34,12 +34,12 @@ namespace YukiFrameWork.Skill
 		/// <summary>
 		/// 技能释放是否是无限时间的
 		/// </summary>		
-		bool IsInfiniteTime { get; }
+		bool IsInfiniteTime { get; set; }
 
 		/// <summary>
 		/// 技能是否可以主动取消
 		/// </summary>
-		bool ActiveCancellation { get; }
+		bool ActiveCancellation { get; set; }
 
 		/// <summary>
 		/// 技能释放时间
@@ -53,11 +53,11 @@ namespace YukiFrameWork.Skill
 		/// <summary>
 		/// 技能是否可以被中途打断
 		/// </summary>
-		bool SkillInterruption { get; }
+		bool SkillInterruption { get; set; }
 		/// <summary>
 		/// 可以同时释放的技能标识
 		/// </summary>
-		string[] SimultaneousSkillKeys { get; }
+		string[] SimultaneousSkillKeys { get; set; }
 	
 	}
 }

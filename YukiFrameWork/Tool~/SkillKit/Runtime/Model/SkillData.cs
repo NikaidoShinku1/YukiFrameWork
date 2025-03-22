@@ -30,19 +30,29 @@ namespace YukiFrameWork.Skill
         private string skillKey;
 
         [JsonIgnore]
-        public string SkillKey => skillKey;
+        public string SkillKey
+        {
+            get => skillKey;
+            set => skillKey = value;
+        }
 
         [SerializeField, LabelText("Skill的名称"), JsonProperty()]
         private string skillName;
 
         [JsonIgnore,ExcelIgnore]
-        public string SkillName => skillName;
+        public string SkillName 
+        {
+            get => skillName; set => skillName = value;
+        }
 
         [SerializeField,LabelText("技能介绍"),JsonProperty(),TextArea]
         private string description;
 
         [JsonIgnore,ExcelIgnore]
-        public string Description => description;
+        public string Description 
+        {
+            get => description; set => description = value;
+        }
 
         [SerializeField, LabelText("技能是否不受到时间影响")]
         [JsonProperty]
@@ -89,12 +99,25 @@ namespace YukiFrameWork.Skill
                 coolDownTime = value;
             }
         }
-        [SerializeField, LabelText("技能图标/静态"), PreviewField(50)]        
+        [SerializeField]
+#if UNITY_EDITOR
+        [CustomValueDrawer(nameof(DrawPreview))]
+#endif
         private Sprite icon;
         [JsonIgnore,ExcelIgnore]
         public Sprite Icon { get => icon; set => icon = value; }
-         
-       
+
+#if UNITY_EDITOR
+        private void DrawPreview()
+        {
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("技能图标");
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            GUILayout.EndHorizontal();
+        }
+#endif
 
         [SerializeField, LabelText("在该技能释放期间可以同时释放的技能标识")]
 #if UNITY_EDITOR

@@ -97,10 +97,23 @@ namespace YukiFrameWork.Missions
 		private string description;
         [JsonIgnore, ExcelIgnore]
         public string Description { get => description ; set => description = value; }
-		[SerializeField, LabelText("任务精灵"), PreviewField(50),JsonProperty]
+		[SerializeField,JsonProperty]
+#if UNITY_EDITOR
+		[CustomValueDrawer(nameof(DrawPreview))]
+#endif
 		private Sprite icon;
 		public Sprite Icon { get => icon; set => icon = value; }
-		
+#if UNITY_EDITOR
+        private void DrawPreview()
+        {
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("Buff的图标样式");
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            GUILayout.EndHorizontal();
+        }
+#endif
         [JsonProperty(PropertyName = nameof(StartingCondition)), LabelText("开始任务所有的条件"), ValueDropdown(nameof(AllConditionCollection))]
 		[InfoBox("对于任务的开始，需要手动调用Mission任务基类的非静态.Start方法。当没有开始条件时，调用Start方法即视为任务启动。",InfoMessageType.Warning)]
         [SerializeField] private List<string> mStartingCondition = new List<string>();

@@ -17,7 +17,7 @@ namespace YukiFrameWork.Buffer
 {
     public abstract class Buff : ScriptableObject, IBuff
     {
-        [SerializeField, LabelText("Buff的唯一标识:"), InfoBox("该标识应唯一，不允许出现多个buff同标识的情况"),JsonProperty]
+        [SerializeField, LabelText("Buff的唯一标识:"), InfoBox("该标识应唯一，不允许出现多个buff同标识的情况"), JsonProperty]
         private string BuffKey;
         [JsonIgnore]
         public string GetBuffKey
@@ -35,15 +35,15 @@ namespace YukiFrameWork.Buffer
 
         public Buff Clone() => GameObject.Instantiate(this);
 
-        [SerializeField, LabelText("Buff名称:"),JsonProperty]
+        [SerializeField, LabelText("Buff名称:"), JsonProperty]
         private string BuffName;
         [JsonIgnore]
-        public string GetBuffName => BuffName;
-       
-        [SerializeField, LabelText("Buff的介绍:"),JsonProperty,TextArea]
+        public string GetBuffName { get => BuffName; set => BuffName = value; }
+
+        [SerializeField, LabelText("Buff的介绍:"), JsonProperty, TextArea]
         private string Description;
         [JsonIgnore]
-        public string GetDescription => Description;
+        public string GetDescription { get => Description; set => Description = value; }
        
         [SerializeField, LabelText("Buff重复添加的类型:"),JsonProperty]
         private BuffRepeatAdditionType additionType;
@@ -124,7 +124,10 @@ namespace YukiFrameWork.Buffer
 
         [JsonIgnore,ExcelIgnore]
         public string[] BuffDisableID { get => buffDisableID; set => buffDisableID = value; }
-        [SerializeField, LabelText("Buff的图标样式"), PreviewField(50)]
+        [SerializeField, LabelText("Buff的图标样式")]
+#if UNITY_EDITOR
+        [CustomValueDrawer(nameof(DrawPreview))]
+#endif
         private Sprite buffIcon;
         [JsonIgnore,ExcelIgnore]
         public Sprite BuffIcon { get => buffIcon; set => buffIcon = value; }
@@ -145,7 +148,16 @@ namespace YukiFrameWork.Buffer
         [JsonIgnore]
         [ExcelIgnore]
         internal IEnumerable names => BuffDataBase.allBuffNames;
+        private void DrawPreview()
+        {
+           
+            GUILayout.BeginHorizontal();
+            
+            GUILayout.Label("Buff的图标样式");
+            buffIcon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.buffIcon,typeof(Sprite),true,GUILayout.Width(50), GUILayout.Height(50));           
+            GUILayout.EndHorizontal();
+        }
 #endif
-#endregion
+        #endregion
     }
 }

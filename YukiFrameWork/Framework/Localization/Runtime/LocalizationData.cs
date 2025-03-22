@@ -86,13 +86,25 @@ namespace YukiFrameWork
         [JsonIgnore,ExcelIgnore]
         public string Context => context;
 
-        [PreviewField(50)]
+#if UNITY_EDITOR
+        [CustomValueDrawer(nameof(DrawPreview))]
+#endif
         [SerializeField]       
         protected internal Sprite sprite;
 
         [JsonIgnore,ExcelIgnore]
         public Sprite Sprite => Sprite;
+#if UNITY_EDITOR
+        private void DrawPreview()
+        {
 
-       
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("Buff的图标样式");
+            sprite = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.sprite, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            GUILayout.EndHorizontal();
+        }
+#endif
+
     }    
 }

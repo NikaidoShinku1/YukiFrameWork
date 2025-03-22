@@ -119,8 +119,11 @@ namespace YukiFrameWork.DiaLogue
         internal int childNodeId;
         [SerializeField][JsonProperty,TextArea,LabelText("对话文本")] 
         internal string dialogueContext;
-        [JsonIgnore, PreviewField(50)]
-        [SerializeField,LabelText("对话图标")]internal Sprite icon;
+        [SerializeField,LabelText("对话图标")]
+#if UNITY_EDITOR
+        [CustomValueDrawer(nameof(DrawPreview))]
+#endif
+        internal Sprite icon;
         [JsonProperty,SerializeField,LabelText("对话名称")]internal string dialogueTitle;
 #if UNITY_EDITOR       
         [HideInInspector,SerializeField]
@@ -135,6 +138,15 @@ namespace YukiFrameWork.DiaLogue
                 this.x = x;
                 this.y = y;
             }          
+        }
+        private void DrawPreview()
+        {
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label("对话图标");
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            GUILayout.EndHorizontal();
         }
         [ExcelIgnore]
         internal Action onValidate;
