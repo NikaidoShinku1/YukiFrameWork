@@ -21,7 +21,7 @@ namespace YukiFrameWork.Item
     [CreateAssetMenu(fileName ="ItemDataManager",menuName = "YukiFrameWork/物品配置管理器ItemDataManager")]
     public class ItemDataManager : ScriptableObject
     {
-        [ListDrawerSettings,ReadOnly]
+        [ListDrawerSettings(HideRemoveButton = true),ReadOnly]
         public List<ItemDataBase> itemDataBases = new List<ItemDataBase>();
         public Action onValidate;
         /// <summary>

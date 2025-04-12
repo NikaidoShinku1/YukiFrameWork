@@ -62,7 +62,7 @@ namespace YukiFrameWork.Machine
         /// 当状态晚于更新
         /// </summary>
         public virtual void OnLateUpdate() { }
-
+        #region Parameter
         public float GetFloat(string name)
             => StateMachine.StateMachineCore.GetFloat(name);
         public int GetInt(string name)
@@ -82,6 +82,26 @@ namespace YukiFrameWork.Machine
         public void SetTrigger(string name)
             => StateMachine.StateMachineCore.SetTrigger(name);
 
+
+        public float GetFloat(int nameToHash)
+            => StateMachine.StateMachineCore.GetFloat(nameToHash);
+        public int GetInt(int nameToHash)
+            => StateMachine.StateMachineCore.GetInt(nameToHash);
+        public bool GetBool(int nameToHash)
+            => StateMachine.StateMachineCore.GetBool(nameToHash);
+        public bool GetTrigger(int nameToHash)
+            => StateMachine.StateMachineCore.GetTrigger(nameToHash);
+
+
+        public void SetFloat(int nameToHash, float v)
+            => StateMachine.StateMachineCore.SetFloat(nameToHash, v);
+        public void SetInt(int nameToHash, int v)
+            => StateMachine.StateMachineCore.SetInt(nameToHash, v);
+        public void SetBool(int nameToHash, bool v)
+            => StateMachine.StateMachineCore.SetBool(nameToHash, v);
+        public void SetTrigger(int nameToHash)
+            => StateMachine.StateMachineCore.SetTrigger(nameToHash);
+        #endregion
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return StateMachine.StateMachineCore.GetArchitecture();

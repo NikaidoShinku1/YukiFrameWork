@@ -1,5 +1,23 @@
 ﻿#### 框架更新日志
 
+V1.42.11 补充反射拓展API的文档。修复Excel转So无法导入数据应用在基类字段/属性的问题。
+
+V1.42.10 修复SkillKit不受时间影响的情况下仍计算释放时间的问题。
+
+V1.42.9 ItemKit UISlot组件开放权限，可继承UISlot自定义更新。
+
+V1.42.8 Scene拓展方法新增FindRootGameObjects，当场景存在多个同名对象。可以使用该API，修复Excel转So后直接关闭项目数据没有保存的问题。
+
+V1.42.7 ActionKit支持OnDrawGizmosSelected方法的拓展。ViewController支持OnSceneGUI()方法的重写，重写该方法即不需要自己写Editor拓展类。
+
+V1.42.6 架构Architecture支持OnCompleted方法，在架构准备完成后触发
+
+V1.42.5 修复AudioKit 使用AudioInfo播放音频切换时使用onEndCallBack概率出现卡机的问题。优化全局对象池，更新全局对象池文档。
+
+V1.42.4 优化状态机模块的参数API，新增Button的纯净监听拓展方法(button.AddListenerPure)
+
+V1.42.3 优化LocalizationKit的配置标识方式
+
 V1.42.2 优化SkillKit与BuffKit的接口限制。以自定的形式绘制配表的Icon
 
 V1.42.1 MissionKit、ItemKit、BuffKit、SkillKit 文档更新优化。编辑器全面重做。代码优化。DiaLogKit优化部分细节。

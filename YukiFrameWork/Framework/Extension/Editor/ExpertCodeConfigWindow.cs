@@ -69,37 +69,6 @@ namespace YukiFrameWork
             if (config.architecture.IsNullOrEmpty() || !architectures.Contains(config.architecture))
                 selectIndex = 0;
 
-            if (config.AssembliesContasts.Count == 0)
-            {
-                Assembly assembly1 = null;               
-                Assembly assembly5 = null;
-                try
-                {
-                    assembly1 = Assembly.Load("Assembly-CSharp");                   
-                }
-                catch { }                           
-                
-                try
-                {
-                    assembly5 = Assembly.Load("mscorlib");
-                }
-                catch { }
-
-                if (assembly1 != null)
-                    config.AssembliesContasts.Add(assembly1.GetName().Name);             
-                if (assembly5 != null)
-                    config.AssembliesContasts.Add(assembly5.GetName().Name);
-
-                var allassemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                foreach (var assembly in allassemblies)
-                {
-                    if (assembly.FullName.StartsWith("UnityEngine"))
-                    {
-                        config.AssembliesContasts.Add(assembly.GetName().Name);
-                    }
-                }
-            }
         }
 
         private OdinEditor odinEditor;
@@ -132,8 +101,6 @@ namespace YukiFrameWork
             EditorGUILayout.LabelField("高级脚本设置", titleStyle);
             if (GUILayout.Button("刷新",GUILayout.Width(50)))
             {
-                config.methodDatas.Clear();
-                config.fieldDatas.Clear();
                 config.Name = string.Empty;
                 config.Save();
             }
@@ -213,13 +180,7 @@ namespace YukiFrameWork
             }
             EditorGUILayout.HelpBox("开启后会在构建脚本时自动生成保存该脚本的文件夹,并同时同步路径", MessageType.Info);
             config.FoldExport = EditorGUILayout.ToggleLeft("文件夹分离", config.FoldExport);
-            config.IsOpenExpertCode = EditorGUILayout.ToggleLeft("开启字段高级注入模式:",config.IsOpenExpertCode);
-            EditorGUILayout.Space(15);
-            if (config.IsOpenExpertCode)
-            {
-                odinEditor ??= OdinEditor.CreateEditor(config, typeof(OdinEditor)) as OdinEditor;
-                odinEditor.OnInspectorGUI();
-            }          
+           
             string targetPath = config.FoldPath + "/" + config.Name + ".cs";
             if (System.IO.File.Exists(targetPath))
             {
@@ -250,9 +211,9 @@ namespace YukiFrameWork
 
             
             EditorGUILayout.EndVertical();
-           
-            if(EditorGUI.EndChangeCheck())
-                config.Save();
+
+            if (EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(config);
             EditorGUILayout.EndScrollView();
         }
         private void CreateOrUpdateCode(bool tickPath = false)

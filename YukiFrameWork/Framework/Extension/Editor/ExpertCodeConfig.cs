@@ -48,25 +48,7 @@ namespace YukiFrameWork
 	[HideMonoScript]
 	public class ExpertCodeConfig : ScriptableObject
 	{
-#if UNITY_EDITOR
-        public static Dictionary<Type,string> typeAliases = new Dictionary<Type, string>
-		{
-		    { typeof(bool), "bool" },
-		    { typeof(byte), "byte" },
-		    { typeof(sbyte), "sbyte" },
-		    { typeof(char), "char" },
-		    { typeof(decimal), "decimal" },
-		    { typeof(double), "double" },
-		    { typeof(float), "float" },
-		    { typeof(int), "int" },
-		    { typeof(uint), "uint" },
-		    { typeof(long), "long" },
-		    { typeof(ulong), "ulong" },
-		    { typeof(short), "short" },
-		    { typeof(ushort), "ushort" },
-		    { typeof(string), "string" },
-		    { typeof(object), "object" }
-		};
+#if UNITY_EDITOR       
         [InitializeOnLoadMethod]
 		static void Init()
 		{
@@ -87,39 +69,7 @@ namespace YukiFrameWork
 
 	
 		public static ExpertCodeConfig Instance;
-		private static IEnumerable allType = null;
-        public static IEnumerable AllType
-        {
-			get
-			{
-				if (!Instance) return null;
 
-                try
-                {
-                    if (allType == null)
-                    {
-                        allType = Instance
-                            .AssembliesContasts
-                            .Select(x => Assembly.Load(x))
-                            .SelectMany(x => x.GetTypes())
-                            .Where(x => !Regex.IsMatch(x.ToString(), @"[^a-zA-Z0-9\.]"))
-                            .Select(x => new ValueDropdownItem<string>()
-                            {
-                                Text = x.ToString(),
-                                Value = x.ToString()
-                            }).Core(x => x.Count());
-                    }
-                    return allType;
-
-
-                }
-                catch
-                {
-                    return null;
-                }
-
-            }
-        }
 
 #endif
         internal FrameworkConfigInfo configInfo => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
@@ -152,10 +102,7 @@ namespace YukiFrameWork
 
 		[HideInInspector]
 		public string architecture;
-
-		[HideInInspector]
-		public bool IsOpenExpertCode;
-
+	
 		[HideInInspector]
 		public bool FoldExport;
 
@@ -163,31 +110,6 @@ namespace YukiFrameWork
 		public string soFileName;
 		[HideInInspector]
 		public string soMenuName;
-
-#if UNITY_EDITOR
-		[ValueDropdown(nameof(AllAssemblies))]
-#endif
-		[InfoBox("程序集构造器，生成类型以存在于此的程序集相关。"),HorizontalGroup]
-		public List<string> AssembliesContasts = new List<string>();
-#if UNITY_EDITOR
-		[ValueDropdown(nameof(AllType),IsUniqueList = true)]
-#endif
-		[InfoBox("以注入程序为主，添加字段可使用类型"),HorizontalGroup]
-		public List<string> TypeContasts = new List<string>();
-#if UNITY_EDITOR
-		public static IEnumerable Types => Instance?.TypeContasts;
-#endif
-		public IEnumerable AllAssemblies => AppDomain.CurrentDomain.GetAssemblies().Select(x => new ValueDropdownItem<string>()
-		{          
-            Text = x.GetName().Name,
-			Value = x.GetName().Name,
-        });
-		[TableList,LabelText("为类添加字段")]
-        public List<FieldData> fieldDatas = new List<FieldData>();
-
-		[TableList,LabelText("为类添加方法")]
-        public List<MethodData> methodDatas = new List<MethodData>();
-
 #if UNITY_EDITOR
 		[FoldoutGroup("Script Code Colors")]
         [ShowInInspector]public static Color BackgroundColor = new Color(0.118f, 0.118f, 0.118f, 1f);
@@ -205,41 +127,6 @@ namespace YukiFrameWork
         [ShowInInspector]public static Color StringLiteralColor = new Color(0.839f, 0.616f, 0.522f, 1f);      
 #endif
 
-    }
-
-	[Serializable]
-	public class FieldData
-	{    
-        public FieldLevel fieldLevel;
-#if UNITY_EDITOR
-		private IEnumerable e => ExpertCodeConfig.Types;
-        [ValueDropdown(nameof(e))]
-#endif
-		public string fieldType;
-        public string fieldName;
-		[InfoBox("是否封装属性")]
-		public bool WrapperAttribute = false;
-
-		[LabelText("注释"),TextArea]
-		public string description;
-    }
-	[Serializable]
-	public class MethodData
-	{		
-		public FieldLevel methodLevel;
-		public bool Void = true;
-		[InfoBox("构建结构体，虚方法不会生效")]
-		public bool Virtual = false;
-		[HideIf(nameof(Void))]
-#if UNITY_EDITOR
-		private IEnumerable e => ExpertCodeConfig.Types;
-		[ValueDropdown(nameof(e))]
-#endif
-		[HideIf(nameof(Void))]
-		public string ReturnType;
-		public string Name;
-        [LabelText("注释"),TextArea]
-        public string description;
     }
 
 
@@ -313,38 +200,9 @@ namespace YukiFrameWork
 				{
                     builder.AppendLine($"    <color=#{keyWordColor}>public interface</color> <color=#{LiteralColor}>I{className}</color> : <color=#{LiteralColor}>I{config.ParentType}</color>");
                     builder.AppendLine("    {");                  
-					foreach (var field in config.fieldDatas)
-					{
-                        if (field.fieldType.IsNullOrEmpty() || field.fieldName.IsNullOrEmpty()) continue;
-                        string name = field.fieldName.Substring(0, 1).ToUpper() + field.fieldName.Substring(1);
-                        Type fieldType = AssemblyHelper.GetType(field.fieldType);
-                        string type = ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? ExpertCodeConfig.typeAliases[fieldType] : field.fieldType;
-                        if (field.WrapperAttribute)
-                        {
-                            builder.AppendLine($"        <color=#{keyWordColor}>public</color> <color=#{(ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? keyWordColor : IdentiferColor)}>{type}</color> {name}");
-                            builder.AppendLine("        {");
-                            builder.AppendLine($"            <color=#{keyWordColor}>get</color> => m{name};");
-                            builder.AppendLine($"            <color=#{keyWordColor}>set</color> => m{name} = <color=#{keyWordColor}>value</color>;");
-                            builder.AppendLine("        }");
-                        }
-                    }
+					
                     builder.AppendLine("");
-                    foreach (var method in config.methodDatas)
-                    {
-                        if (method.Name.IsNullOrEmpty() || (!method.Void && method.ReturnType.IsNullOrEmpty())) continue;
-						if (method.methodLevel != FieldLevel.Public) continue;
-                        string name = method.Name.Substring(0, 1).ToUpper() + method.Name.Substring(1);
-                        string level = method.methodLevel.ToString().Substring(0).ToLower();
-                        string type = method.ReturnType;
-                        if (!method.Void)
-                        {
-                            Type methodType = AssemblyHelper.GetType(method.ReturnType);
-                            type = ExpertCodeConfig.typeAliases.ContainsKey(methodType) ? ExpertCodeConfig.typeAliases[methodType] : method.ReturnType;
-                        }
-                        if (!method.description.IsNullOrEmpty())
-                            builder.AppendLine($"        <color=#{commentColor}>//{method.description}</color>");
-                        builder.AppendLine($"        {(method.Void ? $"<color=#{keyWordColor}>void" : $"<color=#{IdentiferColor}>" + type)}</color> {name}();");                      
-                    }
+                    
                     builder.AppendLine("    }");
                     builder.AppendLine();
                     builder.AppendLine();
@@ -376,28 +234,7 @@ namespace YukiFrameWork
 			}
             builder.AppendLine($"    <color=#{keyWordColor}>public {(structClass ? "struct" : "class")}</color> <color=#{IdentiferColor}>{className}</color>{(config.ParentType != ParentType.None ? " :" : "")} <color=#{IdentiferColor}>{parentName}</color>{(inter ? $",<color=#{LiteralColor}>I" + className + "</color>" : "")}");
 			builder.AppendLine("    {");
-			if (config.IsOpenExpertCode)
-			{
-				foreach (var field in config.fieldDatas)
-				{
-					if (field.fieldType.IsNullOrEmpty() || field.fieldName.IsNullOrEmpty()) continue;
-					string name = field.fieldName.Substring(0, 1).ToUpper() + field.fieldName.Substring(1);
-					string level = field.fieldLevel.ToString().Substring(0).ToLower();
-					Type fieldType = AssemblyHelper.GetType(field.fieldType);
-					string type = ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? ExpertCodeConfig.typeAliases[fieldType] : field.fieldType;
-					if (!field.description.IsNullOrEmpty())
-						builder.AppendLine($"        <color=#{commentColor}>//{field.description}</color>");
-					builder.AppendLine($"        <color=#{keyWordColor}>{level} {type}</color> m{name};");
-					if (field.WrapperAttribute)
-					{
-						builder.AppendLine($"        <color=#{keyWordColor}>public</color> <color=#{(ExpertCodeConfig.typeAliases.ContainsKey(fieldType) ? keyWordColor : IdentiferColor)}>{type}</color> {name}");
-						builder.AppendLine("        {");
-						builder.AppendLine($"            <color=#{keyWordColor}>get</color> => m{name};");
-						builder.AppendLine($"            <color=#{keyWordColor}>set</color> => m{name} = <color=#{keyWordColor}>value</color>;");
-						builder.AppendLine("        }");
-					}
-				}
-			}
+			
 			builder.AppendLine();
 			if (config.ParentType == ParentType.Architecture)
 			{
@@ -468,28 +305,7 @@ namespace YukiFrameWork
 				builder.AppendLine("");
 				builder.AppendLine("        }");
 			}
-			builder.AppendLine();
-			if (config.IsOpenExpertCode)
-			{
-				foreach (var method in config.methodDatas)
-				{
-					if (method.Name.IsNullOrEmpty() || (!method.Void && method.ReturnType.IsNullOrEmpty())) continue;
-					string name = method.Name.Substring(0, 1).ToUpper() + method.Name.Substring(1);
-					string level = method.methodLevel.ToString().Substring(0).ToLower();
-					string type = method.ReturnType;
-					if (!method.Void)
-					{
-						Type methodType = AssemblyHelper.GetType(method.ReturnType);
-						type = ExpertCodeConfig.typeAliases.ContainsKey(methodType) ? ExpertCodeConfig.typeAliases[methodType] : method.ReturnType;
-					}
-					if (!method.description.IsNullOrEmpty())
-						builder.AppendLine($"        <color=#{commentColor}>//{method.description}</color>");
-					builder.AppendLine($"        <color=#{keyWordColor}>{level}{(method.Virtual && !config.IsScruct ? " virtual" : "")}</color> {(method.Void ? $"<color=#{keyWordColor}>void" : $"<color=#{IdentiferColor}>" + type)}</color> {name}()");
-					builder.AppendLine("        {");
-					builder.AppendLine($"            {(method.Void ? string.Empty : $"<color=#{keyWordColor}>return default</color>;")}");
-					builder.AppendLine("        }");					
-				}
-			}
+			builder.AppendLine();			
             builder.AppendLine();
             builder.AppendLine("    }");
 

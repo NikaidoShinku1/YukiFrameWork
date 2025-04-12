@@ -23,6 +23,7 @@ namespace YukiFrameWork
         public readonly EasyEvent onGUI = new EasyEvent();
         public readonly EasyEvent onDrawGizmos = new EasyEvent();
         public readonly EasyEvent onCanvasGroupChange = new EasyEvent();
+        public readonly EasyEvent onDrawGizmosSelected = new EasyEvent();
 
         public void PushFinishEvent(Action onFinish)
         {
@@ -118,6 +119,11 @@ namespace YukiFrameWork
         private void OnCanvasGroupChanged()
         {
             onCanvasGroupChange?.SendEvent();
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            onDrawGizmosSelected?.SendEvent();
         }
 
         private void OnGUI()

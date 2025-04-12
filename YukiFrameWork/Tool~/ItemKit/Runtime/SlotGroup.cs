@@ -86,7 +86,7 @@ namespace YukiFrameWork.Item
         /// <returns></returns>
         public SlotGroup CreateSlot(IItem item, int count)
         {
-            if (!mCondition.Invoke(item))
+            if (item != null && !mCondition.Invoke(item))
                 return this;
             slots.Add(new Slot(item, count,this));
             return this;

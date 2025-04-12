@@ -13,7 +13,7 @@ using UnityEngine.EventSystems;
 using System;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork.Item
-{
+{   
     [DisableViewWarning]
 	public class UISlot : MonoBehaviour
 	{
@@ -21,7 +21,31 @@ namespace YukiFrameWork.Item
 		public Text Count;
 
         public Slot Slot { get;private set; }
-      
+
+        public virtual void UpdateView(Slot slot)
+        {
+
+            if (slot.ItemCount == 0)
+            {
+                Count.text = string.Empty;
+                Icon.Hide();
+            }
+            else
+            {
+                if (slot.Item.IsStackable)
+                {
+                    Count.text = slot.ItemCount.ToString();
+                    Count.Show();
+                }
+                else Count.Hide();
+                Icon.Show();
+
+                if (Slot.Item?.Icon)
+                {
+                    Icon.sprite = Slot.Item.Icon;
+                }
+            }     
+        }
         public UISlot InitSlot(Slot slot)
         {
             this.Slot?.OnItemChanged.UnRegister(UpdateView);
@@ -29,26 +53,7 @@ namespace YukiFrameWork.Item
 
             void UpdateView()
             {
-                if (slot.ItemCount == 0)
-                {
-                    Count.text = string.Empty;
-                    Icon.Hide();
-                }
-                else
-                {
-                    if (slot.Item.IsStackable)
-                    {
-                        Count.text = slot.ItemCount.ToString();
-                        Count.Show();
-                    }
-                    else Count.Hide();
-                    Icon.Show();
-
-                    if (Slot.Item?.Icon)
-                    {
-                        Icon.sprite = Slot.Item.Icon;
-                    }
-                }
+                this.UpdateView(slot);
             }
 
             this.Slot.OnItemChanged.RegisterEvent(UpdateView).UnRegisterWaitGameObjectDestroy(gameObject);
@@ -58,7 +63,7 @@ namespace YukiFrameWork.Item
         }
         [LabelText("是否支持默认拖拽事件注册")]
         public bool IsAutoRegisterDrag = true;
-        private void Start()
+        protected virtual void Start()
         {
             if (!IsAutoRegisterDrag) return;
             this.BindBeginDragEvent(OnBeginDrag);
@@ -70,31 +75,31 @@ namespace YukiFrameWork.Item
             this.BindDeselectEvent(OnDeselect);
         }
 
-        private void OnSelect(BaseEventData eventData)
+        protected virtual void OnSelect(BaseEventData eventData)
         {
             Slot.slotGroup.SlotSelectInvoke(this);
         }
 
-        private void OnDeselect(BaseEventData eventData)
+        protected virtual void OnDeselect(BaseEventData eventData)
         {
             Slot.slotGroup.SlotDeselectInvoke(this);            
         }
 
-        private void OnPointerExit(PointerEventData eventData)
+        protected virtual void OnPointerExit(PointerEventData eventData)
         {
             Slot.slotGroup.SlotPointerExitInvoke(this);        
             if (Equals(ItemKit.CurrentSlotPointer, this))
                 ItemKit.CurrentSlotPointer = null;
         }
 
-        private void OnPointerEnter(PointerEventData eventData)
+        protected virtual void OnPointerEnter(PointerEventData eventData)
         {
             Slot.slotGroup.SlotPointerEnterInvoke(this);          
             ItemKit.CurrentSlotPointer = this;
         }
 
         private bool mDragging = false;
-        private void OnBeginDrag(PointerEventData eventData)
+        protected virtual void OnBeginDrag(PointerEventData eventData)
         {
             if (mDragging) return;
             mDragging = true;
@@ -112,13 +117,13 @@ namespace YukiFrameWork.Item
                 Icon.SetLocalPosition2D(localPosition);
         }
 
-        private void OnDrag(PointerEventData eventData)
+        protected virtual void OnDrag(PointerEventData eventData)
         {
             if (mDragging || Slot.ItemCount != 0)
                 Update_ItemPos();
         }
 
-        private void OnEndDrag(PointerEventData eventData)
+        protected virtual void OnEndDrag(PointerEventData eventData)
         {
             if (mDragging)
             {

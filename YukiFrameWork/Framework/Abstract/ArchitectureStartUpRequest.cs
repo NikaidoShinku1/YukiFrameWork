@@ -79,7 +79,7 @@ namespace YukiFrameWork
             }
         }
 
-        public static ArchitectureStartUpRequest StartUpArchitecture<T>() where T :class, IArchitecture
+        public static ArchitectureStartUpRequest StartUpArchitecture<T>() where T : class, IArchitecture
         {
             var runtimeRequests = ArchitectureConstructor.I.runtimeRequests;
             string key = typeof(T).FullName;
@@ -154,7 +154,9 @@ namespace YukiFrameWork
             ReadyType = ReadyType.Constructor;
             for (int i = 0; i < allRolds.Length; i++)
             {
-                yield return null;
+                //每检查十个类等待一帧
+                if(currentCount % 10 == 0)
+                    yield return null;
                 try
                 {
                     currentCount++;
@@ -162,7 +164,6 @@ namespace YukiFrameWork
 
                     Type type = allRolds[i];
                     if (type == null) continue;
-
                     if (CheckArchitectureRegister(type))
                     {
                         RegistrationAttribute registration = type.GetCustomAttribute<RegistrationAttribute>(true);
@@ -291,7 +292,7 @@ namespace YukiFrameWork
                         break;                  
                 }
             }                
-            MonoHelper.ApplicationQuit_AddListener(OnArchitectureDispose);
+            MonoHelper.Destroy_AddListener(OnArchitectureDispose);
             OnCompleted(string.Empty);
         }
 
@@ -420,6 +421,8 @@ namespace YukiFrameWork
             else ReadyType = ReadyType.Completed;
             progress = 1;
             _isDone = true;
+            if (ReadyType == ReadyType.Completed)
+                architecture.Completed();
         }
 
         public float progress { get; private set; }

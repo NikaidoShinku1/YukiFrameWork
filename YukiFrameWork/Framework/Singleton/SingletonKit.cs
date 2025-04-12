@@ -44,6 +44,15 @@ namespace YukiFrameWork
     {
         private static readonly Dictionary<Type,ISingletonKit> singletonInstance = DictionaryPools<Type,ISingletonKit>.Get();
 
+        public static void ClearCache()
+        {
+            foreach (var item in singletonInstance.Values.ToArray())
+            {
+                item.OnDestroy();
+            }
+
+            singletonInstance.Clear();
+        }
         static SingletonFectory()
         {
             singletonInstance.Clear();

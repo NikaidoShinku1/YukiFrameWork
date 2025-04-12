@@ -289,7 +289,7 @@ namespace YukiFrameWork.Machine
                 }
 
                 if (Data.IsUpState)
-                {
+                {                   
                     Global.Instance.RemoveLast(Data.parentStateMachineName);
                     graphView.RefreshNodes();
                 }

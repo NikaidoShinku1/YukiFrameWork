@@ -80,7 +80,7 @@ namespace YukiFrameWork
         void IBindableProperty.SetValue(params object[] args)
         {
             Value = (T)args[0];
-        }
+        }      
     }
   
     // <summary>

@@ -15,7 +15,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using YukiFrameWork.Extension;
-using YukiFrameWork.Pools;
 
 namespace YukiFrameWork
 {
@@ -188,7 +187,7 @@ namespace YukiFrameWork
                 valueDicts[type][parameterName] = info;
             }            
         }
-        private static MemberInfo GetMemberInfo(Type type,string parameterName)
+        public static MemberInfo GetMemberInfo(Type type,string parameterName)
         {
             var info = GetMemberInfoInValueDict(type, parameterName);
             if (info != null) return info;
@@ -301,8 +300,79 @@ namespace YukiFrameWork
         }
 
         public static bool HasCustomAttribute<T>(this MemberInfo info, bool inherit = false) where T : Attribute
-        {
+        {           
             return HasCustomAttribute<T>(info, inherit, out _);
+        }
+
+        /// <summary>
+        ///  获取某个类型所有的字段数据
+        ///  <para>与默认提供的反射API不同 该API会对于这个类型的基类字段进行添加并获取</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static List<FieldInfo> GetRealFields(this Type type)
+        {
+            if (type == null) return null;
+
+            List<FieldInfo> fields = new List<FieldInfo>();
+
+            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            if (type.BaseType != null)
+                fields.AddRange(GetRealFields(type.BaseType));
+            return fields;
+        }
+        /// <summary>
+        ///  获取某个类型所有的属性数据
+        ///  <para>与默认提供的反射API不同 该API会对于这个类型的基类属性进行添加并获取</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static List<PropertyInfo> GetRealProperties(this Type type)
+        {
+            if (type == null) return null;
+
+            List<PropertyInfo> properties = new List<PropertyInfo>();
+
+            properties.AddRange(type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
+            if (type.BaseType != null)
+                properties.AddRange(GetRealProperties(type.BaseType));
+            return properties;
+        }
+
+
+        /// <summary>
+        ///  获取某个类型字段数据
+        ///  <para>与默认提供的反射API不同 该API会对于这个类型的基类字段进行添加并获取</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static FieldInfo GetRealField(this Type type, string name)
+        {
+            if (type == null) return null;
+
+            FieldInfo field = null;
+
+            field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (type.BaseType != null && field == null)
+                field = GetRealField(type.BaseType, name);
+            return field;
+        }
+        /// <summary>
+        ///  获取某个类型的属性数据
+        ///  <para>与默认提供的反射API不同 该API会对于这个类型的基类属性进行添加并获取</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static PropertyInfo GetRealProperty(this Type type, string name)
+        {
+            if (type == null) return null;
+
+            PropertyInfo property = null;
+
+            property = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (type.BaseType != null && property == null)
+                property = GetRealProperty(type.BaseType, name);
+            return property;
         }
     }
 }

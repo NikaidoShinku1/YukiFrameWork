@@ -135,6 +135,13 @@ namespace YukiFrameWork
         {
             return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnDrawGizmos);
         }
+
+        [MethodAPI("OnDrawGizmosSelected")]
+        public static IMonoActionNode<Action> OnDrawGizmosSelected(Action action)
+        {
+            return YukiFrameWork.MonoAction<Action>.Get(action, IMonoActionNode.Mono.OnDrawGizmosSelected);
+        }
+
         [MethodAPI("OnApplicationFocus")]
         public static IMonoActionNode<Action<bool>> OnApplicationFocus(Action<bool> action)
         {

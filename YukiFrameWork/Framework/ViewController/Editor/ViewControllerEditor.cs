@@ -202,6 +202,13 @@ namespace YukiFrameWork.Extension
             AssetDatabase.SaveAssets();
         }
         public bool IsPlaying => Application.isPlaying;
+
+        private void OnSceneGUI()
+        {
+            ViewController controller = target as ViewController;
+            if (!controller) return;
+            controller.OnSceneGUI();
+        }
         public override void OnInspectorGUI()
         {
             ViewController controller = target as ViewController;          

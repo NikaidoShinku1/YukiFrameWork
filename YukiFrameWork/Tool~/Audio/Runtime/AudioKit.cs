@@ -556,14 +556,16 @@ namespace YukiFrameWork.Audio
         public static void Release()
         {
             Setting = null;
+            voicePlayer?.Cancel();
             voicePlayer = null;
+            musicPlayer?.Cancel();
             musicPlayer = null;
 
             foreach (var sounds in soundActivities.Values)
             {
                 foreach (var sound in sounds)
                 {
-                    sound.Stop();
+                    sound.Cancel();
                     AudioManager.Instance.Release(sound);
                 }
                 sounds.Clear();

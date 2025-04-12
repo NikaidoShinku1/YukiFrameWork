@@ -310,6 +310,19 @@ namespace YukiFrameWork
             LogKit.Exception(core);
         }
 
+        public static void LogEnumerable<T>(this IEnumerable<T> values)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            int index = 0;           
+            foreach (var item in values)
+            {
+                stringBuilder.Append(index++).Append(item).Append(" ---- ");   
+            }
+            stringBuilder.Append("All Count:").Append(index);
+            LogKit.I(stringBuilder);
+        }
+
     }
 
 }

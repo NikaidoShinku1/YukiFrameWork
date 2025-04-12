@@ -105,6 +105,7 @@ namespace YukiFrameWork
             OnApplicationQuit,
             OnGUI,
             OnDrawGizmos,
+            OnDrawGizmosSelected,
             OnCanvasGroupChanged
         }
     }  

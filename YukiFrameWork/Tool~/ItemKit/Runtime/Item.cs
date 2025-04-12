@@ -121,7 +121,7 @@ namespace YukiFrameWork.Item
             GUILayout.BeginHorizontal();
 
             GUILayout.Label("图标");
-            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField( icon, typeof(Sprite), true,GUILayout.Width(50),GUILayout.Height(50));
             GUILayout.EndHorizontal();
         }
 #endif

@@ -405,6 +405,9 @@ namespace YukiFrameWork
                 case IMonoActionNode.Mono.OnCanvasGroupChanged:
                     uC.onCanvasGroupChange.RegisterEvent(mono.action as Action);
                     break;
+                case IMonoActionNode.Mono.OnDrawGizmosSelected:
+                    uC.onDrawGizmosSelected.RegisterEvent(mono.action as Action);
+                    break;
             }
             return this;
         }

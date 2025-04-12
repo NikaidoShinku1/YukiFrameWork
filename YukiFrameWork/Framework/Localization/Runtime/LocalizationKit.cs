@@ -53,7 +53,10 @@ namespace YukiFrameWork
     {
         public Language DeSerialize()
         {
-            return Enum.GetValues(typeof(Language)).Cast<Language>().FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
+            return Enum
+                .GetValues(typeof(Language))
+                .Cast<Language>()
+                .FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
         }
 
         public void Serialize(Language language)
@@ -136,19 +139,9 @@ namespace YukiFrameWork
             languageType = Serializer.DeSerialize();
         }
 
-        /// <summary>
-        /// 手动添加配置
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="config"></param>
-        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfig方法!")]
-        public static void AddDependConfig(string key, LocalizationManager configManager)
+        internal static void LoadLocalizationManagerConfigInternal(LocalizationManager configManager, bool isLoaderLoad)
         {
-            LoadLocalizationManagerConfigInternal(key, configManager, false);
-        }
-
-        internal static void LoadLocalizationManagerConfigInternal(string key, LocalizationManager configManager, bool isLoaderLoad)
-        {
+            string key = configManager.managerKey;
             if (localizationManagers.ContainsKey(key))
                 throw new Exception("该本地配置已存在! Config Key:" + key);
             var datas = configManager.localizationConfig_language_dict;
@@ -158,45 +151,28 @@ namespace YukiFrameWork
             if(isLoaderLoad)
             loader.UnLoad(configManager);
         }
-        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfig方法!")]
-        public static void AddDependConfig(string key, string path)
-            => LoadLocalizationManagerConfigInternal(key, loader.Load<LocalizationManager>(path),true);
-
-        [DisableEnumeratorWarning]
-        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfigAsync方法!")]
-        public static IEnumerator AddDependConfigAsync(string key, string path)
-        {
-            bool completed = false;
-            loader.LoadAsync<LocalizationManager>(path,config => 
-            {
-                LoadLocalizationManagerConfigInternal(key, config,true);
-                completed = true;
-            });
-            yield return CoroutineTool.WaitUntil(() => completed);
-        }
+        
 
         /// <summary>
         /// 手动添加配置
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="config"></param>
-      
-        public static void LoadLocalizationManagerConfig(string key, LocalizationManager configManager)
+        /// <param name="config"></param>    
+        public static void LoadLocalizationManagerConfig(LocalizationManager configManager)
         {
-            LoadLocalizationManagerConfigInternal(key, configManager, false);
+            LoadLocalizationManagerConfigInternal(configManager, false);
         }
            
-        public static void LoadLocalizationManagerConfig(string key, string path)
-            => LoadLocalizationManagerConfigInternal(key, loader.Load<LocalizationManager>(path), true);
+        public static void LoadLocalizationManagerConfig(string path)
+            => LoadLocalizationManagerConfigInternal(loader.Load<LocalizationManager>(path), true);
 
-        [DisableEnumeratorWarning]
-        [Obsolete("方法已过时，请使用LocalizationKit.LoadLocalizationManagerConfigAsync方法!")]
-        public static IEnumerator LoadLocalizationManagerConfigAsync(string key, string path)
+        [DisableEnumeratorWarning]     
+        public static IEnumerator LoadLocalizationManagerConfigAsync(string path)
         {
             bool completed = false;
             loader.LoadAsync<LocalizationManager>(path, config =>
             {
-                LoadLocalizationManagerConfigInternal(key, config, true);
+                LoadLocalizationManagerConfigInternal(config, true);
                 completed = true;
             });
             yield return CoroutineTool.WaitUntil(() => completed);

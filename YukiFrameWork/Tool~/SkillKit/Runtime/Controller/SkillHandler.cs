@@ -375,10 +375,9 @@ namespace YukiFrameWork.Skill
                                 controller.ReleasingTime += Time.deltaTime;
                                 controller.onReleasing?.Invoke(controller.ReleasingProgress);
                                 controller.OnUpdate();
-
                                
 
-                                if (controller.ReleasingTime >= skillData.RealeaseTime && controller.IsComplete())
+                                if ((controller.ReleasingTime >= skillData.RealeaseTime || skillData.IsInfiniteTime) && controller.IsComplete())
                                 {
                                     controller.ReleasingTime = 0;
                                     controller.IsSkillRelease = false;

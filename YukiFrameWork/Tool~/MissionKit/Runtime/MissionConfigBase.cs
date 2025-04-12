@@ -31,7 +31,7 @@ namespace YukiFrameWork.Missions
 	}
     public abstract class MissionConfigBase<T> : MissionConfigBase, IExcelSyncScriptableObject where T : IMissionData
     {
-		[SerializeField,LabelText("任务集合"),ListDrawerSettings(ListElementLabelName = "Name",NumberOfItemsPerPage = 5),Searchable(), FoldoutGroup("任务集合")]
+		[SerializeField,LabelText("任务集合"),TableList(NumberOfItemsPerPage = 5,DrawScrollView = true),Searchable(), FoldoutGroup("任务集合")]
 		private T[] missions;
 	
 		private IEnumerable<IMissionData> runtime_missions;

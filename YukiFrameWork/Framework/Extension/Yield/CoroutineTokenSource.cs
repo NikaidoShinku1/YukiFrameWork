@@ -15,10 +15,16 @@ using System.Collections;
 
 namespace YukiFrameWork
 {
-	public class CoroutineTokenSource : IGlobalSign
+   
+    public class CoroutineTokenSource : IGlobalSign
 	{
         internal static HashSet<Action> tasks = new HashSet<Action>();
-
+        private static CoroutineTokenGenerator generator;
+        static CoroutineTokenSource()
+        {
+            generator = new CoroutineTokenGenerator();
+            GlobalObjectPools.SetGlobalPoolsBySize<CoroutineTokenSource>(1000, generator);
+        }
         internal static void Register(Action action)
         { tasks.Add(action); }
 
@@ -35,8 +41,16 @@ namespace YukiFrameWork
                 }
             });
         }
+        public class CoroutineTokenGenerator : IPoolGenerator
+        {
+            public Type Type => typeof(CoroutineTokenSource);
 
-		private CoroutineToken mToken;
+            public IGlobalSign Create()
+            {
+                return new CoroutineTokenSource();
+            }
+        }
+        private CoroutineToken mToken;
 		public CoroutineToken Token => mToken;
 
         bool IGlobalSign.IsMarkIdle { get; set ; }
@@ -51,7 +65,7 @@ namespace YukiFrameWork
             {
                 trigger = component.gameObject.AddComponent<OnGameObjectTrigger>();
             }         
-            var source = GlobalObjectPools.GlobalAllocation<CoroutineTokenSource>(true);
+            var source = GlobalObjectPools.GlobalAllocation<CoroutineTokenSource>();
             trigger.PushFinishEvent(() => 
             {
                 source.Cancel();

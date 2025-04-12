@@ -197,13 +197,13 @@ namespace YukiFrameWork.Extension
                         }
                         else
                         {
-                            data = value.ToObject(type);
+                            data = value.ToObject(type);                          
                             foreach (var item in value)
                             {
-                                PropertyInfo propertyInfo = type.GetProperty(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                PropertyInfo propertyInfo = type.GetRealProperty(item.Key);
                                 if (propertyInfo == null)
                                 {
-                                    FieldInfo fieldInfo = type.GetField(item.Key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                    FieldInfo fieldInfo = type.GetRealField(item.Key);           
                                     if (fieldInfo == null) continue;
                                     if (fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
                                     if (fieldInfo.FieldType.IsSubclassOf(typeof(UnityEngine.Object)))
@@ -257,10 +257,10 @@ namespace YukiFrameWork.Extension
                         SerializedObject serializedObject = new SerializedObject(scriptable);
                         foreach (var property in GetAllSerializedProperty(serializedObject))
                         {
-                            PropertyInfo propertyInfo = type.GetProperty(property.name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                            PropertyInfo propertyInfo = type.GetRealProperty(property.name);
                             if (propertyInfo == null)
                             {
-                                FieldInfo fieldInfo = type.GetField(property.name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                FieldInfo fieldInfo = type.GetRealField(property.name);
                                 if (fieldInfo == null)
                                 {
                                     continue;
@@ -326,6 +326,7 @@ namespace YukiFrameWork.Extension
 
                 excelSyncScriptableObject.Completed();
 #if UNITY_EDITOR
+                EditorUtility.SetDirty(excelSyncScriptableObject as ScriptableObject);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
 #endif
@@ -420,7 +421,7 @@ namespace YukiFrameWork.Extension
                                 }
                                 else
                                 {
-                                    FieldInfo field = GetFields(type).FirstOrDefault(x => x.Name == excelField.name);
+                                    FieldInfo field = type.GetRealFields().FirstOrDefault(x => x.Name == excelField.name);
                                     if (field != null)
                                     {
                                         object value = ParseFiledData(field.GetValue(scriptable), excelField.type, false, field);
@@ -488,7 +489,7 @@ namespace YukiFrameWork.Extension
                         List<SerializedProperty> properties = serializedObject.GetAllSerializedProperty();
 
                         Type type = value.GetType();
-                        foreach (var fieldInfo in GetFields(type))
+                        foreach (var fieldInfo in type.GetRealFields())
                         {
                            
                             if (scriptable_object_fields.ContainsKey(fieldInfo.Name)) continue;
@@ -522,7 +523,7 @@ namespace YukiFrameWork.Extension
                         }
                         else
                         {
-                            foreach (var fieldInfo in GetFields(type))
+                            foreach (var fieldInfo in type.GetRealFields())
                             {
                                 if (scriptable_object_fields.ContainsKey(fieldInfo.Name)) continue;
                                 if (fieldInfo != null && fieldInfo.GetCustomAttribute<ExcelIgnoreAttribute>() != null) continue;
@@ -959,7 +960,7 @@ namespace YukiFrameWork.Extension
 
             Type type = serializedObject.targetObject.GetType();
 
-            List<FieldInfo> fields = GetFields(type);
+            List<FieldInfo> fields = type.GetRealFields();
 
             foreach (FieldInfo field in fields)
             {
@@ -986,18 +987,6 @@ namespace YukiFrameWork.Extension
             return false;
         }
 #endif
-        private static List<FieldInfo> GetFields(Type type)
-        {
-
-            if (type == null) return null;
-
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance));
-            if (type.BaseType != null)
-                fields.AddRange(GetFields(type.BaseType));
-            return fields;
-        }
-
+ 
     }
 }

@@ -19,6 +19,9 @@ namespace YukiFrameWork
     [CreateAssetMenu(fileName ="LocalizationManager",menuName = "YukiFrameWork/本地化配置管理器LocalizationManager")]
     public class LocalizationManager : ScriptableObject
     {
+        [LabelText("本地化配置标识")]
+        [InfoBox("本地化配置标识每一个LocalizationManager都应该进行配置，在运行时通过配置加载。请注意:这个标识是必须唯一的")]
+        public string managerKey;
         [LabelText("多语言本地化配置添加"),ReadOnly]
         public YDictionary<Language, LocalizationConfigBase> localizationConfig_language_dict;
 

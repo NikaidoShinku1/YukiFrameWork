@@ -48,17 +48,20 @@ namespace YukiFrameWork
         /// <para> 注意:使用XFABManager加载场景必须重写OnProjectName属性 </para>
         /// </summary>
         (string, SceneLoadType) DefaultSceneName { get; }
-       
-        void Init();     
-        void OnDestroy();
-        [Obsolete("建议在Model类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        void RegisterModel<T>(T model) where T : class, IModel;
-        [Obsolete("建议在System类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        void RegisterSystem<T>(T system) where T : class,ISystem;
-        [Obsolete("建议在Utility类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        void RegisterUtility<T>(T utility) where T : class, IUtility;
+
+        /// <summary>
+        /// 在架构准备开始自动化注册各个模块之前就会调用架构的初始化方法
+        /// </summary>
+        void Init();
+
+        /// <summary>
+        /// 当架构完全准备完成后会调用的完成方法
+        /// <para>Tip:当架构准备失败/抛出异常，则不会执行该方法</para>
+        /// </summary>
+        void Completed();
+        void OnDestroy();        
         void UnRegisterModel<T>(T model = default) where T : class,IModel;      
-        void UnRegisterSystem<T>(T view = default) where T : class,ISystem;
+        void UnRegisterSystem<T>(T system = default) where T : class,ISystem;
         void UnRegisterUtility<T>(T utility = default) where T : class,IUtility;
         T GetModel<T>() where T : class, IModel;      
         T GetSystem<T>() where T : class, ISystem;
@@ -260,8 +263,16 @@ namespace YukiFrameWork
             IsInited = true;
         }
 
+        void IArchitecture.Completed() => OnCompleted();
+
         /// <summary>
-        /// V1.25.1以后，在架构准备完成，开始自动化注册各个模块之前就会调用架构的初始化方法
+        /// 当架构完全准备完成后会调用的完成方法
+        /// <para>Tip:当架构准备失败/抛出异常，则不会执行该方法</para>
+        /// </summary>
+        public abstract void OnCompleted();
+
+        /// <summary>
+        /// 在架构准备开始自动化注册各个模块之前就会调用架构的初始化方法
         /// </summary>
         public abstract void OnInit();
 
@@ -339,25 +350,7 @@ namespace YukiFrameWork
         public virtual string OnProjectName => this.GetType().Name;
         public static string ProjectName => Global.OnProjectName;
 
-        #endregion
-        [Obsolete("建议在Model类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        public void RegisterModel<T>(T model) where T : class, IModel
-        {
-            model.SetArchitecture(this);
-            Register(model);                      
-            model.Init();           
-        }
-        [Obsolete("建议在System类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        public void RegisterSystem<T>(T system) where T : class,ISystem
-        {
-            system.SetArchitecture(this);
-            Register(system);                     
-            system.Init();
-        }
-        [Obsolete("建议在Utility类上方标记Registration特性进行注册自动化，而习惯放弃手动在架构时初始化")]
-        public void RegisterUtility<T>(T utility) where T : class, IUtility
-            => Register(utility);
-          
+        #endregion       
         private void Register<T>(T t) where T : class
         {
             easyContainer.Register<T>(t);            

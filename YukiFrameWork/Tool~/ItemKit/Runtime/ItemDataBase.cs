@@ -30,7 +30,7 @@ namespace YukiFrameWork.Item
     }
     public abstract class ItemDataBase<Item> : ItemDataBase,IExcelSyncScriptableObject where Item : class, IItem
     {
-        [SerializeField, Searchable,  ListDrawerSettings(ListElementLabelName = "Name", NumberOfItemsPerPage = 5,ShowIndexLabels = true)]
+        [SerializeField, Searchable,  TableList(NumberOfItemsPerPage = 5, DrawScrollView = true)]
         internal Item[] items = new Item[0];
        
         public override IItem[] Items

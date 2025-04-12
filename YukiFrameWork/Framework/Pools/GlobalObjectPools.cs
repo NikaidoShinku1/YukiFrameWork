@@ -11,8 +11,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Linq;
-using System.Reflection;
 namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
@@ -34,6 +32,12 @@ namespace YukiFrameWork.Pools
     {
         public static bool GlobalRelease<T>(this T sign) where T : IGlobalSign
             => GlobalObjectPools.GlobalRelease(sign);
+    }
+
+    public interface IPoolGenerator
+    {
+        Type Type { get; }
+        IGlobalSign Create();
     }
 
     /// <summary>
@@ -83,6 +87,7 @@ namespace YukiFrameWork.Pools
         {
             public Queue<IGlobalSign> pools = new Queue<IGlobalSign>();
             public Type type;
+            public IPoolGenerator generator;
             private int maxSize;
 
             internal bool IsNoPublic = false;
@@ -115,7 +120,7 @@ namespace YukiFrameWork.Pools
             public int Count => pools.Count;
             public IGlobalSign Get()
             {
-                var obj =  Count > 0 ? pools.Dequeue() : Activator.CreateInstance(type,IsNoPublic) as IGlobalSign;
+                var obj =  Count > 0 ? pools.Dequeue() : (generator != null ? generator.Create() : Activator.CreateInstance(type, IsNoPublic) as IGlobalSign);
                 obj.IsMarkIdle = false;
                 obj.Init();
                 lastTime = Time.time;              
@@ -269,8 +274,13 @@ namespace YukiFrameWork.Pools
         private Dictionary<Type, GlobalPool> pools = new Dictionary<Type, GlobalPool>();
 
         private List<Type> releases = new List<Type>();
+     
+        public static object GlobalAllocation(Type type)
+        {
+            return GlobalAllocationInternal(type);
+        }
 
-        public static object GlobalAllocation(Type type, bool noPublic = false)
+        internal static object GlobalAllocationInternal(Type type)
         {
             if (!typeof(IGlobalSign).IsAssignableFrom(type))
             {
@@ -278,10 +288,9 @@ namespace YukiFrameWork.Pools
             }
             if (!Instance.pools.TryGetValue(type, out var pool))
             {
-                pool = SetGlobalPoolsBySize_Internal(200, type);
-            }
-            pool.IsNoPublic = noPublic;
-            IGlobalSign sign = pool.Get();          
+                pool = SetGlobalPoolsBySize_Internal(200,false, type, null);
+            }          
+            IGlobalSign sign = pool.Get();
             return sign;
         }
 
@@ -289,10 +298,11 @@ namespace YukiFrameWork.Pools
         /// 设置池子的大小
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <param name="generator">池对象生成器(可以为空，则通过反射创建)</param>
         /// <param name="maxSize"></param>
-        public static void SetGlobalPoolsBySize<T>(int maxSize) where T : IGlobalSign
+        public static void SetGlobalPoolsBySize<T>(int maxSize,IPoolGenerator generator) where T : IGlobalSign
         {
-            SetGlobalPoolsBySize(maxSize, typeof(T));
+            SetGlobalPoolsBySize(maxSize,typeof(T),generator);
         }
 
         /// <summary>
@@ -300,13 +310,38 @@ namespace YukiFrameWork.Pools
         /// </summary>
         /// <param name="maxSize"></param>
         /// <param name="type"></param>
-        public static void SetGlobalPoolsBySize(int maxSize,Type type)
+        public static void SetGlobalPoolsBySize(int maxSize,Type type,IPoolGenerator generator)
         {
-            SetGlobalPoolsBySize_Internal(maxSize, type);
+            SetGlobalPoolsBySize_Internal(maxSize,false, type, generator);
         }
 
-        internal static GlobalPool SetGlobalPoolsBySize_Internal(int maxSize, Type type)
+        /// <summary>
+        /// 设置池子的大小
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="generator">池对象生成器(可以为空，则通过反射创建)</param>
+        /// <param name="maxSize"></param>
+        public static void SetGlobalPoolsBySize<T>(int maxSize, bool isNoPublic = false) where T : IGlobalSign
         {
+            SetGlobalPoolsBySize(maxSize, typeof(T), isNoPublic);
+        }
+
+        /// <summary>
+        /// 设置池子的大小
+        /// </summary>
+        /// <param name="maxSize"></param>
+        /// <param name="type"></param>
+        public static void SetGlobalPoolsBySize(int maxSize, Type type, bool isNoPublic = false)
+        {
+            SetGlobalPoolsBySize_Internal(maxSize, isNoPublic, type, null);
+        }
+
+        internal static GlobalPool SetGlobalPoolsBySize_Internal(int maxSize,bool isNoPublic, Type type,IPoolGenerator generator)
+        {
+            if (generator != null && generator.Type != type)
+            {
+                throw new InvalidCastException($"池对象生成器类型并不是池类型，请检查后重试! Pool Type:{type} --- generator Type:{generator.Type}");
+            }
             if (!Instance.pools.TryGetValue(type, out var pool))
             {
                 pool = new GlobalPool()
@@ -314,22 +349,30 @@ namespace YukiFrameWork.Pools
                     MaxSize = 200,
                     type = type,
                     lastTime = Time.time,
-                };
+                    generator = generator,
+                    IsNoPublic = isNoPublic
+                };              
               
                 if (InitializePoolCount > 0)
                 {
-                    ConstructorInfo constructorInfo = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault(x => x.GetParameters()?.Length == 0);
-                    if (constructorInfo != null)
+                    if (generator != null)
+                    {
+                        for (int i = 0; i < (InitializePoolCount > maxSize ? maxSize : InitializePoolCount); i++)
+                        {
+                            pool.Release(generator.Create());
+                        }
+                    }
+                    else
                     {
                         for (int i = 0; i < (InitializePoolCount > maxSize ? maxSize : InitializePoolCount); i++)
                         {
                             try
                             {
-                                pool.Release(constructorInfo.Invoke(null) as IGlobalSign);
+                                pool.Release(type.CreateInstance() as IGlobalSign);
                             }
                             catch
                             {
-                                pool.Release(constructorInfo.Invoke(null) as IGlobalSign);
+                                pool.Release(type.CreateInstance() as IGlobalSign);
                             }
                         }
                     }
@@ -339,6 +382,7 @@ namespace YukiFrameWork.Pools
             else
             {
                 pool.lastTime = Time.time;
+                pool.generator = generator;
             }
             pool.MaxSize = maxSize;
             return pool;
@@ -355,10 +399,10 @@ namespace YukiFrameWork.Pools
             pools.Clear();
         }
 
-        public static T GlobalAllocation<T>(bool noPublic = false)
+        public static T GlobalAllocation<T>()
         {
-            return (T)GlobalAllocation(typeof(T),noPublic);
-        }
+            return (T)GlobalAllocation(typeof(T));
+        } 
 
         public static bool GlobalRelease(IGlobalSign obj) => Instance.Release(obj);
 
@@ -386,7 +430,7 @@ namespace YukiFrameWork.Pools
             Type type = obj.GetType();
             if (!Instance.pools.TryGetValue(type, out var pool))
             {
-                pool = SetGlobalPoolsBySize_Internal(200, type);
+                pool = SetGlobalPoolsBySize_Internal(200,false, type,null);
             }
             return pool.Release(obj);
         }

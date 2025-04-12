@@ -100,7 +100,7 @@ namespace YukiFrameWork
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label("Buff的图标样式");
+            GUILayout.Label("图标");
             sprite = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.sprite, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
             GUILayout.EndHorizontal();
         }

@@ -181,6 +181,11 @@ namespace YukiFrameWork.Machine
 
                 runtimeStateMachineCore.all_runtime_States.Remove(oldName);
                 runtimeStateMachineCore.all_runtime_States.Add(newName, items);
+
+                foreach (var item in items)
+                {
+                    item.parentStateMachineName = newName;
+                }
             }         
             EditorUtility.SetDirty(runtimeStateMachineCore);
 

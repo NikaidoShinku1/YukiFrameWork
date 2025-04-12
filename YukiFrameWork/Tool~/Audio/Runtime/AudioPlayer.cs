@@ -59,10 +59,9 @@ namespace YukiFrameWork.Audio
             }
 
             if (mAudioSource.clip == null || !mAudioSource.clip.Equals(clip))
-            {            
-                Stop();
+            {    
                 if(loader != null)
-                    this.loader = loader;
+                    this.loader = loader;              
                 onStartCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
                 this.onEndCallback = onEndCallback;
                 mAudioSource.clip = clip;
@@ -82,8 +81,11 @@ namespace YukiFrameWork.Audio
                 }
                 mAudioSource.Play();             
                 IsAudioFree = false;
+                //如果协程再走，则需要先进行终止
+                if (audioTimer?.IsRunning == true)
+                    audioTimer.Cancel();
                 if (!loop)
-                {
+                {                  
                     audioTimer = StartTimer(clip.length, isRealTime).Start();
                 }
             }
@@ -97,8 +99,7 @@ namespace YukiFrameWork.Audio
             {              
                 time += isRealTime ? Time.unscaledDeltaTime : Time.deltaTime;
                 yield return null;
-            }
-
+            }           
             Stop();
         }
 
@@ -119,19 +120,39 @@ namespace YukiFrameWork.Audio
             if (audioTimer == null || mAudioSource.loop) return;
             audioTimer.OnResume();
         }
-
+     
         public void Stop()
         {
-            if (audioTimer?.IsRunning == true)                           
-                audioTimer.Cancel();          
+            bool isEndCallBack = false;
+            if (audioTimer?.IsRunning == true)
+            {              
+                isEndCallBack = true;
+                onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
+
+            }
+            if (mAudioSource)
+            {
+                if(mAudioSource.loop && !isEndCallBack)
+                    onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);              
+            }
+            Cancel();
+           
+        }
+
+        public void Cancel()
+        {
+            //释放多判断一次
+            if (audioTimer?.IsRunning == true)
+                audioTimer.Cancel();           
+            if (mAudioSource)
+                mAudioSource.clip = null;
+
             audioTimer = null;
             IsAudioFree = true;
-            onEndCallback?.Invoke(isRealTime ? Time.realtimeSinceStartup : Time.time);
-            onEndCallback = null;         
-            if(mAudioSource)
-                mAudioSource.clip = null;         
+            onEndCallback = null;
+
             AudioManager.Instance.AddLoaderCacheTime(loader);
             loader = null;
-        }       
+        }
     }
 }

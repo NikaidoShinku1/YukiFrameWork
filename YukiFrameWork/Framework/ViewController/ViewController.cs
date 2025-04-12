@@ -189,9 +189,24 @@ namespace YukiFrameWork
         }
 
 #if UNITY_EDITOR || DEBUG || DEBUG
+        /// <summary>
+        /// 默认返回False，如果需要自定义编辑器拓展则在这里写逻辑后返回True即可;
+        /// <para>Tip:该方法需要在UnityEditor宏定义下重写</para>
+        /// </summary>
+        /// <returns></returns>
         public virtual bool OnInspectorGUI()
         {
             return false; //默认返回False，如果需要自定义编辑器拓展则在这里写逻辑后返回True即可;
+        }
+
+        /// <summary>
+        /// 默认返回False，如果需要自定义场景拓展则可以重写该方法后返回True即可
+        /// <para>Tip:该方法需要在UnityEditor宏定义下重写</para>
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool OnSceneGUI()
+        {
+            return false; //默认返回False，如果需要自定义场景拓展则可以重写该方法后返回True即可
         }
 #endif
     }

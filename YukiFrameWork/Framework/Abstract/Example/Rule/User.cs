@@ -16,9 +16,14 @@ namespace YukiFrameWork.ExampleRule.ExampleFrameWork
     /// </summary>
     internal class User : Architecture<User>
     {
+        public override void OnCompleted()
+        {
+            //架构准备完成后会执行的完成方法
+        }
+
         public override void OnInit()
         {
-            //架构准备完成后会执行的架构初始化方法                    
+            //架构准备开始之前会执行的架构初始化方法                    
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -940,6 +939,19 @@ namespace YukiFrameWork
             spriteRenderer.color = color;
             return spriteRenderer;
         }
+        /// <summary>
+        /// 纯净监听，会先移除这个Button已有的Runtime事件
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="unityAction"></param>
+        /// <returns></returns>
+        public static Button AddListenerPure(this Button button, UnityAction unityAction)
+        {
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(unityAction);
+            return button;
+        }
+
         #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
@@ -963,6 +975,11 @@ namespace YukiFrameWork
             }
 
             return null;
+        }
+
+        public static GameObject[] FindRootGameObjects(this Scene scene, string name)
+        {
+            return scene.GetRootGameObjects().Where(x => x && x.name == name).ToArray();
         }
 
         public static T GetOrAddComponent<T>(this Component core) where T : Component

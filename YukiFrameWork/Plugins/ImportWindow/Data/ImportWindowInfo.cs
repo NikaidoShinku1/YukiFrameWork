@@ -90,7 +90,7 @@ namespace YukiFrameWork.Extension
 
         public static string KnapsackInfo => !IsEN ? "背包系统,基础通用式背包系统,拥有一键式分组管理以及独立生命周期，自定义加载以及Excel配表,可自由拓展" : "Backpack system, basic universal backpack system, with one-click group management and independent life cycle, custom loading and Excel table, ";
 
-        public static string SkillInfo => !IsEN ? "纯数据技能系统，基于MVC打造的基础通用式技能系统。(测试阶段暂没有文档)" : "Pure data skill system, based on MVC to build a basic universal skill system. (Test phase)";
+        public static string SkillInfo => !IsEN ? "纯数据技能系统，基于MVC打造的基础通用式技能系统。" : "Pure data skill system, based on MVC to build a basic universal skill system.";
         #endregion
 
         public static string ImportAllModuleInfo => !IsEN ? "一键导入所有模块" : "Import all modules";

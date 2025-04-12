@@ -4,7 +4,11 @@
 
 在项目Assets文件夹下右键新建配置表：
 
+
 ![输入图片说明](Texture/1.png)
+
+![4](Texture/11.png)
+在配置表中输入配置对应的标识
 
 双击配置表打开本地化配置窗口:
 
@@ -102,9 +106,9 @@ namespace YukiFrameWork.Example
 |IUnRegister RegisterLanguageEvent(Action< Language > action)|注册当语言变更时的回调|
 |void UnRegisterLanguageEvent(Action< Language > action)|注销当语言变更时的回调|
 |void OnLanguageValueChanged()|发送当语言变更时的事件|
-|void LoadLocalizationManagerConfig(string key, LocalizationManager configManager)|添加配置(该API无需初始化加载器)|
-|void LoadLocalizationManagerConfig(string key, string path)|根据路径从加载器加载后添加配置|
-|IEnumerator LoadLocalizationManagerConfigAsync(string key, string path)|如上，但是异步|
+|void LoadLocalizationManagerConfig(LocalizationManager configManager)|添加配置(该API无需初始化加载器)|
+|void LoadLocalizationManagerConfig(string path)|根据路径从加载器加载后添加配置|
+|IEnumerator LoadLocalizationManagerConfigAsync(string path)|如上，但是异步|
 |ILocalizationData GetContent(string managerKey,string key, Language language)|传递添加的管理器标识，语言数据唯一标识，语言类型获得本地化数据|
 |ILocalizationData GetContent(string managerKey, string key)|通过内部的语言判断获取语言数据，如上|
 |---|---|

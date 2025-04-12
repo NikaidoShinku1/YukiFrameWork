@@ -109,7 +109,7 @@ namespace YukiFrameWork.Missions
 
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label("Buff的图标样式");
+            GUILayout.Label("Mission的图标样式");
             icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
             GUILayout.EndHorizontal();
         }
