@@ -101,6 +101,13 @@ namespace YukiFrameWork.Machine
             => StateMachine.StateMachineCore.SetBool(nameToHash, v);
         public void SetTrigger(int nameToHash)
             => StateMachine.StateMachineCore.SetTrigger(nameToHash);
+
+        public void ResetTrigger(string name)
+            => StateMachine.StateMachineCore.ResetTrigger(name);
+
+        public void ResetTrigger(int nameToHash)
+            => StateMachine.StateMachineCore.ResetTrigger(nameToHash);
+         
         #endregion
         IArchitecture IGetArchitecture.GetArchitecture()
         {

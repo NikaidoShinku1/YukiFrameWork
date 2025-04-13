@@ -126,13 +126,18 @@ namespace YukiFrameWork.Machine
 
             foreach (var items in stateConditions)
             {
+                bool isMeet = true;
                 foreach (var condition in items)
                 {
-                    if (condition.IsMeet)
-                        return true;
+                    if (!condition.IsMeet)
+                    {
+                        isMeet = false;
+                        break;
+                    }
                 }
+                if (!isMeet) return false;
             }
-            return false;
+            return true;
         }
 
     }
