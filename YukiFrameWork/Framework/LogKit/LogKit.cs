@@ -139,7 +139,7 @@ namespace YukiFrameWork
 
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
-        static void EditorInit()
+        internal static void EditorInit()
         {
 #if UNITY_2023_1_OR_NEWER
             string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone);

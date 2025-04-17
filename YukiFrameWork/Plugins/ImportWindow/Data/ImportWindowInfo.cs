@@ -53,8 +53,14 @@ namespace YukiFrameWork.Extension
                 return StateMachineInfo;
             else if (key == "Entities")
                 return EntitiesInfo;
+            else if (key == "InputSystemExtension")
+                return InputKitExtension;
+            else if (key == "UINavigation")
+                return UINAvigation;
             return default;
         }
+
+        public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";
 
         public static string EntitiesInfo => !IsEN ? "框架特殊魔改实验性ECS模块，仅在融合ECS的风格方式与Mono结合。契合日常使用Mono的Unity开发的ECS，不专门强化性能，以人性化设计角度出发的ECS模块" : "\"Framework special magic changes the experimental ECS module, only in the fusion of ECS style with Mono. ECS developed in accordance with the daily use of Mono's Unity, not specifically enhanced performance, ECS modules from the perspective of human design\"";
 
@@ -63,6 +69,8 @@ namespace YukiFrameWork.Extension
         public static string ActionKitInfo => !IsEN ? "ActionKit动作时序套件,可以完成例如定时、队列、事件循环、强化Update、等待帧回调等强化功能实现" : "ActionKit Action timing suite, you can complete such as timing, queue, event loop, enhanced Update, wait for frame callback and other enhanced functions";
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
+
+        public static string InputKitExtension => !IsEN ? "框架输入系统集成拓展(该模块完全依赖InputSystem新输入系统)" : "Framework input system integration Extension (This module relies entirely on the InputSystem new input system. And after importing the module, UIKit automatically has a new expanded UI navigation function!)";
 
         public static string GuideInfo => !IsEN ? "通用引导模块，可以实现简单的引导系统(暂时不完善，不推荐使用)" : "Universal boot module can realize simple boot system";
 

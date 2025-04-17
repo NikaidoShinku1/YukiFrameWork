@@ -79,25 +79,49 @@ namespace YukiFrameWork
 
         protected override void OnImGUI()
         {
+            if (!config)
+            {
+                UpdateConfig();
+                if (!config)
+                {
+                    EditorGUILayout.HelpBox("框架配置文件丢失!请尝试点击下方按钮修复!", MessageType.Error);
+                    if (GUILayout.Button("Fix Now", GUILayout.Height(50)))
+                    {
+                        FrameworkConfigInfo.CreateConfig();
+                        LogKit.EditorInit();
+                    }
+                    return;
+                }
+            }
             base.OnImGUI();
 
-            if (config == null)
-                UpdateConfig();
+            
+        }
+        ImportSettingWindow.VersionData versionData;
+        protected override void DrawMenu()
+        {
+            base.DrawMenu();
+            TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.packagePath + "/package.json");
+            if(versionData == null)
+                versionData = SerializationTool.DeserializedObject<ImportSettingWindow.VersionData>(versionText.text);
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginVertical();         
+            OpenUrl("框架版本:" + versionData.version, versionData.author.url);
+            GUILayout.EndVertical();
+        }
 
-            if (titleDicts == null)
-                UpdateTitles();
-
-
-            try
+        private void OpenUrl(string name, string url)
+        {
+            if (GUILayout.Button(name, "WarningOverlay"))
             {
-
+                if (string.IsNullOrEmpty(url))
+                    return;
+                Application.OpenURL(url);
             }
-            catch { }
-
         }
         protected override OdinMenuTree BuildMenuTree()
         {
-            string[] keys = titleDicts.Keys.ToArray();
+           
             OdinMenuTree tree = new OdinMenuTree(supportsMultiSelect: true)
             {              
                 { $"框架基本设置", config, Sirenix.OdinInspector.SdfIconType.File },
@@ -106,49 +130,6 @@ namespace YukiFrameWork
                 { $"框架简单序列化工具/Excel转Json工具",new SerializationWindow(1),Sirenix.OdinInspector.SdfIconType.FileEarmarkExcel },
                 { $"框架简单序列化工具/Json可视化器",JsonSerializeEditor.instance,SdfIconType.ViewList},              
             };
-
-            foreach (var item in YukiAssetDataBase.FindAssets<LocalizationConfig>())
-            {
-                tree.Add($"LocalizationConfig/{item.name}_{item.GetInstanceID()}", item, Sirenix.OdinInspector.SdfIconType.ClipboardData);
-            }
-            try
-            {
-                Type type = AssemblyHelper.GetType("YukiFrameWork.Item.ItemDataBase");
-                if (type != null)
-                {
-                    foreach (var item in YukiAssetDataBase.FindAssets(type))
-                    {
-                        tree.Add($"ItemDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.Calendar2PlusFill);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                Type type = AssemblyHelper.GetType("YukiFrameWork.Skill.SkillDataBase");
-                if (type != null)
-                {
-                    foreach (var item in YukiAssetDataBase.FindAssets(type))
-                    {
-                        tree.Add($"SkillDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.StickiesFill);
-                    }
-                }
-            }
-            catch { }
-
-            try
-            {
-                Type type = AssemblyHelper.GetType("YukiFrameWork.Buffer.BuffDataBase");
-                if (type != null)
-                {
-                    foreach (var item in YukiAssetDataBase.FindAssets(type))
-                    {
-                        tree.Add($"BuffDataBase/{item.name}_{item.GetInstanceID()}", item, SdfIconType.BagCheckFill);
-                    }
-                }
-            }
-            catch { }
             try
             {
                 LogConfig config = Resources.Load<LogConfig>(nameof(LogConfig));
@@ -191,14 +172,15 @@ namespace YukiFrameWork
 
             }
             catch { }         
-
+            
             tree.Add("Unity样式拓展工具", new GUIStyleExtensionWindow(), SdfIconType.Image);
 
             var example = AssetDatabase.LoadAssetAtPath<Example>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset");
             if (example != null)
             {
                 tree.Add($"框架规则示例", example, SdfIconType.PersonRolodex);
-            }           
+            }
+            tree.Add("DeepSeek AI代码生成设置", new DeepSeekSettingWindow(), SdfIconType.AppIndicator);
             return tree;       
         }
         public static FrameWorkDisignWindow Instance;

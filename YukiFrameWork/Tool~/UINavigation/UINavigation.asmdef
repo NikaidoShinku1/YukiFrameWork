@@ -1,0 +1,20 @@
+{
+    "name": "UINavigation",
+    "rootNamespace": "",
+    "references": [
+        "Unity.InputSystem",
+        "UIKit",
+        "YukiFrameWork",
+        "InputSystemExtension",
+        "Plugins"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

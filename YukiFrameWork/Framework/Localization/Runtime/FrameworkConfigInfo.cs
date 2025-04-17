@@ -48,19 +48,11 @@ namespace YukiFrameWork
         }
     }
 #endif
-    [HideMonoScript]
+    [HideMonoScript]  
     public class FrameworkConfigInfo : ScriptableObject
     {
         public static FrameworkConfigInfo GetFrameworkConfig()
-            => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
-        enum Mode
-        {
-            [LabelText("脚本生成设置")]
-            Tool,        
-            [LabelText("程序集设置")]
-            Assembly,          
-
-        }
+            => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));      
         internal enum ReLoadProject
         {
             [LabelText("重启游戏")]
@@ -76,20 +68,16 @@ namespace YukiFrameWork
 
         [LabelText("选择模式:"),SerializeField,ShowIf(nameof(IsShowReLoadProject))]
         internal ReLoadProject project;
-        [SerializeField, EnumToggleButtons]
-        Mode mode;
-        [ShowIf(nameof(SelectIndex), 0), LabelText("脚本名称：")]
-        public string scriptName;          
-        [ShowIf(nameof(SelectIndex), 0), LabelText("命名空间：")]
+           
+        [LabelText("全局命名空间：")]
         public string nameSpace = "YukiFrameWork.Example";
-        [ShowIf(nameof(SelectIndex), 0), LabelText("生成路径："),FolderPath(AbsolutePath = true)]
-        public string genericPath = "Assets/Scripts";
+       
         [HideInInspector]
         public bool IsParent;
         [InfoBox("项目(架构)脚本所依赖的程序集定义(非必要不更改):",InfoMessageType.Warning,IconColor = "red")]
-        [ShowIf(nameof(SelectIndex), 1),LabelText("默认程序集：")]
+        [LabelText("默认程序集：")]
         public string assembly = "Assembly-CSharp";
-        [ShowIf(nameof(SelectIndex),1),LabelText("程序集依赖项(有多个Assembly时可以使用)")]
+        [LabelText("程序集依赖项(有多个Assembly时可以使用)")]
         public string[] assemblies = new string[0];           
         [HideInInspector]
         public ScriptableObject excelConvertConfig;
@@ -100,63 +88,18 @@ namespace YukiFrameWork
         public string excelDataPath;
         [HideInInspector]
         public string excelTempPath;
-        public int SelectIndex => (int)mode;
 #if UNITY_EDITOR
-        private LocalScriptGenerator generator = new LocalScriptGenerator();       
+        private LocalScriptGenerator generator = new LocalScriptGenerator();
 #endif
 #if UNITY_EDITOR
-        [Button("生成脚本",ButtonHeight = 35),PropertySpace, ShowIf(nameof(SelectIndex), 0)]
-        private void Generic()
-        {
-            if (string.IsNullOrEmpty(genericPath))
-            {
-                Debug.LogError((FrameWorkConfigData.IsEN ? "Cannot create script because path is empty!" : "路径为空无法创建脚本!"));
-                return;
-            }
-#if UNITY_EDITOR
-            StringBuilder builder = generator.BuildFile(scriptName,nameSpace);
-
-            if (!Directory.Exists(genericPath))
-            {
-                Directory.CreateDirectory(genericPath);
-#if UNITY_EDITOR
-                AssetDatabase.Refresh();
-#endif
-            }
-            string scriptFilePath = genericPath + @"/" + scriptName + ".cs";
-            if (File.Exists(scriptFilePath))
-            {
-                Debug.LogError((FrameWorkConfigData.IsEN ? $"Scripts already exist in this folder! Path:{scriptFilePath}" : $"脚本已经存在该文件夹! Path:{scriptFilePath}"));
-                return;
-            }
-
-            using (FileStream fileStream = new FileStream(scriptFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                StreamWriter streamWriter = new StreamWriter(fileStream, Encoding.UTF8);
-
-                streamWriter.Write(builder);
-
-                streamWriter.Close();
-
-                fileStream.Close();
-            }
-
-#if UNITY_EDITOR
-            this.Save();
-            AssetDatabase.Refresh();
-#endif
-
-        }
-
-        [Button("打开高级生成窗口", ButtonHeight = 35), PropertySpace, ShowIf(nameof(SelectIndex), 0)]
+        [Button("打开高级生成窗口", ButtonHeight = 35), PropertySpace]
         private void OpenExpertWindow()
         {
             ExpertCodeConfigWindow.OpenWindow();
         }
 #endif
-#endif
-#if UNITY_EDITOR     
-       
+#if UNITY_EDITOR
+
         [InitializeOnLoadMethod]
         internal static void CreateConfig()
         {
@@ -172,8 +115,20 @@ namespace YukiFrameWork
                 }
                 AssetDatabase.CreateAsset(info, "Assets/Resources/FrameworkConfigInfo.asset");
                 AssetDatabase.Refresh();
-            }         
-            
+            }
+
+            ExpertCodeConfig config = Resources.Load<ExpertCodeConfig>(nameof(ExpertCodeConfig));
+
+            if (!config)
+            {
+                if (!System.IO.Directory.Exists("Assets/Resources"))
+                {
+                    System.IO.Directory.CreateDirectory("Assets/Resources");
+                    AssetDatabase.Refresh();
+
+                }
+                config = YukiAssetDataBase.CreateScriptableAsset<ExpertCodeConfig>(nameof(ExpertCodeConfig), "Assets/Resources/" + nameof(ExpertCodeConfig) + ".asset");
+            }           
         }
 
         [UnityEditor.Callbacks.DidReloadScripts(0)]

@@ -48,35 +48,8 @@ namespace YukiFrameWork
 	[HideMonoScript]
 	public class ExpertCodeConfig : ScriptableObject
 	{
-#if UNITY_EDITOR       
-        [InitializeOnLoadMethod]
-		static void Init()
-		{
-			ExpertCodeConfig config = Resources.Load<ExpertCodeConfig>(nameof(ExpertCodeConfig));
-
-			if (!config)
-			{
-				if (!System.IO.Directory.Exists("Assets/Resources"))
-				{
-					System.IO.Directory.CreateDirectory("Assets/Resources");
-					AssetDatabase.Refresh();
-
-                }
-				config = YukiAssetDataBase.CreateScriptableAsset<ExpertCodeConfig>(nameof(ExpertCodeConfig),"Assets/Resources/" + nameof(ExpertCodeConfig) + ".asset");
-			}
-			Instance = config;
-		}
-
-	
-		public static ExpertCodeConfig Instance;
-
-
-#endif
         internal FrameworkConfigInfo configInfo => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));
-        private void OnEnable()
-        {
-			NameSpace = configInfo?.nameSpace;
-        }
+        
         public const string tip = "高级脚本设置引用dll仅包含框架与FrameworkConfig中程序集设置添加的访问程序集,注入字段/方法类型仅为基础字段打造——————>不能是泛型/集合";	
 		[LabelText("命名空间")]
         [HideInInspector]

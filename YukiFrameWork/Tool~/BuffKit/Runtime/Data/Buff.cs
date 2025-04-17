@@ -108,7 +108,7 @@ namespace YukiFrameWork.Buffer
         [ValueDropdown(nameof(names))]
 #endif
         [InfoBox("Buff没有设置标识时无法添加")]
-        private string[] buffCounteractID;
+        private string[] buffCounteractID = new string[0];
        
 
         [JsonIgnore,ExcelIgnore]
@@ -119,7 +119,7 @@ namespace YukiFrameWork.Buffer
         [ValueDropdown(nameof(names))]
 #endif
         [InfoBox("Buff没有设置标识时无法添加")]
-        private string[] buffDisableID;
+        private string[] buffDisableID = new string[0]; 
       
 
         [JsonIgnore,ExcelIgnore]

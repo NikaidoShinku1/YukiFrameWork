@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System.Linq;
+using System.Reflection;
 namespace YukiFrameWork.Extension
 {
     public class ImportSettingWindow : OdinMenuEditorWindow
@@ -69,12 +70,20 @@ namespace YukiFrameWork.Extension
             return customData;
         }
         [Serializable]
+        public class DependInfo
+        {
+            public string des;
+            public string depend;
+        }
+        [Serializable]
         public class ToolDataInfo
         {
             public string key;
             public string path;
             public bool active;
             public string url;
+            public DependInfo[] depends;
+           
         }
         /// <summary>
         /// Key:Name  Value:Path
@@ -89,6 +98,15 @@ namespace YukiFrameWork.Extension
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ActionKit/5.%E5%8A%A8%E4%BD%9C%E6%97%B6%E5%BA%8F%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md"
 
             },
+            ["InputSystemExtension"] = new ToolDataInfo()
+            {
+                key = "InputSystemExtension",
+                path = packagePath + "/Tool~/InputSystemExtension",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md",
+                depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem",depend = "Unity.InputSystem" } }
+                
+            },            
             ["Bezier"] = new ToolDataInfo()
             {
                 key = "Bezier",
@@ -151,6 +169,15 @@ namespace YukiFrameWork.Extension
                 path = packagePath + "/Tool~/UI",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UI/6.UI%E6%A8%A1%E5%9D%97.md"
+            },
+            ["UINavigation"] = new ToolDataInfo()
+            {
+               key = "UINavigation",
+               path = packagePath + "/Tool~/UINavigation",
+               active = true,
+               url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UINavigation/Readme.md",
+               depends = new DependInfo[] { new DependInfo() { des = "框架UI模块", depend = "UIKit" }
+               , new DependInfo() { des = "框架InputSystemExtension输入系统拓展模块", depend = "InputSystemExtension" } }
             },
             ["Audio"] = new ToolDataInfo() 
             {
@@ -265,12 +292,7 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            data.develop = EditorGUILayout.Popup(ImportWindowInfo.DeveloperModeInfo, data.develop, ImportWindowInfo.displayedOptions);
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
-            GUILayout.Label("EN");
-            ImportWindowInfo.IsEN = EditorGUILayout.Toggle(ImportWindowInfo.IsEN);
-            data.isEN = ImportWindowInfo.IsEN;
-            EditorGUILayout.EndHorizontal();
+            data.develop = EditorGUILayout.Popup(ImportWindowInfo.DeveloperModeInfo, data.develop, ImportWindowInfo.displayedOptions);          
             EditorGUILayout.EndHorizontal();      
             EditorGUILayout.EndVertical();
             EditorGUILayout.Space();
@@ -301,12 +323,31 @@ namespace YukiFrameWork.Extension
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);
-                   
-                    bool isImport = moduleInfo[select.Name].active;
+                    var info = moduleInfo[select.Name]; 
+                    bool isImport = info.active;
                     if (!isImport)
                         EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
+
+                    if (info.depends != null && info.depends.Length != 0)
+                    {                        
+                        foreach (var item in info.depends)
+                        {
+                            try
+                            {
+                                Assembly assembly = Assembly.Load(item.depend);
+                            }
+                            catch
+                            {
+                                EditorGUILayout.HelpBox("该模块需要导入:" + item.des + "后才能导入该模块(具有依赖项)", MessageType.Warning);
+                                isImport = false;
+                            }
+                        }
+
+
+                    }
+
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(select.Name == "StateMechine" ? Color.yellow : Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].path, isImport);
+                    DrawBoxGUI(Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].path, isImport);
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
 
