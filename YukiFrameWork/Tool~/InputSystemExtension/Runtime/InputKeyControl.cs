@@ -1,4 +1,6 @@
- 
+
+using Sirenix.OdinInspector;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel; 
@@ -13,21 +15,21 @@ namespace YukiFrameWork.InputSystemExtension
 
         #region 字段
 
-        [Tooltip("名称(标识)")]
-        private string name; 
-        [Tooltip("key(对应的键盘按键)")]
+        [LabelText("名称(标识)")]
+        private string name;       
+        [LabelText("key(对应的键盘按键)")]
         private Key key;
-        [Tooltip("mouseButton(对应的鼠标按键)")]
+        [LabelText("mouseButton(对应的鼠标按键)")]
         private MouseButton mouseButton = MouseButton.None;
-        [Tooltip("gamepadButton(对应的手柄按键)")]
+        [LabelText("gamepadButton(对应的手柄按键)")]
         private GamepadButton gamepadButton = GamepadButton.A;
-        [Tooltip("是否启用手柄")]
+        [LabelText("是否启用手柄")]
         private bool isEnableGamepad = false;
-        [Tooltip("键盘输入设备")]
+        [LabelText("键盘输入设备")]
         private Keyboard keyboard;
-        [Tooltip("鼠标输入设备")]
+        [LabelText("鼠标输入设备")]
         private Mouse mouse;
-        [Tooltip("手柄输入设备")]
+        [LabelText("手柄输入设备")]
         private Gamepad gamepad;
 
         private string PrefsKey_Keyboard = null; 
@@ -41,10 +43,10 @@ namespace YukiFrameWork.InputSystemExtension
 
         #endregion
 
-        #region 属性
-
+        #region 属性       
         /// <summary>
-        /// 名称(任意,不重复即可)
+        /// 名称
+        /// <para>Tip:名称是不允许重复的</para>
         /// </summary>
         public string Name
         {
@@ -58,7 +60,7 @@ namespace YukiFrameWork.InputSystemExtension
                 Init();
             }
         }
-
+      
         /// <summary>
         /// 键盘按键值
         /// </summary>
@@ -145,7 +147,7 @@ namespace YukiFrameWork.InputSystemExtension
         /// </summary>
         /// <param name="name">唯一标识</param>
         /// <param name="defaultKey">默认键盘按键</param>
-        public InputKeyControl(string name, Key defaultKey )
+        public InputKeyControl(string name, Key defaultKey)
         {
             this.defaultKey = defaultKey;
             this.defaultMouseButton = MouseButton.None;
@@ -172,6 +174,25 @@ namespace YukiFrameWork.InputSystemExtension
             isEnableGamepad = false;
             this.Name = name;
         }
+
+        /// <summary>
+        /// 默认使用手柄输入控制
+        /// </summary>
+        /// <param name="name">唯一标识</param>
+        /// <param name="defaultMouseButton">默认鼠标按键</param>
+        /// <param name="defaultGamepadButton">默认手柄按键</param>
+        public InputKeyControl(string name, GamepadButton defaultGamepadButton)
+        {
+            this.defaultKey = Key.None;
+            this.defaultGamepadButton = defaultGamepadButton;
+            this.gamepadButton = defaultGamepadButton;
+            this.mouseButton = MouseButton.None;
+            this.key = Key.None;
+            this.Name = name;
+
+            isEnableGamepad = true;
+        }
+
 
         /// <summary>
         /// 默认同时使用键盘和手柄输入控制
@@ -212,8 +233,8 @@ namespace YukiFrameWork.InputSystemExtension
             this.Name = name;
         
             isEnableGamepad = true;
-        }
-     
+        }       
+
         /// <summary>
         /// 设置当前使用的键盘设备
         /// </summary>
@@ -473,6 +494,24 @@ namespace YukiFrameWork.InputSystemExtension
                 GamepadButton = defaultGamepadButton; 
         }
 
+        /// <summary>
+        /// 事件触发模式启动
+        /// <para>Tip:启动后当通过InputKeyControlGroup访问到对应的组注册事件后，当该按键成功执行则会发送对应事件，并将自身与组名作为参数传递</para>
+        /// </summary>
+        /// <param name="groupName"></param>
+        public void EventTriggerEnable(string groupName)
+        {
+            //ToDo
+        }
+
+        /// <summary>
+        /// 事件触发模式关闭
+        /// <para>Tip:事件触发模式一旦启动，生命周期并不会自动处理。当与MonoBehaviour对象强关联时，在对象销毁后，你应该手动调用该方法以进行事件的关停操作。</para>
+        /// </summary>
+        public void EventTriggerDisable()
+        {
+            
+        }
 
         /// <summary>
         /// 是否能够通过某种类型的设备控制

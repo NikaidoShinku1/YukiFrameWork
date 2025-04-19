@@ -155,7 +155,7 @@ namespace YukiFrameWork
 		/// <param name="parent"></param>
 		/// <param name="path"></param>
 		/// <returns></returns>
-		internal static bool IsReddotActive(string parent,string path)
+		public static bool IsReddotActive(string parent,string path)
 		{
 			if (parent.IsNullOrEmpty()) return false;
 
@@ -179,7 +179,7 @@ namespace YukiFrameWork
 		}
 
 		/// <summary>
-		/// 红点路径持久化(Json字符串)
+		/// 红点路径序列化(Json字符串)
 		/// </summary>
 		public static string ReddotPersistence
 		{
@@ -190,7 +190,7 @@ namespace YukiFrameWork
 		}
 
 		/// <summary>
-		/// 通过持久化字符串加载红点路径
+		/// 通过持久化字符串(Json)加载红点路径
 		/// </summary>
 		public static void LoadPersistenceReddotPath(string persistence)
 		{

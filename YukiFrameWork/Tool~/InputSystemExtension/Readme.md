@@ -96,6 +96,7 @@ public class TestScripts : MonoBehaviour
 |Construct Method API|构造函数|
 |public InputKeyControl(string name, Key defaultKey)|默认使用键盘按键的输入控制|
 |public InputKeyControl(string name, MouseButton defaultMouseButton)|默认使用鼠标按键的输入控制|
+|public InputKeyControl(string name, GamepadButton defaultGamepadButton)|默认使用手柄的输入控制|
 |public InputKeyControl(string name, Key defaultKey, GamepadButton defaultGamepadButton)|默认同时使用键盘和手柄的输入控制|
 |public InputKeyControl(string name, MouseButton defaultMouseButton, GamepadButton defaultGamepadButton)|默认同时使用鼠标和手柄的输入控制|
 |---|---|
@@ -151,11 +152,108 @@ public class TestScripts : MonoBehaviour
 
    private void Update()
    {
+       //当按键按下触发
        if (testControl.GetKeyDown())
        { 
            //触发逻辑
        }
+
+       //当按键持续按住触发
+       if(testControl.GetKey())
+       {
+            //
+       }
+
+       //当按键抬起触发
+       if(testControl.GetKeyUp())
+       {
+            
+       }
    }
+
+}
+```
+
+除上述基本使用外，对于InputKeyControl类，可以事件的形式绑定，框架有InputKeyControlEventTriggerGroup 按键控制事件触发分组类:
+
+delegate:
+``` csharp
+public delegate void InputCallBackContext(InputKeyControl inputKeyControl);
+```
+
+|InputKeyControlEventTriggerGroup API|按键控制事件触发分组类 API说明|
+|---|---|
+|static Method API|静态API说明|
+|void CreateEventTriggerGroups(params string[] groupNames)|创建多个按键事件触发分组(分组标识应全局唯一)|
+|InputKeyControlEventTriggerGroup CreateEventTriggerGroup(string groupName)|创建指定标识作为名称的分组(分组标识应全局唯一)|
+|void Release(bool IsClear = false)|释放所有已经创建的分组 IsClear:是否在释放后清空分组|
+|InputKeyControlEventTriggerGroup GetInputKeyControlEventTriggerGroup(string groupName)|根据标识获取某一个分组|
+|---|---|
+|Property API|属性API说明|
+|string GroupName { get; }|分组名称|
+|bool IsRunning { get; }|这个分组是否正在运行|
+|event InputCallBackContext onKey|当按住键触发|
+|event InputCallBackContext onKeyDown|当按下键触发|
+|event InputCallBackContext onKeyUp|当抬起键触发|
+|---|---|
+|Method API|方法API说明|
+|void AddKeyControl(InputKeyControl keyControl)|传递按键控制类以添加按键在该分组|
+|void AddKeyControls(params InputKeyControl[] keyControls)|添加多个按键|
+|void RemoveKeyControl(InputKeyControl keyControl)|传递按键控制以移除相同名称的按键|
+|void RemoveKeyControl(string keyName)|根据按键名称移除按键|
+|void Enable()|启动这个分组(回调仅启动后可使用)|
+|void Disable()|停止这个分组(回调在停止时无法被触发)|
+|void Dispose()|释放这个分组|
+
+分组使用简单示例:
+
+
+``` csharp 
+
+public class TestScripts : MonoBehaviour
+{
+    public const string W_Key = "Cook_Player_W";
+    public const string S_Key = "Cook_Player_S";
+    public const string A_Key = "Cook_Player_A";
+    public const string D_Key = "Cook_Player_D";
+    public const string PlayerInputGroupName = "PlayerInput";
+    private InputKeyControl w = new InputKeyControl(W_Key, Key.W);
+    private InputKeyControl s = new InputKeyControl(S_Key, Key.S);
+    private InputKeyControl a = new InputKeyControl(A_Key, Key.A);
+    private InputKeyControl d = new InputKeyControl(D_Key, Key.D);
+
+    
+    private InputKeyControlEventTriggerGroup inputKeyControlEventTriggerGroup;
+    void Start()
+    {
+         inputKeyControlEventTriggerGroup = InputKeyControlEventTriggerGroup.CreateEventTriggerGroup(PlayerInputGroupName);
+         inputKeyControlEventTriggerGroup.AddKeyControls(w, a, s, d);    
+         
+         //添加事件
+         inputKeyControlEventTriggerGroup.onKey += Move;
+    }
+
+    void OnEnable()
+    {
+        //对于分组,并不会在创建后就可以直接进行事件的判断，需要手动开启
+
+        inputKeyControlEventTriggerGroup.Enable();
+    }
+
+    void OnDisable()
+    {
+       
+        //如对象失活时不再需要这个分组的运行 调用分组的Disable方法。
+         inputKeyControlEventTriggerGroup.Disable();
+    }
+
+    private void Move(InputKeyControl inputKeyControl)
+    {
+        //在这里填写移动的逻辑
+
+    }
+
+
 
 }
 ```
