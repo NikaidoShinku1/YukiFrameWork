@@ -29,7 +29,7 @@ namespace YukiFrameWork.Item
         [JsonIgnore]
 		public IReadOnlyList<Slot> Slots => slots;
 
-        private event Action OrderRefresh  = null;
+        private event Action UIRefresh  = null;
 
         public bool IsEmpty => !slots.Any(x => x.Item != null);
 
@@ -57,7 +57,7 @@ namespace YukiFrameWork.Item
         /// <returns></returns>
         public SlotGroup RegisterOrderRefresh(Action order)
         {
-            OrderRefresh += order;
+            UIRefresh += order;
             return this;
         }
 
@@ -69,7 +69,7 @@ namespace YukiFrameWork.Item
         /// <returns></returns>
         public SlotGroup UnRegisterOrderRefresh(Action order)
         {
-            OrderRefresh -= order;
+            UIRefresh -= order;
             return this;
         }
 
@@ -107,9 +107,10 @@ namespace YukiFrameWork.Item
         /// 创建指定数量的空插槽
         /// </summary>
         /// <param name="count"></param>
+        /// <param name="resetSlots">是否在创建插槽之前重置插槽数量为0</param>
         /// <returns></returns>
         public SlotGroup CreateSlotsByCount(uint count)
-        {
+        {           
             for (int i = 0; i < count; i++)
             {
                 CreateSlot(null,0);
@@ -126,7 +127,7 @@ namespace YukiFrameWork.Item
         public SlotGroup OrderBy<TKey>(Func<Slot,TKey> orders)
         {
             slots = slots.OrderBy(orders).ToList();
-            OrderRefresh?.Invoke();
+            UIRefresh?.Invoke();
             return this;
         }
 
@@ -139,7 +140,7 @@ namespace YukiFrameWork.Item
         public SlotGroup OrderByDescending<TKey>(Func<Slot, TKey> orders)
         {
             slots = slots.OrderByDescending(orders).ToList();
-            OrderRefresh?.Invoke();
+            UIRefresh?.Invoke();
             return this;
         }
         /// <summary>
@@ -360,17 +361,30 @@ namespace YukiFrameWork.Item
 
             return RemoveItem(slot.Item, slot.ItemCount);
         }
-
-        /// <summary>
-        /// 清空所有的物品
-        /// </summary>
+        [Obsolete("方法已经过时，方法命名错误过时标记仅保证项目无异常。你应该调用ClearItems方法进行物品的清空!")]
         public void ClearItem()
+        {
+            ClearItems();
+        }
+        /// <summary>
+        /// 清空所有的物品但保留插槽
+        /// </summary>
+        public void ClearItems()
         {
             int count = slots.Count;
             for (int i = 0; i < count; i++)
             {
                 ClearItemByIndex(i);
             }
+        }
+
+        /// <summary>
+        /// 将插槽全部清空
+        /// </summary>
+        public void ClearSlots()
+        {
+            slots.Clear();
+            UIRefresh?.Invoke();
         }
 
         internal bool ConditionInvoke(IItem item)

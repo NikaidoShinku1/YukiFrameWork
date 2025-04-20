@@ -1466,7 +1466,7 @@ namespace XFABManager
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
                 XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
-                return LoadAssetsFromAssets(bundle.GetAllAssetPaths());
+                return LoadAssetsFromAssets(bundle.GetAllAssetPaths(), typeof(UnityEngine.Object));
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
@@ -1520,7 +1520,7 @@ namespace XFABManager
             if (GetProfile(projectName).loadMode == LoadMode.Assets)
             {
                 XFABAssetBundle bundle = GetXFABAssetBundle(projectName, bundleName);
-                return ArrayCast(LoadAssetsFromAssets(bundle.GetAllAssetPaths()), type);
+                return ArrayCast(LoadAssetsFromAssets(bundle.GetAllAssetPaths(), type), type);
             }
 #endif
             string bundle_name = string.Format("{0}_{1}", projectName, bundleName);
@@ -1972,12 +1972,14 @@ namespace XFABManager
                 dependenceProjectName = projectName;
             }
 
+            if (dependenceBundle == null)
+                return Array.Empty<string>();
             // 加载依赖的AssetBundle
             AssetBundleManifest manifest = dependenceBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 
             if (manifest == null) {
                 Debug.LogException(new Exception(string.Format("加载AssetBundleManifest失败:{0}",projectName)));
-                return new string[0];
+                return Array.Empty<string>();
             }
 
             string[] dependences = manifest.GetAllDependencies(string.Format("{0}{1}", bundleName, GetAssetBundleSuffix(projectName)));
@@ -2123,23 +2125,28 @@ namespace XFABManager
         /// </summary>
         /// <param name="asset_paths"></param>
         /// <returns></returns>
-        private static UnityEngine.Object[] LoadAssetsFromAssets(string[] asset_paths)
+        private static UnityEngine.Object[] LoadAssetsFromAssets(string[] asset_paths, Type type)
         {
-            UnityEngine.Object[] objects = new UnityEngine.Object[asset_paths.Length];
+            List<UnityEngine.Object> objects = new List<UnityEngine.Object>();
+
             if (asset_paths != null)
             {
                 for (int i = 0; i < asset_paths.Length; i++)
-                {
-                    objects[i] = LoadAssetFromEditor<UnityEngine.Object>(asset_paths[i]);
+                {                    
+                    UnityEngine.Object obj = LoadAssetFromEditor(asset_paths[i], type);
+                    if (obj == null) continue;
+                    objects.Add(obj);
                 }
             }
-            return objects;
+            return objects.ToArray();
         }
 
-        private static T LoadAssetFromEditor<T>(string asset_path) where T :UnityEngine.Object {
-            if (string.IsNullOrEmpty(asset_path)) return null;
-            return LoadAssetFromEditor(asset_path,typeof(T)) as T;
-        }
+
+       // private static T LoadAssetFromEditor<T>(string asset_path) where T :UnityEngine.Object 
+       // {
+       //     if (string.IsNullOrEmpty(asset_path)) return null;
+       //     return LoadAssetFromEditor(asset_path,typeof(T)) as T;
+       // }
 
         private static UnityEngine.Object LoadAssetFromEditor(string asset_path,Type type){
             if (string.IsNullOrEmpty(asset_path)) return null;

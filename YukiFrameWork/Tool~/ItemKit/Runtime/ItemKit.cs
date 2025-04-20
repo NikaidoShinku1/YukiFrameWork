@@ -58,7 +58,7 @@ namespace YukiFrameWork.Item
         {
             foreach (var slotGroup in SlotGroupDicts.Values)
             {
-                slotGroup.ClearItem();
+                slotGroup.ClearItems();
             }
         }
 
@@ -218,7 +218,7 @@ namespace YukiFrameWork.Item
                 slotGroup ??= CreateSlotGroup(key);
                 var data = saveDatas[key];
                 uint count = (uint)data.Count;
-                slotGroup.ClearItem();
+                slotGroup.ClearSlots();
                 slotGroup.CreateSlotsByCount(count);
                 for (int i = 0; i < count; i++)
                 {
