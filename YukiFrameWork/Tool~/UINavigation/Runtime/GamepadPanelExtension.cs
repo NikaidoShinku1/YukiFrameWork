@@ -250,7 +250,7 @@ namespace YukiFrameWork.UI
             if (EventSystem.current == null) return;
             if (EventSystem.current.currentSelectedGameObject == null) return;
 
-//#if !UNITY_6000_0_OR_NEWER
+#if !UNITY_6000_0_OR_NEWER
 
             // 经测试发现,UNITY_6000_0_OR_NEWER的版本,当按下手柄的确认按键 ，会自动处理按钮的点击
             // 所以这里就不用处理了
@@ -305,7 +305,7 @@ namespace YukiFrameWork.UI
                 }
             }
 
-//#endif
+#endif
 
             HandleScrollRect();
 
