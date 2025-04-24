@@ -258,12 +258,14 @@ namespace YukiFrameWork.UI
             var panel = Table.GetActivityPanel(name,panelCore.Level,panelCore.OpenType);           
             if (panel == null)
             {
-                panel = Table.GetPanelByLevel(name);
-                if (panel != null)
+                if (panelCore.OpenType != PanelOpenType.Multiple)
                 {
-                    UIKit.ClosePanel(panel);
+                    panel = Table.GetPanelByLevel(name);
+                    if (panel != null)
+                    {
+                        UIKit.ClosePanel(panel);
+                    }
                 }
-
                 if (panel == null)
                 {
                     panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);                  
@@ -304,7 +306,7 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 根据加载后的面板/路径名称关闭面板(name与使用OpenPanel时一致),如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭，当查找面板发现没有开启时，会按照正常情况自顶关闭
+        /// 根据加载后的面板/路径名称关闭面板(name与使用OpenPanel时一致),如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭
         /// </summary>
         /// <param name="name"></param>
         public static void ClosePanel(string name)
@@ -321,7 +323,7 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 关闭相应类型的面板,如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭，当查找面板发现没有开启时，会按照正常情况自顶关闭 
+        /// 关闭相应类型的面板,如果面板类型为Multiple且场景中打开了多个，会一次性全部关闭
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public static void ClosePanel<T>() where T : class, IPanel
@@ -350,10 +352,27 @@ namespace YukiFrameWork.UI
             info.panelType = panel.GetType();
             info.panel = panel;
             Table.PopPanel(info);         
-        }        
+        }
 
         /// <summary>
-        /// 通过层级获取已经加载的缓存面板(返回第一个找到的面板) 注意:无法通过该API查找到不缓存的面板
+        /// 关闭指定层级下所有已打开的面板
+        /// </summary>
+        /// <param name="level"></param>
+        public static void ClosePanelByLevel(UILevel level)
+        {
+            PanelInfo info = new PanelInfo()
+            {
+                level = level,
+                levelClear = true
+            };
+
+            Table.PopPanel(info);
+        }
+
+
+        /// <summary>
+        /// 通过层级获取已经加载的缓存面板(返回第一个找到的面板) 
+        /// <para>注意:无法通过该API查找到不缓存的面板</para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="level"></param>
@@ -368,6 +387,10 @@ namespace YukiFrameWork.UI
             return Table.GetActivityPanel(type, level,PanelOpenType.Single) as BasePanel;
         }
 
+        /// <summary>
+        /// 卸载指定类型面板
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public static void UnLoadPanel<T>() where T : BasePanel
         {
             UnLoadPanel(typeof(T));

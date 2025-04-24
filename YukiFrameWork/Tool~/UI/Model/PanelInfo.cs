@@ -19,5 +19,6 @@ namespace YukiFrameWork.UI
         public IPanel panel;    
         public Type panelType;
         public object[] param;
+        public bool levelClear;
     }
 }

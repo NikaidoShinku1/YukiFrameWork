@@ -107,7 +107,7 @@ namespace YukiFrameWork.UI
         }
 
         private bool IsLevelInited = false;
-        public void InitLevel()
+        internal void InitLevel()
         {
             if (IsLevelInited) return;
             IsLevelInited = true;
@@ -149,12 +149,12 @@ namespace YukiFrameWork.UI
             return transform;
         }
 
-        public void AddPanelCore(IPanel panel)
+        internal void AddPanelCore(IPanel panel)
         {
             panelCore[panel.GetType()] = panel;         
         }                     
 
-        public T GetPanelCore<T>() where T : class, IPanel
+        internal T GetPanelCore<T>() where T : class, IPanel
         {
             panelCore.TryGetValue(typeof(T),out var value);
             return (T)value;

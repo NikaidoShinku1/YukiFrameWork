@@ -5,10 +5,7 @@ using System.Text;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using System;
-using UnityEngine.Tilemaps;
-
-
-
+using System.Collections;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -90,6 +87,8 @@ namespace YukiFrameWork
         public string excelTempPath;
 #if UNITY_EDITOR
         private LocalScriptGenerator generator = new LocalScriptGenerator();
+        [ReadOnly]
+        public string version;
 #endif
 #if UNITY_EDITOR
         [Button("打开高级生成窗口", ButtonHeight = 35), PropertySpace]
@@ -99,7 +98,7 @@ namespace YukiFrameWork
         }
 #endif
 #if UNITY_EDITOR
-
+        static ImportSettingWindow.VersionData versionData;
         [InitializeOnLoadMethod]
         internal static void CreateConfig()
         {
@@ -128,7 +127,30 @@ namespace YukiFrameWork
 
                 }
                 config = YukiAssetDataBase.CreateScriptableAsset<ExpertCodeConfig>(nameof(ExpertCodeConfig), "Assets/Resources/" + nameof(ExpertCodeConfig) + ".asset");
-            }           
+            }
+            EditorCoroutineTool.StartCoroutine(EditorDelay(1), () => 
+            {
+                TextAsset versionText = AssetDatabase.LoadAssetAtPath<TextAsset>(ImportSettingWindow.packagePath + "/package.json");
+                if (versionData == null)
+                    versionData = SerializationTool.DeserializedObject<ImportSettingWindow.VersionData>(versionText.text);
+                if (info.version != versionData.version)
+                {
+                    info.version = versionData.version;
+                    VersionInfoWindow.Open();
+                    EditorUtility.SetDirty(info);
+                    AssetDatabase.Refresh();
+                }
+            });
+          
+        }
+
+        [DisableEnumeratorWarning]
+        private static IEnumerator EditorDelay(float time)
+        {
+            double start = EditorApplication.timeSinceStartup;
+
+            yield return new WaitUntil(() => EditorApplication.timeSinceStartup - start > time);
+
         }
 
         [UnityEditor.Callbacks.DidReloadScripts(0)]

@@ -46,11 +46,12 @@ namespace YukiFrameWork.Extension
             public string version;
             public Info author;
         }
+
         [MenuItem("YukiFrameWork/Import Setting Window", false, -1000)]
-        static void Open()
+        public static void Open()
         {
             GetWindow<ImportSettingWindow>().titleContent = new GUIContent("框架高级导入窗口");
-        }
+        }       
         public const string importPath = "Packages/com.yuki.yukiframework/Plugins/ImportWindow/Data/ImportPath.json";
         public const string packagePath = "Packages/com.yuki.yukiframework";
         public class Data
@@ -237,8 +238,8 @@ namespace YukiFrameWork.Extension
 
         void LoadData()
         {
-            TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);
-            string json = text.text;
+            TextAsset text = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath);        
+            string json = text?.text;
             if (string.IsNullOrEmpty(json))
             {
                 json = SerializationTool.SerializedObject(new Data()
@@ -316,14 +317,42 @@ namespace YukiFrameWork.Extension
                 foreach (var select in MenuTree.Selection)
                 {
                     if (!moduleInfo.ContainsKey(select.Name)) continue;
-
+                    var info = moduleInfo[select.Name];
                     EditorGUILayout.BeginVertical("FrameBox",GUILayout.Width(position.width - MenuWidth));
+                    string packageVersion = string.Empty;
+                    try
+                    {
+                        packageVersion = File.ReadAllText(info.path + "/Version.txt");
+                    }
+                    catch { }
+                    string importPath = string.Format("{0}/{1}", data.path, select.Name);
+                    TextAsset importVersionAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath + "/Version.txt");
+                    GUI.color = Color.yellow;
+                    if (!importVersionAsset)
+                    {
+                        GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前已导入工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
+                    }
+                    else if (string.IsNullOrEmpty(packageVersion))
+                    {
+                        string importVersion = importVersionAsset?.text;
+                        GUILayout.Label("包原始版号丢失，请重新下载框架以恢复!", "flow varPin tooltip");
+                    }
+                    else if (packageVersion != importVersionAsset.text)
+                    {
+                        GUILayout.Label($"当前版本不是最新版,已导入版本:{importVersionAsset.text} --- 新版:{packageVersion} 如有需要可重新导入模块!", "flow varPin tooltip");
+                    }
+                    else
+                    {
+                        GUI.color = Color.green;
+                        GUILayout.Label($"已是最新版:{importVersionAsset.text}", "flow varPin tooltip");
+                    }
+                    GUI.color = Color.white;
                     EditorGUILayout.Space(20);
                     GUILayout.Label(select.Name + "    " ,titleStyle);
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);
-                    var info = moduleInfo[select.Name]; 
+                   
                     bool isImport = info.active;
                     if (!isImport)
                         EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
@@ -347,7 +376,7 @@ namespace YukiFrameWork.Extension
                     }
 
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(Color.white, string.Format("{0}/{1}", data.path, select.Name), select.Name, moduleInfo[select.Name].path, isImport);
+                    DrawBoxGUI(Color.white, importPath, select.Name, moduleInfo[select.Name].path, isImport);
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
 

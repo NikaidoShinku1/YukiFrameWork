@@ -234,6 +234,7 @@ namespace YukiFrameWork.UI
         public Type panelType;
         public bool IsNull => panels.Count == 0;
         public int index;
+        [DisableEnumeratorWarning]
         public IEnumerator GetEnumerator()
         {
             return panels.GetEnumerator();
@@ -349,50 +350,58 @@ namespace YukiFrameWork.UI
             if (stack.Count > 0)
             {
                 var list = stack.Peek();
-                var current = stack.Find(x => x.panelType == info.panelType);
-                if (list == current || current == null)
+                if (!info.levelClear)
                 {
-                    if (info.panel != null)
+                    var current = stack.Find(x => x.panelType == info.panelType);
+                    if (current != null
+                        && list == current)
                     {
-                        info.panel.Exit();
-                        list.Remove(info.panel);
-                        if (!info.panel.IsPanelCache)
-                            info.panel.gameObject.Destroy();
-                    }
-                    else
-                    {
-                        list.Clear();
-                    }
-                    if (list.Count == 0)
-                    {
-                        var core = stack.Pop();
-                        GlobalObjectPools.GlobalRelease(core);
-                    }
+                        if (info.panel != null)
+                        {
+                            info.panel.Exit();
+                            list.Remove(info.panel);
+                            if (!info.panel.IsPanelCache)
+                                info.panel.gameObject.Destroy();
+                        }
+                        else
+                        {
+                            list.Clear();
+                        }
+                        if (list.Count == 0)
+                        {
+                            var core = stack.Pop();
+                            GlobalObjectPools.GlobalRelease(core);
+                        }
 
-                    if (stack.Count > 0)
+                        if (stack.Count > 0)
+                        {
+                            list = stack.Peek();
+                            list.OnResume();
+                        }
+                    }
+                    else if (current != null)
                     {
-                        list = stack.Peek();
-                        list.OnResume();
+                        if (info.panel != null)
+                        {
+                            info.panel.Exit();
+                            current.Remove(info.panel);
+                            if (!info.panel.IsPanelCache)
+                                info.panel.gameObject.Destroy();
+                        }
+                        else
+                        {
+                            current.Clear();
+                        }
+                        if (current.Count == 0)
+                        {
+                            stack.Remove(current);
+                            GlobalObjectPools.GlobalRelease(current);
+                        }
                     }
                 }
-                else if(current != null)
+                else
                 {
-                    if (info.panel != null)
-                    {
-                        info.panel.Exit();
-                        current.Remove(info.panel);
-                        if (!info.panel.IsPanelCache)
-                            info.panel.gameObject.Destroy();
-                    }
-                    else
-                    {
-                        current.Clear();
-                    }
-                    if (current.Count == 0)
-                    {
-                        stack.Remove(current);
-                        GlobalObjectPools.GlobalRelease(current);
-                    }
+                    stack.Clear();
                 }
             }          
         }
@@ -422,7 +431,7 @@ namespace YukiFrameWork.UI
         {
             return mTables.LastOrDefault();
         }
-
+        [DisableEnumeratorWarning]
         public IEnumerator GetEnumerator()
         {
             return mTables.GetEnumerator();
@@ -451,6 +460,16 @@ namespace YukiFrameWork.UI
             }
 
             return true;
+        }
+
+        public void Clear()
+        {
+            for (int i = Count - 1; i >= 0; i--)
+            {
+                var table = mTables[i];
+                table.Clear();
+            }
+            mTables.Clear();
         }
     }
 }
