@@ -55,25 +55,6 @@ namespace YukiFrameWork.ExampleRule
         [SerializeField,EnumToggleButtons(),LabelText("规则分布")]
 		internal Rule rule;
 		
-		[SerializeField,LabelText("测试玩家："),ReadOnly,DisplayAsString,Required]
-		internal UserController user;
-      
-#if UNITY_EDITOR
-		         
-        [InitializeOnLoadMethod]
-		static void InitExample()
-		{			
-			string path = $"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset";
-			var example = AssetDatabase.LoadAssetAtPath<Example>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset");
-			if (example == null)
-			{
-				example = ScriptableObject.CreateInstance<Example>();
-                AssetDatabase.CreateAsset(example, path);
-			}
-			example.user = AssetDatabase.LoadAssetAtPath<UserController>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/User.prefab");
-        }     
-#endif
-
 #if UNITY_EDITOR
 		
 		[OnInspectorGUI]

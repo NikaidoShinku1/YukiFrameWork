@@ -192,5 +192,13 @@ namespace YukiFrameWork
         }
 
         public static T Instance => GetInstance();
+
+        public static void Release()
+        {
+            instance = null;
+            SingletonFectory.ReleaseInstance<T>();
+        }
+
+
     }
 }

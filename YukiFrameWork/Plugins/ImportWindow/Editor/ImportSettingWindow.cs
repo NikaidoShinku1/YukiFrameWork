@@ -75,6 +75,8 @@ namespace YukiFrameWork.Extension
         {
             public string des;
             public string depend;
+            public string dependUrl;
+            public string version;
         }
         [Serializable]
         public class ToolDataInfo
@@ -115,12 +117,16 @@ namespace YukiFrameWork.Extension
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Bezier/Bezier.md"
             },
-            ["Entities"] = new ToolDataInfo()
+            ["EntitiesExtension"] = new ToolDataInfo()
             {
-                key = "Entities",
-                path = packagePath + "/Tool~/Entities",
+                key = "EntitiesExtension",
+                path = packagePath + "/Tool~/EntitiesExtension",
                 url = string.Empty,
                 active = false,
+                depends = new DependInfo[] 
+                { new DependInfo() { des = "Unity Entities包 通过packageManager安装 \n如通过搜索Entities无法找到，则导入URL:",depend = "Unity.Entities",dependUrl = "com.unity.entities",version = "1.0" },
+                    new DependInfo(){des = "Unity Entities Graphics包 通过packageManager安装 \n如通过搜索Entities Graphics无法找到，则导入URL:",depend = "Unity.Entities.Graphics",dependUrl = "com.unity.entities.graphics",version = "1.0"},
+                  new DependInfo(){ des = "Unity Burst包 通过packageManager安装，如通过搜索Burst无法找到，则导入URL:",depend = "Unity.Burst",dependUrl = "com.unity.burst"} }
             },
             ["SaveTool"] = new ToolDataInfo()
             {
@@ -367,7 +373,14 @@ namespace YukiFrameWork.Extension
                             }
                             catch
                             {
-                                EditorGUILayout.HelpBox("该模块需要导入:" + item.des + "后才能导入该模块(具有依赖项)", MessageType.Warning);
+                                EditorGUILayout.BeginHorizontal();
+                                string text = "该模块需要导入:" + item.des + "后才能导入该模块(具有依赖项)";
+                                if (!string.IsNullOrEmpty(item.version))
+                                    text += $" --> 包最低版本必须为:{item.version}";
+                                EditorGUILayout.HelpBox(text, MessageType.Warning);
+                                if (string.IsNullOrEmpty(item.dependUrl) == false)
+                                    EditorGUILayout.TextField(item.dependUrl,GUILayout.Width((position.width - MenuWidth) / 3));
+                                EditorGUILayout.EndHorizontal();
                                 isImport = false;
                             }
                         }

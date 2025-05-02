@@ -138,7 +138,7 @@ namespace YukiFrameWork
         }
 
 #if UNITY_EDITOR
-        [InitializeOnLoadMethod]
+        
         internal static void EditorInit()
         {
 #if UNITY_2023_1_OR_NEWER
@@ -148,7 +148,7 @@ namespace YukiFrameWork
 #endif
             if (config == null)
             {
-                _config = ScriptableObject.CreateInstance<LogConfig>();
+                _config = ScriptableObject.CreateInstance<LogConfig>(); 
                 string path = "Assets/Resources";
                 if (!Directory.Exists(path))
                 {

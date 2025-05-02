@@ -174,11 +174,16 @@ public class TestScripts : MonoBehaviour
 }
 ```
 
-除上述基本使用外，对于InputKeyControl类，可以事件的形式绑定，框架有InputKeyControlEventTriggerGroup 按键控制事件触发分组类:
+除上述基本使用外，对于InputKeyControl类，可以事件的形式绑定,同时支持InputAction，框架有InputKeyControlEventTriggerGroup 按键控制事件触发分组类:
 
 delegate:
 ``` csharp
-public delegate void InputCallBackContext(InputKeyControl inputKeyControl);
+    /// <summary>
+    ///  输入回调函数 将按键分配给组或通过传递InputActionMap配置后，注册相对应的事件在每当输入检测符合条件时自动触发
+    /// </summary>
+    /// <param name="context">当通过ActionMap触发按键时有值</param>
+    /// <param name="inputKeyControl">当通过使用框架InputKeyControl触发有值</param>
+public delegate void InputCallBackContext(InputAction.CallbackContext context,InputKeyControl inputKeyControl);
 ```
 
 |InputKeyControlEventTriggerGroup API|按键控制事件触发分组类 API说明|
@@ -188,10 +193,13 @@ public delegate void InputCallBackContext(InputKeyControl inputKeyControl);
 |InputKeyControlEventTriggerGroup CreateEventTriggerGroup(string groupName)|创建指定标识作为名称的分组(分组标识应全局唯一)|
 |void Release(bool IsClear = false)|释放所有已经创建的分组 IsClear:是否在释放后清空分组|
 |InputKeyControlEventTriggerGroup GetInputKeyControlEventTriggerGroup(string groupName)|根据标识获取某一个分组|
+|InputKeyControlEventTriggerGroup[] CreateEventTriggerGroupsByInputAction(InputActionMap maps)|通过InputActionAsset的配置取得指定的InputActionMap传递，会传递在ActionMap下所有的InputAction 每一个InputAction构建一个分组，组名为InputAction的名称|
+|InputKeyControlEventTriggerGroup CreateEventTriggerGroupByInputAction(InputAction inputActions)|通过传递指定的InputAction以构建分组,组名为InputAction的名称|
 |---|---|
 |Property API|属性API说明|
 |string GroupName { get; }|分组名称|
 |bool IsRunning { get; }|这个分组是否正在运行|
+|InputAction InputAction { get; set; }|当前分组所绑定的InputAction|
 |event InputCallBackContext onKey|当按住键触发|
 |event InputCallBackContext onKeyDown|当按下键触发|
 |event InputCallBackContext onKeyUp|当抬起键触发|
@@ -231,6 +239,10 @@ public class TestScripts : MonoBehaviour
          
          //添加事件
          inputKeyControlEventTriggerGroup.onKey += Move;
+
+         InputAction inputAction = null;//假设你有一个自己的InputAction配置
+         inputKeyControlEventTriggerGroup.InputAction = inputAction;
+
     }
 
     void OnEnable()

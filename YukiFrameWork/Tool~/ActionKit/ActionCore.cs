@@ -345,7 +345,7 @@ namespace YukiFrameWork
 
         public IActionNodeController Start<T>(T component, Action callBack = null) where T : Component
         {
-            
+            if (!component) return this;
             if (!component.TryGetComponent(out objectTrigger))
             {
                 objectTrigger = component.gameObject.AddComponent<OnGameObjectTrigger>();

@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志
 
+V1.45.3 移除已不再使用的插件，优化部分代码细节
+
+V1.45.2 框架输入系统拓展InputSystemExtension模块新增事件响应分组对InputAction配置的支持。优化部分代码/文档细节 修复ActionKit与UIKit在编辑器模式退出运行时偶现报错的问题
+
 V1.45.1 UIKit新增关闭指定层级下所有面板方法ClosePanelByLevel,优化更新UIKit的文档，移除ClosePanel在查找失败后仍会强制关闭层级顶层面板的功能，新增更新日志窗口、为导入窗口添加版本检测。
 
 V1.44.3 同步更新XFABManager，修复背包套件在调用读取后插槽数量翻倍的问题。

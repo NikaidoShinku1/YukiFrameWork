@@ -151,7 +151,6 @@ namespace YukiFrameWork
         }
         #endregion
     }
-   
     public partial class ViewController : YMonoBehaviour, IController
     {
         private object _object = new object();
@@ -172,12 +171,7 @@ namespace YukiFrameWork
                     return mArchitecture;
                 }
             }
-        }      
-
-        /// <summary>
-        /// 仅用于框架内部使用，禁止外部访问
-        /// </summary>
-        internal IArchitecture GetArchitectureByInternal => RuntimeArchitecture;
+        }              
         IArchitecture IGetArchitecture.GetArchitecture()
         {
             return RuntimeArchitecture;

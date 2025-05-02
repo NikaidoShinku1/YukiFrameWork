@@ -87,8 +87,7 @@ namespace YukiFrameWork
                     EditorGUILayout.HelpBox("框架配置文件丢失!请尝试点击下方按钮修复!", MessageType.Error);
                     if (GUILayout.Button("Fix Now", GUILayout.Height(50)))
                     {
-                        FrameworkConfigInfo.CreateConfig();
-                        LogKit.EditorInit();
+                        EditorInit();
                     }
                     return;
                 }
@@ -96,6 +95,12 @@ namespace YukiFrameWork
             base.OnImGUI();
 
             
+        }
+        [InitializeOnLoadMethod]
+        static void EditorInit()
+        {
+            FrameworkConfigInfo.CreateConfig();
+            LogKit.EditorInit();
         }
         ImportSettingWindow.VersionData versionData;
         protected override void DrawMenu()

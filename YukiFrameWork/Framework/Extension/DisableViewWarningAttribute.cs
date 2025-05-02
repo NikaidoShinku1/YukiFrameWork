@@ -28,4 +28,10 @@ namespace YukiFrameWork
 	{
 		
 	}
+
+	[AttributeUsage(AttributeTargets.Class)]
+	public class DisableRegistrationWarningAttribute : Attribute
+	{
+		
+	}
 }

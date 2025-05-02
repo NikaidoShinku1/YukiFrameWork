@@ -16,7 +16,6 @@ namespace YukiFrameWork.Extension
         public static string SelectPath => !IsEN ? "选择路径" : "Select Path";
 
         #region Module Info
-
         public static string GetModuleInfo(string key)
         {
             if (key == "ActionKit")
@@ -51,7 +50,7 @@ namespace YukiFrameWork.Extension
                 return ImportHyCLR;
             else if (key == "StateMachine")
                 return StateMachineInfo;
-            else if (key == "Entities")
+            else if (key == "EntitiesExtension")
                 return EntitiesInfo;
             else if (key == "InputSystemExtension")
                 return InputKitExtension;
@@ -62,7 +61,9 @@ namespace YukiFrameWork.Extension
 
         public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";
 
-        public static string EntitiesInfo => !IsEN ? "框架特殊魔改实验性ECS模块，仅在融合ECS的风格方式与Mono结合。契合日常使用Mono的Unity开发的ECS，不专门强化性能，以人性化设计角度出发的ECS模块" : "\"Framework special magic changes the experimental ECS module, only in the fusion of ECS style with Mono. ECS developed in accordance with the daily use of Mono's Unity, not specifically enhanced performance, ECS modules from the perspective of human design\"";
+        public static string EntitiesInfo => !IsEN ? "Unity Entities拓展模块。该模块拓展Unity ECS与Mono的交互桥梁。该拓展核心目的为以GameObject为主导形式实体。除渲染外，保留GameObject原生所有的使用方式，\n不需要新建ECS SubScene可直接应用主场景使用。" +
+            "\n该模块重置了对于<color=cyan>3D GameObject</color>的渲染，性能相较三倍提升，以<color=cyan>GameObject</color>为核心最大实现以万为计数的对象同屏。对于<color=yellow>2D GameObject</color>,仅默认提供计算的高速优化" +
+            "\n该模块无法达到十万、百万同屏级别，如有性能极限需求，则是GameObject无法仰望的高度，故并不推荐该模块。\n\n<color=yellow>注意:你的Unity版本必须是支持dots的</color>" : "Unity Entities extension module. This module expands the interaction bridge between Unity ECS and Mono. The dominant formal entity is GameObject. There is no need to create a new ECS SubScene; the main scene can be directly applied for use. Design humanized while optimizing performance.";
 
         public static string SerializationInfo => !IsEN ? "框架序列化工具,可以将类转换成Json,Xml,Bytes文件流,集成ExcelToJson转换插件" : "Framework serialization tool, can convert classes to Json,Xml,Bytes file streams, integrated ExcelToJson conversion plug-in";
 

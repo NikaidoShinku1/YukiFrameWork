@@ -492,27 +492,7 @@ namespace YukiFrameWork.InputSystemExtension
 
             if (isEnableGamepad)
                 GamepadButton = defaultGamepadButton; 
-        }
-
-        /// <summary>
-        /// 事件触发模式启动
-        /// <para>Tip:启动后当通过InputKeyControlGroup访问到对应的组注册事件后，当该按键成功执行则会发送对应事件，并将自身与组名作为参数传递</para>
-        /// </summary>
-        /// <param name="groupName"></param>
-        public void EventTriggerEnable(string groupName)
-        {
-            //ToDo
-        }
-
-        /// <summary>
-        /// 事件触发模式关闭
-        /// <para>Tip:事件触发模式一旦启动，生命周期并不会自动处理。当与MonoBehaviour对象强关联时，在对象销毁后，你应该手动调用该方法以进行事件的关停操作。</para>
-        /// </summary>
-        public void EventTriggerDisable()
-        {
-            
-        }
-
+        }     
         /// <summary>
         /// 是否能够通过某种类型的设备控制
         /// </summary>

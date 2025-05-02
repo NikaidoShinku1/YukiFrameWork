@@ -99,7 +99,7 @@ namespace YukiFrameWork
 #endif
 #if UNITY_EDITOR
         static ImportSettingWindow.VersionData versionData;
-        [InitializeOnLoadMethod]
+       // [InitializeOnLoadMethod]
         internal static void CreateConfig()
         {
             FrameworkConfigInfo info = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));

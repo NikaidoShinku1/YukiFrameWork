@@ -543,6 +543,7 @@ namespace YukiFrameWork.UI
         public static T FindPanelByType<T>(UILevel level) where T : BasePanel
         {
             var root = UIManager.Instance.GetPanelLevel(level);
+            if (!root) return null;
             return root.GetComponentInChildren<T>(true);
         }
 
