@@ -109,7 +109,15 @@ namespace YukiFrameWork.Extension
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md",
                 depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem",depend = "Unity.InputSystem" } }
                 
-            },            
+            },
+            ["Localization"] = new ToolDataInfo()
+            {
+                key = "Localization",
+                path = packagePath + "/Tool~/Localization",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Localization/LocalizationInfo.md"
+            },
+
             ["Bezier"] = new ToolDataInfo()
             {
                 key = "Bezier",

@@ -8,7 +8,7 @@
 ![输入图片说明](Texture/1.png)
 
 ![4](Texture/11.png)
-在配置表中输入配置对应的标识
+在添加完语言后可对配置进行Excel导入导出操作
 
 双击配置表打开本地化配置窗口:
 
@@ -26,7 +26,7 @@
 Excel示例数据如下:
 ![5](Texture/5.png)
 
-图中的数据是语言为English的情况，每一个语言，都需要一个Excel文件表来进行数据转换。Tip：必须是后缀为xlsx的Excel文件。
+图中的数据包含了两种语言(红圈部分)不同的语言是不同的工作表。
 
 
 运行时使用示例代码：
@@ -48,24 +48,24 @@ namespace YukiFrameWork.Example
             ///本地化套件采用与其他工具一致通过XFABManager进行默认加载的方式，需要调用一次Init方法
 
             LocalizationKit.Init(projectName:"");
-            LocalizationKit.Add
+
             ///注册切换语言时的事件回调，事件可以在初始化之前与之后注册，没有限制
             LocalizationKit.RegisterLanguageEvent(language =>
             {
-                info = LocalizationKit.GetContent("你好世界",language).Context;
+                info = LocalizationKit.GetContent("First",language).Context;
             });
 
             ///启动时可以调用一次语言更新
             LocalizationKit.OnLanguageValueChanged();
 
             ///如果想直接获得某一个Data的信息(必须执行过一次初始化!):
-            ILocalizationData localization = LocalizationKit.GetContent("你好世界",LocalizationKit.LanguageType);
+            ILocalizationData localization = LocalizationKit.GetContent("First",LocalizationKit.LanguageType);
 
             ///得到文本信息
             Debug.Log(localization.Context);
 
-            ///得到精灵
-            Debug.Log(localization.Sprite);
+            ///得到Data数据中的本地精灵
+            Debug.Log(localization.Image.Icon);
         }
         private void OnGUI()
         {                                 
@@ -108,9 +108,11 @@ namespace YukiFrameWork.Example
 |void OnLanguageValueChanged()|发送当语言变更时的事件|
 |void LoadLocalizationManagerConfig(LocalizationManager configManager)|添加配置(该API无需初始化加载器)|
 |void LoadLocalizationManagerConfig(string path)|根据路径从加载器加载后添加配置|
+|bool LanguageContains(Language language)|判断某一个语言是否至少具有一条数据|
+|Language[] GetLanguages()|获取目前已经加载的所有语言|
 |IEnumerator LoadLocalizationManagerConfigAsync(string path)|如上，但是异步|
-|ILocalizationData GetContent(string managerKey,string key, Language language)|传递添加的管理器标识，语言数据唯一标识，语言类型获得本地化数据|
-|ILocalizationData GetContent(string managerKey, string key)|通过内部的语言判断获取语言数据，如上|
+|ILocalizationData GetContent(string key, Language language)|传递添加的管理器标识，语言数据唯一标识，语言类型获得本地化数据|
+|ILocalizationData GetContent(string key)|通过内部的语言判断获取语言数据，如上|
 |---|---|
 |LocalizationKit static Property API|本地化套件类静态属性API说明|
 |Language LanguageType { get; set; }|本地化当前的语言|
@@ -121,11 +123,12 @@ namespace YukiFrameWork.Example
 |Language DeSerialize()|反序列化|
 |void Serialize(Language language)|序列化|
 
-对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置,一个Component只能使用一个配置
+对于UI组件的兼容，应在Panel上挂载LocalizationComponent脚本,并自行进行配置
 ![输入图片说明](Texture/6.png)
 
+可以为组件设置同步的标识，以及设置该组件可能同步的组件(Text,Image)
 
-这样当项目运行时，该组件将会同步，框架默认支持Text与Image，如果使用TextMeshPro等其他组件，可以使用LocalizationComponent的初始化解析器方法
+这样当项目运行时，该组件将会同步，如果使用TextMeshPro等其他组件，可以使用LocalizationComponent的初始化解析器方法
 
 ```
 public class LocalizationTest : MonoBehaviour
@@ -142,13 +145,13 @@ public class LocalizationTest : MonoBehaviour
             localizationComponent.InitResolver(CustomResolver);
         }
        
-        private void CustomResolver(Component component, ILocalizationData localizationData)
+        private void CustomResolver(MaskableGraphic component, ILocalizationData localizationData)
         {
             ///在这里实现具体的逻辑：
 
             //示例:
             TextMeshProUGUI textMesh = component as TextMeshProUGUI;
-            textMesh.text = localizationData.Content;
+            textMesh.text = localizationData.Context;
         }
     }
 }

@@ -56,6 +56,8 @@ namespace YukiFrameWork.Extension
                 return InputKitExtension;
             else if (key == "UINavigation")
                 return UINAvigation;
+            else if (key == "Localization")
+                return LocalizationInfo;
             return default;
         }
 
@@ -71,6 +73,8 @@ namespace YukiFrameWork.Extension
         public static string ActionKitInfo => !IsEN ? "ActionKit动作时序套件,可以完成例如定时、队列、事件循环、强化Update、等待帧回调等强化功能实现" : "ActionKit Action timing suite, you can complete such as timing, queue, event loop, enhanced Update, wait for frame callback and other enhanced functions";
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
+
+        public static string LocalizationInfo => !IsEN ? "框架本地化多语言套件" : "Framework LocalizationKit";
 
         public static string InputKitExtension => !IsEN ? "框架输入系统集成拓展(该模块完全依赖InputSystem新输入系统)" : "Framework input system integration Extension (This module relies entirely on the InputSystem new input system. And after importing the module, UIKit automatically has a new expanded UI navigation function!)";
 

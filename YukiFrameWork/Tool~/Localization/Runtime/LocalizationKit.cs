@@ -71,7 +71,7 @@ namespace YukiFrameWork
     public static class LocalizationKit
 	{    
         private static ILocalizationLoader loader;
-        private static Dictionary<string, Dictionary<Language, ILocalizationData[]>> localizationManagers = new Dictionary<string, Dictionary<Language, ILocalizationData[]>>();
+        private static Dictionary<Language,Dictionary<string,ILocalizationData>> all_localizations = new Dictionary<Language, Dictionary<string, ILocalizationData>>();
         internal const string DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY = "DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY";
 
         /// <summary>
@@ -113,6 +113,22 @@ namespace YukiFrameWork
         }
 
         /// <summary>
+        /// 单独添加本地语言数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="localizationData"></param>
+        /// <param name="language"></param>
+        public static void AddLocalizationData<T>(T localizationData,Language language) where T : ILocalizationData
+        {
+            if (!all_localizations.TryGetValue(language, out var dict))
+            {
+                dict = new Dictionary<string, ILocalizationData>();
+                all_localizations[language] = dict;
+            }           
+            dict.Add(localizationData.Key, localizationData);
+        }
+
+        /// <summary>
         /// 注销本地化套件修改语言时的事件(注销事件可以在初始化之前进行)
         /// </summary>
         /// <param name="action"></param>
@@ -127,12 +143,19 @@ namespace YukiFrameWork
         public static void OnLanguageValueChanged()
         {
             Update_Language.SendEvent(LanguageType);
-        }       
+        }
+        /// <summary>
+        /// 初始化本地化套件以赋值配置加载器
+        /// </summary>       
         public static void Init(string projectName)
         {
             Init(new ABManagerLocalizationLoader(projectName));
         }
 
+        /// <summary>
+        /// 初始化本地化套件以赋值配置加载器
+        /// </summary>
+        /// <param name="loader"></param>
         public static void Init(ILocalizationLoader loader)
         {          
             LocalizationKit.loader = loader;
@@ -140,18 +163,33 @@ namespace YukiFrameWork
         }
 
         internal static void LoadLocalizationManagerConfigInternal(LocalizationManager configManager, bool isLoaderLoad)
-        {
-            string key = configManager.managerKey;
-            if (localizationManagers.ContainsKey(key))
-                throw new Exception("该本地配置已存在! Config Key:" + key);
+        {     
             var datas = configManager.localizationConfig_language_dict;
-            localizationManagers[key] = configManager.localizationConfig_language_dict
-                .ToDictionary(x => x.Key,x => x.Value.LocalizationDatas);
+            foreach (var data in datas)
+            {
+                foreach (var item in data.Value.localizations)
+                {
+                    AddLocalizationData(item,data.Key);
+                }
+            }
             
             if(isLoaderLoad)
             loader.UnLoad(configManager);
         }
-        
+
+        /// <summary>
+        /// 判断该语言是否存在(至少在这个语言下有一条LocalizationData)
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        public static bool LanguageContains(Language language)
+            => all_localizations.ContainsKey(language);
+
+        /// <summary>
+        /// 获取目前已经拥有数据的所有语言
+        /// </summary>
+        /// <returns></returns>
+        public static Language[] GetLanguages() => all_localizations.Keys.ToArray();
 
         /// <summary>
         /// 手动添加配置
@@ -177,39 +215,42 @@ namespace YukiFrameWork
             });
             yield return CoroutineTool.WaitUntil(() => completed);
         }
-
+        [Obsolete("过时的方法，请使用GetContent(string key, Language language)不再需要传递ManagerKey")]
         public static ILocalizationData GetContent(string managerKey,string key, Language language)
         {
-            return GetContentByKey(managerKey, key, language);
+            return GetContentByKey(key, language);
         }
-
+        [Obsolete("过时的方法，请使用GetContent(string key)不再需要传递ManagerKey")]
         public static ILocalizationData GetContent(string managerKey, string key)
         {
-            return GetContentByKey(managerKey, key, LanguageType);
+            return GetContentByKey(key, LanguageType);
+        }
+        
+        public static ILocalizationData GetContent(string key, Language language)
+        {
+            return GetContentByKey(key, language);
         }
 
-        internal static ILocalizationData GetContentByKey(string managerKey,string key, Language language)
+        public static ILocalizationData GetContent(string key)
+        {
+            return GetContentByKey(key, LanguageType);
+        }
+
+
+        internal static ILocalizationData GetContentByKey(string key, Language language)
         {          
-            if (!localizationManagers.TryGetValue(managerKey, out var configManager))
-            {
-                Debug.LogError("没有添加指定标识的本地化管理器资源，managerKey--- " + managerKey);
+            if (!all_localizations.TryGetValue(language, out var localizations))
+            {                
                 return default;
             }
 
             ILocalizationData data = null;
 
-            if (configManager.TryGetValue(language, out var config))
+            if (!localizations.TryGetValue(key, out data))
             {
-                for (int i = 0; i < config.Length; i++)
-                {
-                    if (config[i].Key == key)
-                    {
-                        data = config[i];
-                        break;
-                    }
-                }
-            }                  
-
+                Debug.LogError("指定标识不存在，请检查是否有为该语言添加指定的数据: Key:" + key);
+                return default;
+            }
             return data;
         }      
     }

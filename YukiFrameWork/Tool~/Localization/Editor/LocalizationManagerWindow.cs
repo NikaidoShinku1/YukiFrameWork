@@ -25,7 +25,7 @@ namespace YukiFrameWork
     {
         protected override string SELECT_GUID_KEY => "LOCALIZATIONMANAGER_EDITOR_SELECT_KEY";
 
-        protected override Type ConfigItemBaseType => typeof(LocalizationConfigBase);
+        protected override Type ConfigItemBaseType => typeof(LocalizationConfig);
 
         protected override void ConfigRefresh()
         {          
@@ -74,7 +74,7 @@ namespace YukiFrameWork
 
                 languageMenu.AddItem(new GUIContent($"添加新的语言配置/{type}/{language}"), false, () =>
                 {
-                    LocalizationConfigBase localizationConfig = ScriptableObject.CreateInstance(type) as LocalizationConfigBase;
+                    LocalizationConfig localizationConfig = ScriptableObject.CreateInstance(type) as LocalizationConfig;
 
                     AssetDatabase.AddObjectToAsset(localizationConfig, tBase);
                     localizationConfig.name = temp.ToString();
@@ -94,7 +94,7 @@ namespace YukiFrameWork
 
         protected override void OnDelete(OdinMenuItem menuTreeItem)
         {
-            var localizationConfig = menuTreeItem.Value as LocalizationConfigBase;
+            var localizationConfig = menuTreeItem.Value as LocalizationConfig;
             if (!localizationConfig) return;
             Language language = Language.SimplifiedChinese;
             bool over = false;

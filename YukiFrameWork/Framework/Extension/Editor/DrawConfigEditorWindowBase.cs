@@ -111,7 +111,7 @@ namespace YukiFrameWork.DrawEditor
                 && Event.current.button == 1)
             {
                 GenericMenu menu = new GenericMenu();
-                Type[] types = AssemblyHelper.GetTypes(x => x.IsSubclassOf(ConfigItemBaseType) && !x.IsAbstract);
+                Type[] types = AssemblyHelper.GetTypes(x => (x.IsSubclassOf(ConfigItemBaseType) || x == ConfigItemBaseType) && !x.IsAbstract);
                 if (types.Length == 0 || !tBase)
                 {
                     menu.AddDisabledItem(DisableItem(), false);
