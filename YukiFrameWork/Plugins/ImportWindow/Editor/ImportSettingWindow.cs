@@ -336,7 +336,7 @@ namespace YukiFrameWork.Extension
                     GUI.color = Color.yellow;
                     if (!importVersionAsset)
                     {
-                        GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前已导入工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
+                        GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
                     }
                     else if (string.IsNullOrEmpty(packageVersion))
                     {

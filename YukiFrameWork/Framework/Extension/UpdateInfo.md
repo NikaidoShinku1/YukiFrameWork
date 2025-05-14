@@ -1,5 +1,17 @@
 ﻿#### 框架更新日志
 
+V1.46.5 行为树BehaviourTree模块 修复初始化行为节点状态出现空指针异常的问题
+
+V1.46.4 ItemKit新增拖拽回收可选，关闭后当没有拖入插槽时不会自动丢弃。新增UISlot视觉接口IUISlotVisual,可通过该接口自由定制同步的UI组件，如Tmp支持。更新文档
+
+V1.46.3 修复StateMachine模块中 AnyState条件判断成功后会循环进入的问题
+
+V1.46.2 输入系统拓展，为InputAction的动态绑定添加Cancel回调
+
+V1.46.1简单对象池回收一定触发回调。输入拓展更新3.0版本，直接支持InputAction的改键操作，修复ActionKit Lerp无法在Repeat使用的问题  优化部分代码细节。MissionKit支持直接调用完成任务/失败。UI解决编辑器结束运行的抽象丢失报错。
+
+V1.45.4 UI模块新增IUIAnimation动画模式接口可使用。优化部分代码细节
+
 V1.45.3 移除已不再使用的插件，优化部分代码细节
 
 V1.45.2 框架输入系统拓展InputSystemExtension模块新增事件响应分组对InputAction配置的支持。优化部分代码/文档细节 修复ActionKit与UIKit在编辑器模式退出运行时偶现报错的问题

@@ -140,6 +140,11 @@ namespace YukiFrameWork
 
         public CodeWriter CustomDefaultFunction(string funcName,bool isPublic = true, FunctionType function = FunctionType.None)
         {
+            return CustomDefaultFunction(funcName, isPublic, false, function);
+        }
+
+        public CodeWriter CustomDefaultFunction(string funcName, bool isPublic = true,bool isProtected = false, FunctionType function = FunctionType.None)
+        {
             string p = string.Empty;
             switch (function)
             {
@@ -156,9 +161,9 @@ namespace YukiFrameWork
                     break;
                 case FunctionType.Static:
                     p = "static";
-                    break;            
+                    break;
             }
-            string func = $"{(isPublic ? "public" : "private")} {p} {funcName.ToLower()}()" + "{  };";
+            string func = $"{(isPublic ? "public" : (isProtected ? "protected":"private"))} {p} {funcName.ToLower()}()" + "{  };";
             codes.Add(func);
             return this;
         }

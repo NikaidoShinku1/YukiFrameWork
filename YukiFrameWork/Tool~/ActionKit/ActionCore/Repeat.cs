@@ -16,7 +16,7 @@ using YukiFrameWork.Pools;
 namespace YukiFrameWork
 {
     public class Repeat : ActionNode, IRepeat
-    {
+    {      
         private static SimpleObjectPools<Repeat> simpleObjectPools
             = new SimpleObjectPools<Repeat>(() => new Repeat(), x => x.actions.Clear(), 10);
         public Repeat(int count)
@@ -46,9 +46,9 @@ namespace YukiFrameWork
         public override bool OnExecute(float delta)
         {
             if (!IsInit) OnInit();
-            if (ActionNode.OnExecute(delta))
+            if (CurrentCount != -1 && CurrentCount > 0)
             {
-                if (CurrentCount > 0 || CurrentCount == -1)
+                if (ActionNode.OnExecute(delta))
                 {
                     if (CurrentCount != -1)
                         CurrentCount--;
@@ -60,7 +60,13 @@ namespace YukiFrameWork
                     return true;
                 }
             }
-
+            else
+            {
+                if (ActionNode.OnExecute(delta))
+                {
+                    ActionNode.OnInit();
+                }
+            }           
             return false;
         }
 

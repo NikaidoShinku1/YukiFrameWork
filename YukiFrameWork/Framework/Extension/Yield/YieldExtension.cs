@@ -417,14 +417,16 @@ namespace YukiFrameWork
         {
             awaitable.Token = Token;
             if (Token == null) return awaitable;
-            Token.Register(() =>
+            void Ending()
             {
                 if (awaitable?.Coroutine != null)
                 {
                     MonoHelper.Stop(awaitable.Coroutine);
                 }
                 awaitable.StopAllTask();
-            });
+                Token.Remove(Ending);
+            }
+            Token.Register(Ending);
 
             return awaitable;
         }

@@ -1,5 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -28,7 +29,7 @@ namespace YukiFrameWork.UI
         bool IsActive { get; }
         bool IsPanelCache { get; }
         GameObject gameObject { get; }
-
+        IUIAnimation Animation { get; set; }
         UILevel Level { get; }
         PanelOpenType OpenType { get; }
 
@@ -37,8 +38,8 @@ namespace YukiFrameWork.UI
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
     public class BasePanel : YMonoBehaviour,ISerializedFieldInfo,IPanel
-    {      
-        protected CanvasGroup canvasGroup;
+    {        
+        private CanvasGroup canvasGroup;
         protected new RectTransform transform;
         [HideInInspector]
         public UICustomData Data;
@@ -56,12 +57,22 @@ namespace YukiFrameWork.UI
         protected PanelOpenType openType = PanelOpenType.Single;
 
         public PanelOpenType OpenType => openType;
+
+        public CanvasGroup CanvasGroup
+        {
+            get
+            {
+                if (!canvasGroup && this)
+                    canvasGroup = GetComponent<CanvasGroup>();
+                return canvasGroup;
+            }
+        }
         public UILevel Level
         {
             get
             {              
                 return mLevel;
-            }     
+            }           
         }       
         void IPanel.SetLevel(UILevel level)
         {          
@@ -77,12 +88,34 @@ namespace YukiFrameWork.UI
 
         public bool IsActive { get; private set; }
 
+        private IUIAnimation mAnimation;
+
+        /// <summary>
+        /// 这个UI面板可用的UI动画模式
+        /// </summary>
+        public IUIAnimation Animation
+        {
+            get => mAnimation;
+            set
+            {
+                if (value != null && mAnimation != value)
+                {
+                    mAnimation = value;
+                    mAnimation.Panel = this;                   
+                    mAnimation.OnInit();
+                }
+            }
+        }
+
         [SerializeField,LabelText("是否让面板可拖拽"),HideIf(nameof(IsBase))]
         protected bool IsPanelDrag = false;
+
+        private CoroutineTokenSource uiTokenScoure;
    
         protected override void Awake()
         {
             base.Awake();
+            uiTokenScoure = CoroutineTokenSource.Create(this);
             transform = base.transform as RectTransform;
             canvasGroup = GetComponent<CanvasGroup>();         
             this.BindDragEvent(DefaultDragEvent).UnRegisterWaitGameObjectDestroy(this);
@@ -162,41 +195,57 @@ namespace YukiFrameWork.UI
         /// 关闭面板
         /// </summary>
         public void CloseSelf()
-            => UIKit.ClosePanel(this);      
+            => UIKit.ClosePanel(this);
 
         #region IPanel
-        void IPanel.Enter(params object[] param)
-        {
-            if (canvasGroup == null)
-                canvasGroup = GetComponent<CanvasGroup>();
 
-            canvasGroup.alpha = 1;
-            canvasGroup.blocksRaycasts = true;       
+        async void IPanel.Enter(params object[] param)
+        {           
+            //进入先将Alpha设置为1，在动画播放完成后再设置可交互
+            CanvasGroup.alpha = 1;
+            if (Animation != null)
+            {
+                Animation.OnEnter(param);
+                await CoroutineTool
+                    .WaitUntil(Animation.OnEnterAnimation)
+                    .Token(uiTokenScoure.Token);
+            }
+            CanvasGroup.blocksRaycasts = true;       
             OnEnter(param);
+           
             IsActive = true;
             IsPaused = false;
         }
 
         void IPanel.Resume()
         {
-            canvasGroup.blocksRaycasts = true;
+            CanvasGroup.blocksRaycasts = true;
             OnResume();
             IsPaused = false;
         }
 
         void IPanel.Pause()
         {
-            canvasGroup.blocksRaycasts = false;
+            CanvasGroup.blocksRaycasts = false;
             OnPause();
             IsPaused = true;
         }
 
-        void IPanel.Exit()
+        async void IPanel.Exit()
         {
-            if (canvasGroup == null)
-                canvasGroup = GetComponent<CanvasGroup>();
-            canvasGroup.alpha = 0;
-            canvasGroup.blocksRaycasts = false;
+
+            //退出先禁止交互，且等待动画播放后再直接把canvasGroup的alpha设置为0
+            if (!transform) return;
+            CanvasGroup.blocksRaycasts = false;
+            if (Animation != null)
+            {
+                Animation.OnExit();
+                await CoroutineTool
+                    .WaitUntil(Animation.OnExitAnimation)
+                    .Token(uiTokenScoure.Token);
+            }
+            CanvasGroup.alpha = 0;
+                 
             OnExit();
             IsActive = false;
             IsPaused = false;            

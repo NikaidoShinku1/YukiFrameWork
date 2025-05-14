@@ -7,45 +7,106 @@
 /// -  All Rights Reserved.
 ///=====================================================
 using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork.Item
-{   
+{
+    /// <summary>
+    /// IUISlot的视觉控制接口。在框架默认情况下，只支持Text与Image，当用户希望自由定制组件进行更新物品的UI时。可在UISlot下赋值
+    /// </summary>
+    public interface IUISlotVisual
+    {
+        /// <summary>
+        /// 更新数量
+        /// </summary>
+        /// <param name="slot">物品插槽</param>
+        void UpdateCount(int count);
+
+        /// <summary>
+        /// 物品数量的UI
+        /// </summary>
+        MaskableGraphic ItemCount { get; }
+        /// <summary>
+        /// 物品数量的图标
+        /// </summary>
+        MaskableGraphic ItemIcon { get; }
+        /// <summary>
+        /// 设置图标
+        /// </summary>
+        /// <param name="sprite"></param>
+        void SetIcon(Sprite sprite);   
+    }
+
+    public class DefaultUISlotVisual : IUISlotVisual
+    {
+        private Image iconImage;
+        private Text countText;
+        public DefaultUISlotVisual(Image image, Text text)
+        {
+            this.iconImage = image;
+            this.countText = text;
+        }
+        public MaskableGraphic ItemCount => countText;
+
+        public MaskableGraphic ItemIcon => iconImage;
+
+        public void SetIcon(Sprite sprite)
+        {
+            iconImage.sprite = sprite;
+        }
+
+        public void UpdateCount(int count)
+        {
+            if (count == 0)
+                this.countText.text = string.Empty;
+            else this.countText.text = count.ToString();
+        }
+
+    }
     [DisableViewWarning]
-	public class UISlot : MonoBehaviour
+	public class UISlot : YMonoBehaviour
 	{
-        public Image Icon;
-		public Text Count;
+        [SerializeField]
+        private Image Icon;
+        [SerializeField]
+		private Text Count;
 
         public Slot Slot { get;private set; }
+   
+        /// <summary>
+        /// UISlot自由定制视觉接口。当不希望使用内部自带的Image与Text时，继承UISlot添加组件/或直接使用后为该属性赋值即可。
+        /// </summary>
+        public IUISlotVisual Visual { get; set; }
 
         public virtual void UpdateView(Slot slot)
-        {
-
+        {          
             if (slot.ItemCount == 0)
             {
-                Count.text = string.Empty;
-                Icon.Hide();
+                Visual.UpdateCount(0);
+                Visual.ItemIcon.Hide();               
             }
             else
             {
                 if (slot.Item.IsStackable)
                 {
-                    Count.text = slot.ItemCount.ToString();
-                    Count.Show();
+                    Visual.UpdateCount(slot.ItemCount);
+                    Visual.ItemCount.Show();                  
                 }
-                else Count.Hide();
-                Icon.Show();
+                else
+                {
+                    Visual.ItemCount.Hide();
+                }
+
+                Visual.ItemIcon.Show();
 
                 if (Slot.Item?.Icon)
-                {
-                    Icon.sprite = Slot.Item.Icon;
+                {                    
+                    Visual.SetIcon(Slot.Item.Icon);                  
                 }
             }     
-        }
+        }      
         public UISlot InitSlot(Slot slot)
         {
             this.Slot?.OnItemChanged.UnRegister(UpdateView);
@@ -63,8 +124,21 @@ namespace YukiFrameWork.Item
         }
         [LabelText("是否支持默认拖拽事件注册")]
         public bool IsAutoRegisterDrag = true;
+
+        [LabelText("拖拽到非插槽位置是否自动销毁"),ShowIf(nameof(IsAutoRegisterDrag))]
+        public bool IsPointerDestory = true;
+
+        protected override void Awake()
+        {
+            base.Awake();
+          
+            //只有没有赋值的情况下才对Visual赋值
+            this.Visual ??= new DefaultUISlotVisual(Icon,Count);
+        }
+
         protected virtual void Start()
         {
+            
             if (!IsAutoRegisterDrag) return;
             this.BindBeginDragEvent(OnBeginDrag);
             this.BindDragEvent(OnDrag);
@@ -103,7 +177,7 @@ namespace YukiFrameWork.Item
         {
             if (mDragging) return;
             mDragging = true;
-            var canvas = Icon.gameObject.AddComponent<Canvas>();
+            var canvas = Visual.ItemIcon.gameObject.AddComponent<Canvas>();
             canvas.overrideSorting = true;
             canvas.sortingOrder = 1000;       
             Update_ItemPos();
@@ -112,9 +186,11 @@ namespace YukiFrameWork.Item
         private void Update_ItemPos()
         {                   
             var mousePosition = Input.mousePosition;
-            if(RectTransformUtility
+            if (RectTransformUtility
                 .ScreenPointToLocalPointInRectangle(transform as RectTransform, mousePosition, null, out var localPosition))
-                Icon.SetLocalPosition2D(localPosition);
+            {
+                Visual.ItemIcon.SetLocalPosition2D(localPosition);
+            }
         }
 
         protected virtual void OnDrag(PointerEventData eventData)
@@ -127,10 +203,10 @@ namespace YukiFrameWork.Item
         {
             if (mDragging)
             {
-                var canvas = Icon.GetComponent<Canvas>();
+                var canvas = Visual.ItemIcon.GetComponent<Canvas>();
                 canvas.Destroy();
                 mDragging = false;
-                Icon.SetLocalPositionIdentity();
+                Visual.ItemIcon.SetLocalPositionIdentity();
 
                 if (ItemKit.CurrentSlotPointer)
                 {
@@ -155,7 +231,7 @@ namespace YukiFrameWork.Item
                         }
                     }
                 }
-                else
+                else if(IsPointerDestory)
                 {
                     Slot.Item = null;
                     Slot.ItemCount = 0;

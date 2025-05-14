@@ -61,9 +61,10 @@ namespace YukiFrameWork.Extension
 
         public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";
 
-        public static string EntitiesInfo => !IsEN ? "Unity Entities拓展模块。该模块拓展Unity ECS与Mono的交互桥梁。该拓展核心目的为以GameObject为主导形式实体。除渲染外，保留GameObject原生所有的使用方式，\n不需要新建ECS SubScene可直接应用主场景使用。" +
-            "\n该模块重置了对于<color=cyan>3D GameObject</color>的渲染，性能相较三倍提升，以<color=cyan>GameObject</color>为核心最大实现以万为计数的对象同屏。对于<color=yellow>2D GameObject</color>,仅默认提供计算的高速优化" +
-            "\n该模块无法达到十万、百万同屏级别，如有性能极限需求，则是GameObject无法仰望的高度，故并不推荐该模块。\n\n<color=yellow>注意:你的Unity版本必须是支持dots的</color>" : "Unity Entities extension module. This module expands the interaction bridge between Unity ECS and Mono. The dominant formal entity is GameObject. There is no need to create a new ECS SubScene; the main scene can be directly applied for use. Design humanized while optimizing performance.";
+        public static string EntitiesInfo => !IsEN ? "Unity Entities拓展模块。该模块拓展Unity ECS与Mono的交互桥梁。在原生Scene即可完美发挥ECS。支持热更新" +
+            "\n拓展方式1：以<color=cyan>GameObject</color>为主导形式实体。除渲染外，保留<color=cyan>GameObject</color>原生所有的使用方式，直接应用主场景使用该模块可自定义对于<color=cyan>GameObject</color>的渲染。" +
+            "\n拓展方式1相对于原生Mono，在渲染个体转换与ECS代码高速优化的基础上，使用Mono可享受三倍提升，实现以万计数同屏。" +
+            "\n\n拓展方式2：同时支持以封装<color=cyan>EntitiesGraphics</color>渲染的方式。在原生<color=yellow>Scene</color>下，代替<color=yellow>SubScene</color>以纯粹实体渲染以发挥出ECS全部的效能(非<color=cyan>GameObject</color>个体转换) 可实现百万同屏。\n\n<color=yellow>注意:你的Unity版本必须是支持dots的</color>" : "Unity Entities extension module. This module expands the interaction bridge between Unity ECS and Mono. The dominant formal entity is GameObject. There is no need to create a new ECS SubScene; the main scene can be directly applied for use. Design humanized while optimizing performance.";
 
         public static string SerializationInfo => !IsEN ? "框架序列化工具,可以将类转换成Json,Xml,Bytes文件流,集成ExcelToJson转换插件" : "Framework serialization tool, can convert classes to Json,Xml,Bytes file streams, integrated ExcelToJson conversion plug-in";
 

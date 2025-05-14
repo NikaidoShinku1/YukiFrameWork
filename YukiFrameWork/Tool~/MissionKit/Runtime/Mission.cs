@@ -113,6 +113,25 @@ namespace YukiFrameWork.Missions
         }
 
 		/// <summary>
+		/// 完成任务的执行方法 任务没开始则无效
+		/// </summary>
+		public void CompletedMission()
+		{
+			if (Status != MissionStatus.Running) return;
+
+			ChangeStatus(MissionStatus.Completed);
+		}
+
+        /// <summary>
+        /// 任务失败的执行方法 任务没开始则无效
+        /// </summary>
+        public void FailedMission()
+		{
+            if (Status != MissionStatus.Running) return;
+			ChangeStatus(MissionStatus.Failed);
+        }
+
+		/// <summary>
 		/// 重置任务状态为待机
 		/// </summary>
 		public void ResetMission()

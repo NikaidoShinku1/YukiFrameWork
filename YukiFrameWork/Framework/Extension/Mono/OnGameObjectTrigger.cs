@@ -71,9 +71,14 @@ namespace YukiFrameWork
             }
 
             foreach (var node in executeNodeDict.Keys)
-            {                
+            {
+                if (node.IsInit && node.IsCompleted)
+                {
+                    actionNodes.Add(node);
+                    continue;
+                }
                 if (!node.IsInit) node.OnInit();
-                if (node.OnExecute(Time.deltaTime) || node.IsCompleted)
+                if (node.OnExecute(Time.deltaTime))
                 {                   
                     actionNodes.Add(node);
                 }

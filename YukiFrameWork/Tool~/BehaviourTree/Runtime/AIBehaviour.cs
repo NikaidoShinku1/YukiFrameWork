@@ -55,11 +55,9 @@ namespace YukiFrameWork.Behaviours
     [Serializable]
     [HideMonoScript]
     public abstract class AIBehaviour : ScriptableObject
-    {       
-        [NonSerialized,HideInInspector]
-        private BindableProperty<BehaviourStatus> status;
-
-        
+    {
+        [NonSerialized, HideInInspector]
+        private BindableProperty<BehaviourStatus> status;                 
         [JsonIgnore]
         public BehaviourStatus Status
         {
@@ -68,7 +66,11 @@ namespace YukiFrameWork.Behaviours
                 status ??= new BindableProperty<BehaviourStatus>();
                 return status.Value;
             }
-            internal protected set => status.Value = value;
+            internal protected set
+            {
+                status ??= new BindableProperty<BehaviourStatus>();
+                status.Value = value;
+            }
         }      
         [field: SerializeField, HideInInspector]
         [JsonIgnore] public AIBehaviour Parent { get; internal set; }
@@ -107,7 +109,7 @@ namespace YukiFrameWork.Behaviours
         {
             transform = tree.transform;
             BehaviourTree = tree;
-
+            Status = BehaviourStatus.InActive;
             Inject_All_Params();
             status.Register(statu =>
             {

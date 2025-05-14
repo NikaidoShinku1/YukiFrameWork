@@ -174,7 +174,7 @@ public class TestScripts : MonoBehaviour
 }
 ```
 
-除上述基本使用外，对于InputKeyControl类，可以事件的形式绑定,同时支持InputAction，框架有InputKeyControlEventTriggerGroup 按键控制事件触发分组类:
+除上述基本使用外，对于InputKeyControl类，可以事件的形式绑定,同时支持InputAction，框架有InputControlGroup 按键控制事件触发分组类:
 
 delegate:
 ``` csharp
@@ -189,12 +189,14 @@ public delegate void InputCallBackContext(InputAction.CallbackContext context,In
 |InputKeyControlEventTriggerGroup API|按键控制事件触发分组类 API说明|
 |---|---|
 |static Method API|静态API说明|
-|void CreateEventTriggerGroups(params string[] groupNames)|创建多个按键事件触发分组(分组标识应全局唯一)|
-|InputKeyControlEventTriggerGroup CreateEventTriggerGroup(string groupName)|创建指定标识作为名称的分组(分组标识应全局唯一)|
+|void CreateInputControlGroups(params string[] groupNames)|创建多个按键事件触发分组(分组标识应全局唯一)|
+|void ForEach(Action< InputControlGroup > each)|遍历已经加载出来的所有分组|
+|InputControlGroup CreateInputControlGroup(string groupName)|创建指定标识作为名称的分组(分组标识应全局唯一)|
 |void Release(bool IsClear = false)|释放所有已经创建的分组 IsClear:是否在释放后清空分组|
-|InputKeyControlEventTriggerGroup GetInputKeyControlEventTriggerGroup(string groupName)|根据标识获取某一个分组|
-|InputKeyControlEventTriggerGroup[] CreateEventTriggerGroupsByInputAction(InputActionMap maps)|通过InputActionAsset的配置取得指定的InputActionMap传递，会传递在ActionMap下所有的InputAction 每一个InputAction构建一个分组，组名为InputAction的名称|
-|InputKeyControlEventTriggerGroup CreateEventTriggerGroupByInputAction(InputAction inputActions)|通过传递指定的InputAction以构建分组,组名为InputAction的名称|
+|void ReleaseGroup(string groupName, bool IsClear = false)|释放指定分组 IsClear:是否在释放后清空分组|
+|InputControlGroup GetInputControlGroup(string groupName)|根据标识获取某一个分组|
+|InputControlGroup[] CreateInputControlGroupsByInputAction(InputActionMap maps)|通过InputActionAsset的配置取得指定的InputActionMap传递，会传递在ActionMap下所有的InputAction 每一个InputAction构建一个分组，组名为InputAction的名称|
+|InputControlGroup CreateInputControlGroupByInputAction(InputAction inputActions)|通过传递指定的InputAction以构建分组,组名为InputAction的名称|
 |---|---|
 |Property API|属性API说明|
 |string GroupName { get; }|分组名称|
@@ -203,8 +205,14 @@ public delegate void InputCallBackContext(InputAction.CallbackContext context,In
 |event InputCallBackContext onKey|当按住键触发|
 |event InputCallBackContext onKeyDown|当按下键触发|
 |event InputCallBackContext onKeyUp|当抬起键触发|
+|event Action onBindRebind|当对InputAction配置进行按键重映射完成后触发|
+|event Action onBindCancel|当对InputAction配置进行按键重映射取消后触发|
 |---|---|
 |Method API|方法API说明|
+|void AutoPerformInteractiveRebinding(int bindingIndex, Action onBindRebound = null,Action onCancel = null)|如果分组设置了InputAction，则可以使用该方法进行对InputAction的自动重改键操作。改键会进行本地化储存。必须保证存在的InputAction名称是唯一的|
+|InputActionRebindingExtensions.RebindingOperation PerformIntarctiveRebinding(int bindingIndex,Action onBindRebound = null,Action onCancel = null)|如果分组设置了InputAction，则可以使用该方法进行对InputAction的重改键操作。改键会进行本地化储存。必须保证存在的InputAction名称是唯一的|
+|int FindBindingIndex(string displayName)|根据Binding的DisplayName进行BindingIndex的获取操作|
+|int FindBindingIndex(InputBinding binding)|根据Binding进行BindingIndex的获取操作|
 |void AddKeyControl(InputKeyControl keyControl)|传递按键控制类以添加按键在该分组|
 |void AddKeyControls(params InputKeyControl[] keyControls)|添加多个按键|
 |void RemoveKeyControl(InputKeyControl keyControl)|传递按键控制以移除相同名称的按键|
@@ -214,7 +222,6 @@ public delegate void InputCallBackContext(InputAction.CallbackContext context,In
 |void Dispose()|释放这个分组|
 
 分组使用简单示例:
-
 
 ``` csharp 
 
@@ -231,10 +238,10 @@ public class TestScripts : MonoBehaviour
     private InputKeyControl d = new InputKeyControl(D_Key, Key.D);
 
     
-    private InputKeyControlEventTriggerGroup inputKeyControlEventTriggerGroup;
+    private InputControlGroup inputKeyControlEventTriggerGroup;
     void Start()
     {
-         inputKeyControlEventTriggerGroup = InputKeyControlEventTriggerGroup.CreateEventTriggerGroup(PlayerInputGroupName);
+         inputKeyControlEventTriggerGroup = InputControlGroup.CreateInputControlGroup(PlayerInputGroupName);
          inputKeyControlEventTriggerGroup.AddKeyControls(w, a, s, d);    
          
          //添加事件
@@ -259,7 +266,7 @@ public class TestScripts : MonoBehaviour
          inputKeyControlEventTriggerGroup.Disable();
     }
 
-    private void Move(InputKeyControl inputKeyControl)
+    private void Move(InputAction.CallbackContext context,InputKeyControl inputKeyControl)
     {
         //在这里填写移动的逻辑
 
@@ -269,5 +276,6 @@ public class TestScripts : MonoBehaviour
 
 }
 ```
+
 
 

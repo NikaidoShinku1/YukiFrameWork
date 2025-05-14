@@ -227,6 +227,8 @@ namespace YukiFrameWork
         public static T Random<T>(this IEnumerable<T> t)
         {
             T[] targets = t.ToArray();
+            if (targets == null || targets.Length == 0)
+                throw new NullReferenceException("传递的集合内容是空的，无法进行随机");
             return targets[Range(0, targets.Length)];
         }
 

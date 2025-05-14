@@ -121,7 +121,7 @@ namespace YukiFrameWork.Missions
         [JsonProperty(PropertyName = nameof(CompletedCondition)),LabelText("完成任务所有的条件"), ValueDropdown(nameof(AllConditionCollection))]
 		[SerializeField]private List<string> mCompletedCondition = new List<string>();
 
-        [JsonProperty(PropertyName = nameof(FailedCondition)), LabelText("任务失败所有的条件"), InfoBox("如果没有失败条件，则任务永远不会失败"), ValueDropdown(nameof(AllConditionCollection))]
+        [JsonProperty(PropertyName = nameof(FailedCondition)), LabelText("任务失败所有的条件"), InfoBox("如果没有失败条件,除非手动调用任务失败，否则任务永远不会失败"), ValueDropdown(nameof(AllConditionCollection))]
         [SerializeField] private List<string> mFailedCondition = new List<string>();
 
         [JsonIgnore,ExcelIgnore]

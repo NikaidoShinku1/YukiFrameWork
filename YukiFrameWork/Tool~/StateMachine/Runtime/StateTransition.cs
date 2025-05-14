@@ -78,11 +78,17 @@ namespace YukiFrameWork.Machine
                 if (from == toState)
                     return false;
 
+                //如果目标状态就是正在执行的状态，也是不允许切换的
+                if (toState == stateMachine.CurrentState)
+                    return false;
+
                 //如果当前状态不是正在运行的状态，也是不允许切换的ToDo
                 if (from != stateMachine.CurrentState)
                 {
                     if (from.Runtime_StateData.IsAnyState && from.Runtime_StateData.parentStateMachineName == stateMachine.Name)
+                    {                       
                         return true;
+                    }
 
                     return false;
                 }

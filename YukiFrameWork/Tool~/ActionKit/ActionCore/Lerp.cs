@@ -116,5 +116,17 @@ namespace YukiFrameWork
             return self.AddParallel(YukiFrameWork.Lerp.Get(0, 1, duration, onLerp, onLerpFinish, isRealTime));
         }
 
+        public static IRepeat Lerp(this IRepeat self, float a, float b, float duration, Action<float> onLerp = null, Action onLerpFinish = null, bool isRealTime = false)
+        {
+            self.ActionNode = ActionKit.Lerp(a, b, duration, onLerp, onLerpFinish, isRealTime);
+            return self;
+        }
+
+        public static IRepeat Lerp01(this IRepeat self, float duration, Action<float> onLerp = null, Action onLerpFinish = null, bool isRealTime = false)
+        {
+            self.ActionNode = ActionKit.Lerp01( duration, onLerp, onLerpFinish, isRealTime);
+            return self;
+        }
+
     }
 }
