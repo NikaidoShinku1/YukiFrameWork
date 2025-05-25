@@ -227,8 +227,7 @@ namespace YukiFrameWork.DiaLogue
         }
 
         void IGlobalSign.Release()
-        {
-            DiaLogKey = string.Empty;
+        {          
             if (tree != null)
             {
                 tree.onEnterCallBack.UnRegisterAllEvent();
@@ -238,6 +237,7 @@ namespace YukiFrameWork.DiaLogue
                 DiaLogKit.RemoveDiaLogue(DiaLogKey);
                 End();
             }
+            DiaLogKey = string.Empty;
             tree.Destroy();
             tree = null;
             isInited = false;            

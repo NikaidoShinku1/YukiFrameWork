@@ -16,32 +16,10 @@ using System.IO;
 using UnityEditor;
 #endif
 namespace YukiFrameWork
-{  
-    [HideMonoScript]
+{
+    [CreateAssetMenu(fileName = nameof(SaveToolConfig),menuName = "YukiFrameWork/框架存档配置SaveToolConfig")]
 	public class SaveToolConfig : ScriptableObject
     {
-#if UNITY_EDITOR
-        [InitializeOnLoadMethod]
-        static void CreateConfig()
-        {
-            string path = "Assets/Resources";
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-                AssetDatabase.Refresh();
-            }
-
-            SaveToolConfig config = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));
-
-            if (config == null)
-            {              
-                config = ScriptableObject.CreateInstance<SaveToolConfig>();
-                AssetDatabase.CreateAsset(config, path + "/" + nameof(SaveToolConfig) + ".asset");
-                AssetDatabase.Refresh();
-            }
-        }
-#endif
-
         [LabelText("文件夹名称:"), BoxGroup("文件路径设置")]
         public string saveFolderName = "SaveData";
 
@@ -73,9 +51,6 @@ namespace YukiFrameWork
         [LabelText("文件夹方式选择:"),SerializeField, BoxGroup("文件路径设置")]
         public FolderType folderType = FolderType.persistentDataPath;   
        
-        [LabelText("当前存档的id:")]       
-        public int currentID => infos.Count;
-
         private bool IsCustom => folderType == FolderType.custom;
 
         [Button("打开文件夹"), BoxGroup("文件路径设置"), HideIf(nameof(IsCustom))]
@@ -83,9 +58,7 @@ namespace YukiFrameWork
         {
             System.Diagnostics.Process.Start("explorer.exe", saveDirPath.Replace("/", "\\"));
         }
-
-        [LabelText("当前所有的存档信息:"),BoxGroup]
-        public List<SaveInfo> infos = new List<SaveInfo>();    
+  
     }
 
 

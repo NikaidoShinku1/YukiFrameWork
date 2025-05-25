@@ -35,6 +35,7 @@ namespace YukiFrameWork
         MonoBehaviour,
 		YMonoBehaviour,
 		ScriptableObject,		
+		Command,
 	}
 
 	public enum FieldLevel
@@ -78,6 +79,15 @@ namespace YukiFrameWork
 	
 		[HideInInspector]
 		public bool FoldExport;
+
+		[HideInInspector]
+		public bool IsReturnValueCommand;
+
+		[HideInInspector]
+		public string ReturnValue;
+
+		[HideInInspector]
+		public bool IsCommandInterface;
 
 		[HideInInspector]
 		public string soFileName;
@@ -164,6 +174,20 @@ namespace YukiFrameWork
 				case ParentType.ScriptableObject:
 					parentName = nameof(ScriptableObject);
 					break;
+				case ParentType.Command:
+					if (config.IsCommandInterface)
+					{
+						if (config.IsReturnValueCommand)
+							parentName = $"{nameof(ICommand)}<{config.ReturnValue}>";
+						else parentName = nameof(ICommand);
+					}
+					else
+					{
+                        if (config.IsReturnValueCommand)
+                            parentName = $"{nameof(AbstractCommand)}<{config.ReturnValue}>";
+                        else parentName = nameof(AbstractCommand);
+                    }
+					break;
 			}
 			bool inter = false;
             string className = config.Name.Substring(0, 1).ToUpper() + config.Name.Substring(1);
@@ -183,7 +207,9 @@ namespace YukiFrameWork
                 }
 			}
 			
-			bool structClass = config.levelInterface && (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility) && config.IsScruct;
+			bool structClass = config.levelInterface 
+				&& (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Command) 
+				&& config.IsScruct;
             Type architectureType = AssemblyHelper.GetType(config.architecture);
 			if (architectureType != null)
 			{
@@ -212,15 +238,20 @@ namespace YukiFrameWork
 			if (config.ParentType == ParentType.Architecture)
 			{
 				builder.AppendLine($"        <color=#{commentColor}>//可以填写默认进入的场景名称，在架构准备完成后，自动进入</color>");
-                builder.AppendLine($"        <color=#{keyWordColor}>public override</color> (string, SceneLoadType) DefaultSceneName => default;");
+				builder.AppendLine($"        <color=#{keyWordColor}>public override</color> (string, SceneLoadType) DefaultSceneName => default;");
 				builder.AppendLine();
-                builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> OnInit()");
-                builder.AppendLine("        {");
-                builder.AppendLine("");
-                builder.AppendLine("        }");
+				builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> OnInit()");
+				builder.AppendLine("        {");
+				builder.AppendLine("");
+				builder.AppendLine("        }");
 				builder.AppendLine($"        <color=#{commentColor}>//配表构建，通过ArchitectureTable可以在架构中缓存部分需要的资源,例如TextAssets ScriptableObject</color>");
 				builder.AppendLine($"        <color=#{keyWordColor}>protected override</color> <color=#{IdentiferColor}>ArchitectureTable</color> BuildArchitectureTable() => default;");
 				builder.AppendLine("");
+                builder.AppendLine($"        <color=#{commentColor}>//当架构准备完成后触发，当架构加载失败抛出异常则不会执行</color>");
+                builder.AppendLine($"        <color=#{keyWordColor}>public override void</color> OnCompleted()");
+                builder.AppendLine("        {");
+                builder.AppendLine("");
+                builder.AppendLine("        }");
 
             }
 			else if (parentName.Contains(nameof(AbstractModel)) || parentName.Contains(nameof(AbstractSystem)))
@@ -237,6 +268,41 @@ namespace YukiFrameWork
 				builder.AppendLine("");
 				builder.AppendLine("        }");
 			}
+			else if (parentName.Contains("Command"))
+			{
+				if (!config.IsCommandInterface)
+				{
+					string methodLine = $"        <color=#{keyWordColor}>public override void</color> Execute()";
+					if (config.IsReturnValueCommand)
+						methodLine = $"        <color=#{keyWordColor}>public override</color>  <color=#{IdentiferColor}>{config.ReturnValue}</color> Execute()";
+					builder.AppendLine(methodLine);
+					builder.AppendLine("        {");
+                    builder.AppendLine(config.IsReturnValueCommand ? $"            <color=#{keyWordColor}>return</color> default;" : "");
+                    builder.AppendLine("        }");
+				}
+				else
+				{
+                    string methodLine = $"        <color=#{keyWordColor}>public void</color> Execute()";
+                    if (config.IsReturnValueCommand)
+                        methodLine = $"        <color=#{keyWordColor}>public</color> <color=#{IdentiferColor}>{config.ReturnValue}</color> Execute()";
+                    builder.AppendLine(methodLine);
+                    builder.AppendLine("        {");
+                    builder.AppendLine(config.IsReturnValueCommand ? $"            <color=#{keyWordColor}>return</color> default;" : "");
+                    builder.AppendLine("        }");
+
+                    builder.AppendLine();
+                    builder.AppendLine($"        <color=#{IdentiferColor}>IArchitecture IGetArchitecture</color>.GetArchitecture()");
+                    builder.AppendLine("        {");
+                    builder.AppendLine($"            {(architectureType == null ? $"<color=#{keyWordColor}>return</color> null;" : $"<color=#{keyWordColor}>return</color> <color=#{IdentiferColor}>{architectureType}</color>.Global;")}");
+                    builder.AppendLine("        }");
+                    builder.AppendLine();
+
+                    builder.AppendLine($"        <color=#{keyWordColor}>void</color> <color=#{IdentiferColor}>ISetArchitecture</color>.SetArchitecture(<color=#{LiteralColor}>IArchitecture</color> architecture)");
+                    builder.AppendLine("        {");
+                    builder.AppendLine("");
+                    builder.AppendLine("        }");
+                }
+            }
 			else if (config.ParentType == ParentType.Model
 				|| config.ParentType == ParentType.System
 				|| config.ParentType == ParentType.Utility
@@ -259,7 +325,7 @@ namespace YukiFrameWork
 					builder.AppendLine();
 					builder.AppendLine($"        <color=#{IdentiferColor}>IArchitecture IGetArchitecture</color>.GetArchitecture()");
 					builder.AppendLine("        {");
-					builder.AppendLine($"            {(architectureType == null ? $"<color=#{keyWordColor}>return<color> null;" : $"<color=#{keyWordColor}>return</color> <color=#{IdentiferColor}>{architectureType}</color>.Global;")}");
+					builder.AppendLine($"            {(architectureType == null ? $"<color=#{keyWordColor}>return</color> null;" : $"<color=#{keyWordColor}>return</color> <color=#{IdentiferColor}>{architectureType}</color>.Global;")}");
 					builder.AppendLine("        }");
 					builder.AppendLine();
 				}

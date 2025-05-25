@@ -53,6 +53,8 @@ public class IdleState : StateBehaviour
 |Transform transform { get; }|获取该状态所关联的游戏对象的Transform|
 |StateBase CurrentStateInfo { get; }|这个状态的信息(基类本身)|
 |Type Type { get; }|这个状态类的真实类型(缓存GetType用)|
+|StateBase LastState { get; }|仅当状态进入时有值|
+|StateBase NextState { get; }|仅当状态退出时有值|
 |--|--|
 |Mathod API|方法API|
 |void OnInit()|当状态初始化(与组件的初始化时机选择挂钩)|
@@ -134,4 +136,22 @@ Tip：对于上述参数API 名称会被转换为Hash，可用StateManager.HashT
 |StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default)|启动一个不进行StateManager组件挂载的状态机并返回|
 |StateManager GetGlobalStateManager(string machineName)|获取一个通过StartMachine方法启动的状态机管理器|
 |bool RemoveMachine(string machineName)|根据StartMachine方法创建的状态机名称进行对全局状态机的移除|
+|--|StateManager也可进行参数的设置|
+|void SetBool(StateMachineCore stateMachineCore,int nameToHash,bool value)|--|
+|void SetFloat(StateMachineCore stateMachineCore,string name,float value)|--|
+|void SetFloat(StateMachineCore stateMachineCore,int nameToHash,float value)|--|
+|void SetInt(StateMachineCore stateMachineCore,string name,int value)|--|
+|void SetInt(StateMachineCore stateMachineCore,int nameToHash,int value)|--|
+|void SetTrigger(StateMachineCore stateMachineCore,string name)|--|
+|void SetTrigger(StateMachineCore stateMachineCore,int nameToHash)|--|
+|void ResetTrigger(StateMachineCore stateMachineCore,string name)|重置Trigger|
+|void ResetTrigger(StateMachineCore stateMachineCore,int nameToHash)|如上|
+|bool GetBool(StateMachineCore stateMachineCore,string name)|--|
+|bool GetBool(StateMachineCore stateMachineCore,int nameToHash)|--|
+|float GetFloat(StateMachineCore stateMachineCore,string name)|--|
+|float GetFloat(StateMachineCore stateMachineCore,int nameToHash)|--|
+|int GetInt(StateMachineCore stateMachineCore,string name)|--|
+|int GetInt(StateMachineCore stateMachineCore,int nameToHash)|--|
+|bool GetTrigger(StateMachineCore stateMachineCore,string name)|--|
+|bool GetTrigger(StateMachineCore stateMachineCore,int nameToHash)|--|
 

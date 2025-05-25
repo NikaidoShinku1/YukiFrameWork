@@ -79,9 +79,11 @@ namespace YukiFrameWork
         /// 初始化解析器,用于自定义组件的赋值
         /// </summary>
         /// <param name="resolver"></param>
-        public void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver)
+        public void InitResolver(Action<MaskableGraphic, ILocalizationData> resolver,bool refresh = false)
         {
             this.resolver = resolver;
+            if(refresh)
+                Update_Component(LocalizationKit.LanguageType);
         }
 
         public void Update_Component(Language language)

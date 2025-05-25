@@ -151,8 +151,27 @@ namespace YukiFrameWork
                         }
                     }
                 }
-                else config.levelInterface = false;
-                if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility || config.ParentType == ParentType.Controller)
+                else if (config.ParentType == ParentType.Command)
+                {
+                    config.IsScruct = EditorGUILayout.Toggle("是否是结构体", config.IsScruct);
+                    config.IsCommandInterface = EditorGUILayout.Toggle("命令是否是接口继承", config.IsCommandInterface);
+                    config.IsReturnValueCommand = EditorGUILayout.Toggle("命令是否具备返回值", config.IsReturnValueCommand);
+                    if (config.IsReturnValueCommand)
+                    {
+                        EditorGUILayout.HelpBox("返回类型需要填写Type的限定名称，如类型不在默认生成的命名空间之下，则需要Type的完全限定名称" +
+                            "\n在填写后建议打开预览窗口看看类型是否是正确的。再进行生成", MessageType.Info);
+                        config.ReturnValue = EditorGUILayout.TextField("返回类型:", config.ReturnValue);
+                    }
+                }
+                else
+                {
+                    config.levelInterface = false;
+                    config.IsCommandInterface = false;
+                    config.IsReturnValueCommand = false;
+                    config.ReturnValue = string.Empty;
+                }
+                if (config.ParentType == ParentType.Model || config.ParentType == ParentType.System || config.ParentType == ParentType.Utility 
+                    || config.ParentType == ParentType.Controller || (config.ParentType == ParentType.Command && config.IsCommandInterface))
                 {
                     selectIndex = EditorGUILayout.Popup("注册架构选择", selectIndex, architectures.ToArray());
                     if (architectures.Count > 0)
@@ -167,11 +186,11 @@ namespace YukiFrameWork
                     config.soMenuName = EditorGUILayout.TextField("创建so菜单名:", config.soMenuName);
                     if (config.soMenuName.IsNullOrEmpty())
                         config.soMenuName = "YukiFrameWork/" + config.soFileName;
-                }
+                }              
                 else
                 {
                     config.soFileName = string.Empty;
-                    config.soMenuName = string.Empty; 
+                    config.soMenuName = string.Empty;
                 }
             }
             else

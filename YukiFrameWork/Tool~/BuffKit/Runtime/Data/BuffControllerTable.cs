@@ -13,11 +13,11 @@ using System.Collections.Generic;
 using System.Collections;
 namespace YukiFrameWork.Buffer
 {
-    public class BuffControllerTable : TableKit<string, IBuffController>
+    public class BuffControllerTable : TableKit<string, BuffController>
     {
-        private Dictionary<string, List<IBuffController>> mTables = new Dictionary<string, List<IBuffController>>();
+        private Dictionary<string, List<BuffController>> mTables = new Dictionary<string, List<BuffController>>();
 
-        public override IDictionary<string, List<IBuffController>> Table => mTables;       
+        public override IDictionary<string, List<BuffController>> Table => mTables;       
 
         protected override void OnDispose()
         {

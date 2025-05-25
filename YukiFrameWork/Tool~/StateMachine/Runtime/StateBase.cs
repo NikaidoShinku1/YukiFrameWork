@@ -37,7 +37,19 @@ namespace YukiFrameWork.Machine
         public StateMachine StateMachine => stateMachine;
 
         public string Name => Runtime_StateData.name;
-      
+
+        /// <summary>
+        /// 仅当状态退出时有值
+        /// <para>Value:在这个状态退出后进入的下一个状态</para>
+        /// </summary>
+        public StateBase NextState { get; internal set; }
+
+        /// <summary>
+        /// 仅当状态进入时有值
+        /// <para>Value:上一个退出的状态</para>
+        /// </summary>
+        public StateBase LastState { get; internal set; }
+
         public StateBase(StateNodeData runtime_StateData,StateMachine stateMachine)
         {
             this.runtime_StateData = runtime_StateData;

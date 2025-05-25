@@ -226,7 +226,7 @@ namespace YukiFrameWork.Machine
             {
                 each?.Invoke(item.Value);
             }
-        }
+        }      
 
         internal StateMachineCore GetRuntimeMachineCore(RuntimeStateMachineCore runtimeStateMachineCore)
         {
@@ -237,6 +237,109 @@ namespace YukiFrameWork.Machine
             }
             return null;
         }
+
+        #region AllMachineCore Parameter API
+        public void SetBool(StateMachineCore stateMachineCore, string name, bool value)
+        {
+            stateMachineCore.SetBool(name, value);
+        }
+
+        public void SetBool(StateMachineCore stateMachineCore, int nameToHash, bool value)
+        {
+            stateMachineCore.SetBool(nameToHash, value);
+        }
+
+        public void SetFloat(StateMachineCore stateMachineCore, string name, float value)
+        {
+            stateMachineCore.SetFloat(name, value);
+        }
+
+        public void SetFloat(StateMachineCore stateMachineCore, int nameToHash, float value)
+        {
+            stateMachineCore.SetFloat(nameToHash, value);
+        }
+
+        public void SetInt(StateMachineCore stateMachineCore, string name, int value)
+        {
+            stateMachineCore.SetInt(name, value);
+        }
+
+        public void SetInt(StateMachineCore stateMachineCore, int nameToHash, int value)
+        {
+            stateMachineCore.SetInt(nameToHash, value);
+        }
+
+
+        public void SetTrigger(StateMachineCore stateMachineCore, string name)
+        {
+            stateMachineCore.SetTrigger(name);
+        }
+
+        public void SetTrigger(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            stateMachineCore.SetTrigger(nameToHash);
+        }
+
+        public void ResetTrigger(StateMachineCore stateMachineCore, string name)
+        {
+            stateMachineCore.ResetTrigger(name);
+        }
+
+        public void ResetTrigger(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            stateMachineCore.SetTrigger(nameToHash);
+        }
+
+        public bool GetBool(StateMachineCore stateMachineCore, string name)
+        {
+            return stateMachineCore.GetBool(name);
+        }
+
+        public bool GetBool(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            return stateMachineCore.GetBool(nameToHash);
+        }
+
+        public float GetFloat(StateMachineCore stateMachineCore, string name)
+        {
+            return stateMachineCore.GetFloat(name);
+        }
+
+        public float GetFloat(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            return stateMachineCore.GetFloat(nameToHash);
+        }
+
+        public int GetInt(StateMachineCore stateMachineCore, string name)
+        {
+            return stateMachineCore.GetInt(name);
+        }
+
+        public int GetInt(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            return stateMachineCore.GetInt(nameToHash);
+        }
+
+        public bool GetTrigger(StateMachineCore stateMachineCore, string name)
+        {
+            return stateMachineCore.GetTrigger(name);
+        }
+
+        public bool GetTrigger(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            return stateMachineCore.GetTrigger(nameToHash);
+        }
+
+        public int GetTriggerCount(StateMachineCore stateMachineCore, string name)
+        {
+            return stateMachineCore.GetTriggerCount(name);
+        }
+
+        public int GetTriggerCount(StateMachineCore stateMachineCore, int nameToHash)
+        {
+            return stateMachineCore.GetTriggerCount(nameToHash);
+        }
+        #endregion
 
         /// <summary>
         /// 通过在组件上的层级配置获取默认的状态机集合。

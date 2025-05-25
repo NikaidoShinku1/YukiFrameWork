@@ -162,41 +162,49 @@ namespace YukiFrameWork.Machine
         /// </summary>
         /// <param name="state"></param>
         /// <param name="transition"></param>
-        internal void SwitchState(StateBase state,StateTransition transition,bool lastSwithState = true)
+        internal void SwitchState(StateBase state,StateTransition transition)
         {
             void Switch()
-            {
+            {              
                 int second = Mathf.FloorToInt(Time.time);
 
                 if (second != currentSeconds)
                 {
                     currentSeconds = second;
                     state_count.Clear(); // 清空状态切换计数
-                }
+                }               
                 // 添加状态
                 if (state != null)
-                    AddStateCount(state.Name);
+                {
+                    AddStateCount(state.Name);                    
+                }
 
-                // 退出当前状态
-                ExitState();
-
-                // 进入状态
-                EnterState(state);
                 this.CurrentTransition = transition;
 
-                // 检测当前状态是否有已经满足的条件
-                CheckConditionAndSwitch();
+                var current = CurrentState;
+                if (CurrentState != null)
+                {
+                    CurrentState.NextState = state;
+                    // 退出当前状态
+                    ExitState();
+                }
+                // 进入状态
+                if (state != null)
+                {
+                    state.LastState = current;
+                    EnterState(state);
+                    // 检测当前状态是否有已经满足的条件
+                    CheckConditionAndSwitch();
+
+                }              
             }
-            if (lastSwithState)
-                StateMachineCore.SwitchEnqueue(Switch);
-            else Switch();         
+            Switch();           
         }        
         private void EnterState(StateBase stateBase)
         {
-            if (stateBase == null) return;
-
             CurrentState = stateBase;
             CurrentState.Enter();
+            CurrentState.LastState = null;
             if (CurrentState.Runtime_StateData.IsSubStateMachine)
             {
                 // 如果当前运行的状态是子状态机则在进入该状态后将子状态机切换到默认状态
@@ -204,7 +212,7 @@ namespace YukiFrameWork.Machine
                 if (childMachine == null)
                 {
                     throw new NullReferenceException($"状态已被标识为子状态机，但子状态机查询失败! State Name:{CurrentState.Name}");
-                }
+                }               
                 CurrentChildMachine = childMachine;              
                 //子状态机进入默认状态
                 CurrentChildMachine.EnterState(childMachine.DefaultState);
@@ -217,11 +225,11 @@ namespace YukiFrameWork.Machine
         }
 
         private void ExitState()
-        {           
-            if (CurrentState == null) return;
+        {                       
             if (CurrentState.Runtime_StateData.IsSubStateMachine)            
                 CurrentChildMachine.ExitState();            
             CurrentState.Exit();
+            CurrentState.NextState = null;
             CurrentState = null;
             CurrentChildMachine = null;
         }

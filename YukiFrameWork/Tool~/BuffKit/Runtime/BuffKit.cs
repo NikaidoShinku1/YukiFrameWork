@@ -66,16 +66,16 @@ namespace YukiFrameWork.Buffer
                 loader.UnLoad(buffDataBase);
         }
 
-        public static void BindController<T>(string buffKey) where T : IBuffController
+        public static void BindController<T>(string buffKey) where T : BuffController
         {
             BindController(buffKey, typeof(T));                    
         }
 
         public static void BindController(string buffKey, Type type)
         {
-            if (!typeof(IBuffController).IsAssignableFrom(type))
+            if (!typeof(BuffController).IsAssignableFrom(type))
             {
-                throw new Exception("Type不继承IBuffController Type:" + type);
+                throw new Exception("Type不继承BuffController Type:" + type);
             }
 
             if (!buffItems.TryGetValue(buffKey, out var bindder))
@@ -86,7 +86,7 @@ namespace YukiFrameWork.Buffer
             Bind(bindder, type);
         }
 
-        internal static IBuffController CreateBuffController(string buffKey)
+        internal static BuffController CreateBuffController(string buffKey)
         {
             if (!buffItems.TryGetValue(buffKey, out var bindder))
             {
@@ -97,7 +97,7 @@ namespace YukiFrameWork.Buffer
             {
                 throw new Exception("该Buff没有绑定控制器，请重试 BuffKey:" + buffKey);
             }
-            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as IBuffController;          
+            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as BuffController;          
         }
       
 

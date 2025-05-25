@@ -65,6 +65,7 @@ namespace YukiFrameWork.Item
             //如果没有标识就不初始化
             if (GroupKey.IsNullOrEmpty()) return;
             firstRefresh = true;
+            SlotGroup slotGroup = ItemKit.GetSlotGroup(GroupKey);
             if (Type == UISlotGenericType.Template)
             {
                 UISlotPrefab.Hide();
@@ -77,7 +78,7 @@ namespace YukiFrameWork.Item
 
                 //UISlotRoot.DestroyChildrenWithCondition(core => core.GetComponent<UISlot>());
 
-                foreach (var slot in ItemKit.GetSlotGroup(GroupKey)
+                foreach (var slot in slotGroup
                     .UnRegisterOrderRefresh(Refresh)
                     .RegisterOrderRefresh(Refresh).Slots)
                 {
@@ -88,10 +89,10 @@ namespace YukiFrameWork.Item
             }
             else if (Type == UISlotGenericType.SlotExist)
             {
-                for (int i = 0; i < existSlots.Count; i++)
+                for (int i = 0; i < Mathf.Min(existSlots.Count,slotGroup.Slots.Count); i++)
                 {
                     var slot = existSlots[i];
-                    slot.InitSlot(ItemKit.GetSlotGroup(GroupKey)
+                    slot.InitSlot(slotGroup
                         .UnRegisterOrderRefresh(Refresh)
                         .RegisterOrderRefresh(Refresh).Slots[i]);
                 }

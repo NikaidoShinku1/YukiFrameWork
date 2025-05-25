@@ -154,8 +154,8 @@ namespace YukiFrameWork
             ReadyType = ReadyType.Constructor;
             for (int i = 0; i < allRolds.Length; i++)
             {
-                //每检查十个类等待一帧
-                if(currentCount % 10 == 0)
+                //每检查一百个类等待一帧
+                if(currentCount % 100 == 0)
                     yield return null;
                 try
                 {

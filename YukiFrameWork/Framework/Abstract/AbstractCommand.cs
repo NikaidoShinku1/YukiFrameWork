@@ -15,7 +15,7 @@ using System.Collections;
 
 namespace YukiFrameWork
 {
-    public abstract class AbstractCommand : ICommand
+    public abstract class AbstractCommand : ICommand,IUndoCommand
     {
         #region 架构本体
         [NonSerialized]
@@ -32,10 +32,15 @@ namespace YukiFrameWork
         }
         #endregion
 
-        public abstract void Execute();     
+        public abstract void Execute();
+
+        public virtual void Undo() { }
+
+        public virtual string Label => $"没有实现的命令标签,命令的类型为:{this.GetType()}";
+
     }
 
-    public abstract class AbstractCommand<TResult> : ICommand<TResult>
+    public abstract class AbstractCommand<TResult> : ICommand<TResult>,IUndoCommand<TResult>
     {
         #region 架构本体
         [NonSerialized]
@@ -53,6 +58,10 @@ namespace YukiFrameWork
         #endregion
 
         public abstract TResult Execute();
-      
+
+        public virtual TResult Undo() => default;
+
+        public virtual string Label => $"没有实现的命令标签,命令的类型为:{this.GetType()}";
+
     }
 }

@@ -424,7 +424,8 @@ namespace YukiFrameWork
                     MonoHelper.Stop(awaitable.Coroutine);
                 }
                 awaitable.StopAllTask();
-                Token.Remove(Ending);
+                if(Token.States != TokenStates.Cancel)
+                    Token.Remove(Ending);
             }
             Token.Register(Ending);
 

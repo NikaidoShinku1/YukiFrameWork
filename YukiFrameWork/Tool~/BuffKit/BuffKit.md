@@ -53,12 +53,12 @@ BuffHandler API:
 	- /// <summary>
     - /// Buff添加时触发的回调,该回调与BuffAwake同属周期，仅首次添加调用，如果是添加多个且不可叠加的buff，则每一个新Buff都触发
     - /// </summary>
-    - public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffAddCallBack;
+    - public readonly UnityEngine.Events.UnityEvent<BuffController> onBuffAddCallBack;
 
 	- // <summary>
 	- // Buff移除时触发的回调，并且可以拿到Controller
 	- // </summary>	
-    - public readonly UnityEngine.Events.UnityEvent<IBuffController> onBuffDestroyCallBack ;		
+    - public readonly UnityEngine.Events.UnityEvent<BuffController> onBuffDestroyCallBack ;		
 
 	//添加Buff，传递一个Buff以及玩家对象Player
 	- void AddBuffer(IBuff buff,IBufferExecutor player)
@@ -134,7 +134,7 @@ BuffHandler API:
 
 BuffController专门处理Buff逻辑以及生命周期。
 
-BuffController API: 希望BuffController完全自定义可以继承IBuffController接口，正常情况下使用框架提供的BuffController足够。
+BuffController API: 希望BuffController完全自定义可以继承BuffController接口，正常情况下使用框架提供的BuffController足够。
 
 
       //每一次Buff启动或者叠加的时候都会调用的回调,同时会得到层级
@@ -315,7 +315,7 @@ BuffKit static API:
     - IBuff GetBuffByKey(string key)；
 
     //绑定控制器，当没有给Buff标记特性时，使用该方法进行控制器绑定
-    - void BindController<T>(string buffKey) where T : IBuffController
+    - void BindController<T>(string buffKey) where T : BuffController
 
     //手动添加Buff
     - void AddBuff(IBuff buff);

@@ -33,6 +33,7 @@ namespace YukiFrameWork.DiaLogue
         internal UIOptionGenericType optionGenericType;
 
         [LabelText("UIOption预制体选择:"),SerializeField,ShowIf(nameof(optionGenericType),UIOptionGenericType.Template)]
+        //[InfoBox("当使用预制体生成时，在编辑器模式下，uiOption不应该直接置于uiOptionRoot节点下，运行后会自动进行父对象绑定，当你存在该操作失误时，作为预制体的节点运行也会自动转移节点到uiOptionRoot下方")]
 		internal UIOption uIOption;
 
         [SerializeField,LabelText("UIOption的根节点:"),ShowIf(nameof(optionGenericType), UIOptionGenericType.Template)]
@@ -65,7 +66,6 @@ namespace YukiFrameWork.DiaLogue
             {
                 throw new System.Exception("无法进行分支的初始化,请检查DiaLog是否持有了NodeTree DiaLogKey:" + DiaLogKey);
             }
-
             diaLog.RegisterWithNodeCompleteEvent(node =>
             {
                 var options = node.optionItems;              
@@ -83,7 +83,7 @@ namespace YukiFrameWork.DiaLogue
                         break;
                     case UIOptionGenericType.OptionExist:
                         {
-                            for (int i = 0; i < uiOptions.Count; i++)
+                            for (int i = 0; i < Mathf.Min(uiOptions.Count,options.Count); i++)
                             {
                                 var option = options[i];
                                 uiOptions[i].Show().Core(o => o.Option = option).InitUIOption(diaLog,node);
@@ -99,7 +99,9 @@ namespace YukiFrameWork.DiaLogue
                 {
                     case UIOptionGenericType.Template:
                         if (uiOptionRoot.childCount == 0) return;
-                        uiOptionRoot.UnLoadChildrenWithCondition(transform => transform.GetComponent<UIOption>());
+                        
+                        uiOptionRoot.UnLoadChildrenWithCondition(transform 
+                            => transform.GetComponent<UIOption>() && transform != uIOption.transform);
                         break;
                     case UIOptionGenericType.OptionExist:                      
                         uiOptions.Hide();

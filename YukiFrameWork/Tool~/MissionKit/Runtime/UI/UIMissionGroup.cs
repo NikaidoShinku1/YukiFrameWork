@@ -91,7 +91,7 @@ namespace YukiFrameWork.Missions
                     .RegisterMissionRefresh(Refresh)
                     .GetMissions();
 
-                for (int i = 0; i < existSlots.Count; i++)
+                for (int i = 0; i < Mathf.Min(existSlots.Count,missions.Length); i++)
                 {
                     existSlots[i].InitMission(missions[i]);
                 }

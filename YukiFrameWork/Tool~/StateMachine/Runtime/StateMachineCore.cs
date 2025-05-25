@@ -17,13 +17,6 @@ using UnityEditor;
 namespace YukiFrameWork.Machine
 {
     /// <summary>
-    /// 切换状态的队列委托。
-    /// <para>安全状态切换委托。该委托避免状态切换在执行流程中无视生命周期的问题。在同一帧内，完整执行完FixedUpdate与LateUpdate后再进行状态的切换</para>
-    /// <para>Tip:执行在同一帧内全部完成</para>
-    /// </summary> 
-    public delegate void SwitchStateQueue();
-
-    /// <summary>
     /// 状态机集合本体,每一个RuntimeStateMachineCore配置都可以转换成一个新的StateMachineCore本体，视为状态机集合本身
     /// </summary>
     public class StateMachineCore : IController
@@ -47,10 +40,6 @@ namespace YukiFrameWork.Machine
         /// 所有参数的默认值
         /// </summary>
         private Dictionary<int, float> runtime_default_Parameters = new Dictionary<int, float>();
-        /// <summary>
-        /// 切换状态的队列
-        /// </summary>
-        private Queue<SwitchStateQueue> late_switchStateQueues = new Queue<SwitchStateQueue>();
 
         /// <summary>
         /// 触发Trigger的次数
@@ -195,28 +184,13 @@ namespace YukiFrameWork.Machine
         {
             if (!IsActive) return;
             baseMachine.LateUpdate();
-
-            SwitchStateExecute();
-        }
-
-        private void SwitchStateExecute()
-        {
-            while (late_switchStateQueues.Count > 0)
-            {
-                late_switchStateQueues.Dequeue()?.Invoke();
-            }
-        }
-
-        internal void SwitchEnqueue(SwitchStateQueue switchStateQueue)
-        {
-            late_switchStateQueues.Enqueue(switchStateQueue);
-        }
+        }      
 
         public void Cancel()
         {
             IsActive = false;
             //切换到空状态     
-            baseMachine.SwitchState(null, null,false);
+            baseMachine.SwitchState(null, null);
             //走一趟退出队列的执行                 
             //重置所有的参数
             ResetParameters();

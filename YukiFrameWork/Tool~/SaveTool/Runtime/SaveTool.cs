@@ -23,16 +23,46 @@ namespace YukiFrameWork
     {             
         private static SaveToolConfig saveConfig;       
         private static string saveDirPath => saveConfig.saveDirPath;
-        private static bool isInited = false;
         private static Dictionary<int, Dictionary<string, object>> cacheDict = new Dictionary<int, Dictionary<string, object>>();
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]        
-        public static void Init()
-        {           
+
+        private static bool isInited = false;
+        private static Dictionary<int, SaveInfo> runtime_saveInfos = new Dictionary<int, SaveInfo>();
+        private const string SAVEINFO_ALL_CACHE_INDEXKEY = nameof(SAVEINFO_ALL_CACHE_INDEXKEY);
+
+        /// <summary>
+        /// 当前存档的信息数量
+        /// </summary>
+        public static int CurrentSaveCount => runtime_saveInfos.Count;
+        /// <summary>
+        /// 初始化SaveTool,需要传递指定的存档配置，当存档配置变更时，所有的存档信息也有所变更。
+        /// </summary>
+        /// <param name="saveToolConfig"></param>
+        public static void Init(SaveToolConfig saveToolConfig)
+        {
             if (isInited) return;
-            saveConfig = Resources.Load<SaveToolConfig>(nameof(SaveToolConfig));            
-            LogKit.I($"存档系统初始化完成,存档保存的路径----：{saveDirPath}");
-            CheckAndCreateFolder();           
-            isInited = true;
+            if (saveToolConfig)
+            {
+                isInited = true;
+                SaveTool.saveConfig = saveToolConfig;
+                LoadPrefs();
+                CheckAndCreateFolder();
+            }
+            else
+                LogKit.W("初始化存档工具失败,请检查SaveToolConfig是否为空");
+        }
+
+        private static void SavePrefs()
+        {
+            PlayerPrefs.SetString(SAVEINFO_ALL_CACHE_INDEXKEY, runtime_saveInfos.Count == 0 ? string.Empty : SerializationTool.SerializedObject( runtime_saveInfos.Values.ToList()));
+            PlayerPrefs.Save();
+        }
+
+        private static void LoadPrefs()
+        {
+            string json = PlayerPrefs.GetString(SAVEINFO_ALL_CACHE_INDEXKEY, string.Empty);
+            if (json.IsNullOrEmpty()) return;
+            List<SaveInfo> saveInfos = SerializationTool.DeserializedObject<List<SaveInfo>>(json);
+            runtime_saveInfos = saveInfos.ToDictionary(x => x.saveID, x => x);
         }
 
         /// <summary>
@@ -44,7 +74,8 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static List<SaveInfo> GetAllSaveInfos<T>(Func<SaveInfo,T> order,bool isDescending = false)
         {
-            return isDescending ? saveConfig.infos.OrderByDescending(order).ToList() : saveConfig.infos.OrderBy(order).ToList();
+            var items = runtime_saveInfos.Select(x => x.Value);
+            return isDescending ? items.OrderByDescending(order).ToList() : items.OrderBy(order).ToList();
         }
 
         /// <summary>
@@ -53,11 +84,12 @@ namespace YukiFrameWork
         /// <returns>返回所有的存档信息</returns>
         public static List<SaveInfo> GetAllSaveInfoByUpdateTime()
         {
-            List<SaveInfo> SaveInfos = new List<SaveInfo>(saveConfig.infos.Count);
-            for (int i = 0; i < saveConfig.infos.Count; i++)
+            List<SaveInfo> SaveInfos = new List<SaveInfo>(runtime_saveInfos.Count);
+
+            foreach (var item in runtime_saveInfos)
             {
-                SaveInfos.Add(saveConfig.infos[i]);
-            }
+                SaveInfos.Add(item.Value);
+            }           
             OrderByUpdateTimeComparer orderBy = new OrderByUpdateTimeComparer();
             SaveInfos.Sort(orderBy);
             return SaveInfos;
@@ -78,17 +110,20 @@ namespace YukiFrameWork
             }
         }           
         /// <summary>
-        /// 创建一个存档信息
+        /// 创建一个存档信息,需要为存档指定一个唯一的存档Id!
         /// </summary>
         /// <returns></returns>
+        public static SaveInfo CreateSaveInfo(int saveId)
+        {
+            SaveInfo SaveInfo = new SaveInfo(saveId,DateTime.Now);
+            runtime_saveInfos.Add(saveId, SaveInfo);
+            SavePrefs();
+            return SaveInfo;
+        }
+        [Obsolete("过时的创建存档信息方法，请调用CreateSaveInfo(int saveId)指定存档的下标")]
         public static SaveInfo CreateSaveInfo()
         {
-            SaveInfo SaveInfo = new SaveInfo(saveConfig.currentID,DateTime.Now);
-            saveConfig.infos.Add(SaveInfo);
-#if UNITY_EDITOR
-            saveConfig.Save();
-#endif
-            return SaveInfo;
+            throw new Exception("创建存档信息的方法应使用CreateSaveInfo(int saveId)方法!该方法已不再受支持");
         }
 
         /// <summary>
@@ -98,7 +133,8 @@ namespace YukiFrameWork
         /// <returns></returns>
         public static SaveInfo GetSaveInfo(int saveID)
         {
-            return saveConfig.infos.Find(x => x.saveID == saveID);
+            runtime_saveInfos.TryGetValue(saveID, out var info);
+            return info;
         }
 
         /// <summary>
@@ -125,11 +161,8 @@ namespace YukiFrameWork
                 AssetDatabase.Refresh();
 #endif
             }
-
-            saveConfig.infos.Remove(GetSaveInfo(saveID));
-#if UNITY_EDITOR
-            saveConfig.Save();
-#endif
+            runtime_saveInfos.Remove(saveID);
+            SavePrefs();
         }     
 
         /// <summary>
@@ -144,10 +177,8 @@ namespace YukiFrameWork
                 AssetDatabase.Refresh();
 #endif
             }
-            saveConfig.infos.Clear();
-#if UNITY_EDITOR
-            saveConfig.Save();
-#endif
+            runtime_saveInfos.Clear();
+            SavePrefs();
             CheckAndCreateFolder();
         }
 
@@ -274,7 +305,7 @@ namespace YukiFrameWork
 
             GetSaveInfo(saveID).Update_LastTime(DateTime.Now);
 
-            //Update_saveConfig();
+            SavePrefs();
 
             SetCache(saveID, fileName, saveObject);
         }
@@ -343,12 +374,11 @@ namespace YukiFrameWork
         {
             if (GetSaveInfo(saveID) == null)
                 throw new Exception($"YukiFrameWork---当前存档没有被创建，存档id为{saveID}");
-
             string folder = $@"{saveDirPath}/{saveID}";
 
             if (Directory.Exists(folder))
                 return folder;
-            else if(autoGeneric)
+            else if (autoGeneric)
             {
                 Directory.CreateDirectory(folder);
 #if UNITY_EDITOR
@@ -358,6 +388,7 @@ namespace YukiFrameWork
             }
             return string.Empty;
         }
+
         #region Loading....
 
         /// <summary>

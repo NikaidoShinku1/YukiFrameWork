@@ -68,8 +68,7 @@ namespace YukiFrameWork
         T GetUtility<T>() where T : class,IUtility;
 
         ArchitectureTableConfig TableConfig { get; }
-        void SendCommand<T>(T command) where T : ICommand;
-        TResult SendCommand<TResult>(ICommand<TResult> command);
+        ICommandExecutor CommandExecutor { get; }
         TResult SendQuery<TResult>(IQuery<TResult> query);
 
         Container LoadContainer(string containerKey);
@@ -181,13 +180,36 @@ namespace YukiFrameWork
     public interface ICommand : ISetArchitecture,ISendEvent,IGetRegisterEvent,IGetModel
         ,IGetUtility,IGetSystem,ISendCommand,IGetArchitecture,IGetQuery,IGetContainer
     {       
+        /// <summary>
+        /// 命令的具体标签,当命令需要有一个标签时可以使用。
+        /// </summary>
+        string Label { get; }
         void Execute();        
     }
 
     public interface ICommand<TResult> : ISetArchitecture, ISendEvent, IGetRegisterEvent, IGetModel
         , IGetUtility, IGetSystem, ISendCommand, IGetArchitecture,IGetQuery,IGetContainer
-    {
+    { 
+        /// <summary>
+        /// 命令的具体标签,当命令需要有一个标签时可以使用。
+        /// </summary>
+        string Label { get; }
         TResult Execute();
+    }
+
+    /// <summary>
+    /// 撤销命令接口,实现该接口的命令是允许撤销的
+    /// </summary>
+    public interface IUndoCommand : ICommand
+    {
+        void Undo();
+    }
+    /// <summary>
+    /// 撤销命令接口,实现该接口的命令是允许撤销的
+    /// </summary>
+    public interface IUndoCommand<TResult> : ICommand<TResult>
+    {
+        TResult Undo();
     }
 
     #endregion
@@ -295,6 +317,29 @@ namespace YukiFrameWork
         /// <returns></returns>
         protected virtual ArchitectureTable BuildArchitectureTable() => null;
 
+        private ICommandExecutor executor = new DefaultCommandExecutor();
+
+        /// <summary>
+        /// 执行命令具体处理的接口。实现该接口可自定义对于命令的执行与撤销实现。
+        /// <para>命令的发送撤销均通过该接口具体执行。框架会有默认的调用方式。如有需求可自行定义如下</para>
+        /// <code>public class CustomCommandExecutor : ICommandExecutor
+        /// {
+        ///     //实现接口所需要的方法
+        /// }
+        /// 
+        /// public class TestScripts : MonoBehaviour
+        /// {
+        ///     void Start()
+        ///     {
+        ///         //通过命令中枢对执行者进行设置
+        ///         CommandHandler.Executor = new CustomCommandExecutor();
+        ///     }
+        /// }
+        /// 
+        /// </code>
+        /// </summary>
+        public virtual ICommandExecutor CommandExecutor => executor;
+
         /// <summary>
         /// 构建通用容器，重写该数组，根据一个标识一个容器，有多少标识，在架构的Init方法执行前就会构建多少个容器可使用。
         /// </summary>
@@ -341,7 +386,7 @@ namespace YukiFrameWork
                 {
                     if (mGlobal == null)
                     {
-                        mGlobal = ArchitectureConstructor.I.GetOrAddArchitecture<TCore>() as TCore;                     
+                        mGlobal = ArchitectureConstructor.I.GetOrAddArchitecture<TCore>() as TCore;                        
                     }
                     return mGlobal;
                 }
@@ -381,31 +426,15 @@ namespace YukiFrameWork
         }
 
         void IDisposable.Dispose() => OnDestroy();
-    
-
-        public void SendCommand<T>(T command) where T : ICommand => ExecuteCommand(command);
-
-        public TResult SendCommand<TResult>(ICommand<TResult> command) => ExecuteCommand(command);
 
         public TResult SendQuery<TResult>(IQuery<TResult> query) => Query<TResult>(query);
-       
+      
         protected virtual TResult Query<TResult>(IQuery<TResult> query)
         {
             query.SetArchitecture(this);
             return query.Seek();
         }
-
-        protected virtual void ExecuteCommand<T>(T command) where T : ICommand
-        {
-            command.SetArchitecture(this);
-            command.Execute();
-        }
-
-        protected virtual TResult ExecuteCommand<TResult>(ICommand<TResult> command)
-        {
-            command.SetArchitecture(this);
-            return command.Execute();         
-        }
+     
     }
     /// <summary>
     /// 只单独针对层级设置的容器
@@ -605,21 +634,33 @@ namespace YukiFrameWork
     public static partial class CommandExtension
     {
         public static void SendCommand<T>(this ISendCommand center) where T : ICommand, new()
-        {
-            T command = new T();
-            center.GetArchitecture().SendCommand(command);
-        }
+            => SendCommand(center, new T());
 
         public static void SendCommand<T>(this ISendCommand center, T command) where T : ICommand
-            => center.GetArchitecture().SendCommand<T>(command);
+            => center.GetArchitecture().CommandExecutor.Execute(command);
 
         public static TResult SendCommand<TResult>(this ISendCommand center, ICommand<TResult> command)
-            => center.GetArchitecture().SendCommand(command);
+            => center.GetArchitecture().CommandExecutor.Execute(command);
 
         public static TResult SendCommand<TCommand, TResult>(this ISendCommand center) where TCommand : ICommand<TResult>, new()
         {
             ICommand<TResult> command = new TCommand();
-            return center.GetArchitecture().SendCommand(command);
+            return SendCommand(center, command);
+        }
+
+        public static void UndoCommand<T>(this ISendCommand center) where T : IUndoCommand, new()
+            => UndoCommand(center, new T());
+
+        public static void UndoCommand<T>(this ISendCommand center, T command) where T : IUndoCommand
+            => center.GetArchitecture().CommandExecutor.Undo(command);
+
+        public static TResult UndoCommand<TResult>(this ISendCommand center, IUndoCommand<TResult> command)
+            => center.GetArchitecture().CommandExecutor.Undo(command);
+
+        public static TResult UndoCommand<TCommand, TResult>(this ISendCommand center) where TCommand : IUndoCommand<TResult>, new()
+        {
+            IUndoCommand<TResult> command = new TCommand();
+            return UndoCommand(center, command);
         }
     }
 

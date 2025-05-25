@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork.Skill
 {
-    public abstract class SkillController : AbstractController, ISkillController
+    public abstract class SkillController : AbstractController,IGlobalSign
     {
         void IGlobalSign.Init()
         {
@@ -33,30 +33,23 @@ namespace YukiFrameWork.Skill
             onReleasing = null;
             onCoolingComplete = null;
             onLevelChanged = null;
+            fixedTimer = 0;
             SimultaneousSkillKeys.Clear();
         }
 
-        #region Interface
-        ISkillExecutor ISkillController.Player { get => Player; set => Player = value; }
-        ISkillData ISkillController.SkillData { get => SkillData; set => SkillData = value; }
-        bool ISkillController.IsSkillRelease { get => IsSkillRelease; set => IsSkillRelease = value; }
-        float ISkillController.ReleasingTime { get => ReleasingTime; set => ReleasingTime = value; }
-        bool ISkillController.IsSkillCoolDown { get => IsSkillCoolDown; set => IsSkillCoolDown = value; }
-        float ISkillController.CoolDownTime { get => CoolDownTime; set => CoolDownTime = value; }
-        int ISkillController.SkillLevel { get ; set ; }       
-        #endregion
-
-        public ISkillExecutor Player { get;private set; }
+        public ISkillExecutor Player { get;internal set; }
 
         public SkillHandler Handler => Player.Handler;      
 
         public ISkillData SkillData { get; set; }    
 
-        public bool IsSkillRelease { get; private set; }     
+        public bool IsSkillRelease { get; internal set; }
 
-        public float ReleasingTime { get; private set; }           
+        public float ReleasingTime { get; internal set; }           
 
-        public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();      
+        public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();
+
+        internal float fixedTimer;
 
         public float ReleasingProgress
         {
@@ -72,9 +65,9 @@ namespace YukiFrameWork.Skill
             }
         }
 
-        public bool IsSkillCoolDown { get;private set; } = true;
+        public bool IsSkillCoolDown { get;internal set; } = true;
 
-        public float CoolDownTime { get;private set; }
+        public float CoolDownTime { get;internal set; }
 
         public float CoolDownProgress
         {
@@ -95,7 +88,7 @@ namespace YukiFrameWork.Skill
         
         #endregion        
 
-        public static bool ReleaseController(ISkillController controller)
+        public static bool ReleaseController(SkillController controller)
         {
             return GlobalObjectPools.GlobalRelease(controller);
         }

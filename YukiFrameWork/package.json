@@ -1,6 +1,6 @@
 {
   "name": "com.yuki.yukiframework",
-  "version": "1.47.1",
+  "version": "1.48.1",
   "unity": "2020.3",
   "displayName": "YukiFrameWork",
   "description": "YukiFrameWork是一款基于QFrameWork的思想规则而衍生的架构分层开发框架。代码设计符合solid原则。工具集合集成IOC控制反转(依赖注入)、状态机、资源管理、动作时序管理、UI框架、红点系统、存档系统、消息广播系统、声音管理模块。本地化配置管理、场景管理工具、分辨率拓展工具、InputSystem新输入系统拓展、单例模式、命令层、数据强化BindableProperty以及对象池模块，协程的所有API全面支持以async/await的形式使用(对于工具以及拓展的文档在下方框架支持工具内打开框架拓展工具即可)",

@@ -219,7 +219,7 @@ namespace YukiFrameWork.Item
                 var data = saveDatas[key];
                 uint count = (uint)data.Count;
                 slotGroup.ClearSlots();
-                slotGroup.CreateSlotsByCount(count);
+                slotGroup.CreateSlotsByCount(count,true);
                 for (int i = 0; i < count; i++)
                 {
                     var slot = data[i];

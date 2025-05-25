@@ -89,16 +89,16 @@ namespace YukiFrameWork.Skill
             skills.Add(skill.SkillKey, new SkillBindder() {skillData = skill, controllerType = cType });
         }
 
-        public static void BindController<T>(string SkillKey) where T : ISkillController
+        public static void BindController<T>(string SkillKey) where T : SkillController
         {
             BindController(SkillKey, typeof(T));
         }
 
         public static void BindController(string SkillKey, Type type)
         {
-            if (!typeof(ISkillController).IsAssignableFrom(type))
+            if (!typeof(SkillController).IsAssignableFrom(type))
             {
-                throw new Exception("Type不继承ISkillController Type:" + type);
+                throw new Exception("Type不继承SkillController Type:" + type);
             }
 
             if (!skills.TryGetValue(SkillKey, out var bindder))
@@ -114,7 +114,7 @@ namespace YukiFrameWork.Skill
             buffBindder.controllerType = type;
         }
 
-        internal static ISkillController CreateSkillController(string SkillKey)
+        internal static SkillController CreateSkillController(string SkillKey)
         {
             if (!skills.TryGetValue(SkillKey, out var bindder))
             {
@@ -125,7 +125,7 @@ namespace YukiFrameWork.Skill
             {
                 throw new Exception("该Skill没有绑定控制器，请重试 SkillKey:" + SkillKey);
             }
-            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as ISkillController;
+            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as SkillController;
         }  
 
         public static ISkillData GetSkillDataByKey(string skillKey)

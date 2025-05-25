@@ -26,7 +26,19 @@ namespace YukiFrameWork.Machine
         /// <summary>
         /// 这个状态的状态信息
         /// </summary>
-        public StateBase CurrentStateInfo { get; internal set; }         
+        public StateBase CurrentStateInfo { get; internal set; }
+
+        /// <summary>
+        /// 仅当状态退出时有值
+        /// <para>Value:在这个状态退出后进入的下一个状态</para>
+        /// </summary>
+        public StateBase NextState => CurrentStateInfo.NextState;
+
+        /// <summary>
+        /// 仅当状态进入时有值 当状态为启动时默认状态，则为空
+        /// <para>Value:上一个退出的状态</para>
+        /// </summary>
+        public StateBase LastState => CurrentStateInfo.LastState;
         
         /// <summary>
         /// 这个状态类的真实类型缓存

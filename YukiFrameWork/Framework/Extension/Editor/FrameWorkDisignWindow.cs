@@ -146,18 +146,7 @@ namespace YukiFrameWork
             catch
             {
 
-            }
-
-            try
-            {
-                System.Type saveToolType = AssemblyHelper.GetType("YukiFrameWork.SaveToolConfig");
-
-                if (saveToolType != null)
-                {
-                    tree.Add($"框架存档工具", Resources.Load("SaveToolConfig"), Sirenix.OdinInspector.SdfIconType.Save);
-                }
-            }
-            catch { }
+            }           
 
             try
             {

@@ -109,14 +109,16 @@ namespace YukiFrameWork.Item
         /// <param name="count"></param>
         /// <param name="resetSlots">是否在创建插槽之前重置插槽数量为0</param>
         /// <returns></returns>
-        public SlotGroup CreateSlotsByCount(uint count)
+        public SlotGroup CreateSlotsByCount(uint count,bool uiRefresh = false)
         {           
             for (int i = 0; i < count; i++)
             {
                 CreateSlot(null,0);
             }
+            if (uiRefresh)
+                UIRefresh?.Invoke();
             return this;
-        }
+        }      
 
         /// <summary>
         /// 为物品仓库排序
@@ -383,8 +385,8 @@ namespace YukiFrameWork.Item
         /// </summary>
         public void ClearSlots()
         {
-            slots.Clear();
-            UIRefresh?.Invoke();
+            ClearItems();
+            slots.Clear();           
         }
 
         internal bool ConditionInvoke(IItem item)

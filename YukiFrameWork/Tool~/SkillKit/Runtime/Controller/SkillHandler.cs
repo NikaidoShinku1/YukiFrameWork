@@ -50,19 +50,19 @@ namespace YukiFrameWork.Skill
         /// Key:技能标识
         /// Value:技能对应的控制器
         /// </summary>
-        private Dictionary<string, ISkillController> skills = new Dictionary<string, ISkillController>();
+        private Dictionary<string, SkillController> skills = new Dictionary<string, SkillController>();       
 
         /// <summary>
         /// 添加技能时触发的回调，可以拿到技能控制器
         /// </summary>
         [LabelText("添加技能时触发的回调，可以拿到技能控制器")]
-        public UnityEvent<ISkillController> onAddSkillEvent = new UnityEvent<ISkillController>();
+        public UnityEvent<SkillController> onAddSkillEvent = new UnityEvent<SkillController>();
 
         /// <summary>
         /// 移除技能时触发的回调，可以拿到技能控制器
         /// </summary>
         [LabelText(" 移除技能时触发的回调，可以拿到技能控制器")]
-        public UnityEvent<ISkillController> onRemoveSkillEvent = new UnityEvent<ISkillController>();     
+        public UnityEvent<SkillController> onRemoveSkillEvent = new UnityEvent<SkillController>();     
 
         /// <summary>
         /// 添加多个技能
@@ -93,7 +93,7 @@ namespace YukiFrameWork.Skill
         /// <typeparam name="T">技能控制器类型</typeparam>
         /// <param name="skill">技能信息</param>
         /// <param name="executor">技能执行者</param>
-        public ISkillController AddSkill(ISkillExecutor player, ISkillData skill)
+        public SkillController AddSkill(ISkillExecutor player, ISkillData skill)
         {
             if (skills.ContainsKey(skill.SkillKey))
             {
@@ -107,7 +107,7 @@ namespace YukiFrameWork.Skill
             return controller;
         }
 
-        private ISkillController CreateInstance(ISkillData skillData,ISkillExecutor player)
+        private SkillController CreateInstance(ISkillData skillData,ISkillExecutor player)
         {
             var skillController = SkillKit.CreateSkillController(skillData.SkillKey);
             skillController.Player = player;
@@ -118,14 +118,14 @@ namespace YukiFrameWork.Skill
             return skillController;
         }
 
-        private void Add(ISkillController controller)
+        private void Add(SkillController controller)
         {
             skills[controller.SkillData.SkillKey] = controller;         
             controller.OnAwake();
             onAddSkillEvent?.Invoke(controller);       
         }
 
-        public ISkillController AddSkill(ISkillExecutor player, string skillKey)
+        public SkillController AddSkill(ISkillExecutor player, string skillKey)
         {
             ISkillData skill = SkillKit.GetSkillDataByKey(skillKey);
             if (skill == null)
@@ -143,7 +143,7 @@ namespace YukiFrameWork.Skill
         /// </summary>
         /// <param name="skillKey"></param>
         /// <returns></returns>
-        public ISkillController GetSkillController(string skillKey)
+        public SkillController GetSkillController(string skillKey)
         {
             skills.TryGetValue(skillKey, out var controller);
             return controller;
@@ -151,7 +151,7 @@ namespace YukiFrameWork.Skill
 
         public ReleaseSkillStatus ReleaseSkill(string skillKey, params object[] param)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 throw new Exception("无法释放不存在的技能，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
@@ -176,13 +176,14 @@ namespace YukiFrameWork.Skill
             controller.ReleasingTime = 0;
             controller.IsSkillCoolDown = false;
             controller.IsSkillRelease = true;
+            controller.fixedTimer = 0;
             controller.OnRelease(param);          
             return ReleaseSkillStatus.Success;
         }
 
         public void RemoveSkill(string skillKey)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 return;
             }
@@ -192,7 +193,7 @@ namespace YukiFrameWork.Skill
 
           
 
-        private void Remove(ISkillController controller)
+        private void Remove(SkillController controller)
         {           
             Interruption(controller);
             //触发销毁方法
@@ -204,7 +205,7 @@ namespace YukiFrameWork.Skill
 
         public void RemoveAllSkills()
         {
-            ISkillController[] controllers = skills.Values.ToArray();
+            SkillController[] controllers = skills.Values.ToArray();
 
             for (int i = 0; i < controllers.Length; i++)
             {
@@ -218,7 +219,7 @@ namespace YukiFrameWork.Skill
         /// <param name="skillKey"></param>
         public void ResetSkillCoolingTime(string skillKey)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 throw new Exception("无法释放不存在的技能，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
@@ -233,7 +234,7 @@ namespace YukiFrameWork.Skill
         /// <exception cref="Exception"></exception>
         public void ResetSkillReleasingTime(string skillKey)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 throw new Exception("无法释放不存在的技能，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
@@ -248,7 +249,7 @@ namespace YukiFrameWork.Skill
         /// <exception cref="Exception"></exception>
         public void CancelSkill(string skillKey)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 throw new Exception("不存在的技能,无法取消，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
@@ -293,7 +294,7 @@ namespace YukiFrameWork.Skill
         /// <exception cref="Exception"></exception>
         public void InterruptionSkill(string skillKey)
         {
-            if (!skills.TryGetValue(skillKey, out ISkillController controller))
+            if (!skills.TryGetValue(skillKey, out SkillController controller))
             {
                 throw new Exception("不存在的技能,无法打断，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
@@ -301,7 +302,7 @@ namespace YukiFrameWork.Skill
             Interruption(controller);
         }
 
-        private void Interruption(ISkillController controller)
+        private void Interruption(SkillController controller)
         {
             if (!controller.IsSkillRelease || !this) return;
 
@@ -344,13 +345,13 @@ namespace YukiFrameWork.Skill
             return contains;
         }
 
-        public ISkillController[] GetAllSkillControllers() => skills.Values.ToArray();
+        public SkillController[] GetAllSkillControllers() => skills.Values.ToArray();
 
         private void Update()
         {
             OnUpdateSetting(UpdateStatus.OnUpdate);
         }
-
+       
         private void FixedUpdate()
         {
             OnUpdateSetting(UpdateStatus.OnFixedUpdate);
@@ -410,6 +411,11 @@ namespace YukiFrameWork.Skill
                         {
                             if (controller.IsSkillRelease)
                             {
+                                //防止卡顿导致技能在FixedUpdate执行达不到预期
+                                if (controller.fixedTimer - controller.ReleasingTime > Time.fixedDeltaTime * 2)
+                                    return;
+                                controller.fixedTimer += Time.fixedDeltaTime;
+
                                 controller.OnFixedUpdate();                       
                             }
                         }
@@ -426,7 +432,7 @@ namespace YukiFrameWork.Skill
                 }
             }
         }
-
+        
         private void OnDestroy()
         {         
             onAddSkillEvent.RemoveAllListeners();
