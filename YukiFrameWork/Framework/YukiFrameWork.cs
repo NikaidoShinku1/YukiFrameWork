@@ -326,17 +326,9 @@ namespace YukiFrameWork
         /// {
         ///     //实现接口所需要的方法
         /// }
-        /// 
-        /// public class TestScripts : MonoBehaviour
-        /// {
-        ///     void Start()
-        ///     {
-        ///         //通过命令中枢对执行者进行设置
-        ///         CommandHandler.Executor = new CustomCommandExecutor();
-        ///     }
-        /// }
-        /// 
         /// </code>
+        /// 在架构中设置Executor
+        /// <code>CommandExecutor = new CustomCommandExecutor()</code>
         /// </summary>
         public virtual ICommandExecutor CommandExecutor => executor;
 
@@ -637,10 +629,18 @@ namespace YukiFrameWork
             => SendCommand(center, new T());
 
         public static void SendCommand<T>(this ISendCommand center, T command) where T : ICommand
-            => center.GetArchitecture().CommandExecutor.Execute(command);
+        {
+            IArchitecture architecture = center.GetArchitecture();
+            architecture.CommandExecutor.Architecture = architecture;
+            architecture.CommandExecutor.Execute(command);
+        }
 
         public static TResult SendCommand<TResult>(this ISendCommand center, ICommand<TResult> command)
-            => center.GetArchitecture().CommandExecutor.Execute(command);
+        {
+            IArchitecture architecture = center.GetArchitecture();
+            architecture.CommandExecutor.Architecture = architecture;
+            return architecture.CommandExecutor.Execute(command);
+        }
 
         public static TResult SendCommand<TCommand, TResult>(this ISendCommand center) where TCommand : ICommand<TResult>, new()
         {
@@ -652,10 +652,18 @@ namespace YukiFrameWork
             => UndoCommand(center, new T());
 
         public static void UndoCommand<T>(this ISendCommand center, T command) where T : IUndoCommand
-            => center.GetArchitecture().CommandExecutor.Undo(command);
+        {
+            IArchitecture architecture = center.GetArchitecture();
+            architecture.CommandExecutor.Architecture = architecture;
+            architecture.CommandExecutor.Undo(command);
+        }
 
         public static TResult UndoCommand<TResult>(this ISendCommand center, IUndoCommand<TResult> command)
-            => center.GetArchitecture().CommandExecutor.Undo(command);
+        {
+            IArchitecture architecture = center.GetArchitecture();
+            architecture.CommandExecutor.Architecture = architecture;
+            return architecture.CommandExecutor.Undo(command);
+        }
 
         public static TResult UndoCommand<TCommand, TResult>(this ISendCommand center) where TCommand : IUndoCommand<TResult>, new()
         {

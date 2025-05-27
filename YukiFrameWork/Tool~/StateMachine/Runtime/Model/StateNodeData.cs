@@ -148,12 +148,12 @@ namespace YukiFrameWork.Machine
                 }
                 MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
                 if (script == null)
-                {                  
+                {;
                     continue;
                 }
                 Type type = script.GetClass();             
                 if (type == null)
-                {
+                {                    
                     continue;
                 }
 

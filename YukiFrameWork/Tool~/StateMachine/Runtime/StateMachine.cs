@@ -196,12 +196,13 @@ namespace YukiFrameWork.Machine
                     // 检测当前状态是否有已经满足的条件
                     CheckConditionAndSwitch();
 
-                }              
+                }             
             }
             Switch();           
         }        
         private void EnterState(StateBase stateBase)
         {
+            if (stateBase == null) return;
             CurrentState = stateBase;
             CurrentState.Enter();
             CurrentState.LastState = null;
@@ -213,8 +214,8 @@ namespace YukiFrameWork.Machine
                 {
                     throw new NullReferenceException($"状态已被标识为子状态机，但子状态机查询失败! State Name:{CurrentState.Name}");
                 }               
-                CurrentChildMachine = childMachine;              
-                //子状态机进入默认状态
+                CurrentChildMachine = childMachine;
+                //子状态机进入默认状态                       
                 CurrentChildMachine.EnterState(childMachine.DefaultState);
                 // 检测当前状态是否有已经满足的条件
                 CurrentChildMachine.CheckConditionAndSwitch();
@@ -225,7 +226,8 @@ namespace YukiFrameWork.Machine
         }
 
         private void ExitState()
-        {                       
+        {
+            if (CurrentState == null) return;
             if (CurrentState.Runtime_StateData.IsSubStateMachine)            
                 CurrentChildMachine.ExitState();            
             CurrentState.Exit();

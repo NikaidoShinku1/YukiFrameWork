@@ -15,20 +15,16 @@ namespace YukiFrameWork
     /// {
     ///     //实现接口所需要的方法
     /// }
-    /// 
-    /// public class TestScripts : MonoBehaviour
-    /// {
-    ///     void Start()
-    ///     {
-    ///         //通过命令中枢对执行者进行设置
-    ///         CommandHandler.Executor = new CustomCommandExecutor();
-    ///     }
-    /// }
-    /// 
     /// </code>
+    /// 在架构中设置Executor
+    /// <code>CommandExecutor = new CustomCommandExecutor()</code>
     /// </summary>
     public interface ICommandExecutor
     {
+        /// <summary>
+        /// 命令执行中枢在每一次执行命令时会赋值架构，无需用户考虑
+        /// </summary>
+        IArchitecture Architecture { get; set; }
         void Execute(ICommand command);
         TResult Execute<TResult>(ICommand<TResult> command);
 
@@ -37,29 +33,31 @@ namespace YukiFrameWork
     }
 
     internal class DefaultCommandExecutor : ICommandExecutor
-    {    
+    {
+        public IArchitecture Architecture { get ; set; }
+
         public void Execute(ICommand command)
         {
-            command.SetArchitecture(command.GetArchitecture());
+            command.SetArchitecture(Architecture);
             command.Execute();
         }
 
         public TResult Execute<TResult>(ICommand<TResult> command)
         {
-            command.SetArchitecture(command.GetArchitecture());
+            command.SetArchitecture(Architecture);
             return command.Execute();
         }
 
         public void Undo(IUndoCommand undo)
         {
-            undo.SetArchitecture(undo.GetArchitecture());
+            undo.SetArchitecture(Architecture);
             undo.Undo();
 
         }
 
         public TResult Undo<TResult>(IUndoCommand<TResult> undo)
         {
-            undo.SetArchitecture(undo.GetArchitecture());
+            undo.SetArchitecture(Architecture);
             return undo.Undo();
         }
     }

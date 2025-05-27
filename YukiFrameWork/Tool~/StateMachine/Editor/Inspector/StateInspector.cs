@@ -54,13 +54,10 @@ namespace YukiFrameWork.Machine
             EditorGUI.BeginDisabledGroup(disabled);
             
             Vector2 mousePosition = Event.current.mousePosition;
-
+            // 刷新一下                
+            helper.node.RefreshStateScripts(helper.runtimeStateMachineCore);
             foreach (var item in helper.node.behaviourInfos)
-            {
-                // 刷新一下
-                if (string.IsNullOrEmpty(item.guid) && !string.IsNullOrEmpty(item.typeName))
-                    helper.node.RefreshStateScripts(helper.runtimeStateMachineCore);
-
+            {                
                 // 根据guid加载到脚本信息
                 string path = AssetDatabase.GUIDToAssetPath(item.guid);
                 MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(path);
