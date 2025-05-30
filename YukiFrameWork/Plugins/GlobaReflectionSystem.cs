@@ -73,9 +73,9 @@ namespace YukiFrameWork
         /// <param name="methodName">方法名</param>
         /// <param name="args">参数</param>
         [MethodAPI("直接通过反射执行方法(性能开销极大，请谨慎使用)")]     
-        public static void InvokeMethod<T>(this T target,string methodName,params object[] args) where T : class
+        public static void InvokeMethod(this object target,string methodName,params object[] args)
         {
-            InvokeMethod(typeof(T), target, methodName, args);
+            InvokeMethod(target,target.GetType(), methodName, args);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace YukiFrameWork
         /// <param name="methodName">方法名</param>
         /// <param name="args">参数</param>
         [MethodAPI("直接通过反射执行方法(性能开销极大，请谨慎使用)")]
-        public static void InvokeMethod(Type type,object target, string methodName, params object[] args)
+        public static void InvokeMethod(this object target,Type type, string methodName, params object[] args)
         {
             Type[] types = new Type[args.Length];
 
@@ -107,62 +107,49 @@ namespace YukiFrameWork
 
             method.Invoke(target, args);
         }
+        public static object GetValue(this object target, string parameterName)
+        {
+            return GetValue(target,target.GetType(), parameterName);
+        }
 
         /// <summary>
         /// 直接通过反射获取目标字段,包括任何私有化,以及静态字段，如果是属性则必须Getter或者Setter其中之一是公开的
         /// </summary>
-        /// <typeparam name="T">类型</typeparam>
-        /// <param name="target">目标</param>
-        /// <param name="parameterName">参数名</param>
-        /// <param name="type">需要获取的Value的类型</param>
-        /// <returns>直接返回这个类的字段(属性)</returns>
+        /// <param name="target"></param>
+        /// <param name="type"></param>
+        /// <param name="parameterName"></param>
+        /// <returns></returns>
         [MethodAPI("直接通过反射获取目标字段,包括任何私有化,以及静态字段，如果是属性则必须Getter或者Setter其中之一是公开的")]
-        public static object GetValue<T>(this T target, string parameterName)
-        {
-            return Get(target, parameterName);
-        }
-
-        public static object GetValue(Type type, object target, string parameterName)
+        public static object GetValue(this object target,Type type, string parameterName)
         {
             return Get(type, target, parameterName);
         }
-
-        private static object Get<T>(T target, string parameterName)
-        {
-            return Get(typeof(T), target, parameterName);
-        }
-
-
+ 
         private static object Get(Type type,object target, string parameterName)
-        {       
-            var info = GetMemberInfo(type,parameterName);
-            if (info == null) return null;
-
-            if (info is FieldInfo field)
+        {
+            FieldInfo field = type.GetRealField(parameterName);
+            if(field != null)
                 return field.GetValue(target);
-            else if (info is PropertyInfo property)
-                return property.GetValue(target);
+            PropertyInfo propertyInfo = type.GetRealProperty(parameterName);
+             if(propertyInfo != null)
+                return propertyInfo.GetValue(target);
 
             return null;
-        }
-
-        private static void Set<T>(T target,object value, string parameterName)
-        {
-            Set(typeof(T), target, value, parameterName);
-        }
+        }  
 
         private static void Set(Type type,object target, object value, string parameterName)
         {
-            MemberInfo info = GetMemberInfo(type,parameterName);
-
-            if (info == null) return;
-            
-            if (info is FieldInfo field)
+            FieldInfo field = type.GetRealField(parameterName);
+            if (field != null)
                 field.SetValue(target, value);
-            else if (info is PropertyInfo property)
-                property.SetValue(target, value);
+            else
+            {
+                PropertyInfo propertyInfo = type.GetRealProperty(parameterName);
+                if (propertyInfo != null)
+                    propertyInfo.SetValue(target,value);
+            }                              
         }
-
+        [Obsolete("过时的获取元素信息方法，MemberInfo包含重载在内的元素信息。而非个体。不应该通过单一的方式获取，可自行使用type.GetMember进行获取", true)]
         public static MemberInfo GetMemberInfo<T>(string parameterName)
         {
             return GetMemberInfo(typeof(T), parameterName);
@@ -187,6 +174,8 @@ namespace YukiFrameWork
                 valueDicts[type][parameterName] = info;
             }            
         }
+
+        [Obsolete("过时的获取元素信息方法，MemberInfo包含重载在内的元素信息。而非个体。不应该通过单一的方式获取，可自行使用type.GetMember进行获取",true)]
         public static MemberInfo GetMemberInfo(Type type,string parameterName)
         {
             var info = GetMemberInfoInValueDict(type, parameterName);
@@ -217,11 +206,6 @@ namespace YukiFrameWork
                 memberInfos.AddRange(methodInfos);
             return memberInfos;
         }  
-
-        private static MethodInfo GetMethodInfos<T>(string methodName,Type[] types)
-        {
-            return GetMethodInfos(typeof(T), methodName, types);           
-        }
 
         private static MethodInfo GetMethodInfos(Type type,string methodName, Type[] types)
         {
@@ -268,18 +252,18 @@ namespace YukiFrameWork
         /// 直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter
         /// </summary>        
         [MethodAPI("直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter")]
-        public static void SetValue<T>(this T target, string parameterName,object value)
+        public static void SetValue(this object target, string parameterName,object value)
         {
-            Set<T>(target, value,parameterName);
+            SetValue(target,target.GetType(), parameterName,value);
         }
 
         /// <summary>
         /// 直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter
         /// </summary>        
         [MethodAPI("直接通过反射赋值目标字段(属性),包括私有化,但如果是属性则必须要有setter")]
-        public static void SetValue(Type type,object target, string parameterName, object value)
+        public static void SetValue(this object target,Type type, string parameterName, object value)
         {         
-            Set(type,target, value, parameterName);
+            Set(type,target,value,parameterName);
         }    
 
         public static bool HasCustomAttribute<T>(this Type type, bool inherit, out T attribute) where T : Attribute

@@ -69,9 +69,6 @@ namespace YukiFrameWork.Buffer
 			{
 				if (Buffer.SurvivalType == BuffSurvivalType.Timer)
 					return mRemainingTime;
-#if YukiFrameWork_DEBUGFULL
-                LogKit.W("试图访问设置成永久性的Buff中的时间流，请取消对该属性的调用!");
-#endif
 				return -1;
 			}
 			internal set

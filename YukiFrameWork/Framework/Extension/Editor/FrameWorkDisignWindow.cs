@@ -165,8 +165,19 @@ namespace YukiFrameWork
                 }
 
             }
-            catch { }         
-            
+            catch { }
+
+            try
+            {
+                tree.Add("AnimationClip-Sprite转换工具/Single", new AnimationClipConvertWindow(), SdfIconType.Image);
+                tree.Add("AnimationClip-Sprite转换工具/Multiple", new MultipleAnimationConvertWindow(), SdfIconType.Images);
+            }
+            catch
+            {
+
+            }
+
+
             tree.Add("Unity样式拓展工具", new GUIStyleExtensionWindow(), SdfIconType.Image);
 
             var example = AssetDatabase.LoadAssetAtPath<Example>($"{ImportSettingWindow.packagePath}/Framework/Abstract/Example/Example.asset");
@@ -197,8 +208,7 @@ namespace YukiFrameWork
         {
             EditorUtility.SetDirty(core);
             AssetDatabase.SaveAssets();          
-        }     
-      
+        }                  
         /// <summary>
         /// 在Scene视图绘制2D胶囊体
         /// </summary>

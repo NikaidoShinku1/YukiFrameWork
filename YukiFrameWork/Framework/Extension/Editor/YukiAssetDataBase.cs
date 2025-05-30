@@ -63,8 +63,7 @@ namespace YukiFrameWork
 
 			return asset;
 		}
-
-        public static void CreateFolder(string assetName, string assetPath) 
+        public static void CreateFolder(string assetName, string assetPath)  
         {
 			AssetDatabase.CreateFolder(assetName, assetPath);
 

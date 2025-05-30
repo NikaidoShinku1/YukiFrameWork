@@ -80,7 +80,7 @@ namespace YukiFrameWork
         private List<string> architectures = new List<string>();
         private int selectIndex = 0;       
         private void OnGUI()
-        {         
+        {
            // Debug.Log(typeof(int).ToString());
             if (!config) return;
             if (selectIndex >= architectures.Count)

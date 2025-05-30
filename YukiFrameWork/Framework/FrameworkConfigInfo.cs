@@ -6,9 +6,14 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+
+
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
+
 #endif
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
@@ -45,6 +50,74 @@ namespace YukiFrameWork
         }
     }
 #endif
+
+    [Serializable]
+    public class AnimationConvertInfo
+    {
+        public string folderPath;
+        public string showViewPath;
+        public YDictionary<string,Info> info_Values = new YDictionary<string, Info>();
+        [Serializable]
+        public class Info
+        {
+            public bool loop;            
+            public float cycleOffset;           
+            public FrameInfo[] frameInfos = new FrameInfo[0];
+            [Serializable]
+            public class FrameInfo
+            {
+                public string guid;
+                public float frame;
+            }
+        }
+    }
+
+    [Serializable]
+    public class MultipleAnimationConvertInfo
+    {
+        [HideInInspector]
+        public Texture2D texture;
+        [HideInInspector]
+        public List<Sprite> sprites = new List<Sprite>();
+        [LabelText("AnimationClip预数据")]
+        [InfoBox("作为图集的Texture2D有着许多不确定性，一个图集也许可以制作多个AnimationClip，可在此进行添加")]
+        public MultipleInfo[] multipleInfos;
+        [Serializable]
+        public class MultipleInfo
+        {
+            [LabelText("AnimationClip名称")]
+            public string clipName;
+            [LabelText("帧信息")]
+            [ListDrawerSettings(CustomAddFunction = nameof(Add))]
+            public List<MultipleFrameInfo> multipleFrameInfos = new List<MultipleFrameInfo>();
+
+            void Add()
+            {
+                var multipleFrameInfo = new MultipleFrameInfo();
+                multipleFrameInfo.frame = multipleFrameInfos.Count;
+                multipleFrameInfos.Add(multipleFrameInfo);
+            }
+            [Serializable]
+            public class MultipleFrameInfo
+            {
+                [LabelText("当前帧")]
+                public float frame;
+                [LabelText("当前选择的Sprite")]
+#if UNITY_EDITOR
+                [ValueDropdown(nameof(GetAllSprites))]
+#endif
+                public Sprite sprite;
+
+#if UNITY_EDITOR
+                private IEnumerable GetAllSprites()
+                    => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo)).multipleAnimationConvertInfo.sprites;
+#endif
+            }
+            public bool loop;
+            public float cycleOffset;
+        }
+    }
+
     [HideMonoScript]  
     public class FrameworkConfigInfo : ScriptableObject
     {
@@ -85,6 +158,10 @@ namespace YukiFrameWork
         public string excelDataPath;
         [HideInInspector]
         public string excelTempPath;
+        [HideInInspector,SerializeField]
+        public AnimationConvertInfo AnimationConvertInfo;
+        [SerializeField,ReadOnly]
+        public MultipleAnimationConvertInfo multipleAnimationConvertInfo;
 #if UNITY_EDITOR
         private LocalScriptGenerator generator = new LocalScriptGenerator();
         [ReadOnly]

@@ -622,7 +622,7 @@ namespace YukiFrameWork
 
         [MenuItem("Assets/Create/YukiFrameWork/生成文件夹字符串代码")]
         static void GeneratorFolderScripts()
-        {           
+        {                       
             string folderPath = AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs.FirstOrDefault());
             if (folderPath.IsNullOrEmpty())
                 throw new Exception("丢失路径");
@@ -641,6 +641,7 @@ namespace YukiFrameWork
                 .CodeSetting(string.Empty, folderName, string.Empty, codeWriter, true)
               .Create(folderName, folderPath);
         }
+      
     }
 }
 #endif

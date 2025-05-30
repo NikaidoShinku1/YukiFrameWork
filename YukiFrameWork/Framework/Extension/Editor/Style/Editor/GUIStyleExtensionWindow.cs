@@ -40,12 +40,12 @@ namespace YukiFrameWork.Extension
         {
             OnEnable();
         }
-
+        [OnInspectorInit]
         protected virtual void OnEnable()
         {
              
         }
-
+        [OnInspectorDispose]
         protected virtual void OnDisable()
         {
 

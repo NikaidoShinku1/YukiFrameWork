@@ -40,6 +40,8 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 #### 框架支持工具
 
+- 框架AnimationClip-Sprite转换工具 [模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/17.AnimationClip转换.md)
+
 - 框架新输入系统拓展InputSystemExtension [模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md)
 
 - 框架UINavigation导航模块介绍 [模块介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UINavigation/Readme.md)
@@ -54,7 +56,7 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 - 动作设计状态机模块:StateManager[动作状态机介绍](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md)
 
-- 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Localization/LocalizationInfo.md)
+- 框架本地化套件:[LocalizationKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Localization/LocalizationInfo.md)
 
 - 框架红点系统:[ReddotKit](https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/ReddotKit/Reddot.md)
 
