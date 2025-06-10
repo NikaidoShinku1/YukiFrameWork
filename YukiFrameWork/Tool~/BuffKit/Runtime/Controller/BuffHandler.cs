@@ -40,7 +40,7 @@ namespace YukiFrameWork.Buffer
             AddBuffer(buff, player);
         }
 
-        public void AddBuffer(IBuff buff, IBuffExecutor player)
+        public BuffController AddBuffer(IBuff buff, IBuffExecutor player)
         {
             if (mTable.TryGetValue(buff.GetBuffKey, out var controllers))
             {
@@ -58,28 +58,29 @@ namespace YukiFrameWork.Buffer
                         case BuffRepeatAdditionType.Reset:
                             {
                                 item.RemainingTime = buff.BuffTimer;
+                                return item;
                             }
-                            break;
+                            
                         case BuffRepeatAdditionType.Multiple:
                             {
                                 if (buff.IsMaxStackableLayer && item.BuffLayer >= buff.MaxStackableLayer && buff.MaxStackableLayer > 0)
-                                    return;
+                                    return item;
                                 item.BuffLayer++;
                                 item.OnBuffStart();
                                 item.onBuffStart?.Invoke(item.BuffLayer);
-                            }
-                            break;
+                                return item;
+                            }                            
                         case BuffRepeatAdditionType.MultipleAndReset:
                             {
                                 if (buff.IsMaxStackableLayer && item.BuffLayer >= buff.MaxStackableLayer && buff.MaxStackableLayer > 0)
-                                    return;
+                                    return item;
                                 item.BuffLayer++;
                                 item.RemainingTime = buff.BuffTimer;
                                 item.OnBuffStart();
                                 item.onBuffStart?.Invoke(item.BuffLayer);
-
+                                return item;
                             }
-                            break;
+                           
                         case BuffRepeatAdditionType.MultipleCount:
                             {
                                 BuffController controller = CreateInstance(buff, player);
@@ -87,24 +88,30 @@ namespace YukiFrameWork.Buffer
                                 controllers.Add(controller);
                                 controller.OnBuffStart();
                                 controller.onBuffStart?.Invoke(controller.BuffLayer);
-                            }
-                            break;
+                                return controller;
+                            }                            
                     }
                 }
+                return item;
             }
             else
             {
                 BuffController controller = CreateInstance(buff, player);
-#if YukiFrameWork_DEBUGFULL
-                LogKit.I("创建的控制器类型:" + controller.GetType());
-#endif
+
                 InitController(controller);
 
                 //如果检查没有会被抵消的Buff以及该Buff没有处于别的运行时Buff内的禁止Buff，则正常添加，否则不添加
                 if (CheckBuffCounteractID(buff) && CheckBuffDisableID(buff) && controller.OnAddBuffCondition() && player.OnAddBuffCondition())
+                {
                     AddBuffer(controller);
+                    return controller;
+                }
                 else
+                {
                     release.Add(controller);
+                    return null;//如果是要被回收的控制器，则返回空 
+                }
+
             }
         }
 
@@ -117,10 +124,10 @@ namespace YukiFrameWork.Buffer
             controller.fixedTimer = 0;
             return controller;
         }
-        public void AddBuffer(string BuffKey, IBuffExecutor player)
+        public BuffController AddBuffer(string BuffKey, IBuffExecutor player)
         {
             IBuff buff = BuffKit.GetBuffByKey(BuffKey);
-            AddBuffer(buff, player);
+            return AddBuffer(buff, player);
         }
 
         /// <summary>

@@ -19,10 +19,7 @@ namespace YukiFrameWork.Audio
 {
     public class AudioManager : SingletonMono<AudioManager>
     {   
-        private AudioListener audioListener;
-        public AudioPlayer MusicPlayer { get; private set; }
-        public AudioPlayer VoicePlayer { get; private set; }
-
+        private AudioListener audioListener;      
         private SimpleObjectPools<AudioPlayer> audioPools;
 
         struct AudioCache
@@ -41,9 +38,7 @@ namespace YukiFrameWork.Audio
         private Dictionary<string,AudioCache> cacheLoaderPools = new Dictionary<string, AudioCache>();
         private List<AudioCache> releaseCache = new List<AudioCache>();
         public override void OnInit()
-        {            
-            MusicPlayer = new AudioPlayer();
-            VoicePlayer = new AudioPlayer();
+        {                       
             audioPools = new SimpleObjectPools<AudioPlayer>(() => new AudioPlayer(),10);
             
             CheckAudioListener();
@@ -127,9 +122,7 @@ namespace YukiFrameWork.Audio
 
         public override void OnDestroy()
         {
-            base.OnDestroy();
-            MusicPlayer = null;
-            VoicePlayer = null;
+            base.OnDestroy();           
             audioListener = null;
             AudioKit.Release();
         }

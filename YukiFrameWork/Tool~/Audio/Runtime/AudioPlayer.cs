@@ -20,7 +20,8 @@ namespace YukiFrameWork.Audio
         private Action<float> onEndCallback = null;      
         private IYieldExtension audioTimer;
         private bool isRealTime;
-        private IAudioLoader loader;
+        private IAudioLoader loader;       
+
         public bool IsAudioFree { get; private set; } = true;
         
         internal bool IsAudioSource => mAudioSource && mAudioSource.gameObject;
@@ -49,7 +50,7 @@ namespace YukiFrameWork.Audio
         {
             get => IsAudioSource ? mAudioSource.clip.name : string.Empty;
         }
-
+        
         public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader,AudioSourceSoundSetting soundSetting)
         {
            

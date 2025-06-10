@@ -23,13 +23,6 @@ namespace YukiFrameWork.Item
 
         public static UISlot CurrentSlotPointer { get; set; } = null;    
 
-        public static EasyEvent<IItem> onLanguageChanged = new EasyEvent<IItem>();       
-
-        /// <summary>
-        /// 本地化的分割字符，未启用本地化套件则不需要使用
-        /// </summary>
-        public static char Spilt { get; private set; }
-
         public static void Init(string projectName)
         {
             loader = new ABManagerItemKitLoader(projectName);
@@ -56,9 +49,15 @@ namespace YukiFrameWork.Item
         /// </summary>
         public static void ClearAllSlogGroup()
         {
+            ClearAllSlogGroup(_ => true);
+        }
+
+        public static void ClearAllSlogGroup(Func<SlotGroup,bool> condition)
+        {
             foreach (var slotGroup in SlotGroupDicts.Values)
             {
-                slotGroup.ClearItems();
+                if(condition(slotGroup))
+                    slotGroup.ClearItems();
             }
         }
 

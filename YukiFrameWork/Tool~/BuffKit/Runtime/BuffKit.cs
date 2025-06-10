@@ -119,14 +119,14 @@ namespace YukiFrameWork.Buffer
             return buffBindder?.buff;
         }
      
-        public static void AddBuffer(this IBuffExecutor executor,IBuff buff)
+        public static BuffController AddBuffer(this IBuffExecutor executor,IBuff buff)
         {
-            executor.Handler.AddBuffer(buff,executor);
+            return executor.Handler.AddBuffer(buff,executor);
         }
 
-        public static void AddBuffer(this IBuffExecutor executor, string buffKey)
+        public static BuffController AddBuffer(this IBuffExecutor executor, string buffKey)
         {
-            executor.Handler.AddBuffer(buffKey, executor);
+            return executor.Handler.AddBuffer(buffKey, executor);
         }
 
         public static bool RemoveBuffer(this IBuffExecutor executor, string buffKey)
