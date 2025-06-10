@@ -61,11 +61,12 @@ namespace YukiFrameWork.Audio
                 return group;
             group = new AudioGroup() { GroupName = name };
             var Setting = new DefaultAudioGroupSetting();
+            group.AudioPlayType = audioPlayType;
             Setting.Create(group);
             if (audioPlayType != AudioPlayType.Sound)
                 group.audioPlayer = new AudioPlayer();
             group.Setting = Setting;
-           
+            
             dict.Add(name, group);
             runtimeAudioGroups[audioPlayType] = dict;
             return group;

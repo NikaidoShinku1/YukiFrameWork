@@ -33,19 +33,16 @@ namespace YukiFrameWork.Audio
             return _clip;
         }
 
-        public void LoadClipAsync(string name, Action<AudioClip> completedLoad)
+        public async void LoadClipAsync(string name, Action<AudioClip> completedLoad)
         {
             if (_clip != null)
             {
                 completedLoad?.Invoke(_clip);
                 return;
             }          
-            var request = AssetBundleManager.LoadAssetAsync<AudioClip>(projectName,name);
-            request.AddCompleteEvent(operation => 
-            {
-                _clip = operation.asset as AudioClip;
-                completedLoad?.Invoke(_clip);
-            });           
+            var a = await AssetBundleManager.LoadAssetAsync<AudioClip>(projectName,name);
+            _clip = a;
+            completedLoad?.Invoke(_clip);
         }
 
         public void UnLoad()

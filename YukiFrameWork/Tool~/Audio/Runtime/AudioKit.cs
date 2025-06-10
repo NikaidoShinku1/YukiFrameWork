@@ -110,7 +110,7 @@ namespace YukiFrameWork.Audio
         /// <returns></returns>
         public static AudioGroup Sound()
         {
-            return Voice(DEFAULT_SOUND_GROUP_NAME);
+            return Sound(DEFAULT_SOUND_GROUP_NAME);
         }
 
         /// <summary>

@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志
 
+V1.50.3 修复AudioKit 异步播放失败的bug
+
 V1.50.2 更新AudioGroup注释并优化细节，优化ItemKit细节
 
 V1.50.1 AudioKit更新到2.0版本，更灵活多变的分组。更新AudioKit文档
