@@ -40,7 +40,7 @@ namespace YukiFrameWork.UI
     public class BasePanel : YMonoBehaviour,ISerializedFieldInfo,IPanel
     {        
         private CanvasGroup canvasGroup;
-        protected new RectTransform transform;
+        protected new RectTransform transform => base.transform as RectTransform;
         [HideInInspector]
         public UICustomData Data;
 
@@ -116,7 +116,6 @@ namespace YukiFrameWork.UI
         {
             base.Awake();
             uiTokenScoure = CoroutineTokenSource.Create(this);
-            transform = base.transform as RectTransform;
             canvasGroup = GetComponent<CanvasGroup>();         
             this.BindDragEvent(DefaultDragEvent).UnRegisterWaitGameObjectDestroy(this);
             this.BindPointerDownEvent(DefaultDragDownEvent).UnRegisterWaitGameObjectDestroy(this);
@@ -125,9 +124,9 @@ namespace YukiFrameWork.UI
         private void DefaultDragDownEvent(PointerEventData eventData)
         {
             if (!IsPanelDrag) return;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, null, out var locaoPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, UIManager.Instance.Canvas.worldCamera, out var locaoPosition);
 
-            offest = (Vector3)locaoPosition - transform.localPosition;
+            offest = (Vector3)locaoPosition - transform.localPosition;           
            
         }
 
@@ -135,7 +134,7 @@ namespace YukiFrameWork.UI
         private void DefaultDragEvent(PointerEventData eventData)
         {
             if (!IsPanelDrag) return;          
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition , null, out Vector2 localPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition , UIManager.Instance.Canvas.worldCamera, out Vector2 localPosition);
            
             float width = UIManager.I.transform.rect.width;
             float height = UIManager.I.transform.rect.height;          

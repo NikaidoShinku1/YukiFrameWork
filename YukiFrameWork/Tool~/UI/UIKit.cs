@@ -21,9 +21,7 @@ namespace YukiFrameWork.UI
     {
         private static IUIConfigLoader loader = null;
 
-        public static UITable Table { get; private set; }    
-          
-
+        public static UITable Table { get; private set; }             
         public static UIPrefabExector Exector => UIManager.Instance.Exector;
         /// <summary>
         /// UI模块初始化方法,模块使用框架资源管理插件ABManager加载

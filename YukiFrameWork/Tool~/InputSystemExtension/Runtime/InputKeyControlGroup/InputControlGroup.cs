@@ -206,7 +206,13 @@ namespace YukiFrameWork.InputSystemExtension
             {
                 if (inputAction != value)
                 {
-                    inputAction?.Disable();
+                    if (inputAction != null)
+                    {
+                        inputAction.started -= OnInputKeyDown;
+                        inputAction.performed -= OnInputKey;
+                        inputAction.canceled -= OnInputKeyUp;
+                        inputAction.Disable();
+                    }
                     inputAction = value;
 
                     if (inputAction == null) return;

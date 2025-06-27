@@ -34,8 +34,77 @@ namespace XFABManager {
         {
             CoroutineStarter.Start(CheckPoolActive());
         }
+        /// <summary>
+        /// 对象池检测时间间隔(单位：秒),检测内容主要为 判断游戏物体是否需要销毁，对象池是否需要关闭
+        /// </summary>
+        [Tooltip("对象池检测时间间隔(单位：秒),检测内容主要为 判断游戏物体是否需要销毁，对象池是否需要关闭")]
+        private static int detection_interval = 60; // 默认一分钟检测一次
 
-        private const int DETECTION_INTERVAL = 60; // 默认一分钟检测一次
+        /// <summary>
+        /// 对象池检测时间间隔(单位：秒),检测内容主要为 判断游戏物体是否需要销毁，对象池是否需要关闭
+        /// </summary>
+        public static int DetectionInterval
+        {
+            get
+            {
+                return detection_interval;
+            }
+            set
+            {
+                detection_interval = value;
+                if (detection_interval < 1)
+                    detection_interval = 1;
+            }
+        }
+
+        /// <summary>
+        /// 游戏物体被回收后多长时间会被销毁(单位:秒)
+        /// </summary>
+        [Tooltip("游戏物体被回收后多长时间会被销毁(单位:秒)")]
+        private static int destroy_time = 10 * 60;
+
+        /// <summary>
+        /// 游戏物体被回收后多长时间会被销毁(单位:秒)
+        /// </summary>
+        public static int DestroyTime
+        {
+            get
+            {
+                return destroy_time;
+            }
+            set
+            {
+                destroy_time = value;
+                if (destroy_time < 1)
+                    destroy_time = 1;
+            }
+
+        }
+
+
+        /// <summary>
+        /// 对象池不再使用后多长时间会被关闭，关闭后会卸载对应的资源(单位:秒)
+        /// </summary>
+        [Tooltip("对象池不再使用后多长时间会被关闭，关闭后会卸载对应的资源(单位:秒)")]
+        private static int close_time = 10 * 60;
+
+        /// <summary>
+        /// 对象池不再使用后多长时间会被关闭，关闭后会卸载对应的资源(单位:秒)
+        /// </summary>
+        public static int CloseTime
+        {
+            get
+            {
+                return close_time;
+            }
+            set
+            {
+                close_time = value;
+                if (close_time < 1)
+                    close_time = 1;
+            }
+
+        }
 
 
         internal static Dictionary<int, GameObjectPool> allPools = new Dictionary<int, GameObjectPool>(); // key : prefab hash code value : pool
@@ -293,8 +362,15 @@ namespace XFABManager {
                         allObjPoolMapping.Remove(key);
                     }
                 }
- 
-                yield return new WaitForSeconds(DETECTION_INTERVAL);
+
+                float wait = 0;
+                while (wait < DetectionInterval)
+                {
+                    wait += UnityEngine.Time.unscaledDeltaTime;
+                    //Debug.LogFormat("wait:{0}",wait);
+                    yield return null;
+                }
+
             }
         }
 
@@ -302,9 +378,9 @@ namespace XFABManager {
 
     public class GameObjectPool
     {
-        private const int DESTROY_TIME_OUT = 10 * 60;  // 当游戏物体未被使用时 超过多少时间 会被销毁
+       // private const int DESTROY_TIME_OUT = 10 * 60;  // 当游戏物体未被使用时 超过多少时间 会被销毁
 
-        private const int CLOSE_TIME_OUT = 10 * 60; // 当池子中没有游戏物体时 多久会关闭当前池子(关闭后会卸载预制体,对应的AB包也可能会被卸载)
+       // private const int CLOSE_TIME_OUT = 10 * 60; // 当池子中没有游戏物体时 多久会关闭当前池子(关闭后会卸载预制体,对应的AB包也可能会被卸载)
 
         /// <summary>
         /// 存放某一个预制体 创建的所有实例  key : obj hash code 
@@ -338,7 +414,7 @@ namespace XFABManager {
                 // 如果不自动卸载 就不能关闭
                 if(!IsAutoUnload) return false;
 
-                return IsEmpty && Time.time - EmptyTime > CLOSE_TIME_OUT;
+                return IsEmpty && Time.time - EmptyTime > GameObjectLoader.CloseTime;
             }
         }
 
@@ -467,7 +543,7 @@ namespace XFABManager {
                     tempList.Add(item);
                     continue;
                 }
-                if (!item.IsInUse && !item.Obj.activeSelf && Time.time - item.UnloadTime > DESTROY_TIME_OUT) {
+                if (!item.IsInUse && !item.Obj.activeSelf && Time.time - item.UnloadTime > GameObjectLoader.DestroyTime) {
                     tempList.Add(item);
                 }
             }

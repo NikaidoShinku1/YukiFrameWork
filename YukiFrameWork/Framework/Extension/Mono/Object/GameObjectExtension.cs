@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using XFABManager;
@@ -952,6 +953,34 @@ namespace YukiFrameWork
             return button;
         }
 
+        public static Slider AddListenerPure(this Slider slider, UnityAction<float> unityAction)
+        {
+            slider.onValueChanged.RemoveAllListeners();
+            slider.onValueChanged.AddListener(unityAction);
+            return slider;
+        }
+
+        public static Dropdown AddListenerPure(this Dropdown dropDown, UnityAction<int> unityAction)
+        {
+            dropDown.onValueChanged.RemoveAllListeners();
+            dropDown.onValueChanged.AddListener(unityAction);
+            return dropDown;
+        }
+
+        public static Scrollbar AddListenerPure(this Scrollbar bar, UnityAction<float> unityAction)
+        {
+            bar.onValueChanged.RemoveAllListeners();
+            bar.onValueChanged.AddListener(unityAction);
+            return bar;
+        }
+
+        public static InputField AddListenerPure(this InputField field, UnityAction<string> unityAction)
+        {
+            field.onValueChanged.RemoveAllListeners();
+            field.onValueChanged.AddListener(unityAction);
+            return field;
+        }
+
         #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component
         {
@@ -1122,9 +1151,292 @@ namespace YukiFrameWork
         public static FastList<T> ToFastList<T>(this IEnumerable<T> list)
             => new FastList<T>(list);
 
-        #endregion  
+        public static float InverseLerp(Color from, Color to, Color current)
+        {
+
+            Vector4 from_color = new Vector4(from.r, from.g, from.b, from.a);
+            Vector4 to_color = new Vector4(to.r, to.g, to.b, to.a);
+            Vector4 current_color = new Vector4(current.r, current.g, current.b, current.a);
+
+            float lerp = Mathf.InverseLerp(from_color.x, to_color.x, current_color.x);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector4.Distance(current_color, Vector4.Lerp(from_color, to_color, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from_color.y, to_color.y, current_color.y);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector4.Distance(current_color, Vector4.Lerp(from_color, to_color, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from_color.z, to_color.z, current_color.z);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector4.Distance(current_color, Vector4.Lerp(from_color, to_color, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from_color.w, to_color.w, current_color.w);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector4.Distance(current_color, Vector4.Lerp(from_color, to_color, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            return 0;
+        }
+        public static float InverseLerp(Quaternion from, Quaternion to, Quaternion current)
+        {
+            float lerp = Mathf.InverseLerp(from.x, to.x, current.x);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Quaternion.Angle(current, Quaternion.Lerp(from, to, lerp)) <= 1)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from.y, to.y, current.y);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Quaternion.Angle(current, Quaternion.Lerp(from, to, lerp)) <= 1)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from.z, to.z, current.z);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Quaternion.Angle(current, Quaternion.Lerp(from, to, lerp)) <= 1)
+                    return lerp;
+            }
+            return 0;
+        }
+
+        public static Animator Sync(this Animator animator, Animator other)
+        {
+            // 同步参数
+            foreach (var parameter in other.parameters)
+            {
+                int hash = parameter.nameHash;
+                switch (parameter.type)
+                {
+                    case AnimatorControllerParameterType.Float:
+                        animator.SetFloat(hash, other.GetFloat(hash));
+                        break;
+                    case AnimatorControllerParameterType.Int:
+                        animator.SetInteger(hash, other.GetInteger(hash));
+                        break;
+                    case AnimatorControllerParameterType.Bool:
+                        animator.SetBool(hash, other.GetBool(hash));
+                        break;
+                }
+            }
+            // 同步正在播放的动画
+            int layerCount = animator.layerCount;
+            for (int i = 0; i < layerCount; i++)
+            {
+                animator.SetLayerWeight(i, other.GetLayerWeight(i));
+                AnimatorStateInfo info = other.GetCurrentAnimatorStateInfo(i);
+                animator.Play(info.fullPathHash, i, info.normalizedTime);
+            }
+            // 更新
+            animator.Update(Time.deltaTime);
+            return animator;
+        }
+
+        public static Vector3 Rotate(this Vector3 direction, Vector3 axis, float angle)
+        {
+            Quaternion q = Quaternion.AngleAxis(angle, axis);
+            return q * direction;
+        }
+
+        public static float InverseLerp(Vector3 from, Vector3 to, Vector3 current)
+        {
+            float lerp = Mathf.InverseLerp(from.x, to.x, current.x);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector3.Distance(current, Vector3.Lerp(from, to, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from.y, to.y, current.y);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector3.Distance(current, Vector3.Lerp(from, to, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            lerp = Mathf.InverseLerp(from.z, to.z, current.z);
+
+            if (lerp > 0 && lerp <= 1)
+            {
+                if (Vector3.Distance(current, Vector3.Lerp(from, to, lerp)) <= 0.01f)
+                    return lerp;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 计算当前刚体以抛物线的形式，移动到某一个位置所需要的速度
+        /// </summary>
+        /// <param name="rigidbody"></param>
+        /// <param name="upSpeed"></param>
+        /// <param name="targetPosition"></param>
+        /// <returns></returns>
+        public static Vector3 ParabolicMotionVelocity(this Rigidbody rigidbody, float upSpeed, Vector3 targetPosition)
+        {
+            float g = Mathf.Abs(Physics.gravity.y);
+
+            float v0 = upSpeed; // 竖直向上的初速度
+            float t0 = v0 / g;
+            float y0 = 0.5f * g * t0 * t0;
+
+            float y = y0 + rigidbody.transform.position.y - targetPosition.y;
+
+            float t = 0;
+            if (y > 0)
+                t = Mathf.Sqrt(2 * y / g) + t0;
+            else
+                t = t0 * 2;
+
+
+            // 忽略y轴
+            targetPosition.y = rigidbody.transform.position.y;
+
+            float v_hor = Vector3.Distance(targetPosition, rigidbody.transform.position) / t;
+
+            return (targetPosition - rigidbody.transform.position).normalized * v_hor + Vector3.up * upSpeed;
+        }
+
+        /// <summary>
+        /// 让刚体以抛物线的形式移动到某一个位置
+        /// </summary>
+        /// <param name="rigidbody"></param>
+        /// <param name="upSpeed"></param>
+        /// <param name="targetPosition"></param>
+        public static void ParabolicMotion(this Rigidbody rigidbody, float upSpeed, Vector3 targetPosition)
+        {
+            rigidbody.velocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+        }
+
+        /// <summary>
+        /// 计算当前刚体以抛物线的形式，移动到某一个位置所需要的速度
+        /// </summary>
+        /// <param name="rigidbody"></param>
+        /// <param name="upSpeed"></param>
+        /// <param name="targetPosition"></param>
+        /// <returns></returns>
+        public static Vector2 ParabolicMotionVelocity(this Rigidbody2D rigidbody, float upSpeed, Vector3 targetPosition)
+        {
+            float g = Mathf.Abs(Physics2D.gravity.y) * rigidbody.gravityScale;
+
+            float v0 = upSpeed; // 竖直向上的初速度
+            float t0 = v0 / g;
+            float y0 = 0.5f * g * t0 * t0;
+
+            float y = y0 + rigidbody.transform.position.y - targetPosition.y;
+
+            float t = 0;
+            if (y > 0)
+                t = Mathf.Sqrt(2 * y / g) + t0;
+            else
+                t = t0 * 2;
+
+
+            float v_hor = (targetPosition.x - rigidbody.transform.position.x) / t;
+
+            return new Vector2(v_hor, v0);
+        }
+
+        /// <summary>
+        /// 让刚体以抛物线的形式移动到某一个位置
+        /// </summary>
+        /// <param name="rigidbody"></param>
+        /// <param name="upSpeed"></param>
+        /// <param name="targetPosition"></param>
+        public static void ParabolicMotion(this Rigidbody2D rigidbody, float upSpeed, Vector3 targetPosition)
+        {
+            rigidbody.velocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+        }
+
+
+
+        #endregion
 
         #region Action
+
+        public static void AddListener(this EventTrigger trigger, EventTriggerType eventType, UnityAction<BaseEventData> action)
+        {
+
+            if (trigger == null) return;
+
+            EventTrigger.Entry entry = null;
+
+            foreach (var item in trigger.triggers)
+            {
+                if (item.eventID == eventType)
+                {
+                    entry = item;
+                    break;
+                }
+            }
+
+            if (entry == null)
+            {
+                entry = new EventTrigger.Entry();
+                entry.eventID = eventType;
+                trigger.triggers.Add(entry);
+            }
+
+            entry.callback.AddListener(action);
+        }
+
+        public static void RemoveListener(this EventTrigger trigger, EventTriggerType eventType, UnityAction<BaseEventData> action)
+        {
+            if (trigger == null) return;
+
+            foreach (var item in trigger.triggers)
+            {
+                if (item.eventID == eventType)
+                    item.callback.RemoveListener(action);
+            }
+        }
+
+        public static void RemoveAllListener(this EventTrigger trigger, EventTriggerType eventType)
+        {
+            if (trigger == null) return;
+
+            foreach (var item in trigger.triggers)
+            {
+                if (item.eventID == eventType)
+                {
+                    item.callback.RemoveAllListeners();
+                }
+            }
+        }
+
+
+        public static void RemoveAllListener(this EventTrigger trigger)
+        {
+            if (trigger == null) return;
+
+            foreach (var item in trigger.triggers)
+            {
+                item.callback.RemoveAllListeners();
+            }
+        }
+
         public static Action ToSystemAction(this UnityEvent uEvent)
         {
             return () => uEvent?.Invoke();
@@ -1208,6 +1520,19 @@ namespace YukiFrameWork
             var u = new UnityEvent<T, K, Q,R>();
             u.AddListener((v, k, q,r) => uEvent?.Invoke(v, k, q,r));
             return u;
+        }
+        #endregion
+
+        #region Bounds
+        public static bool Contains(this Bounds b, Bounds bounds)
+        {
+            if (b.min.x <= bounds.min.x && b.min.y <= bounds.min.y && b.min.z <= bounds.min.z &&
+                b.max.x >= bounds.max.x && b.max.y >= bounds.max.y && b.max.z >= bounds.max.z)
+            {
+                return true;
+            }
+
+            return false;
         }
         #endregion
     }

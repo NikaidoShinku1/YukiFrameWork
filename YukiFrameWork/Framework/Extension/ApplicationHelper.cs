@@ -26,6 +26,15 @@ namespace YukiFrameWork.Extension
             return enumerable.Select(x => new GUIContent(x)).ToArray();
         }
 		public static bool GetRuntimeOrEditor() => Application.isPlaying;
+        public static void Quit()
+        {           
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+
+#else
+             Application.Quit();
+#endif
+        }
         private static FrameworkConfigInfo config;
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]

@@ -1,5 +1,11 @@
 ﻿#### 框架更新日志
 
+V1.50.6 修复UIKit中BasePanel勾选可拖拽后当Canvas存在WorldCamera而出现拖拽异常的问题
+
+V1.50.5 同步更新XFABManager，优化部分编辑器窗口细节
+
+V1.50.4 修复InputSystemExtension分组切换InputAction重复注册事件的问题，UGUI部分组件添加纯净事件注册拓展方法。SceneTool新增重载，优化部分代码细节
+
 V1.50.3 修复AudioKit 异步播放失败的bug
 
 V1.50.2 更新AudioGroup注释并优化细节，优化ItemKit细节

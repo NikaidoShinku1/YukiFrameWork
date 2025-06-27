@@ -1,3 +1,12 @@
+## version 1.17.8 更新内容
+
+1. 添加属性 GameObjectLoader.CloseTime, 可通过该属性设置对象池不再使用后多长时间会被关闭!
+2. 添加属性 GameObjectLoader.DetectionInterval, 可通过该属性设置对象池检测时间间隔!
+
+## version 1.17.7 更新内容
+
+1. 添加属性 GameObjectLoader.DestroyTime, 可通过该属性设置游戏物体回收后多长时间销毁！
+
 ## version 1.17.6 更新内容
 
 1. 修复编辑器模式 LoadAllAssets 资源加载失败的问题!

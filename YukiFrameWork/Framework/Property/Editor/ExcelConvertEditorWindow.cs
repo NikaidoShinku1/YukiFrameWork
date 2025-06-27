@@ -1,5 +1,5 @@
 ///=====================================================
-/// - FileName:      ScriptableObjectExtensionEditor.cs
+/// - FileName:      ExcelConvertEditorWindow.cs
 /// - NameSpace:     YukiFrameWork.Machine
 /// - Description:   高级定制脚本生成
 /// - Creation Time: 2025/3/10 7:37:51
@@ -12,25 +12,24 @@ using System;
 using System.IO;
 using YukiFrameWork.Extension;
 using System.Collections;
-using UnityEngine.UIElements;
 #if UNITY_EDITOR
 using UnityEditor;
 using Sirenix.OdinInspector.Editor;
 namespace YukiFrameWork
 {
-    public class ScriptableObjectExtensionEditorWindow : OdinMenuEditorWindow 
+    public class ExcelConvertEditorWindow : OdinMenuEditorWindow 
     {
         [MenuItem("YukiFrameWork/Excel-So转换工具",false,-4)]
         internal static void OpenWindow()
         {
-            var window = GetWindow<ScriptableObjectExtensionEditorWindow>();
-            window.Open();
+            var window = GetWindow<ExcelConvertEditorWindow>();
+            //window.Open();
             window.titleContent = new GUIContent("Excel转SO工具");
         }
         internal static void OpenWindow(IExcelSyncScriptableObject excelSyncScriptableObject)
         {
-            var window = GetWindow<ScriptableObjectExtensionEditorWindow>();
-            window.Open();
+            var window = GetWindow<ExcelConvertEditorWindow>();
+           // window.Open();
             window.titleContent = new GUIContent("Excel转SO工具");
             window.configInfo.excelConvertConfig = excelSyncScriptableObject as ScriptableObject;
         }
@@ -43,7 +42,7 @@ namespace YukiFrameWork
         }       
         protected override void OnImGUI()
         {
-            EditorGUILayout.HelpBox("试验性功能", MessageType.Info);
+            //EditorGUILayout.HelpBox("试验性功能", MessageType.Info);
             EditorGUILayout.Space();
 #if UNITY_2021_1_OR_NEWER
             if (configInfo.excelConvertConfig && configInfo.excelConvertConfig is not IExcelSyncScriptableObject)

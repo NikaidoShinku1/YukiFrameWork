@@ -116,8 +116,8 @@ namespace YukiFrameWork
             }
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
-            EditorGUILayout.HelpBox(ExpertCodeConfig.tip,MessageType.Warning);
-            EditorGUILayout.Space(20);
+           //EditorGUILayout.HelpBox(ExpertCodeConfig.tip,MessageType.Warning);
+           // EditorGUILayout.Space(20);
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginVertical("FrameBox");
             config.NameSpace = EditorGUILayout.TextField("命名空间:", config.NameSpace);
