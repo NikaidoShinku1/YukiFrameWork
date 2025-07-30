@@ -13,151 +13,94 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
 using YukiFrameWork.Extension;
+using System.Collections.Generic;
 namespace YukiFrameWork.Buffer
 {
+    /// <summary>
+    /// 框架提供的默认效果
+    /// </summary>
+    [Serializable]
+    public class NormalEffect : IEffect
+    {
+        [SerializeField,LabelText("效果的唯一标识")]
+        [InfoBox("效果的唯一标识仅针对当前Buff")]
+        private string key;
+        [SerializeField,LabelText("效果的名称")]
+        private string name;
+        [SerializeField,LabelText("效果介绍"),TextArea]
+        private string description;
+        [LabelText("效果的类型"),SerializeField]
+        private string type;
+        public string Key { get => key; set => key = value; }
+        public string Name { get => name; set => name = value; }
+        public string Type { get => type; set => type = value; }
+        public string Description { get => description ; set => description = value; }
+    }
     public abstract class Buff : ScriptableObject, IBuff
     {
-        [SerializeField, LabelText("Buff的唯一标识:"), InfoBox("该标识应唯一，不允许出现多个buff同标识的情况"), JsonProperty]
-        private string BuffKey;
-        [JsonIgnore]
-        public string GetBuffKey
-        {
-            get => BuffKey;
-            set => BuffKey = value;
-        }
-
-        public static Buff CreateInstance(string buffName, Type type)
-        {
-            var buff = ScriptableObject.CreateInstance(type) as Buff;
-            buff.BuffName = buffName;
-            return buff;
-        }
-
-        public Buff Clone() => GameObject.Instantiate(this);
-
-        [SerializeField, LabelText("Buff名称:"), JsonProperty]
-        private string BuffName;
-        [JsonIgnore]
-        public string GetBuffName { get => BuffName; set => BuffName = value; }
-
-        [SerializeField, LabelText("Buff的介绍:"), JsonProperty, TextArea]
-        private string Description;
-        [JsonIgnore]
-        public string GetDescription { get => Description; set => Description = value; }
-       
-        [SerializeField, LabelText("Buff重复添加的类型:"),JsonProperty]
-        private BuffRepeatAdditionType additionType;
-
-        [JsonIgnore, ExcelIgnore]
-        public BuffRepeatAdditionType AdditionType
-        {
-            get => additionType;
-            set => additionType = value;
-        }
-        [JsonIgnore, ExcelIgnore]
-        private bool IsAddition => AdditionType == BuffRepeatAdditionType.Multiple || AdditionType == BuffRepeatAdditionType.MultipleAndReset;
-
-        [SerializeField, LabelText("是否缓慢移除"), ShowIf(nameof(IsAddition)), InfoBox("如果Buff是可叠加的，当该属性为True时，Buff是一层一层减少，False则一次性消失")]
-        private bool isBuffRemoveBySlowly;
-        [JsonIgnore,ExcelIgnore]
-        public bool IsBuffRemoveBySlowly
-        {
-            get => isBuffRemoveBySlowly;
-            set => isBuffRemoveBySlowly = value;
-        }
-
-        [SerializeField, LabelText("是否存在层数上限"), ShowIf(nameof(IsAddition))]
-        private bool isMaxStackableLayer;
-        [JsonIgnore,ExcelIgnore]
-        public bool IsMaxStackableLayer { get => isMaxStackableLayer; set => isMaxStackableLayer = value; }
-
-        [SerializeField, LabelText("上限层数"), ShowIf(nameof(isMax)), MinValue(1)]
-        private int maxStackableLayer;
-        [JsonIgnore,ExcelIgnore]
-        public int MaxStackableLayer { get => maxStackableLayer; set => maxStackableLayer = value; }
-
-        [JsonIgnore,ExcelIgnore]
-        private bool isMax => IsAddition && IsMaxStackableLayer;
-
-        [SerializeField,LabelText("Buff的周期类型:")]
-        private BuffSurvivalType survivalType;
-        [JsonIgnore,ExcelIgnore]
-        public BuffSurvivalType SurvivalType
-        {
-            get => survivalType;
-            set => survivalType = value;
-        }       
-
-        [SerializeField,LabelText("Buff的持续时间(单位秒)"),ShowIf(nameof(survivalType),BuffSurvivalType.Timer)]
-        private float buffTimer = 1;
-       
-
-        [JsonIgnore]
-        public float BuffTimer
-        {
-            get => buffTimer;
-            set
-            {
-                value = Mathf.Clamp(value, 0f, float.MaxValue);
-                buffTimer = value;
-            }
-        }
-
-        [SerializeField, JsonProperty, LabelText("该Buff会与指定相互抵消的BuffID")]
-#if UNITY_EDITOR
-        [ValueDropdown(nameof(names))]
-#endif
-        [InfoBox("Buff没有设置标识时无法添加")]
-        private string[] buffCounteractID = new string[0];
-       
-
-        [JsonIgnore,ExcelIgnore]
-        public string[] BuffCounteractID { get => buffCounteractID; set => buffCounteractID = value; }
-
-        [SerializeField, JsonProperty, LabelText("该Buff运作时禁止添加的BuffID")]
-#if UNITY_EDITOR
-        [ValueDropdown(nameof(names))]
-#endif
-        [InfoBox("Buff没有设置标识时无法添加")]
-        private string[] buffDisableID = new string[0]; 
-      
-
-        [JsonIgnore,ExcelIgnore]
-        public string[] BuffDisableID { get => buffDisableID; set => buffDisableID = value; }
-        [SerializeField, LabelText("Buff的图标样式")]
+        [SerializeField, LabelText("Buff唯一标识")]
+        private string key;
+        [SerializeField, LabelText("Buff名称")]
+        private string _name;
+        [SerializeField,TextArea,LabelText("Buff的介绍")]
+        private string description;
+        [SerializeField,LabelText("Buff的模式")]
+        [InfoBox("这个决定了Buff是否可叠加")]
+        private BuffMode buffMode;
+        [SerializeField,LabelText("持续时间")]
+        [InfoBox("当持续时间小于0,则视为该Buff不受时间影响。需自行进行移除")]
+        private float duration;
+        [SerializeField,LabelText("Buff的图标")]
 #if UNITY_EDITOR
         [CustomValueDrawer(nameof(DrawPreview))]
 #endif
-        private Sprite buffIcon;
-        [JsonIgnore,ExcelIgnore]
-        public Sprite BuffIcon { get => buffIcon; set => buffIcon = value; }
+        private Sprite icon;
+        [SerializeField,LabelText("Buff默认效果集合")]
+        [InfoBox("当EffectDatas被重写时，该字段不可用，请自行序列化"),ShowIf(nameof(IsNormalEffect))]
+        private List<NormalEffect> normalEffects = new List<NormalEffect>();
 
-        [Button("打开脚本", ButtonHeight = 20), PropertySpace(20)]
-        void OpenScript()
+        [ExcelIgnore]internal List<IEffect> runtimeNormalEffects = new List<IEffect>();
+
+        [SerializeField,PropertySpace,LabelText("Buff绑定的控制器类型")]
+        [ValueDropdown(nameof(AllControllerType))]
+        private string buffControllerType;
+        [ExcelIgnore]public string Key { get => key; set => key = value; }
+        [ExcelIgnore]public string Name { get => _name ; set => _name = value; }
+        [ExcelIgnore]public string Description { get => description; set => description = value ; }
+        [ExcelIgnore]public BuffMode BuffMode { get => buffMode; set => buffMode = value; }
+        [ExcelIgnore]public float Duration { get => duration ; set => duration = value; }
+        [ExcelIgnore]public Sprite Icon { get => icon; set => icon = value; }
+        [ExcelIgnore]public virtual List<IEffect> EffectDatas
         {
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.OpenAsset(UnityEditor.AssetDatabase.FindAssets("t:monoScript").Select(x => UnityEditor.AssetDatabase.GUIDToAssetPath(x))
-                .Select(x => UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.MonoScript>(x))
-                .FirstOrDefault(x => x?.GetClass() == this.GetType()));
-#endif
-        }       
+            get
+            {
+                if (runtimeNormalEffects == null || runtimeNormalEffects.Count == 0)
+                    runtimeNormalEffects = normalEffects.Select(x => x as IEffect).ToList();
+                return runtimeNormalEffects;
+            }
+        }
 
-        #region Buff自带依赖ID转换于编辑器显示
+        [ExcelIgnore]public string BuffControllerType
+        {
+            get => buffControllerType;
+            set => buffControllerType = value;
+        }
+
+        [ExcelIgnore]private bool IsNormalEffect => this.GetType().GetRealProperty(nameof(EffectDatas)).DeclaringType == typeof(Buff);
+        [ExcelIgnore]private IEnumerable AllControllerType => AssemblyHelper.GetTypes(type => type.IsSubclassOf(typeof(BuffController)))
+            .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });
+
 #if UNITY_EDITOR
-        [Searchable]
-        [JsonIgnore]
-        [ExcelIgnore]
-        internal IEnumerable names => BuffDataBase.allBuffNames;
         private void DrawPreview()
         {
-           
+
             GUILayout.BeginHorizontal();
-            
-            GUILayout.Label("Buff的图标样式");
-            buffIcon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.buffIcon,typeof(Sprite),true,GUILayout.Width(50), GUILayout.Height(50));           
+
+            GUILayout.Label("技能图标");
+            icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
             GUILayout.EndHorizontal();
         }
 #endif
-        #endregion
+
     }
 }

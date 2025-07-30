@@ -20,13 +20,13 @@ using YukiFrameWork.Extension;
 using UnityEditor;
 #endif
 namespace YukiFrameWork.Skill
-{  
+{
     [Serializable]
     [HideMonoScript]
     public class SkillData : ScriptableObject, ISkillData
     {
-        
-        [SerializeField,LabelText("Skill的唯一标识"),InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"),JsonProperty()]
+
+        [SerializeField, LabelText("Skill的唯一标识"), InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"), JsonProperty()]
         private string skillKey;
 
         [JsonIgnore]
@@ -39,17 +39,17 @@ namespace YukiFrameWork.Skill
         [SerializeField, LabelText("Skill的名称"), JsonProperty()]
         private string skillName;
 
-        [JsonIgnore,ExcelIgnore]
-        public string SkillName 
+        [JsonIgnore, ExcelIgnore]
+        public string SkillName
         {
             get => skillName; set => skillName = value;
         }
 
-        [SerializeField,LabelText("技能介绍"),JsonProperty(),TextArea]
+        [SerializeField, LabelText("技能介绍"), JsonProperty(), TextArea]
         private string description;
 
-        [JsonIgnore,ExcelIgnore]
-        public string Description 
+        [JsonIgnore, ExcelIgnore]
+        public string Description
         {
             get => description; set => description = value;
         }
@@ -57,7 +57,7 @@ namespace YukiFrameWork.Skill
         [SerializeField, LabelText("技能是否不受到时间影响")]
         [JsonProperty]
         private bool isInfiniteTime;
-        [JsonIgnore,ExcelIgnore]
+        [JsonIgnore, ExcelIgnore]
         public bool IsInfiniteTime { get => isInfiniteTime; set => isInfiniteTime = value; }
 
         [SerializeField, LabelText("技能是否可以主动取消")]
@@ -104,7 +104,7 @@ namespace YukiFrameWork.Skill
         [CustomValueDrawer(nameof(DrawPreview))]
 #endif
         private Sprite icon;
-        [JsonIgnore,ExcelIgnore]
+        [JsonIgnore, ExcelIgnore]
         public Sprite Icon { get => icon; set => icon = value; }
 
 #if UNITY_EDITOR
@@ -125,11 +125,24 @@ namespace YukiFrameWork.Skill
 #endif
         [JsonProperty]
         private string[] simultaneousSkillKeys;
-        [JsonIgnore,ExcelIgnore]
-        public string[] SimultaneousSkillKeys{ get => simultaneousSkillKeys; set => simultaneousSkillKeys = value; }
+        [SerializeField, LabelText("技能控制器绑定类型:")]
+#if UNITY_EDITOR
+        [ValueDropdown(nameof(skillControllerTypes))]
+#endif
+        private string skillControllerType;
+        [ExcelIgnore]
+        public string SkillControllerType
+        {
+            get => skillControllerType;
+            set => skillControllerType = value;
+        }
+        [JsonIgnore, ExcelIgnore]
+        public string[] SimultaneousSkillKeys { get => simultaneousSkillKeys; set => simultaneousSkillKeys = value; }
 #if UNITY_EDITOR
         [JsonIgnore, ExcelIgnore]
         IEnumerable list => SkillDataBase.allSkillNames;
+        IEnumerable skillControllerTypes => AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(SkillController)))
+            .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });
 #endif
         public static SkillData CreateInstance(string skillName, Type type)
         {

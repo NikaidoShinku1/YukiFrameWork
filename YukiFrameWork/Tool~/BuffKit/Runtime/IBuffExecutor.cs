@@ -14,12 +14,22 @@ namespace YukiFrameWork
 {
 	public interface IBuffExecutor
 	{
-		public BuffHandler Handler { get; }
-
         /// <summary>
         /// 外部Buff添加条件，默认为True，与Controller的添加条件区别在于，该方法控制所有的buff添加判断，如果外部添加条件设置为False,则无法添加任何Buff
         /// </summary>
-        /// <returns></returns>
-        bool OnAddBuffCondition();       
+        /// <returns></returns> 
+        bool OnAddBuffCondition();
+
+        /// <summary>
+        /// 添加Buff后触发
+        /// </summary>
+        /// <param name="controller"></param>
+        void OnAdd(BuffController controller);
+
+        /// <summary>
+        /// 移除Buff后触发
+        /// </summary>
+        /// <param name="controller"></param>
+        void OnRemove(BuffController controller);
     }
 }

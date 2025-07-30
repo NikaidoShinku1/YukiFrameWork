@@ -35,7 +35,7 @@ namespace YukiFrameWork.Buffer
         public Action onValidate;     
 
 #if UNITY_EDITOR
-        public static IEnumerable allBuffNames => YukiAssetDataBase.FindAssets<BuffDataBase>().SelectMany(x => x.buffConfigs).Select(x => new ValueDropdownItem() { Text = x.GetBuffName,Value = x.GetBuffKey});
+      
         [HideInInspector, SerializeField]
         public int selectIndex;
         [Button("生成Buff代码"), GUIColor("green"), FoldoutGroup("代码设置")]
@@ -89,10 +89,10 @@ namespace YukiFrameWork.Buffer
             foreach (var item in buffConfigs)
             {
                 if (item == null) continue;
-                if (string.IsNullOrEmpty(item.GetBuffKey)) continue;
+                if (string.IsNullOrEmpty(item.Key)) continue;
 
-                writer.CustomCode($"public static string {item.GetBuffKey}_Key = \"{item.GetBuffKey}\";");
-                writer.CustomCode($"public static IBuff {item.GetBuffKey} => BuffKit.GetBuffByKey(\"{item.GetBuffKey}\");");
+                writer.CustomCode($"public static string {item.Key}_Key = \"{item.Key}\";");
+                writer.CustomCode($"public static IBuff {item.Key} => BuffKit.GetBuffByKey(\"{item.Key}\");");
             }
             codeCore.CodeSetting(nameSpace, buffInfoScriptNames, string.Empty, writer).Create(buffInfoScriptNames, filePath);
         }
@@ -113,9 +113,9 @@ namespace YukiFrameWork.Buffer
     
 #endif
              
-        internal Buff CreateBuff(Type buffType,string name = "")
+        internal Buff CreateBuff(Type buffType)
         {           
-            Buff buff = Buff.CreateInstance(buffType.Name, buffType);
+            Buff buff = Buff.CreateInstance(buffType) as Buff;
             buff.name = name;
             buffConfigs.Add(buff);
            

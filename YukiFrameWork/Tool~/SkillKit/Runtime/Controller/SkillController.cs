@@ -32,7 +32,7 @@ namespace YukiFrameWork.Skill
             onReleaseComplete = null;
             onReleasing = null;
             onCoolingComplete = null;
-            onLevelChanged = null;
+            onInterrup = null;
             fixedTimer = 0;
             SimultaneousSkillKeys.Clear();
         }
@@ -79,12 +79,13 @@ namespace YukiFrameWork.Skill
                 return CoolDownTime / SkillData.CoolDownTime;
             }
         }
-        #region EventTrigger      
-        public Action<float> onCooling { get; set; }
-        public Action<float> onReleasing { get; set; }
-        public Action onCoolingComplete { get; set; }
-        public Action onReleaseComplete { get; set; }
-        public Action<int> onLevelChanged { get; set; }  
+        #region EventTrigger    
+        public Action<SkillController> onStartCooling { get; set; }
+        public Action<SkillController,float> onCooling { get; set; }
+        public Action<SkillController,float> onReleasing { get; set; }
+        public Action<SkillController> onCoolingComplete { get; set; }
+        public Action<SkillController> onReleaseComplete { get; set; }
+        public Action<SkillController> onInterrup { get; set; }  
         
         #endregion        
 

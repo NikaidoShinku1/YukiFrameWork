@@ -422,12 +422,12 @@ namespace XFABManager
         // 更新文件列表
         public void UpdateFileInfos() {
 
-            for (int i = 0; i < files.Count; i++)
+            for (int i = files.Count - 1; i >= 0; i--)
             {
                 // 判断文件是否存在 如果不在就移除
                 if (!files[i].Exists)
                 {
-                    files.Remove(files[i]);
+                    files.RemoveAt(i);
                 }
             }
 

@@ -315,7 +315,21 @@ namespace XFABManager
   
         internal UnityEngine.Object TargetComponent { get; set; }
 
+        public Color color
+        {
+            get
+            {
+                if (allComponentAdapter.ContainsKey(targetComponentType))
+                    return allComponentAdapter[targetComponentType].GetColor(this);
 
+                return Color.white;
+            }
+            set
+            {
+                if (allComponentAdapter.ContainsKey(targetComponentType))
+                    allComponentAdapter[targetComponentType].SetColor(this, loading_color);
+            }
+        }
 
         /// <summary>
         /// 需要赋值的目标组件的全名(包含命名空间) 例如: UnityEngine.UI.Image

@@ -347,6 +347,11 @@ namespace YukiFrameWork.Extension
         /// <returns></returns>
         public static bool ScriptableObjectToExcel(IExcelSyncScriptableObject scriptables, string excel_path, out string error)
         {
+            if (scriptables is IExcelReSyncScriptableObject reSyncScriptableObject)
+            {
+                if (!reSyncScriptableObject.ReImport(out error))
+                    return false;                         
+            }
             if (string.IsNullOrEmpty(excel_path))
             {
                 error = "excel路径不能为空!";

@@ -32,7 +32,7 @@ namespace XFABManager
                 bundlePanel = XFAssetBundleProjectPanel.CreatePanel(this);
             }
 
-            bundlePanel.OnGUI();
+            bundlePanel.GUI(true);
 
             GUILayout.Space(40);
             DrawCreateButton();
@@ -88,19 +88,7 @@ namespace XFABManager
 
                     //设置数据
                     project.name = bundlePanel.name;
-                    project.displayName = bundlePanel.displayName;
-                    //project.out_path = bundlePanel.outputPath;
-
-                    project.dependenceProject.Clear();
-
-                    for (int i = 0; i < bundlePanel.dependenceProjects.Count; i++)
-                    {
-                        if (bundlePanel.dependenceProjects[i] != null)
-                        {
-                            project.dependenceProject.Add(name);
-                            //dependence.Add(name);
-                        }
-                    }
+                    project.displayName = bundlePanel.displayName;                   
 
                     project.suffix = bundlePanel.suffix;
                     project.version = bundlePanel.version;

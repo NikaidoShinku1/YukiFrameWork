@@ -12,66 +12,82 @@ using System.Collections.Generic;
 using System.Collections;
 namespace YukiFrameWork.Buffer
 {
+	public enum BuffMode
+	{
+		Single,
+		Multiple
+	}
+
+	/// <summary>
+	/// Buff配置接口
+	/// </summary>
 	public interface IBuff
 	{
 		/// <summary>
-		/// BUff唯一标识
+		/// Buff的唯一标识
 		/// </summary>
-		string GetBuffKey { get; set; }
+		string Key { get; set; }
 
 		/// <summary>
-		/// Buff名称
+		/// Buff的名称
 		/// </summary>
-		string GetBuffName { get; set; }
+		string Name { get; set; }
 
 		/// <summary>
-		/// Buff介绍
+		/// Buff的介绍
 		/// </summary>
-		string GetDescription { get; set; }
+		string Description { get; set; }
 
 		/// <summary>
-		/// 当Buff存在时重复添加类型
+		/// Buff的可存在方式(如果Buff存在，是否可以叠加)
 		/// </summary>
-		BuffRepeatAdditionType AdditionType { get; }
-
-		/// <summary>
-		/// Buff的周期类型(计时器/永久)
-		/// </summary>
-		BuffSurvivalType SurvivalType { get; }
-
-		/// <summary>
-		/// 如果Buff是可叠加的，True：Buff一层一层减少，False：一次性消失
-		/// </summary>
-		bool IsBuffRemoveBySlowly { get; set; }
-
-		/// <summary>
-		/// 如果Buff是可叠加的，开启该属性则代表Buff有最大添加上限。
-		/// </summary>
-        bool IsMaxStackableLayer { get; set; }
-
-		/// <summary>
-		/// 最大层数上限
-		/// </summary>
-        int MaxStackableLayer { get; set; }
+		BuffMode BuffMode { get; set; }
 
         /// <summary>
-        /// Buff的精灵
+        /// Buff持续时间,Duration小于0时视为无限时间
         /// </summary>
-        Sprite BuffIcon { get; set; }		
+        float Duration { get; set; }
+
+		/// <summary>
+		/// Buff的图标
+		/// </summary>
+		Sprite Icon { get; set; }
+
+		/// <summary>
+		/// 这个Buff存在的所有效果(如继承框架提供的Buff基类，需要自定义Effect的类型，可通过override的方式重写该属性)
+		/// </summary>
+		List<IEffect> EffectDatas { get; }
+
+		/// <summary>
+		/// Buff绑定的控制器类型
+		/// <para>Tip:如自定义IBuff的情况下，该属性需要传递完全限定类型(包含命名空间)</para>
+		/// </summary>
+		string BuffControllerType { get; set; }
+	}
+
+	/// <summary>
+	/// Buff效果配置接口
+	/// </summary>
+	public interface IEffect
+	{
+		/// <summary>
+		/// 唯一标识
+		/// </summary>
+		string Key { get; set; }
+
+		/// <summary>
+		/// 效果的名称
+		/// </summary>
+		string Name { get; set; }
+
+		/// <summary>
+		/// 效果的介绍
+		/// </summary>
+		string Description { get; set; }	
 		
 		/// <summary>
-		/// Buff的持续时间,当SurivialType选择计时器时使用，单位秒
+		/// 效果的类型(当一个Buff有多个效果时,可以为效果指定类型，在查询时获取复数的效果)
 		/// </summary>
-		float BuffTimer { get; set; }
-
-		/// <summary>
-		/// buff相互抵消的标识(相互抵消的标识如果同时存在禁止添加的标识中，则以禁止添加为主)
-		/// </summary>
-		string[] BuffCounteractID { get; }
-
-		/// <summary>
-		/// buff运行期间禁止添加的标识
-		/// </summary>
-		string[] BuffDisableID { get; }
+		string Type { get; set; }
 	}
 }

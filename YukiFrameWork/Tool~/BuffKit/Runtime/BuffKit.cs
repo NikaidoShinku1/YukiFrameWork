@@ -10,129 +10,635 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using YukiFrameWork.Pools;
-using System.Reflection;
+using UnityEngine;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork.Buffer
 {
-    internal class BuffBindder
-    {
-        public IBuff buff;
-        public Type controllerType;
-    }
+
+    /// <summary>
+    /// Buff的统一管理套件
+    /// </summary>
     public static class BuffKit
     {
+        private static IBuffLoader buffLoader = null;
         /// <summary>
-        /// 缓存所有的Buff配置
+        /// 缓存的所有Buff
         /// </summary>
-        private readonly static Dictionary<string, BuffBindder> buffItems = new Dictionary<string, BuffBindder>();  
+        private static Dictionary<string, IBuff> runtime_buffs = new Dictionary<string, IBuff>();
 
-        private static IBuffLoader loader = null;
-
-        public static void InitBuffLoader(string projectName)
-        {
-            loader = new ABManagerBuffLoader(projectName);
+        private static Dictionary<IBuffExecutor, List<BuffController>> allExecutor_BuffControllers = new Dictionary<IBuffExecutor, List<BuffController>>();
+       
+        public static void Init(string projectName)
+        {          
+            Init(new ABManagerBuffLoader(projectName));
         }
 
-        public static void InitBuffLoader(IBuffLoader loader)
+        public static void Init(IBuffLoader buffLoader)
         {
-            BuffKit.loader = loader;
+            //初始化清空所有缓存
+            runtime_buffs.Clear();
+
+            allExecutor_BuffControllers.Clear();
+
+            //赋值加载器
+            BuffKit.buffLoader = buffLoader;
+
+            //事件绑定           
+        }
+        [RuntimeInitializeOnLoadMethod]
+        static void UpdateInit()
+        {
+            MonoHelper.Update_RemoveListener(Update);
+            MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);
+            MonoHelper.LateUpdate_RemoveListener(LateUpdate);
+
+            MonoHelper.Update_AddListener(Update);
+            MonoHelper.FixedUpdate_AddListener(FixedUpdate);
+            MonoHelper.LateUpdate_AddListener(LateUpdate);
         }
 
-        public static void LoadBuffDataBase(string dataBasePath)
+        /// <summary>
+        /// 添加单一个Buff数据
+        /// </summary>
+        /// <param name="buff"></param>
+        public static void AddBuffData(IBuff buff)
         {
-            BuffDataBase buffDataBase = loader.Load<BuffDataBase>(dataBasePath);
-            LoadBuffDataBase(buffDataBase);
+            runtime_buffs.Add(buff.Key, buff);
+        }    
+
+        /// <summary>
+        /// 移除单一个Buff数据,该APi不会影响已经正在执行的Buff
+        /// </summary>
+        /// <param name="key"></param>
+        public static void RemoveBuffData(string key)
+        {
+            runtime_buffs.Remove(key);
         }
 
-        public static IEnumerator LoadBuffDataBaseAsync(string dataBasePath)
+        /// <summary>
+        /// 移除单一个Buff数据,该APi不会影响已经正在执行的Buff
+        /// </summary>
+        /// <param name="buff"></param>
+        public static void RemoveBuffData(IBuff buff)
         {
-            bool isCompleted = false;
-
-            loader.LoadAsync<BuffDataBase>(dataBasePath, dataBase => 
-            {
-                LoadBuffDataBase(dataBase);
-                isCompleted = true;
-            });
-
-            yield return CoroutineTool.WaitUntil(() => isCompleted);
+            RemoveBuffData(buff.Key);
         }
 
+        /// <summary>
+        /// 加载BuffDataBase载入所有的Buff。使用该API加载的BuffDataBase在使用后自动释放
+        /// </summary>
+        /// <param name="name"></param>
+        public static void LoadBuffDataBase(string name)
+        {
+            var item = buffLoader.Load<BuffDataBase>(name);
+            LoadBuffDataBase(item);
+            buffLoader?.UnLoad(item);
+        }
+
+        /// <summary>
+        /// 加载BuffDataBase载入所有的Buff。
+        /// </summary>
+        /// <param name="buffDataBase"></param>
         public static void LoadBuffDataBase(BuffDataBase buffDataBase)
         {
-            foreach (var buff in buffDataBase.buffConfigs)
+            foreach (var item in buffDataBase.buffConfigs)            
+                runtime_buffs.Add(item.Key, item.Instantiate());           
+        }
+
+        /// <summary>
+        /// 异步加载BuffDataBase载入所有的Buff。使用该API加载的BuffDataBase在使用后自动释放
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static IEnumerator LoadBuffDataBaseAsync(string name)
+        {
+            bool completed = false;
+
+            buffLoader.LoadAsync<BuffDataBase>(name, data =>
             {
-                AddBuff(buff);
-            }
-            if(loader != null)
-                loader.UnLoad(buffDataBase);
+                completed = true;
+                LoadBuffDataBase(data);
+            });
+
+            yield return CoroutineTool.WaitUntil(() => completed);
         }
 
-        public static void BindController<T>(string buffKey) where T : BuffController
+        /// <summary>
+        /// 获取某一个执行者所有正在执行的Buff的效果
+        /// </summary>        
+        /// <returns></returns>
+        public static List<IEffect> GetEffects(IBuffExecutor player)
         {
-            BindController(buffKey, typeof(T));                    
+            List<IEffect> results = new List<IEffect>();
+            GetEffectsNonAlloc(player,results);
+            return results;
         }
 
-        public static void BindController(string buffKey, Type type)
+        /// <summary>
+        /// 获取某一个执行者正在执行的Buff指定对象类型的效果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void GetEffectsNonAlloc<T>(IBuffExecutor player, List<T> results) where T : IEffect
         {
-            if (!typeof(BuffController).IsAssignableFrom(type))
+            if (results == null)
+                throw new Exception("集合不能为空");
+
+            results.Clear();
+
+            if (player == null) return;
+
+            CacheExecutor(player);
+
+            var buffers = allExecutor_BuffControllers[player];
+            foreach (var item in buffers)
             {
-                throw new Exception("Type不继承BuffController Type:" + type);
+                foreach (var effect in item.Buff.EffectDatas)
+                {
+                    if (!(effect is T t)) continue;
+                    results.Add(t);
+                }
             }
+        }
 
-            if (!buffItems.TryGetValue(buffKey, out var bindder))
+        /// <summary>
+        /// 获取某一个执行者正在执行Buff的指定标识的效果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<IEffect> GetEffects(IBuffExecutor player,string key)
+        {
+            List<IEffect> results = new List<IEffect>();
+            GetEffectsNonAlloc(player, results,key);
+            return results;
+        }
+
+        /// <summary>
+        ///  获取某一个执行者正在执行Buff的指定标识的效果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void GetEffectsNonAlloc(IBuffExecutor player, List<IEffect> results,string key) 
+        {
+            if (results == null)
+                throw new Exception("集合不能为空");
+
+            results.Clear();
+
+            if (player == null) return;
+
+            CacheExecutor(player);
+
+            var buffers = allExecutor_BuffControllers[player];
+            foreach (var item in buffers)
             {
-                throw new Exception("没有对应的Buff标识，如果需要新增Buff并绑定请先使用BuffKit.AddBuff!如果是来自BuffDataBase管理的Buff，请先调用BuffKit.LoadBuffDataBase!");
+                foreach (var effect in item.Buff.EffectDatas)
+                {
+                    if (effect.Key != key) continue;
+                 
+                    results.Add(effect);
+                }
             }
-
-            Bind(bindder, type);
         }
 
-        internal static BuffController CreateBuffController(string buffKey)
+        /// <summary>
+        /// 获取某一个执行者正在执行Buff的指定类型的效果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static List<IEffect> GetEffectsByType(IBuffExecutor player, string type)
         {
-            if (!buffItems.TryGetValue(buffKey, out var bindder))
+            List<IEffect> results = new List<IEffect>();
+            GetEffectsNonAlloc(player, results, type);
+            return results;
+        }
+
+        /// <summary>
+        ///  获取某一个执行者正在执行Buff的指定类型的效果
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static void GetEffectsNonAllocByType(IBuffExecutor player, List<IEffect> results, string type) 
+        {
+            if (results == null)
+                throw new Exception("集合不能为空");
+
+            results.Clear();
+
+            if (player == null) return;
+
+            CacheExecutor(player);
+
+            var buffers = allExecutor_BuffControllers[player];
+            foreach (var item in buffers)
             {
-                throw new Exception("Buff没有加载到BuffKit内! BuffKey:" + buffKey);
-            }
+                foreach (var effect in item.Buff.EffectDatas)
+                {
+                    if (effect.Type != type) continue;
 
-            if (bindder.controllerType == null)
+                    results.Add(effect);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获取Buff数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static IBuff GetBuffData(string key)
+        {
+            runtime_buffs.TryGetValue(key, out var buff);
+            if (buff == null)
+                throw new Exception($"Buff丢失!请检查是否已经载入Buff Key:{key}");
+            return buff;
+        }
+
+        /// <summary>
+        /// 根据Buff标识添加Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buffKey"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static BuffController AddBuff(IBuffExecutor player,string buffKey,params object[] param)
+        {
+            return AddBuff(player, GetBuffData(buffKey), param);
+        }
+
+        /// <summary>
+        /// 直接传递Buff配置以添加Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buff"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static BuffController AddBuff(IBuffExecutor player, IBuff buff, params object[] param)
+        {          
+            return AddBuff(player, buff, buff.Duration, param);
+        }
+
+        /// <summary>
+        /// 根据Buff标识添加Buff，可动态设置持续时间
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buffKey"></param>
+        /// <param name="duration"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static BuffController AddBuff(IBuffExecutor player, string buffKey, float duration, params object[] param)
+        {
+            return AddBuff(player, GetBuffData(buffKey),duration, param);
+        }
+        /// <summary>
+        /// 直接传递Buff配置以添加Buff,可动态设置持续时间
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buff"></param>
+        /// <param name="duration"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException"></exception>
+        public static BuffController AddBuff(IBuffExecutor player, IBuff buff, float duration, params object[] param)
+        {
+            if (player == null)
+                return null;
+
+            if (buff == null)
+                return null;           
+
+            if (!player.OnAddBuffCondition()) return null;
+
+            CacheExecutor(player);
+
+            List<BuffController> controllers = allExecutor_BuffControllers[player];
+
+            if (player is Component component)
             {
-                throw new Exception("该Buff没有绑定控制器，请重试 BuffKey:" + buffKey);
+                if (!component || !component.ActiveInHierarchy())
+                {
+                    LogKit.W($"传递的执行者非活动状态!无法添加Buff GameObject:{component.name}");
+                    return null;
+                }
             }
-            return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as BuffController;          
-        }
-      
+            Type type = AssemblyHelper.GetType(buff.BuffControllerType);
 
-        public static void AddBuff(IBuff buff)
+            if (type == null || !type.IsSubclassOf(typeof(BuffController)))
+                throw new InvalidCastException($"类型不正确，无法构建BuffController Type:{buff.BuffControllerType}");
+            BuffController buffController = BuffController.CreateInstance(type,buff,player);
+
+            if (!buffController.OnAddBuffCondition())
+            {
+                buffController.GlobalRelease();
+                return null;
+            }
+            buffController.Duration = duration;
+            buffController.Add(param);           
+
+            if (buff.BuffMode == BuffMode.Single)
+            {
+                BuffController current = null;
+
+                foreach (var item in controllers)
+                {
+                    if (item.Buff.Key == buff.Key)
+                    {
+                        current = item;
+                        break;
+                    }
+                }
+
+                if (current != null)
+                {
+                    RemoveBuff(player,current);
+                }
+            }
+
+            if (!controllers.Contains(buffController))
+                controllers.Add(buffController);
+            allExecutor_BuffControllers[player] = controllers;
+            player.OnAdd(buffController);
+
+            return buffController;
+        }
+
+        /// <summary>
+        /// 移除执行者所有的Buff
+        /// </summary>
+        /// <param name="player"></param>
+        public static void RemoveBuff(IBuffExecutor player)
         {
-            BindBuffControllerAttribute bind = buff.GetType().GetCustomAttribute<BindBuffControllerAttribute>();
-            Type cType = bind != null ? bind.ControllerType : null;
-            buffItems.Add(buff.GetBuffKey, new BuffBindder() { buff = buff, controllerType = cType });
+            if (player == null) return;
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var controllers))
+                return;
+
+            if (controllers == null || controllers.Count == 0)
+                allExecutor_BuffControllers.Remove(player);
+
+            for (int i = controllers.Count - 1; i >= 0; i--)
+            {
+                RemoveBuff(player, controllers[i]);
+            }            
+                
         }
 
-        private static void Bind(BuffBindder buffBindder,Type type)
+        /// <summary>
+        /// 移除指定的Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="controller"></param>
+        public static void RemoveBuff(IBuffExecutor player, BuffController controller)
         {
-            buffBindder.controllerType = type;
+            if (player == null) return;
+            if (controller == null) return;
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var controllers))
+                return;
+            if (!controllers.Contains(controller))
+                return;
+
+            controllers.Remove(controller);
+            allExecutor_BuffControllers[player] = controllers;
+            controller.Remove();
+            player.OnRemove(controller);            
+            controller.GlobalRelease();
         }
 
-        public static IBuff GetBuffByKey(string key)
+        /// <summary>
+        /// 移除一组Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="controllers"></param>
+        public static void RemoveBuff(IBuffExecutor player, IList<BuffController> controllers)
         {
-            buffItems.TryGetValue(key, out var buffBindder);
-            return buffBindder?.buff;
+            if (player == null) return;
+
+            if (controllers == null || controllers.Count == 0) return;
+
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var item))
+                return;
+
+            if (item == controllers)
+                RemoveBuff(player);
+            else
+            {
+                foreach (var temp in controllers)
+                {
+                    RemoveBuff(player, temp);
+                }
+            }
+                
         }
-     
-        public static BuffController AddBuffer(this IBuffExecutor executor,IBuff buff)
+
+        /// <summary>
+        /// 移除指定类型所有的Buff
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="player"></param>
+        public static void RemoveBuff<T>(IBuffExecutor player) where T : BuffController
         {
-            return executor.Handler.AddBuffer(buff,executor);
+            if (player == null) return;
+
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var item))
+                return;
+            var target = item.FindAll(x => x.GetType() == typeof(T));
+            RemoveBuff(player, target);
         }
 
-        public static BuffController AddBuffer(this IBuffExecutor executor, string buffKey)
+        /// <summary>
+        /// 根据Buff标识移除Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="key"></param>
+        public static void RemoveBuff(IBuffExecutor player, string key)
         {
-            return executor.Handler.AddBuffer(buffKey, executor);
+            if (player == null) return;
+
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var item))
+                return;
+            RemoveBuff(player,item.Find(x => x.Buff.Key == key));
         }
 
-        public static bool RemoveBuffer(this IBuffExecutor executor, string buffKey)
-            => executor.Handler.RemoveBuffer(buffKey);
+        /// <summary>
+        /// 判断执行者正在执行的Buff有没有指定的效果
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="effect_key"></param>
+        /// <returns></returns>
+        public static bool IsContainEffect(IBuffExecutor player, string effect_key)
+        {
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var controllers))
+                return false;
 
-        public static bool RemoveBuffer(this IBuffExecutor executor, IBuff buff)
-           => executor.Handler.RemoveBuffer(buff);
+            foreach (var item in controllers)
+            {
+                foreach (var effect in item.Buff.EffectDatas)
+                {
+                    if (effect.Key == effect_key)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 查询执行者是否存在指定的Buff
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buffKey"></param>
+        /// <returns></returns>
+        public static bool IsContainBuff(IBuffExecutor player, string buffKey)
+        {
+            return IsContainBuff(player, buffKey, out _);
+        }
+
+        public static bool IsContainBuff(IBuffExecutor player, string buffKey,out BuffController controller)
+        {
+            controller = null;
+            if (!allExecutor_BuffControllers.TryGetValue(player, out var items))
+                return false;
+
+            foreach (var item in items)
+            {
+                if (item.Buff.Key == buffKey)
+                {
+                    controller = item;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+
+        private static void CacheExecutor(IBuffExecutor player)
+        {
+            if (!allExecutor_BuffControllers.ContainsKey(player))
+                allExecutor_BuffControllers[player] = new List<BuffController>();           
+        }
+
+        private static List<IBuffExecutor> results = new List<IBuffExecutor>();
+        private static void Update(MonoHelper monoHelper)
+        {
+            foreach (var executor in allExecutor_BuffControllers)
+            {
+                if (IsCheckDestroy(executor.Key))
+                {
+                    results.Add(executor.Key);
+                    continue;
+                }
+
+                if (IsDisableBuff(executor.Key)) continue;
+
+
+                for (int i = 0; i < executor.Value.Count; i++)
+                {
+
+                    BuffController controller = executor.Value[i];
+
+                    controller.Update();
+                    if (controller.Progress >= 1)
+                    {
+                        Debug.Log("时间到，移除Buff:" + executor.Key);
+                        RemoveBuff(executor.Key, controller);
+                        i--;
+                    }
+                }
+
+                if (executor.Value.Count == 0)
+                     results.Add(executor.Key);
+
+            }
+        }
+
+        private static void FixedUpdate(MonoHelper monoHelper)
+        {
+            foreach (var executor in allExecutor_BuffControllers)
+            {
+                if (IsCheckDestroy(executor.Key))
+                {
+                    results.Add(executor.Key);
+                    continue;
+                }
+
+                if (IsDisableBuff(executor.Key)) continue;
+
+
+                for (int i = 0; i < executor.Value.Count; i++)
+                {
+
+                    BuffController controller = executor.Value[i];
+
+                    controller.FixedUpdate();
+                   
+                    
+                }
+
+            }
+        }
+
+        private static void LateUpdate(MonoHelper monoHelper)
+        {
+            foreach (var executor in allExecutor_BuffControllers)
+            {
+                if (IsCheckDestroy(executor.Key))
+                {
+                    results.Add(executor.Key);
+                    continue;
+                }
+
+                if (IsDisableBuff(executor.Key)) continue;
+
+
+                for (int i = 0; i < executor.Value.Count; i++)
+                {
+
+                    BuffController controller = executor.Value[i];
+
+                    controller.LateUpdate();
+                    
+                }
+            }
+
+            if (results.Count == 0) return;
+
+            foreach (var item in results)
+            {
+                allExecutor_BuffControllers.Remove(item);
+            }
+            results.Clear();
+        }
+
+        
+        private static bool IsDisableBuff(IBuffExecutor player)
+        {
+            Component component = player as Component;
+            return !component.ActiveInHierarchy();
+        }
+
+        private static bool IsCheckDestroy(IBuffExecutor player)
+        {
+            bool destroy = IsDestroyBuff(player);
+
+            if (destroy)
+            {
+                RemoveBuff(player);
+            }
+
+            return destroy;
+        }
+
+
+        /// <summary>
+        /// 判断buff是否被销毁
+        /// </summary>
+        private static bool IsDestroyBuff(IBuffExecutor player)
+        {
+            if (!(player is UnityEngine.Object)) return false;
+            UnityEngine.Object obj = player as UnityEngine.Object;
+            return !obj;
+        }
+
     }
 }

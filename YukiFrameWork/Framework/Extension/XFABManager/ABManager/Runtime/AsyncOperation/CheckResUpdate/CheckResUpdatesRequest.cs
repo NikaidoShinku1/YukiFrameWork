@@ -43,21 +43,9 @@ namespace XFABManager
                 yield break;
             }
 #endif
-
-            // 获取依赖项目
-            GetProjectDependenciesRequest requestDenpend = AssetBundleManager.GetProjectDependencies(projectName);
-            yield return requestDenpend;
-            if (!string.IsNullOrEmpty(requestDenpend.error)) 
-            { 
-                Completed(requestDenpend.error);
-                yield break; 
-            }
-            string[] dependencies = requestDenpend.dependencies;
-
+         
             // 需要检测的项目
-            List<string> need_check_projects = new List<string>();
-            need_check_projects.Add(projectName);      // 自己
-            need_check_projects.AddRange(dependencies);// 依赖项目
+            List<string> need_check_projects = new List<string>();          
                                                        // 检测的结果 
             results = new CheckUpdateResult[need_check_projects.Count]; // 除了依赖项目还要检测自己
 

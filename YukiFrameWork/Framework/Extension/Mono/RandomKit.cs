@@ -231,7 +231,7 @@ namespace YukiFrameWork
                 throw new NullReferenceException("传递的集合内容是空的，无法进行随机");
             return targets[Range(0, targets.Length)];
         }
-
+       
         public static T RandomChoose<T>(params T[] param)
         {
             return param[Range(0, param.Length)];

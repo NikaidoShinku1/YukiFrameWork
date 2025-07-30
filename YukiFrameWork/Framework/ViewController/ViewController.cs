@@ -78,8 +78,7 @@ namespace YukiFrameWork
         }
 
     }
-
-
+   
     public abstract class AbstractController : IController
     {
         private object _object = new object();
@@ -116,7 +115,7 @@ namespace YukiFrameWork
         /// 框架封装AbstractController自带的OnInit初始化方法
         /// </summary>
         public abstract void OnInit();     
-    }
+    }     
 
     public partial class ViewController : ISerializedFieldInfo
     {

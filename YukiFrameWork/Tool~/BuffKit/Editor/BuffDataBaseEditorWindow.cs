@@ -70,8 +70,11 @@ namespace YukiFrameWork.Buffer
         }
         protected override void OnImGUI()
         {
-            base.OnImGUI();
-
+            try
+            {
+                base.OnImGUI();
+            }
+            catch { }
             if (CheckMenuTreeNullOrEmpty())
                 return;
 
@@ -80,7 +83,7 @@ namespace YukiFrameWork.Buffer
                 Buff buff = item.Value as Buff;
                 if (!buff) continue;
 
-                item.Name = $"{buff.GetBuffKey}_{buff.GetInstanceID()}";
+                item.Name = $"{buff.Key}_{buff.GetInstanceID()}";
                 
             }
         }
@@ -98,7 +101,7 @@ namespace YukiFrameWork.Buffer
             foreach (var item in tBase.buffConfigs)
             {
                 if (!item) continue;
-                string name = $"{item.GetBuffKey}_{item.GetInstanceID()}";
+                string name = $"{item.Key}_{item.GetInstanceID()}";
                 odinMenuTree.Add(name, item,Sirenix.OdinInspector.SdfIconType.ClipboardData);
             }
            

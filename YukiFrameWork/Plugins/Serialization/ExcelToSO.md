@@ -60,3 +60,53 @@
 
     }
 ```
+
+对于Excel转换，还有IExcelReSyncScriptableObject接口。该接口与IExcelSyncScriptableObject效果相同，但可进行在导出前的逻辑执行操作。
+
+``` csharp
+
+    [CreateAssetMenu(fileName = "UserConfig",menuName = "UserConfig")]
+    public class UserConfig : ScriptableObject, IExcelReSyncScriptableObject
+    {
+        public UserModel[] userModels;
+        public IList Array => userModels;
+
+        public Type ImportType => typeof(UserModel);
+
+        public bool ScriptableObjectConfigImport => true;
+
+        public void Completed()
+        {
+           
+        }
+
+        public void Create(int maxLength)
+        {
+            userModels = new UserModel[maxLength];
+        }
+
+        public void Import(int i,object userData)
+        {
+            userModels[i] = userData as UserModel;
+            
+        }
+
+        //在导出前执行的操作
+        public bool ReImport(out string error)
+        {
+            error = string.Empty;
+            //自行进行对isCompleted的处理
+            bool isCompleted = false;
+
+            ....
+
+            if(!isCompleted)
+                error = "自定的报错输出";
+
+            return isCompleted;
+        }
+    }
+
+    ...ToDo
+
+```

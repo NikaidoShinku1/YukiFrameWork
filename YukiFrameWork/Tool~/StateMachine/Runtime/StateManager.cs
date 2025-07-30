@@ -407,6 +407,13 @@ namespace YukiFrameWork.Machine
         /// <param name="archectureType">可依赖的框架架构类型</param>
         /// <returns></returns>
         public static StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default)
+        {           
+            return StartMachine(machineName, stateMachineCore, typeof(IArchitecture).IsAssignableFrom(archectureType) 
+                ? ArchitectureConstructor.Instance.GetOrAddArchitecture(archectureType)
+                : null);
+        }
+
+        public static StateManager StartMachine(string machineName, RuntimeStateMachineCore stateMachineCore, IArchitecture architecture = null)
         {
             if (static_runtime_Machines.ContainsKey(machineName))
             {
@@ -417,11 +424,10 @@ namespace YukiFrameWork.Machine
             gameObject.DonDestroyOnLoad();
             var stateManager = gameObject.AddComponent<StateManager>();
             stateManager.runtime_StateMachineCore_Datas.Add(string.Empty, stateMachineCore);
-            static_runtime_Machines.Add(machineName, stateManager);
-            if (typeof(IArchitecture).IsAssignableFrom(archectureType))
-                stateManager.runtime_Architecture = ArchitectureConstructor.Instance.GetOrAddArchitecture(archectureType);
+            static_runtime_Machines.Add(machineName, stateManager);            
+            stateManager.runtime_Architecture = architecture;
             stateManager.Init();
-           
+
             return stateManager;
         }
 

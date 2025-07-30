@@ -58,6 +58,11 @@ namespace YukiFrameWork.Skill
 		/// 可以同时释放的技能标识
 		/// </summary>
 		string[] SimultaneousSkillKeys { get; set; }
+
+		/// <summary>
+		/// 技能所绑定的控制器类型
+		/// </summary>
+		string SkillControllerType { get; set; }
 	
 	}
 }

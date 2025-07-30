@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -180,6 +181,7 @@ namespace XFABManager
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        [Obsolete]
         public bool IsHaveProjectDependence(string name) {
 
             for (int i = 0; i < projects.Count; i++)

@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Skill
 {
+	[Obsolete("过时的特性，请使用技能配置中的SkillControllerType进行对控制绑定的配置，该特性已弃用",true)]
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct,AllowMultiple = false,Inherited = true)]
 	public class BindSkillControllerAttribute : Attribute
 	{

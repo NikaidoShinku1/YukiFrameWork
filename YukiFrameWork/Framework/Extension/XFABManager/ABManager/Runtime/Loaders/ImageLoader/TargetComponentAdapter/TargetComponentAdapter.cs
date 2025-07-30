@@ -15,6 +15,7 @@ namespace XFABManager
 
         void SetColor(ImageLoader loader, Color color);
 
+        Color GetColor(ImageLoader loader);
     }
 }
 

@@ -33,7 +33,7 @@ namespace YukiFrameWork
         /// </summary>
         /// <param name="maxLength"></param>
         void Create(int maxLength);
-
+      
         /// <summary>
         /// 导入的过程(根据不同的配置自由定制)
         /// </summary>
@@ -49,5 +49,18 @@ namespace YukiFrameWork
         /// 如果集合类型是ScriptableObject，当该属性为True时，默认会有转换工具控制配置的生成。
         /// </summary>
         bool ScriptableObjectConfigImport { get; }
+    }
+
+    /// <summary>
+    /// 反Excel转ScriptableObject同步接口，支持在导出前触发ReImport方法，其余不变
+    /// </summary>
+    public interface IExcelReSyncScriptableObject : IExcelSyncScriptableObject
+    {
+        /// <summary>
+        /// 在ScriptableObject导出Excel前执行的方法。如果ReImport返回False，则输出error且不会执行导出
+        /// </summary>
+        /// <param name="error"></param>
+        /// <returns></returns>
+        bool ReImport(out string error);
     }
 }

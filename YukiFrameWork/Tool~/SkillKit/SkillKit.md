@@ -38,14 +38,13 @@ public class InvisibleSkill : SkillData
 |float CoolDownTime|技能冷却时间|
 |bool SkillInterruption|技能是否可以在释放时中途打断|
 |string[] SimultaneousSkillKeys|可以同时释放的技能标识|
+|string SkillControllerType|技能控制器绑定类型|
 
 完成配表后需要有一个专门对这个技能配置搭配的控制器类:
 ``` csharp
 
 using YukiFrameWork.Skill;
 
-//需要为配表标记该特性，以绑定控制器
-[BindSkillController(typeof(InvisibleSkillController))]
 public class InvisibleSkill : SkillData
 {
     //框架的技能配表仅提供通用性的数据，可自行添加自己需要的配置。

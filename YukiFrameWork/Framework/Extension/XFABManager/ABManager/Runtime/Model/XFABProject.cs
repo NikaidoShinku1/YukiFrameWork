@@ -97,6 +97,7 @@ namespace XFABManager
         /// 依赖的项目名称的集合
         /// </summary>
         [HideInInspector]
+        [Obsolete]
         public List<string> dependenceProject;
 
         /// <summary>
@@ -398,7 +399,9 @@ namespace XFABManager
         public XFABProject()
         {
             assetBundles = new List<XFABAssetBundle>();
+#pragma warning disable CS0612 // 类型或成员已过时
             dependenceProject = new List<string>();
+#pragma warning restore CS0612 // 类型或成员已过时
             InitBuildOptions();
         }
 
@@ -426,7 +429,7 @@ namespace XFABManager
             buildAssetBundleOptions.Add(new BuildOptionToggleData("AssetBundleStripUnityVersion", "在构建过程中删除存档文件和序列化文件头中的 Unity 版本号。", false, BuildAssetBundleOptions.AssetBundleStripUnityVersion));
 #endif
         }
-
+        [Obsolete]
         // 是否依赖于某个项目
         public bool IsDependenceProject(string name  ) {
 
@@ -604,7 +607,7 @@ namespace XFABManager
                 RemoveAssetBundle(bundle);
             }
 
-            if (bundle.bundleType == XFBundleType.Group)
+            if (bundle != null && bundle.bundleType == XFBundleType.Group)
             {
                 XFABAssetBundle[] bundles = GetAssetBundlesFromGroup(bundle.bundle_name);
                 if (bundles != null)
@@ -664,6 +667,7 @@ namespace XFABManager
         /// 获取依赖的所有项目
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         public string[] GetAllDependencies() {
 
             List<string> dependence = new List<string>();

@@ -43,7 +43,7 @@ namespace XFABManager
                 bundlePanel = XFAssetBundleProjectPanel.CreatePanel(window, project);
             }
 
-            bundlePanel.OnGUI();
+            bundlePanel.GUI();
             //GUILayout.Space(20);
             //DrawUpdateModel();
             GUILayout.Space(40);

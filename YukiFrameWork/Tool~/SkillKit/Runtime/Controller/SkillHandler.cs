@@ -307,9 +307,10 @@ namespace YukiFrameWork.Skill
             if (!controller.IsSkillRelease || !this) return;
 
             controller.IsSkillRelease = false;
-            controller.ReleasingTime = 0;           
+            controller.ReleasingTime = 0;
+            controller.onInterrup?.Invoke(controller);
             controller.OnInterruption();
-            controller.onReleaseComplete?.Invoke();
+            controller.onReleaseComplete?.Invoke(controller);
             controller.OnReleaseComplete();
           
         }
@@ -374,15 +375,14 @@ namespace YukiFrameWork.Skill
                             if (controller.IsSkillRelease)
                             {
                                 controller.ReleasingTime += Time.deltaTime;
-                                controller.onReleasing?.Invoke(controller.ReleasingProgress);
+                                controller.onReleasing?.Invoke(controller,controller.ReleasingProgress);
                                 controller.OnUpdate();
                                
-
                                 if ((controller.ReleasingTime >= skillData.RealeaseTime || skillData.IsInfiniteTime) && controller.IsComplete())
                                 {
                                     controller.ReleasingTime = 0;
                                     controller.IsSkillRelease = false;
-                                    controller.onReleaseComplete?.Invoke();
+                                    controller.onReleaseComplete?.Invoke(controller);
                                     controller.OnReleaseComplete();
                                     
                                 }
@@ -391,15 +391,19 @@ namespace YukiFrameWork.Skill
                             {
                                 if (!controller.IsSkillCoolDown)
                                 {
+                                    if (controller.CoolDownTime == 0)
+                                    {
+                                        controller.onStartCooling?.Invoke(controller);
+                                    }
                                     controller.CoolDownTime += Time.deltaTime;
-                                    controller.onCooling?.Invoke(controller.CoolDownProgress);
+                                    controller.onCooling?.Invoke(controller, controller.CoolDownProgress);
                                     controller.OnCooling();                              
 
                                     if (controller.CoolDownTime >= skillData.CoolDownTime)
                                     {
                                         controller.IsSkillCoolDown = true;
                                         controller.CoolDownTime = 0;
-                                        controller.onCoolingComplete?.Invoke();
+                                        controller.onCoolingComplete?.Invoke(controller);
                                         controller.OnCoolingComplete();
                                         
                                     }

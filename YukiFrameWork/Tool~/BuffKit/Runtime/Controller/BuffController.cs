@@ -12,109 +12,160 @@ using System;
 using YukiFrameWork.Pools;
 namespace YukiFrameWork.Buffer
 {
-	
-    public abstract class BuffController : AbstractController, IGlobalSign
+    public abstract class BuffController : IGlobalSign,IController
 	{
-		void IGlobalSign.Init()
+        #region IGlobalSign
+        public bool IsMarkIdle { get ; set ; }
+
+        void IGlobalSign.Init()
 		{
-			OnInit();
-		}	
-        public override void OnInit()
-        {
-            
-        }
-		internal float fixedTimer = 0;
-        public BuffHandler Handler => Player.Handler;
-
-		public Action<float> onBuffReleasing { get; set; }
-		public Action<int> onBuffStart { get; set; }
-		public Action<int> onBuffRemove { get; set; }	
-
+            ExistedTime = 0;
+            fixedTimer = 0;
+        }	      
 		void IGlobalSign.Release()
-		{			
-			Player = null;
-			Buffer = null;
-			onBuffReleasing = null;
-			onBuffStart = null;
-			onBuffRemove = null;
+		{          
+			Player = null;                  
+            ExistedTime = 0;
+            fixedTimer = 0;			
 		}
-		
-		internal static bool Release(BuffController controller) 
-		{
-			return GlobalObjectPools.GlobalRelease(controller);
-		}
+        #endregion
 
-		//private static Dictionary<Type,Func<BuffController, bool>> OnReleasePairs = new Dictionary<Type, Func<BuffController, bool>>();
+        #region Architecture
+        private object _object = new object();
+        private IArchitecture mArchitecture;
 
-        public IBuff Buffer { get; internal set; }
+        /// <summary>
+        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
+        /// </summary>
+        protected virtual IArchitecture RuntimeArchitecture
+        {
+            get
+            {
+                lock (_object)
+                {
+                    if (mArchitecture == null)
+                        Build();
+                    return mArchitecture;
+                }
+            }
+        }
+        IArchitecture IGetArchitecture.GetArchitecture()
+        {
+            return RuntimeArchitecture;
+        }
 
-		
+        internal void Build()
+        {
+            if (mArchitecture == null)
+            {
+                mArchitecture = ArchitectureConstructor.I.Enquene(this);
+            }
+        }
+        #endregion
 
-		public string BuffKey => Buffer.GetBuffKey;		
+        private float duration;
+		private float fixedTimer;
 
-        public int BuffLayer { get; internal set; }		
-
-        public IBuffExecutor Player { get;internal set; }
-
-		public bool IsMarkIdle { get; set; }		
-
-		public float MaxTime => Buffer.BuffTimer;		
 
 		/// <summary>
-		/// 该Buff的剩余时间
+		/// Buff执行者
 		/// </summary>
-		public float RemainingTime
+		public IBuffExecutor Player { get;private set; }
+
+		/// <summary>
+		/// Buff的配置
+		/// </summary>
+		public IBuff Buff { get; private set; }
+
+		/// <summary>
+		/// Buff添加后过的时间
+		/// </summary>
+		public float ExistedTime { get;private set; }
+
+        /// <summary>
+        /// Buff的持续时间,如果Buff是无限时间的，则默认该属性为-1
+        /// </summary>
+        public virtual float Duration
+		{
+			get => duration;
+			set
+			{
+                duration = value;
+            }
+		}
+
+		/// <summary>
+		/// Buff的进度,如果Buff是无限时间的，则该属性为-1
+		/// </summary>
+		public float Progress
 		{
 			get
 			{
-				if (Buffer.SurvivalType == BuffSurvivalType.Timer)
-					return mRemainingTime;
-				return -1;
-			}
-			internal set
-			{
-                mRemainingTime = value;
+				if (Duration < 0)
+					return -1;
+				return ExistedTime / Duration;
 			}
 		}
 
-		/// <summary>
-		/// Buff的剩余进度(1-0)
-		/// </summary>
-		public float RemainingProgress
-		{
-			get => Buffer.SurvivalType == BuffSurvivalType.Timer ? Mathf.Clamp01(RemainingTime / Buffer.BuffTimer) : 1;
+        /// <summary>
+        /// 当前Buff是否满足被添加的条件，如果该方法返回False，则该Buff无法被任何Buff执行者添加
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool OnAddBuffCondition() => true;
+
+        internal void Update()
+        {
+                ExistedTime += Time.deltaTime;
+            OnUpdate();
         }
 
-		private float mRemainingTime;
-		
-        public BuffController(IBuff buffer, IBuffExecutor player)
+        internal void FixedUpdate()
+        {
+            if (fixedTimer > ExistedTime - Time.fixedDeltaTime * 2)
+                return;
+
+            fixedTimer += Time.fixedDeltaTime;
+            OnFixedUpdate();
+        }
+
+        internal void LateUpdate()
+        {
+            OnLateUpdate();
+        }
+
+        internal void Add(params object[] param)
+        {
+            OnAdd(param);
+        }
+
+        internal void Remove() => OnRemove();
+
+        /// <summary>
+        /// 当Buff添加时调用
+        /// </summary>
+        /// <param name="param"></param>
+        protected virtual void OnAdd(params object[] param) { }
+
+        protected virtual void OnUpdate() { }
+
+        protected virtual void OnFixedUpdate() { }
+
+        protected virtual void OnLateUpdate() { }
+
+        /// <summary>
+        /// 当Buff销毁(移除)时调用
+        /// </summary>
+        protected virtual void OnRemove() { }
+
+        internal static BuffController CreateInstance(Type buffType,IBuff buff,IBuffExecutor buffExecutor) 
 		{
-			this.Buffer = buffer;
-			this.Player = player;
-			BuffLayer = 0;
+			if (!buffType.IsSubclassOf(typeof(BuffController)))
+				throw new InvalidCastException($"类型错误,传递的类型{buffType}并不是BuffController的派生");
+			BuffController controller = GlobalObjectPools.GlobalAllocation(buffType) as BuffController;
+			controller.Buff = buff;
+			controller.Player = buffExecutor;
+            controller.duration = buff.Duration;
+            return controller;
 		}
-
-		public BuffController() { }
-	
-		public virtual bool OnAddBuffCondition() => true;
-		
-		public virtual bool OnRemoveBuffCondition() => false;
-	
-		public abstract void OnBuffAwake();	
-		
-		public abstract void OnBuffStart();	
-
-		public virtual void OnBuffUpdate() { }
-
-		public virtual void OnBuffFixedUpdate() { }
-
-		public virtual void OnBuffLateUpdate() { }
-		
-		public abstract void OnBuffRemove();
-		
-		public virtual void OnBuffDestroy()
-		{
-			
-		}	
     }
 }

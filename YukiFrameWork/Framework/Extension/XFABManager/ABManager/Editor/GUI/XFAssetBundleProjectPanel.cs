@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -34,7 +35,7 @@ namespace XFABManager
         private VerifyResult verifyNameResult;
         private VerifyResult verifySuffixResult;
         private VerifyResult verifyVersionResult;
-        private VerifyResult verifyDependenceResult;
+        //private VerifyResult verifyDependenceResult;
 
         private GUIStyle tipStyle;
         private GUIStyle tipDownStyle;
@@ -66,7 +67,7 @@ namespace XFABManager
             panel.window = window;
 
             // 默认验证依赖项目
-            panel.VerifyDependenceProject();
+            //panel.VerifyDependenceProject();
 
             return panel;
         }
@@ -79,12 +80,12 @@ namespace XFABManager
             panel.window = window;
 
             // 默认验证依赖项目
-            panel.VerifyDependenceProject();
+           // panel.VerifyDependenceProject();
 
             return panel;
         }
 
-        public void OnGUI()
+        public void GUI(bool create = false)
         {
 
             GUILayout.Space(30);
@@ -94,19 +95,20 @@ namespace XFABManager
             //显示名
             DrawDisplayName();
 
-            GUILayout.Space(20);
+            //GUILayout.Space(20);
             // 画出依赖项目
-            DrawDependenceProjects();
+           // DrawDependenceProjects();
             // 画出后缀
             GUILayout.Space(20);
             DrawSuffix();
             GUILayout.Space(20);
             DrawVersion();
 
-            // 绘制秘钥
-            GUILayout.Space(20);
-            DrawSecretKey();
-
+            if (!create)
+            {
+                GUILayout.Space(20);
+                DrawSecretKey();
+            }
         }
 
 
@@ -130,49 +132,7 @@ namespace XFABManager
         private void DrawDisplayName()
         {
             DrawTextFieldLine(displayNameLabel, ref displayName, "*显示名称,非必须,可填任意字符!", "*非必填");
-        }
-
-        
-        // 画出依赖项目
-        private void DrawDependenceProjects()
-        {
-
-            GUILayout.BeginHorizontal();
-            //GUILayout.Label("依赖项目:", GUILayout.Width(145));
-            //更新
-            _serializedObject.Update();
-
-            //开始检查是否有修改
-            EditorGUI.BeginChangeCheck();
-
-            //显示属性
-            //第二个参数必须为true，否则无法显示子节点即List内容
-            EditorGUILayout.PropertyField(_assetLstProperty , dependenceProjectLabel, true,GUILayout.Width(400));
-
-            //结束检查是否有修改
-            if (EditorGUI.EndChangeCheck())
-            {
-                //提交修改
-                _serializedObject.ApplyModifiedProperties();
-                //Debug.Log(" 提交修改! ");
-                // 验证依赖的项目是否合格
-                VerifyDependenceProject();
-
-            }
-            GUILayout.EndHorizontal();
-
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Space(150);
-            GUILayout.Label(string.Format(
-                "*准备资源时(AssetBundleManager.ReadyRes),会同时准备其依赖项目的资源!\n{0}", 
-                "*只能单项依赖 例如:A依赖B 则B就不能依赖A"), tipDownStyle);
-            GUILayout.EndHorizontal();
-
-            // 当 下载 更新 加载 卸载 项目时 会同时对其依赖的项目进行操作 
-            // 只能单项依赖 例如:A依赖B 则B就不能依赖A 
-
-        }
+        }     
 
         // 画出后缀
         private void DrawSuffix()
@@ -216,7 +176,7 @@ namespace XFABManager
                 string tipMessage = "是否生成秘钥?若生成,已上线的旧版本的资源将无法加载!";
 
                 if (EditorUtility.DisplayDialog("提示", tipMessage, "确认", "取消")) {
-                    GUI.FocusControl(null);
+                    UnityEngine.GUI.FocusControl(null);
                     secret_key = System.Guid.NewGuid().ToString().Substring(0, 10); // 55c9a3db-3b7a-40c0-b8a5-9a8294a168
                 }
             }
@@ -265,14 +225,14 @@ namespace XFABManager
             tipDownStyle.richText = true;
             tipDownStyle.margin.left = 110;
 
-            buttonStyle = new GUIStyle(GUI.skin.GetStyle("button"));
+            buttonStyle = new GUIStyle(UnityEngine.GUI.skin.GetStyle("button"));
 
 
             buttonStyle.alignment = TextAnchor.MiddleCenter;
             buttonStyle.margin.left = 50;
             buttonStyle.margin.right = 50;
 
-            searchButtonStyle = new GUIStyle(GUI.skin.GetStyle("button"));
+            searchButtonStyle = new GUIStyle(UnityEngine.GUI.skin.GetStyle("button"));
             searchButtonStyle.alignment = TextAnchor.MiddleCenter;
             searchButtonStyle.margin.left = 0;
             searchButtonStyle.margin.right = 0;
@@ -296,7 +256,7 @@ namespace XFABManager
             verifyNameResult = new VerifyResult("项目名");
             verifySuffixResult = new VerifyResult("后缀");
             verifyVersionResult = new VerifyResult("版本");
-            verifyDependenceResult = new VerifyResult("依赖项目");
+            //verifyDependenceResult = new VerifyResult("依赖项目");
         }
 
         // 初始化项目名称
@@ -319,19 +279,7 @@ namespace XFABManager
         private void InitProjectToThis(XFABProject project) {
 
             name = project.name;
-            displayName = project.displayName;
-            //outputPath = project.out_path;
-            //panel.dependenceProjects = new List<XFABProject>();
-
-            for (int i = 0; i < project.dependenceProject.Count; i++)
-            {
-                XFABProject xFABProject = XFABProjectManager.Instance.GetProject(project.dependenceProject[i]);
-                if (xFABProject != null)
-                {
-                    dependenceProjects.Add(xFABProject);
-                }
-            }
-
+            displayName = project.displayName;         
             suffix = project.suffix;
             version = project.version;
             secret_key = project.secret_key;
@@ -351,13 +299,7 @@ namespace XFABManager
             {
                 project.name = name;
                 project.displayName = displayName;
-                //project.out_path = outputPath;
-                project.dependenceProject.Clear();
-                for (int i = 0; i < dependenceProjects.Count; i++)
-                {
-                    project.dependenceProject.Add(dependenceProjects[i].name);
-                }
-
+               
                 project.suffix = suffix;
                 project.version = version;
                 project.secret_key = secret_key;
@@ -459,54 +401,12 @@ namespace XFABManager
 
             result.isPass = true;
 
-        }
-
-        // 验证依赖项目
-        private void VerifyDependenceProject()
-        {
-
-            // 验证有没有重复的 空的
-            for (int i = 0; i < dependenceProjects.Count; i++)
-            {
-                for (int j = i + 1; j < dependenceProjects.Count; j++)
-                {
-                    if (dependenceProjects[i] != null && dependenceProjects[j] != null && dependenceProjects[i].name == dependenceProjects[j].name)
-                    {
-                        verifyDependenceResult.message = "请删除重复的依赖项目!";
-                        verifyDependenceResult.isPass = false;
-                        return;
-                    }
-                }
-            }
-
-            if (project != null)
-            {
-
-
-
-                // 验证是否是单向依赖
-                for (int i = 0; i < dependenceProjects.Count; i++)
-                {
-                    if (dependenceProjects[i] != null)
-                    {
-                        if (dependenceProjects[i].IsDependenceProject(project.name) || dependenceProjects[i].name.Equals(project.name))
-                        {
-                            verifyDependenceResult.message = string.Format("项目依赖 {0} 出错,只能单向依赖!", dependenceProjects[i].name);
-                            verifyDependenceResult.isPass = false;
-                            return;
-                        }
-                    }
-                }
-            }
-
-            verifyDependenceResult.isPass = true;
-
-        }
+        }      
 
         // 是不是验证通过 
         public bool IsAllVerifyPass() {
 
-            return verifyNameResult.isPass && verifySuffixResult.isPass && verifyVersionResult.isPass && verifyDependenceResult.isPass;
+            return verifyNameResult.isPass && verifySuffixResult.isPass && verifyVersionResult.isPass;
         }
 
         // 获取验证失败的原因
@@ -522,10 +422,10 @@ namespace XFABManager
             {
                 return verifyVersionResult.GetErrorMessage();
             }
-            if (!verifyDependenceResult.isPass)
-            {
-                return verifyDependenceResult.GetErrorMessage();
-            }
+           // if (!verifyDependenceResult.isPass)
+           // {
+           //     return verifyDependenceResult.GetErrorMessage();
+           // }
             return string.Empty;
         }
 

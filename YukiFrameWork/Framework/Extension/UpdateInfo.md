@@ -1,5 +1,13 @@
 ﻿#### 框架更新日志
 
+V1.51.1 BuffKit迎来2.0版本重构，现在更加好用且自由。优化技能系统，添加开始冷却的事件以及改变控制绑定的方式为配置
+
+V1.50.9 StateManager模块全局启动支持传递架构对象。
+
+V1.50.8 同步更新XFABManager
+
+V1.50.7 新增IExcelReSyncScriptableObject反同步Excel转换接口。可处理在导出前执行的逻辑。详情查阅文档。
+
 V1.50.6 修复UIKit中BasePanel勾选可拖拽后当Canvas存在WorldCamera而出现拖拽异常的问题
 
 V1.50.5 同步更新XFABManager，优化部分编辑器窗口细节

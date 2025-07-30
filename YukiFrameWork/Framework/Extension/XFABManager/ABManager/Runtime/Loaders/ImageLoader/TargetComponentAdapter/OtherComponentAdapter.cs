@@ -18,7 +18,11 @@ namespace XFABManager
         {
             // 暂不实现设置颜色功能 TODO
         }
-
+        public Color GetColor(ImageLoader loader)
+        {
+            // 暂不实现获取颜色功能 TODO
+            return Color.white;
+        }
         public void SetValue(ImageLoader loader, ImageData imageData)
         {
             if (loader == null) return;

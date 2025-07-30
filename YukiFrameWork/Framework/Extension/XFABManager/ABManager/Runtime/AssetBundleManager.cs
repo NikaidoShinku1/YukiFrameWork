@@ -1202,13 +1202,14 @@ namespace XFABManager
             }
             return LoadAssetWithSubAssetsAsyncInternal(projectName, bundle_name, assetName, type);
         }
-          
+
         /// <summary>
         /// 加载打包在AssetBundle中的场景
         /// </summary>
         /// <param name="projectName"></param>
         /// <param name="sceneName"></param>
         /// <param name="mode"></param>
+        [Obsolete("不建议使用同步方式加载场景,请使用AssetBundleManager.LoadSceneAsynchrony代替!")]
         public static void LoadScene(string projectName , string sceneName, LoadSceneMode mode)
         {
             string bundle_name = GetBundleName(projectName, sceneName, typeof(SceneObject));
@@ -1918,6 +1919,7 @@ namespace XFABManager
         /// 获取某个项目的依赖项目
         /// </summary>
         /// <param name="projectName">项目名</param>
+        [Obsolete]
         public static GetProjectDependenciesRequest GetProjectDependencies(string projectName)
         {
             GetProjectDependenciesRequest request = new GetProjectDependenciesRequest();

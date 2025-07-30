@@ -20,66 +20,94 @@ public class AttackBuff : Buff
 ![输入图片说明](Texture/3.png)
 在左侧新建配置即可。
 
-基本使用示例，首先为对象挂载BuffHandler组件，或是代码添加:
+|Buff Data API|Buff的默认配置数据|
+|--|--|
+|string Key { get; set; }|唯一标识|
+|string Name { get; set; }|Buff名称|
+|string Description { get; set; }|Buff介绍|
+|BuffMode BuffMode { get; set; }|Buff的添加模式|
+|float Duration { get; set; }|Buff的持续时间，当该参数小于0时默认为无限时间|
+|Sprite Icon { get; set; }|Buff图标|
+|List< IEffect > EffectDatas { get; }|Buff的所有效果|
+|string BuffControllerType { get; set; }|Buff的绑定控制器类型|
+
+对于任意的一个Buff，可以添加多个需要的效果：
+
+|IEffect 效果接口|Interface API|
+|--|--|
+|string Key { get; set; }|效果的唯一标识(唯一性仅适用于同一Buff下)|
+|string Name { get; set; }|效果名称|
+|string Type { get; set; }|效果的类型(可查询使用)|
+|string Description { get; set; }|效果的介绍|
+
+对于框架默认配表的Buff基类，有默认可使用的效果类型NormalEffect类。如需要自定义可重写EffectData属性如下：
 
 ``` csharp
-	void Start()
-	{
-		BuffHandler handler = gameObject.AddComponent<BuffHandler>();
-	}
+public class AttackBuff : Buff
+{
+	public override List<IEffect> EffectDatas => base.EffectDatas;//重写自己定义的继承IEffect的效果类
+}
 ```
 
-IBuffExecutor:
+|可添加Buff的执行者接口|Interface API|
+|--|--|
+|IBuffExecutor|执行者接口|
+|bool OnAddBuffCondition()|外部Buff添加条件，默认为True，与Controller的添加条件区别在于，该方法控制所有的buff添加判断，如果外部添加条件设置为False,则无法添加任何Buff|
+|void OnAdd(BuffController controller)|添加Buff并成功后触发|
+|void OnRemove(BuffController controller)|移除Buff后触发|
 
-    - BuffHandler Handler{ get; }
+对于需要Buff的对象，都应该继承这个接口！代表该对象可以拥有Buff。
 
-    - bool OnAddBuffCondition();// 外部Buff添加条件，默认为True，与Controller的添加条件区别在于，该方法控制所有的buff添加判断，如果外部添加条件设置为False,则无法添加任何Buff
-
-BuffHandler为该对象的Buff控制中枢，Buff的添加，UI同步绑定，移除都在这里执行。
-
-为对象继承IBuffExecutor接口，代表该对象可以拥有Buff。
 
 ``` csharp
 public class TestScripts : MonoBehaviour,IBuffExecutor
 {
-    public BuffHandler Handler { get;}
-
+    
     public bool OnAddBuffCondition() => true;
+
+    public void OnAdd(BuffController controller)
+    {
+        
+    }
+
+    public void OnRemove(BuffController controller)
+    {
+        
+    }
 }
 ```
 
-BuffHandler API:
+所有Buff均由BuffKit统一进行管理!
 
-	- /// <summary>
-    - /// Buff添加时触发的回调,该回调与BuffAwake同属周期，仅首次添加调用，如果是添加多个且不可叠加的buff，则每一个新Buff都触发
-    - /// </summary>
-    - public readonly UnityEngine.Events.UnityEvent<BuffController> onBuffAddCallBack;
-
-	- // <summary>
-	- // Buff移除时触发的回调，并且可以拿到Controller
-	- // </summary>	
-    - public readonly UnityEngine.Events.UnityEvent<BuffController> onBuffDestroyCallBack ;		
-
-	//添加Buff，传递一个Buff以及玩家对象Player
-	- void AddBuffer(IBuff buff,IBufferExecutor player)
-
-	//传递Buff的标识以及玩家对象Player
-	- void AddBuffer(string BuffKey, IBufferExecutor player)
-	
-	//根据标识删除某一个正在运行的Buff
-	- bool RemoveBuffer(string BuffKey)
-
-	//Buff匹配删除，重载
-	- bool RemoveBuffer(IBuff buff);
-
-	//得到正在运行的指定标识的Buff数量
-	- int GetBufferCount(string BuffKey);
-
-	//得到正在运行的Buff类型数量
-	- int GetAllBufferCount()
-
-	//终止运行中的所有Buff，该方法不会触发BuffController的OnBuffRemove方法
-	- void StopAllBuffController()
+|BuffKit static API|BuffKit API说明|
+|---|---|
+|void Init(string projectName)|BuffKit初始化加载器方法|
+|void Init(IBuffLoader buffLoader)|初始化重载(直接传递Loader)|
+|void AddBuffData(IBuff buff)|添加一个Buff数据(适合在不使用框架默认的so配表自定义使用)|
+|void RemoveBuffData(string key)|通过标识移除一个Buff配置，该API不会影响正在运行中的Buff|
+|void RemoveBuffData(IBuff buff)|通过Buff对比移除一个Buff配置,该API不会影响正在运行中的Buff|
+|void LoadBuffDataBase(string name)|加载配表|
+|void LoadBuffDataBase(BuffDataBase buffDataBase)|直接通过传递配表加载|
+|IEnumerator LoadBuffDataBaseAsync(string name)|异步加载配表|
+|List< IEffect > GetEffects(IBuffExecutor player)|获取执行者目前正在执行的所有Buff下的所有效果|
+|void GetEffectsNonAlloc< T >(IBuffExecutor player, List< T > results) where T : IEffect||
+|List< IEffect > GetEffects(IBuffExecutor player,string key)|获取指定效果标识的所有效果(如果有多个Buff具有相同标识的效果可用)|
+|void GetEffectsNonAlloc(IBuffExecutor player, List< IEffect > results,string key)|上述重载，但需要自行传递集合|
+|List< IEffect > GetEffectsByType(IBuffExecutor player, string type)|根据效果的类型获取到指定的效果集合|
+|void GetEffectsNonAllocByType(IBuffExecutor player, List< IEffect > results, string type) |如上重载，但需要自行传递集合|
+|IBuff GetBuffData(string key)|获取指定的Buff数据|
+|BuffController AddBuff(IBuffExecutor player,string buffKey,params object[] param)|为执行者添加Buff，返回Buff控制器|
+|BuffController AddBuff(IBuffExecutor player, IBuff buff, params object[] param)|如上重载|
+|BuffController AddBuff(IBuffExecutor player, string buffKey, float duration, params object[] param)|如上重载，可以动态设置持续时间，以添加Buff传递的时间为准|
+|BuffController AddBuff(IBuffExecutor player, IBuff buff, float duration, params object[] param)|如上重载|
+|void RemoveBuff(IBuffExecutor player)|移除指定执行者所有的Buff|
+|void RemoveBuff(IBuffExecutor player, BuffController controller)|移除指定Buff|
+|void RemoveBuff(IBuffExecutor player, IList< BuffController > controllers)|移除一组Buff|
+|void RemoveBuff< T >(IBuffExecutor player) where T : BuffController|移除指定类型的Buff|
+|void RemoveBuff(IBuffExecutor player, string key)|根据Buff标识移除|
+|bool IsContainEffect(IBuffExecutor player, string effect_key)|查询执行者正在执行的Buff有没有指定的效果|
+|bool IsContainBuff(IBuffExecutor player, string buffKey)|查询执行者是否有指定的Buff正在运行|
+|bool IsContainBuff(IBuffExecutor player, string buffKey,out BuffController controller)|查询执行者是否有指定的Buff正在运行,可返回值||
 
 创建Buff生命周期控制器BuffController的派生基类
 
@@ -89,147 +117,53 @@ BuffHandler API:
 
 	public class CustomBuffController : BuffController
 	{
-		public override void OnBuffAwake()
+		protected override void OnAdd(params object[] param)
         {
-            Debug.Log("准备添加Buff:" + Buffer.GetBuffName);
+           
         }
 
-        public override void OnBuffStart()
+        protected override void OnUpdate()
         {
-
+            
         }
 
-        public override void OnBuffUpdate()
+        protected override void OnRemove()
         {
-            Debug.Log("当前有Buff:" + Buffer.BuffName + "层数:" + BuffLayer);
+            
+           
         }
-
-        public override void OnBuffFixedUpdate()
-        {
-
-        }
-
-        public override void OnBuffRemove()
-        {
-            Debug.Log("移除Buff");
-        }
-
-        public override void OnBuffDestroy()
-        {
-            Debug.Log("Buff完全销毁");
-        }     
-
-        public override bool OnRemoveBuffCondition()
-        {
-            return base.OnRemoveBuffCondition();
-        }
-
-        public override bool OnAddBuffCondition()
-        {
-            return base.OnAddBuffCondition();
-        }      
 	}
 
 ```
 
 BuffController专门处理Buff逻辑以及生命周期。
 
-BuffController API: 希望BuffController完全自定义可以继承BuffController接口，正常情况下使用框架提供的BuffController足够。
+|BuffController API|Buff控制器API|
+|---|---|
+|IBuffExecutor Player { get; }|绑定的执行者对象|
+|IBuff Buff { get; }|绑定的Buff配置|
+|float ExistedTime { get; }|当前Buff已运行的时间|
+|virtual float Duration { get;set; }|可重写的持续时间属性。如果Buff是无限时间的，则默认该属性为-1|
+|float Progress { get; }|当前Buff的进度，如果Buff是无限时间的，则返回-1 否则返回进度(0-1)|
+|--|--|
+|可重写方法一览|Level:protected|
+|virtual bool OnAddBuffCondition()|可重写的是否能添加Buff的条件设置，默认为True，当该方法返回False时该Buff不能被任何对象添加|
+|virtual void OnAdd(params object[] param) { }|当Buff添加|
+|virtual void OnUpdate() { }|当Buff更新|
+|virtual void OnFixedUpdate()|当Buff间隔|
+|virtual void OnLateUpdate|当Buff晚于更新|
+|virtual void OnRemove()|当Buff被移除|
 
-
-      //每一次Buff启动或者叠加的时候都会调用的回调,同时会得到层级
-    - Action<int> onBuffStart { get; set; } 
-
-	
-	  //Buff正在执行时会持续触发的回调,参数是Buff的剩余进度(1-0)
-	- Acion<float> onBuffReleasing { get; set; }
-
-      
-      //每一次Buff移除的时候执行，如果Buff是叠加了多层的且开启了缓慢减少，则每次减少一层都会调用一次该回调,同时会得到移除Buff后的层级
-    - Action<int> onBuffRemove { get; set; }
-   
-    //Controller执行期间的Buff
-    - IBuff Buffer { get; }
-
-    //BuffKey属性定义。
-    - string BuffKey => Buffer.GetBuffKey;
-
-    //当前Buff的层数
-    - int BuffLayer { get; }
-
-    //在BuffHandler创建Buff时绑定的玩家/主角(必须继承IBuffExecutor的)
-    - IBuffExecutor Player { get; }
-
-    - BuffHandler Handler{ get; }//控制器可以获取到与对象绑定的控制中枢。
-
-    //Buff设置的最大时间的属性定义
-    - float MaxTime => Buffer.BuffTimer;
-    
-    //当前Buff剩余时间
-    - float RemainingTime { get; }
-
-    //当前Buff的剩余进度(1-0);
-    - float RemainProgress{ get; }
-
-    ///------- 生命周期API：
-
-    /// <summary>
-    /// 内部的Buff添加条件，默认为True，当需要内部处理添加Buff的逻辑或者比如希望自己手动限制叠加的层数时可以使用
-    /// </summary>
-    /// <returns></returns>
-    - public virtual bool OnAddBuffCondition() => true;
-    
-    /// <summary>
-    /// 内部的Buff移除条件，默认为False，如需在内部处理移除Buff的逻辑可以使用，当该方法内返回True时，该Buff会被移除
-    /// </summary>
-    /// <returns></returns>
-    - public virtual bool OnRemoveBuffCondition() => false;
-    
-    /// <summary>
-    /// 除了可同时存在的Buff之外，同一Buff下，无论添加多少层，只要Buff存在，该Awake也仅只有第一次创建的时候调用。
-    /// </summary>
-    - public abstract void OnBuffAwake();
-    
-    /// <summary>
-    /// 每一次Buff启动或者叠加的时候都会调用
-    /// </summary>
-    - public abstract void OnBuffStart();	
-    
-    - public virtual void OnBuffUpdate() { }
-    
-    - public virtual void OnBuffFixedUpdate() { }	
-    
-    /// <summary>
-    /// 每一次Buff移除的时候执行，如果Buff是叠加了多层的且开启了缓慢减少，则每次减少一层都会调用一次该方法
-    /// </summary>
-    - public abstract void OnBuffRemove();
-    
-    /// <summary>
-    /// 只有当该Buff完全销毁时才执行该方法。
-    /// </summary>
-    - public virtual void OnBuffDestroy(){ }		
-
-回到刚才的AttackBuff
-``` csharp
-    [BindBuffController(typeof(CustomBuffController))]//添加绑定控制器特性，让这个Buff识别控制器
-    public class AttackBuff : Buff
-    {
-    	//ToDo
-    }
-```
-
-Buff管理套件：BuffKit类，使用如下:
+基本使用如下:
 
 ``` csharp
     public class TestScripts : MonoBehaviour,IBuffExecutor
     {
         public BuffDataBase dataBase;
-
-        private BuffHandler handler;
-        public BuffHandler Handler => handler;
+       
         void Start()
         {
-            handler = GetComponent<BuffHandler>();
+           
             BuffKit有多种方式进行对Buff配置的初始化：
 
              //当需要加载时，BuffKit依赖框架XFABManager模块，传入模块名：
@@ -245,6 +179,16 @@ Buff管理套件：BuffKit类，使用如下:
 
         //外部的添加条件方法
         bool IBuffExecutor.OnAddBuffCondition() => true;
+
+        public void OnAdd(BuffController controller)
+        {
+        
+        }
+
+        public void OnRemove(BuffController controller)
+        {
+        
+        }
     }
 
     ///自定义加载器
@@ -263,65 +207,4 @@ Buff管理套件：BuffKit类，使用如下:
         }
     }
 ```
-
-简单完整示例如下:
-
-``` csharp
-    public class TestScripts : MonoBehaviour,IBuffExecutor
-    {
-        public BuffDataBase dataBase;
-        public BuffHandler Handler => handler;
-        private BuffHandler handler;
-        void Start()
-        {
-            BuffKit.LoadBuffDataBase(dataBase);
-            handler = this.GetOrAddComponent<BuffHandler>();
-            handler.SetUIBuffHandlerGroup(FindObjectOfType<UIBuffHandlerGroup>());
-
-
-        }
-
-        void Update()
-        {
-            if(Input.GetMouseButtonDown(0))
-            {
-                handler.AddBuff(BuffKit.GetBuffByKey("Buff_Attack"),gameObject);
-            }
-        }
-
-        //外部的添加条件方法
-        bool IBuffExecutor.OnAddBuffCondition() => true;
-    }
-```
-
-BuffKit static API:
-
-    //使用XFABManager加载时，传入配置名。
-    - void InitBuffLoader(string projectName);
-
-    //传入自定义的加载器
-    - void InitBuffLoader(IBuffLoader loader)；
-
-    //根据路径获得DataBase
-    - void LoadBuffDataBase(string dataBasePath);
-
-    //异步获取
-    - IEnumerator LoadBuffDataBaseAsync(string dataBasePath)；
-
-    //直接传递配置
-    - void LoadBuffDataBase(BuffDataBase buffDataBase)；
-
-    //根据标识获取Buff
-    - IBuff GetBuffByKey(string key)；
-
-    //绑定控制器，当没有给Buff标记特性时，使用该方法进行控制器绑定
-    - void BindController<T>(string buffKey) where T : BuffController
-
-    //手动添加Buff
-    - void AddBuff(IBuff buff);
-
-    //绑定本地化配置
-    - void DependLocalizationConfig(string configKey,char spilt = ':')
-
-
 

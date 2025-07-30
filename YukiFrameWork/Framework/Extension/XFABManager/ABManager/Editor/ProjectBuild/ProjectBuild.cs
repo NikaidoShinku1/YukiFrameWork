@@ -137,7 +137,7 @@ namespace XFABManager
 
             ProjectBuildInfo buildInfo = new ProjectBuildInfo();
             buildInfo.bundleInfos = BuildBundlesInfo(project,buildTarget);
-            buildInfo.dependenceProject = project.GetAllDependencies();
+            buildInfo.dependenceProject = Array.Empty<string>();
             buildInfo.displayName = project.displayName;
             buildInfo.projectName = project.name;
             buildInfo.suffix = project.suffix;

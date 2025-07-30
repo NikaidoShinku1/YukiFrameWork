@@ -14,6 +14,7 @@ using System.Collections;
 using XFABManager;
 using System.Reflection;
 using YukiFrameWork.Pools;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork.Skill
 {
 	internal class SkillBindder
@@ -84,8 +85,7 @@ namespace YukiFrameWork.Skill
 
 		public static void AddSkill(ISkillData skill)
 		{
-            BindSkillControllerAttribute bind = skill.GetType().GetCustomAttribute<BindSkillControllerAttribute>();
-            Type cType = bind != null ? bind.controllerType : null;
+			Type cType = AssemblyHelper.GetType(skill.SkillControllerType);
             skills.Add(skill.SkillKey, new SkillBindder() {skillData = skill, controllerType = cType });
         }
 
@@ -106,13 +106,9 @@ namespace YukiFrameWork.Skill
                 throw new Exception("没有对应的Skill标识，如果需要新增Skill并绑定请先使用SkillKit.AddSkill!如果是来自SkillDataBase管理的Skill，请先调用SkillKit.LoadSkillDataBase!");
             }
 
-            Bind(bindder, type);
         }
 
-        private static void Bind(SkillBindder buffBindder, Type type)
-        {
-            buffBindder.controllerType = type;
-        }
+       
 
         internal static SkillController CreateSkillController(string SkillKey)
         {
@@ -128,7 +124,7 @@ namespace YukiFrameWork.Skill
             return GlobalObjectPools.GlobalAllocation(bindder.controllerType) as SkillController;
         }  
 
-        public static ISkillData GetSkillDataByKey(string skillKey)
+        public static ISkillData GetSkillDataByKey(string skillKey) 
 		{
 			if (skills.TryGetValue(skillKey, out var bindder))
 				return bindder.skillData;
