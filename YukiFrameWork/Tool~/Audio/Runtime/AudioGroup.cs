@@ -31,6 +31,17 @@ namespace YukiFrameWork.Audio
         
         internal static RuntimeAudioGroups runtimeAudioGroups = new RuntimeAudioGroups();
 
+        internal static void StopAll(AudioPlayType audioPlayType)
+        {
+            if (!runtimeAudioGroups.TryGetValue(audioPlayType, out var dicts))
+            {
+                return;
+            }
+            foreach (var item in dicts.Values)
+            {
+                item.Stop();
+            }
+        }
         static AudioGroup()
         {
             for (AudioPlayType audioPlayType = AudioPlayType.Music; audioPlayType <= AudioPlayType.Sound; audioPlayType++)            
@@ -128,11 +139,13 @@ namespace YukiFrameWork.Audio
         /// <param name="clip"></param>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        public AudioPlayer Play(AudioClip clip)
+        public AudioPlayer Play(AudioClip clip,Transform parent = null)
         {
             if (clip == null)
                 throw new NullReferenceException("丢失音频无法播放");
             if (!CheckPlaySound(clip.name)) return null;
+            if (!groupInfo.parent)           
+                groupInfo.parent = parent ? parent : AudioManager.Instance.transform;          
             return PlayInternal(clip.name, clip, null);
         }
         /// <summary>
@@ -335,7 +348,7 @@ namespace YukiFrameWork.Audio
         public void Resume(string name)
         {
             if (AudioPlayType != AudioPlayType.Sound)
-                throw new InvalidCastException("调用暂停方法所属的音频分组不为Sound层，无法进行精确暂停,请调用无参Pause重载!");
+                throw new InvalidCastException("调用暂停方法所属的音频分组不为Sound层，无法进行精确暂停,请调用无参Resume重载!");
 
             foreach (var item in soundActivities.Values)
             {
@@ -381,7 +394,7 @@ namespace YukiFrameWork.Audio
         public void Stop(string name)
         {
             if (AudioPlayType != AudioPlayType.Sound)
-                throw new InvalidCastException("调用暂停方法所属的音频分组不为Sound层，无法进行精确暂停,请调用无参Pause重载!");
+                throw new InvalidCastException("调用暂停方法所属的音频分组不为Sound层，无法进行精确暂停,请调用无参Stop重载!");
 
             foreach (var item in soundActivities.Values)
             {
@@ -446,7 +459,7 @@ namespace YukiFrameWork.Audio
             AudioPlayer audioPlayer = null;
 
             if (AudioPlayType == AudioPlayType.Sound)
-            {
+            {              
                 audioPlayer = SoundActivitiesExist(clipNameOrPath);
                 if (audioPlayer == null)
                 {

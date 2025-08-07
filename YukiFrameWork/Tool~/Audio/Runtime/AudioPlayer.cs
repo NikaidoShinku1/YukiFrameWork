@@ -48,7 +48,7 @@ namespace YukiFrameWork.Audio
 
         public string ClipName
         {
-            get => IsAudioSource ? mAudioSource.clip.name : string.Empty;
+            get => IsAudioSource && mAudioSource.clip ? mAudioSource.clip.name : string.Empty;
         }
         
         public void SetAudio(Transform target,AudioClip clip, bool loop, Action<float> onStartCallback, Action<float> onEndCallback,bool isRealTime,IAudioLoader loader,AudioSourceSoundSetting soundSetting)

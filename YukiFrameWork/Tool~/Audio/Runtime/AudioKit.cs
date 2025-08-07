@@ -155,7 +155,65 @@ namespace YukiFrameWork.Audio
             }
             return loader;
         }
+        [Obsolete("过时的播放音乐方法，请使用AudioKit.Music()进行对Music层的音频播放")]
+        public static void PlayMusic(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlayMusic方法已不再支持实现,请调用AudioKit.Music()方法!");
+        }
 
+        [Obsolete("过时的播放人声方法，请使用AudioKit.Voice()进行对Voice层的音频播放")]
+        public static void PlayVoice(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlayVoice方法已不再支持实现,请调用AudioKit.Voice()方法!");
+        }
+
+        [Obsolete("过时的播放音效方法，请使用AudioKit.Sound()进行对Sound层的音频播放")]
+        public static void PlaySound(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlaySound方法已不再支持实现,请调用AudioKit.Sound()方法!");
+        }
+
+        [Obsolete("过时的播放音乐方法，请使用AudioKit.Music()进行对Music层的音频播放")]
+        public static void PlayMusicAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlayMusic方法已不再支持实现,请调用AudioKit.Music()方法!");
+        }
+
+        [Obsolete("过时的播放人声方法，请使用AudioKit.Voice()进行对Voice层的音频播放")]
+        public static void PlayVoiceAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlayVoice方法已不再支持实现,请调用AudioKit.Voice()方法!");
+        }
+
+        [Obsolete("过时的播放音效方法，请使用AudioKit.Sound()进行对Sound层的音频播放")]
+        public static void PlaySoundAsync(string name, bool loop = true, Action<float> onStartCallback = null, Action<float> onEndCallback = null, bool isRealTime = false, AudioSourceSoundSetting setting = default)
+        {
+            throw new Exception("PlaySound方法已不再支持实现,请调用AudioKit.Sound()方法!");
+        }
+        
+        /// <summary>
+        /// 停止所有的Music层播放
+        /// </summary>
+        public static void StopAllMusic()
+        {
+            AudioGroup.StopAll(AudioPlayType.Music);
+        }
+
+        /// <summary>
+        /// 停止所有的Voice层播放
+        /// </summary>
+        public static void StopAllVoice()
+        {
+            AudioGroup.StopAll(AudioPlayType.Voice);
+        }
+
+        /// <summary>
+        /// 停止所有的Sound层播放
+        /// </summary>
+        public static void StopAllSound()
+        {
+            AudioGroup.StopAll(AudioPlayType.Sound);
+        }
         /// <summary>
         /// 获取已经被创建的加载器，可以手动通过加载器卸载音频，加载器名称与音频名称相同
         /// </summary>

@@ -74,6 +74,10 @@ namespace YukiFrameWork.Audio
 		[InfoBox("音频的播放类型,Music用于背景音乐，Voice用于人声，Sound可以用于音效或者多个音频播放,\n特别提示:当使用Sound类型播放时，AudioSource会被添加在持有AudioInfo的这个对象上")
 			,LabelText("音频的播放方式"),Space]
 		[SerializeField] internal AudioPlayType playType;
+		[field:SerializeField,LabelText("音频的分组名称")]
+		[field:InfoBox("可为空，为空则使用框架默认分组")]
+        [field:BoxGroup(info)]
+        public string GroupName { get; set; }
         [field: BoxGroup(info)]
         [field: LabelText("是否在运行时自动播放")]
 		[field: SerializeField,DisableIf(nameof(isPlaying))]		
@@ -194,13 +198,13 @@ namespace YukiFrameWork.Audio
             {
                 case AudioPlayType.Music:
 
-					AudioKit.Music().SetAudioInfo(this).Play(Clip);
+					AudioKit.Music(GroupName).SetAudioInfo(this).Play(Clip);
                     break;
                 case AudioPlayType.Voice:
-					AudioKit.Voice().SetAudioInfo(this).Play(Clip);
+					AudioKit.Voice(GroupName).SetAudioInfo(this).Play(Clip);
                     break;
                 case AudioPlayType.Sound:
-					AudioKit.Sound().SetAudioInfo(this).Play(Clip);
+					AudioKit.Sound(GroupName).SetAudioInfo(this).Play(Clip);
 
                     break;
             }
@@ -211,13 +215,13 @@ namespace YukiFrameWork.Audio
 			switch (playType)
 			{
 				case AudioPlayType.Music:
-					AudioKit.Music().Stop();
+					AudioKit.Music(GroupName).Stop();
                     break;
 				case AudioPlayType.Voice:
-					AudioKit.Voice().Stop();
+					AudioKit.Voice(GroupName).Stop();
 					break;
 				case AudioPlayType.Sound:
-					AudioKit.Sound().Stop(currentClipName);
+					AudioKit.Sound(GroupName).Stop(currentClipName);
 					break;				
 			}
 
