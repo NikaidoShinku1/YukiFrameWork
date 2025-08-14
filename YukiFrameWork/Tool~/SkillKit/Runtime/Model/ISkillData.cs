@@ -44,16 +44,13 @@ namespace YukiFrameWork.Skill
 		/// <summary>
 		/// 技能释放时间
 		/// </summary>
-		float RealeaseTime { get; set; }
+		float ReleaseTime { get; set; }
 		
 		/// <summary>
 		/// 技能冷却时间
 		/// </summary>
 		float CoolDownTime { get; set; }
-		/// <summary>
-		/// 技能是否可以被中途打断
-		/// </summary>
-		bool SkillInterruption { get; set; }
+		
 		/// <summary>
 		/// 可以同时释放的技能标识
 		/// </summary>

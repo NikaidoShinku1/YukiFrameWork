@@ -65,18 +65,13 @@ namespace YukiFrameWork.Skill
         private bool activeCancellation;
         [JsonIgnore, ExcelIgnore]
         public bool ActiveCancellation { get => activeCancellation; set => activeCancellation = value; }
-
-        [SerializeField, LabelText("技能是否是可以被中途打断的")]
-        [JsonProperty]
-        private bool skillInterruption;
-        [JsonIgnore, ExcelIgnore]
-        public bool SkillInterruption { get => skillInterruption; set => skillInterruption = value; }
+        
         [JsonIgnore, ExcelIgnore]
         private bool IsNotReleaseAndIsInfin => IsInfiniteTime;
         [SerializeField, LabelText("技能释放时间"), JsonProperty(), HideIf(nameof(IsNotReleaseAndIsInfin))]
         private float releaseTime;
         [JsonIgnore, ExcelIgnore]
-        public float RealeaseTime
+        public float ReleaseTime
         {
             get => releaseTime;
             set

@@ -11,13 +11,11 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Skill
 {
+	/// <summary>
+	/// 技能释放者
+	/// </summary>
 	public interface ISkillExecutor
-	{
-		/// <summary>
-		/// 技能中枢管理者
-		/// </summary>
-		SkillHandler Handler { get; }	
-
+	{				
 		/// <summary>
 		/// 全局的是否可以释放技能API，当执行者的IsCanRelease为False时，什么技能都无法释放。
 		/// </summary>

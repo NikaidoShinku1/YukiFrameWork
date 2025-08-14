@@ -36,7 +36,6 @@ public class InvisibleSkill : SkillData
 |bool ActiveCancellation|技能是否可以主动取消释放|
 |float RealeaseTime|技能释放时间(当没有开启无限时间时)|
 |float CoolDownTime|技能冷却时间|
-|bool SkillInterruption|技能是否可以在释放时中途打断|
 |string[] SimultaneousSkillKeys|可以同时释放的技能标识|
 |string SkillControllerType|技能控制器绑定类型|
 
@@ -52,7 +51,7 @@ public class InvisibleSkill : SkillData
     public float speed;//技能速度
 }
 
-//控制器属于IController层，SkillController基类继承AbstractController，可使用自动化架构特性
+//控制器属于IController层，可使用自动化架构特性
 [RuntimeInitializeOnArchitecture(typeof(World))]
 public class InvisibleSkillController : SkillController
 {
@@ -72,19 +71,23 @@ public class InvisibleSkillController : SkillController
 |SkillController Property API|技能控制器属性API说明|
 |--|--|
 |ISkillExecutor Player|释放技能的对象，ISkillExecutor为技能释放者接口|
-|SkillHandler Handler |技能的运行周期类(控制中枢)|
-|Action(float) onCooling|当技能正在冷却时持续触发的回调|
-|Action(float) onReleasing|当技能正在释放中持续触发的回调|
-|Action onCoolingComplete|当技能冷却结束时触发的回调|
-|Action onReleaseComplete|当技能释放结束时触发的回调|
+|Action(SkillController) onStartCooling|当技能开始冷却时触发的回调|
+|Action(SkillController, float) onCooling; |当技能正在冷却中持续触发的回调|
+|Action(SkillController,float) onReleasing|当技能释放中触发的回调|
+|Action(SkillController) onCoolingComplete|当技能冷却结束时触发的回调|
+|Action(SkillController) onReleaseComplete|当技能释放结束时触发的回调|
+|Action(SkillController) onInterrup|当技能被打断时触发的回调|
 |ISkillData SkillData|技能配表|
 |bool IsSkillRelease|技能是否正在释放|
-|float ReleasingTime|技能已经释放的时间|
+|float ReleasingTime|技能释放持续时间(初始由配表决定，可修改)|
+|virtual float ReleasingTimer { get; set; }|技能已经释放的时间|
+|virtual float CoolDownTimer { get; set; }|技能已经冷却的时间|
 |float ReleasingProgress|当前技能释放进度(0-1)|
 |bool IsSkillCoolDown|是否冷却完成?|
-|float CoolDownTime|已经冷却的时间|
-|float CoolDownProgress|冷却进度(0,1)|
-
+|float CoolDownTime|技能冷却的时间(初始由配表决定，可修改)|
+|float CoolDownProgress|冷却进度(0-1)|
+|bool ActiveCancellation { get; set; }|是否能够主动取消(初始由配表决定)|
+|ReleaseSkillStatus ReleaseSkillStatus { get; }|当前的技能状态|
 |SkillController Method API|技能控制器生命周期方法API说明|
 |---|---|
 |bool IsCanRelease()|是否可以释放技能，当返回False时，技能无法释放|
@@ -101,13 +104,8 @@ public class InvisibleSkillController : SkillController
 |void OnDestroy()|当技能销毁触发|
 
 |ISkillExecutor API|技能释放者接口API|
-|SkillHandler Handler|技能中枢属性|
+|--|--|
 |bool IsCanRelease()|全局的是否可以释放技能API，当执行者的IsCanRelease为False时，什么技能都无法释放|
-
-
-
-完成控制器与配表搭建后，为游戏对象添加SkillHandler组件
-![4](Texture/4.png)
 
 对Skill进行全局的初始化:
 
@@ -153,6 +151,23 @@ public class World : Architecture<World>
 |void BindController(string SkillKey)|绑定控制器方法(泛型)，如果没有绑定特性则需要调用这个方法|
 |ISkillData GetSkillDataByKey(string skillKey)|通过标识得到某一个技能配置|
 |IEnumerator LoadSkillDataBaseAsync(string path)|异步加载so配表|
+|SkillController[] AddSkills(this ISkillExecutor executor, params string[] skillKeys)|添加一组技能|
+|SkillController[] AddSkills(this ISkillExecutor executor, params ISkillData[] skills)|如上重载|
+|SkillController AddSkill(this ISkillExecutor executor, string skillKey)|添加技能|
+|SkillController AddSkill(this ISkillExecutor executor, ISkillData skill)|添加技能|
+|SkillController GetSkillController(this ISkillExecutor executor, string key)|获取执行者指定的技能|
+|ReleaseSkillStatus ReleaseSkill(this ISkillExecutor executor, string skillKey, params object[] param)|释放技能|
+|Dictionary<string,SkillController> GetSkillControllers(this ISkillExecutor executor)|获取执行者所有的技能|
+|SkillController[] GetSkillControllersToArray(this ISkillExecutor executor)|如上重载|
+|void CancelSkill(this ISkillExecutor executor, string skillKey)|取消技能释放(受到配表设置影响)|
+|void InterruptionSkill(this ISkillExecutor executor,string skillKey)|打断技能释放|
+|void InterruptionAllSkills(this ISkillExecutor executor)|打断所有的技能释放|
+|bool IsReleasingSkills(this ISkillExecutor executor)|执行者是否正在放技能|
+|void ResetSkillCoolingTime(this ISkillExecutor executor, string skillKey)|重置技能冷却时间|
+|void ResetAllSkillsCoolingTime(this ISkillExecutor executor)|重置所有技能冷却时间|
+|void RemoveSkill(this ISkillExecutor executor, string skillKey)|删除技能|
+|void RemoveSkills(this ISkillExecutor executor, params string[] skillKeys)|删除一组技能|
+|void RemoveAllSkills(this ISkillExecutor executor)|删除执行者所有的技能|
 
 //为玩家脚本添加ISkillExecutor接口，标识为技能释放者
 
@@ -161,10 +176,7 @@ public class World : Architecture<World>
 using YukiFrameWork.Skill;
 
 public class Player : ViewController,ISkillExecutor
-{
-    private SkillHandler handler;
-    public SkillHandler Handler => handler;
-
+{  
     public bool IsCanRelease()
     {
         return true;
@@ -172,11 +184,11 @@ public class Player : ViewController,ISkillExecutor
 
     void Awake()
     {
-        handler = GetComponent<SkillHandler>();
-        //添加技能
-        handler.AddSkills(this,"Invisible");
-        //释放技能
-        handler.ReleaseSkill("Invisible")
+       
+        //添加技能(拓展) SkillKit.AddSkills(this,"Invisible");
+        this.AddSkills("Invisible");
+        //释放技能(拓展) SkillKit.ReleaseSkill(this,"Invisible");
+        this.ReleaseSkill("Invisible")
     }
 
     void Start()
@@ -185,21 +197,3 @@ public class Player : ViewController,ISkillExecutor
     }
 }
 ```
-
-|SkillHandler Method API|技能释放周期中枢 API|
-|-|-|
-|UnityEvent(ISkillController) onAddSkillEvent|当技能添加时触发|
-|UnityEvent(ISkillController) onRemoveSkillEvent|当技能移除时触发|
-|void AddSkills(ISkillExecutor player,params string[] skillKeys)|添加多个技能|
-|ISkillController AddSkill(ISkillExecutor player, ISkillData skill)|添加指定的技能，返回对应的技能控制器|
-|ISkillController GetSkillController(string skillKey)|通过标识获得某一个已经添加的技能|
-|ReleaseSkillStatus ReleaseSkill(string skillKey, params object[] param)|释放技能，可传递参数，返回技能的释放结果|
-|void RemoveSkill(string skillKey)|移除某一个技能|
-|void RemoveAllSkills()|移除所有的技能|
-|void ResetSkillCoolingTime(string skillKey)|重置指定技能的冷却时间|
-|void ResetSkillReleasingTime(string skillKey)|重置指定技能的释放时间|
-|void CancelSkill(string skillKey)|取消某一个技能的释放|
-|void InterruptionAllSkills()|打断所有技能的释放|
-|bool IsReleasingSkill|该角色是否正在释放技能|
-|void InterruptionSkill(string skillKey)|打断指定技能的释放|
-|ISkillController[] GetAllSkillControllers()|获取所有的技能控制器|

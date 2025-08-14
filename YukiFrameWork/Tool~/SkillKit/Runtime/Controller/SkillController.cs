@@ -11,13 +11,14 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using YukiFrameWork.Pools;
+using System.Linq;
 namespace YukiFrameWork.Skill
 {
-    public abstract class SkillController : AbstractController,IGlobalSign
+    public abstract class SkillController : IController,IGlobalSign
     {
         void IGlobalSign.Init()
         {
-            OnInit();
+            
         }
 
         bool IGlobalSign.IsMarkIdle { get; set; }
@@ -34,18 +35,36 @@ namespace YukiFrameWork.Skill
             onCoolingComplete = null;
             onInterrup = null;
             fixedTimer = 0;
+            CoolDownTime = 0;
+            ReleaseTime = 0;
+            ActiveCancellation = false;
             SimultaneousSkillKeys.Clear();
         }
 
-        public ISkillExecutor Player { get;internal set; }
+        /// <summary>
+        /// 技能的执行者
+        /// </summary>
+        public ISkillExecutor Player { get;internal set; }     
 
-        public SkillHandler Handler => Player.Handler;      
-
+        /// <summary>
+        /// 技能的配置数据
+        /// </summary>
         public ISkillData SkillData { get; set; }    
 
+        /// <summary>
+        /// 技能是否正在释放
+        /// </summary>
         public bool IsSkillRelease { get; internal set; }
 
-        public float ReleasingTime { get; internal set; }           
+        /// <summary>
+        /// 技能释放时间
+        /// </summary>
+        public float ReleaseTime { get; internal set; }  
+        
+        /// <summary>
+        /// 技能释放计时
+        /// </summary>
+        public virtual float ReleasingTimer { get; set; }
 
         public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();
 
@@ -61,13 +80,41 @@ namespace YukiFrameWork.Skill
                 if (SkillData.IsInfiniteTime)
                     return 1;
 
-                return ReleasingTime / SkillData.RealeaseTime;
+                return Mathf.Clamp01(ReleasingTimer / ReleaseTime);
             }
         }
 
-        public bool IsSkillCoolDown { get;internal set; } = true;
+        private bool isSkillCoolDown;
+        public bool IsSkillCoolDown
+        {
+            get => isSkillCoolDown;
+            set
+            {
+                if (isSkillCoolDown == value) return;
+                isSkillCoolDown = value;
+                CoolDownTimer = 0;
+                if (isSkillCoolDown)
+                {                                   
+                    onCoolingComplete?.Invoke(this);
+                    OnCoolingComplete();
+                }
 
+            }
+        }
+        /// <summary>
+        /// 技能冷却时间
+        /// </summary>
         public float CoolDownTime { get;internal set; }
+
+        /// <summary>
+        /// 技能冷却计时
+        /// </summary>
+        public virtual float CoolDownTimer { get; set; }
+
+        /// <summary>
+        /// 是否能够主动取消
+        /// </summary>
+        public bool ActiveCancellation { get; set; }      
 
         public float CoolDownProgress
         {
@@ -76,61 +123,118 @@ namespace YukiFrameWork.Skill
                 if (SkillData == null)
                     return 0;
 
-                return CoolDownTime / SkillData.CoolDownTime;
+                return Mathf.Clamp01(CoolDownTimer / CoolDownTime);
             }
         }
+
+        /// <summary>
+        /// 当前技能状态
+        /// </summary>
+        public ReleaseSkillStatus ReleaseSkillStatus
+        {
+            get
+            {
+                if(!Player.IsCanRelease())
+                    return ReleaseSkillStatus.ExecutorCannotRelease;
+                if (!IsCanRelease())
+                    return ReleaseSkillStatus.DonotMeetTheCondition;
+
+                if (IsSkillRelease)
+                    return ReleaseSkillStatus.Releasing;
+
+                if (IsSkillCoolDown)
+                    return ReleaseSkillStatus.InCooling;
+
+                if (!SkillKit.CheckRuntimeSkillRelease(SkillKit.GetSkillControllers(Player), SkillData.SkillKey))
+                    return ReleaseSkillStatus.OtherReleasing;
+
+                return ReleaseSkillStatus.Success;
+            }
+        }
+
         #region EventTrigger    
-        public Action<SkillController> onStartCooling { get; set; }
-        public Action<SkillController,float> onCooling { get; set; }
-        public Action<SkillController,float> onReleasing { get; set; }
-        public Action<SkillController> onCoolingComplete { get; set; }
-        public Action<SkillController> onReleaseComplete { get; set; }
-        public Action<SkillController> onInterrup { get; set; }  
+        public event Action<SkillController> onStartCooling;
+        public event Action<SkillController, float> onCooling; 
+        public event Action<SkillController,float> onReleasing; 
+        public event Action<SkillController> onCoolingComplete; 
+        public event Action<SkillController> onReleaseComplete;
+        public event Action<SkillController> onInterrup;
         
         #endregion        
 
-        public static bool ReleaseController(SkillController controller)
+        internal static bool ReleaseController(SkillController controller)
         {
             return GlobalObjectPools.GlobalRelease(controller);
         }
 
+        internal static SkillController CreateInstance(ISkillExecutor executor,ISkillData skill, Type type)
+        {
+            if (!type.IsSubclassOf(typeof(SkillController))) throw new InvalidCastException($"技能控制器类型不正确 Type:{type}");
+            SkillController controller = GlobalObjectPools.GlobalAllocation(type) as SkillController;
+            controller.Player = executor;
+            controller.SkillData = skill;
+            controller.CoolDownTime = skill.CoolDownTime;
+            controller.ReleaseTime = skill.ReleaseTime;
+            controller.IsSkillCoolDown = true;
+            controller.ActiveCancellation = skill.ActiveCancellation;
+            if(skill.SimultaneousSkillKeys != null && skill.SimultaneousSkillKeys.Length != 0)
+                controller.SimultaneousSkillKeys = skill.SimultaneousSkillKeys.ToList();
+            controller.OnAwake();
+            return controller;
+        }
+
+        /// <summary>
+        /// 技能是否能被释放(默认返回True)
+        /// </summary>
+        /// <returns></returns>
         public virtual bool IsCanRelease()
         {
             return true;
         }
 
+        /// <summary>
+        /// 技能是否能够完成(默认返回True)
+        /// <para>Tips:当技能不受时间限制，需要重写该属性自行定义对技能的结束</para>
+        /// </summary>
+        /// <returns></returns>
         public virtual bool IsComplete()
         {
             return true;
         }
 
+        /// <summary>
+        /// 技能构建触发
+        /// </summary>
         public abstract void OnAwake();
         
+        /// <summary>
+        /// 技能冷却触发
+        /// </summary>
         public virtual void OnCooling()
         {
             
         }
 
+        /// <summary>
+        /// 技能冷却完成触发
+        /// </summary>
         public virtual void OnCoolingComplete()
         {
             
         }
 
+        /// <summary>
+        /// 技能销毁触发
+        /// </summary>
         public abstract void OnDestroy();     
 
         public virtual void OnFixedUpdate()
         {
             
-        }
-
+        }        
         /// <summary>
-        /// 这个Init方法会在Awake之前执行
+        /// 技能被打断触发
         /// </summary>
-        public override void OnInit()
-        {
-            
-        }
-
         public virtual void OnInterruption()
         {
             
@@ -141,11 +245,18 @@ namespace YukiFrameWork.Skill
            
         }
 
+        /// <summary>
+        /// 技能释放
+        /// </summary>
+        /// <param name="param"></param>
         public virtual void OnRelease(params object[] param)
         {
             
         }
 
+        /// <summary>
+        /// 技能释放完成
+        /// </summary>
         public virtual void OnReleaseComplete()
         {
             
@@ -155,5 +266,109 @@ namespace YukiFrameWork.Skill
         {
             
         }
+        #region Internal
+        internal void Update()
+        {
+
+            if (IsSkillRelease)
+            {
+                ReleasingTimer += Time.deltaTime;
+                onReleasing?.Invoke(this, ReleasingProgress);
+                OnUpdate();
+
+                if ((ReleasingTimer >= ReleaseTime || SkillData.IsInfiniteTime) && IsComplete())
+                {
+                    ReleasingTimer = 0;
+                    IsSkillRelease = false;
+                    onReleaseComplete?.Invoke(this);
+                    OnReleaseComplete();
+
+                }
+            }
+            else
+            {
+                if (!IsSkillCoolDown)
+                {
+                    if (CoolDownTimer == 0)
+                    {
+                        onStartCooling?.Invoke(this);
+                    }
+                    CoolDownTimer += Time.deltaTime;
+                    onCooling?.Invoke(this, CoolDownProgress);
+                    OnCooling();
+
+                    if (CoolDownTimer >= CoolDownTime)
+                    {
+                        IsSkillCoolDown = true;                       
+                    }
+                }
+            }
+        }
+
+        internal void FixedUpdate()
+        {
+            if (IsSkillRelease)
+            {
+                //防止卡顿导致技能在FixedUpdate执行达不到预期
+                if (fixedTimer - ReleasingTimer > Time.fixedDeltaTime * 2)
+                    return;
+                fixedTimer += Time.fixedDeltaTime;
+
+                OnFixedUpdate();
+            }
+        }
+
+        internal void LateUpdate()
+        {
+            if (IsSkillRelease)
+            {
+                OnLateUpdate();
+            }
+        }
+
+        internal void Interrput()
+        {
+            if (!IsSkillRelease) return;
+            IsSkillRelease = false;
+            ReleasingTimer = 0;
+            onInterrup?.Invoke(this);
+            OnInterruption();
+            onReleaseComplete?.Invoke(this);
+            OnReleaseComplete();
+        }
+        #endregion
+
+        #region Architecture
+        private object _object = new object();
+        private IArchitecture mArchitecture;
+
+        /// <summary>
+        /// 可重写的架构属性,不使用特性初始化时需要重写该属性
+        /// </summary>
+        protected virtual IArchitecture RuntimeArchitecture
+        {
+            get
+            {
+                lock (_object)
+                {
+                    if (mArchitecture == null)
+                        Build();
+                    return mArchitecture;
+                }
+            }
+        }
+        IArchitecture IGetArchitecture.GetArchitecture()
+        {
+            return RuntimeArchitecture;
+        }
+
+        internal void Build()
+        {
+            if (mArchitecture == null)
+            {
+                mArchitecture = ArchitectureConstructor.I.Enquene(this);
+            }
+        }
+        #endregion
     }
 }
