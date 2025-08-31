@@ -105,12 +105,16 @@ namespace YukiFrameWork.Skill
 #if UNITY_EDITOR
         private void DrawPreview()
         {
-
+            UnityEditor.EditorGUI.BeginChangeCheck();
             GUILayout.BeginHorizontal();
 
             GUILayout.Label("技能图标");
             icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
             GUILayout.EndHorizontal();
+            if (UnityEditor.EditorGUI.EndChangeCheck())
+            {
+                this.Save();
+            }
         }
 #endif
 

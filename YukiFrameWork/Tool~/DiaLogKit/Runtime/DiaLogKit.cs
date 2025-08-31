@@ -12,362 +12,327 @@ using System.Collections.Generic;
 using YukiFrameWork.Pools;
 using Sirenix.OdinInspector;
 using System.Linq;
+using System.Collections;
 namespace YukiFrameWork.DiaLogue
-{
-    public enum DiaLogLoadMode
-    {
-        [LabelText("默认模式")]
-        Normal,
-        [LabelText("安全模式")]
-        Safe
-    }
-
-    public enum DiaLogLoadType
-    {
-        [LabelText("内部编辑器设置")]
-        Inspector,
-        [LabelText("外部初始化")]
-        Custom
-    }
-
-    public enum DiaLogPlayMode
-    {
-        [LabelText("默认模式")]
-        Normal,
-        [LabelText("打字机")]
-        Writer
-    }
+{  
     public static class DiaLogKit 
 	{
-        private static IDiaLogLoader loader;     
-        private static Dictionary<string, DiaLog> diaLogController;
+        private static IDiaLogLoader loader;
+        private static Dictionary<string, DiaLogController> runtime_Controllers = new Dictionary<string, DiaLogController>();
 
-        public static IReadOnlyDictionary<string, DiaLog> DiaLogs => diaLogController;
-
-        static DiaLogKit()
-        {            
-            diaLogController = new Dictionary<string, DiaLog>();
-        }
-
+        internal static IReadOnlyDictionary<string, DiaLogController> RuntimeControllers => runtime_Controllers;
+        /// <summary>
+        /// 初始化加载器
+        /// </summary>
+        /// <param name="projectName"></param>
         public static void Init(string projectName)
         {
             Init(new ABManagerDiaLogLoader(projectName));
         }
-
+        /// <summary>
+        /// 初始化加载器
+        /// </summary>
+        /// <param name="projectName"></param>
         public static void Init(IDiaLogLoader loader)
         {
             DiaLogKit.loader = loader;
         }
 
-        /// <summary>
-        /// 绑定UI对话组件
-        /// </summary>
-        /// <param name="nodeKey"></param>
-        /// <param name="uiDiaLog"></param>
-        public static void Bind(string nodeKey, UIDiaLog uiDiaLog)
-            => Bind(GetDiaLogueByKey(nodeKey),uiDiaLog);
-
-        public static void Bind(DiaLog diaLog,UIDiaLog uiDiaLog)
-            => uiDiaLog.InitDiaLog(diaLog);
-
-        /// <summary>
-        /// 通过标识得到对话控制器
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static DiaLog GetDiaLogueByKey(string key)
+        [RuntimeInitializeOnLoadMethod]
+        static void Init_Update()
         {
-            diaLogController.TryGetValue(key, out DiaLog diaLog);
-            return diaLog;
-        }
-
-        /// <summary>
-        /// 创建对话控制器
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static DiaLog CreateDiaLogue(string key,string path)
-            => CreateDiaLogue(key,loader.Load<NodeTree>(path));
-    
-        public static void CreateDiaLogueAsync(string key,string path, Action<DiaLog> onCompleted)
-        {
-            loader.LoadAsync<NodeTree>(path, tree => onCompleted?.Invoke(CreateDiaLogue(key,tree)));
-        }
-
-        /// <summary>
-        /// 创建一个新的对话器
-        /// </summary>
-        /// <param name="key">标识</param>
-        /// <param name="nodeTree">对话树配置</param>
-        /// <param name="autoRelease">是否自动回收，开启后在结束运行时会将整个对话树初始化</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static DiaLog CreateDiaLogue(string key,NodeTree nodeTree)
-        {           
-            if (diaLogController.ContainsKey(key))
-            {
-                throw new Exception("当前已经存在该标识的对话控制器 Key：" + key);
-            }
-
-            var log = GlobalObjectPools.GlobalAllocation<DiaLog>();
-            log.Init(key, nodeTree);
-
-            diaLogController.Add(key, log);
-            loader?.UnLoad(nodeTree);
-            return log;
-        }
-
-        internal static bool RemoveDiaLogue(string key)
-            => diaLogController.Remove(key);
-
-        /// <summary>
-        /// 检查控制器是否启动
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static bool CheckDiaLogIsActive(string key) => diaLogController.ContainsKey(key) && diaLogController[key].treeState == NodeTreeState.Running;
-
-        public static bool OnDiaLogRelease(DiaLog diaLog)
-            => GlobalObjectPools.GlobalRelease(diaLog);
-
-        /// <summary>
-        /// 全局的节点变化事件注册(任何对话控制器执行MoveNext都会触发该回调)
-        /// </summary>
-        public readonly static EasyEvent<string,Node> onGlobalNodeChanged = new EasyEvent<string,Node>(); 
-        
-    }
-
-    public class DiaLog : IGlobalSign
-    {
-        public bool IsMarkIdle { get; set; }
-        public string DiaLogKey { get; private set; }
-
-        internal NodeTree tree;
-        public NodeTreeState treeState { get; protected set; } = NodeTreeState.Waiting;
-        private bool isInited = false;              
-
-        void IGlobalSign.Init()
-        {
-
-        }
-
-        /// <summary>
-        /// 初始化对话控制器
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="nodeTree"></param>
-        /// <param name="autoRelease"></param>
-        public void Init(string key, NodeTree nodeTree)
-        {
-            if (nodeTree == null)
-            {
-                Debug.LogError("对话树配置添加失败请检查是否不为空!");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(key))
-            {
-                Debug.LogError("标识添加失败，是空字符串");
-                return;
-            }
-            if (isInited) return;
-            isInited = true;
-            this.DiaLogKey = key;
-            this.tree = nodeTree.Instantiate();
-            this.tree.nodes = nodeTree.nodes.Select(x => x.Instantiate()).ToList();       
-            foreach (var item in this.tree.nodes)
-            {
-
-                for (int i = 0; i < item.randomItems.Count; i++)
-                {
-                    item.randomItems[i] = this.tree.nodes.Find(x => x.nodeId == item.randomItems[i].nodeId);
-                }
-                
-                for (int i = 0; i < item.optionItems.Count; i++)
-                {
-                    var option = item.optionItems[i];
-                    if (option.nextNode)
-                        option.nextNode = this.tree.nodes.Find(x => x.nodeId == option.nextNode.nodeId);
-                }
-
-                if (item.child)
-                {
-                    item.child = tree.nodes.Find(x => x.nodeId == item.child.nodeId);
-                }
-            }
-
-            this.tree.rootNode = this.tree.nodes.FirstOrDefault(x => x.IsRoot);
-            MonoHelper.Update_AddListener(Update);
-            MonoHelper.FixedUpdate_AddListener(FixedUpdate);
-            MonoHelper.LateUpdate_AddListener(LateUpdate);           
-        }
-
-        private void Update(MonoHelper helper)
-        {            
-            if (treeState == NodeTreeState.Running && tree.runningNode != null)
-            {
-                tree.runningNode.OnUpdate();
-            }
-        }
-
-        private void FixedUpdate(MonoHelper helper)
-        {
-            if (treeState == NodeTreeState.Running && tree.runningNode != null)
-            {
-                tree.runningNode.OnFixedUpdate();
-            }
-        }
-
-        private void LateUpdate(MonoHelper helper)
-        {
-            if (treeState == NodeTreeState.Running && tree.runningNode != null)
-            {
-                tree.runningNode.OnLateUpdate();
-            }
-        }
-
-        void IGlobalSign.Release()
-        {          
-            if (tree != null)
-            {
-                tree.onEnterCallBack.UnRegisterAllEvent();
-                tree.onExitCallBack.UnRegisterAllEvent();
-                tree.onCompletedCallBack.UnRegisterAllEvent();
-                tree.onFailedCallBack.UnRegisterAllEvent();
-                DiaLogKit.RemoveDiaLogue(DiaLogKey);
-                End();
-            }
-            DiaLogKey = string.Empty;
-            tree.Destroy();
-            tree = null;
-            isInited = false;            
+            Debug.Log("Init");
             MonoHelper.Update_RemoveListener(Update);
             MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);
             MonoHelper.LateUpdate_RemoveListener(LateUpdate);
-            
+
+            MonoHelper.Update_AddListener(Update);
+            MonoHelper.FixedUpdate_AddListener(FixedUpdate);
+            MonoHelper.LateUpdate_AddListener(LateUpdate);
         }
 
-        public void Start()
-        {          
-            if (treeState == NodeTreeState.Running)
-            {
-                Debug.Log("该控制器绑定的对话树已经被启动，不会重复执行Start方法");
-                return;            
-            }
-            treeState = NodeTreeState.Running;
-            tree.OnTreeStart();
-            DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, tree.runningNode);           
-        }
-        public void End()
-        {          
-            if (treeState == NodeTreeState.Waiting)
-            {
-                LogKit.I("该控制器没有被启动，End方法是不会触发的,请至少调用一次Start方法");
-                return;
-            }
-            treeState = NodeTreeState.Waiting;
-            tree.OnTreeEnd();             
-        }
-        /// <summary>
-        /// 默认推进
-        /// </summary>
-        /// <returns></returns>
-        public MoveNodeState MoveNext()
+        internal static void UnLoad(NodeTreeBase nodeTree)
         {
-            var state = tree.MoveNext();
-            if (state == MoveNodeState.Succeed)
-            {
-                DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, tree.runningNode);
-            }
-            else if (state == MoveNodeState.Failed)
-            {
-                tree.onFailedCallBack.SendEvent();
-            }
-            return state;
+            runtime_Controllers.Remove(nodeTree.Key);
+            loader.UnLoad(nodeTree);
         }
 
         /// <summary>
-        /// 根据条件推进
+        /// 释放已经加载的指定标识的对话控制器与对话配置
         /// </summary>
-        /// <param name="option"></param>
-        /// <returns></returns>
-        public MoveNodeState MoveNextByOption(Option option)
+        /// <param name="key"></param>
+        public static void Release(string key)
         {
-            var state =  tree.MoveNextByOption(option);
-
-            if (state == MoveNodeState.Succeed)
-            {
-                DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, tree.runningNode);
-            }
-            else if (state == MoveNodeState.Failed)
-            {
-                tree.onFailedCallBack.SendEvent();
-            }
-            return state;
+            if (runtime_Controllers.TryGetValue(key, out var controller))            
+                controller.GlobalRelease();           
         }
-
         /// <summary>
-        /// 选择指定节点推进
+        /// 获取或者创建对话控制器(通过内置Loader加载，需要Init)
         /// </summary>
-        /// <param name="node"></param>
+        /// <param name="path"></param>
         /// <returns></returns>
-        public MoveNodeState MoveNode(Node node)
+        public static DiaLogController GetOrCreateController(string path)
         {
-            var state = tree.MoveNode(node);
-            if (state == MoveNodeState.Succeed)
-            {
-                DiaLogKit.onGlobalNodeChanged.SendEvent(DiaLogKey, tree.runningNode);
-            }
-            else if (state == MoveNodeState.Failed)
-            {
-                tree.onFailedCallBack.SendEvent();
-            }
-            return state;
-
+            return GetOrCreateController(loader.Load<NodeTreeBase>(path));
         }
 
         /// <summary>
-        /// 根据Id选择指定节点推进
+        /// 根据标识获取控制器
         /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static DiaLogController GetDiaLogController(string key)
+        {
+            runtime_Controllers.TryGetValue(key, out var controller);
+            return controller;
+        }
+
+        /// <summary>
+        /// 如自定义节点数据结构，可直接绕开配置构建或获取控制器
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="nodes"></param>
+        /// <returns></returns>
+        public static T GetOrCreateController<T>(string key,IEnumerable<INode> nodes) where T : DiaLogController
+        {
+            return GetOrCreateController(key,typeof(T), nodes) as T;
+        }
+
+        /// <summary>
+        /// 如自定义节点数据结构，可直接绕开配置构建或获取控制器
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="nodes"></param>
+        /// <returns></returns>
+        public static DiaLogController GetOrCreateController(string key,Type type,IEnumerable<INode> nodes)
+        {
+            if (runtime_Controllers.TryGetValue(key, out var controller))
+            {
+                return controller;
+            }
+
+            controller = DiaLogController.CreateInstance(type, nodes);
+            runtime_Controllers[key] = controller;
+            return controller;
+        }
+
+        /// <summary>
+        /// 通过自己加载的对话配置获取或创建控制器
+        /// </summary>
+        /// <param name="nodeTree"></param>
+        /// <returns></returns>
+        public static DiaLogController GetOrCreateController(NodeTreeBase nodeTree)
+        {
+            if (runtime_Controllers.TryGetValue(nodeTree.Key, out var controller))
+            {
+                return controller;
+            }
+            controller = DiaLogController.CreateInstance(nodeTree);
+            runtime_Controllers[nodeTree.Key] = controller;
+            return controller;           
+        }
+        /// <summary>
+        /// 异步获取或者创建对话控制器(通过内置Loader加载，需要Init)
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static void GetOrCreateControllerAsync(string path,Action<DiaLogController> completed)
+        {           
+            loader.LoadAsync<NodeTreeBase>(path, nodeTree => completed?.Invoke(GetOrCreateController(nodeTree)));
+        }
+
+        /// <summary>
+        /// 启动对话控制器 指定对话节点进行直接性的跳转对话
+        /// </summary>
+        /// <param name="controller"></param>
+        public static void Start(this DiaLogController controller,int id,params object[] param)
+        {
+            controller.Start(id,param);
+        }
+        /// <summary>
+        /// 启动对话控制器 指定对话节点进行直接性的跳转对话
+        /// </summary>
+        /// <param name="controller"></param>
+        public static void Start(this DiaLogController controller, INode node, params object[] param)
+        {
+            Start(controller,node.Id,param);
+        }
+
+        /// <summary>
+        /// 启动对话控制器 从根节点开始进行对话
+        /// </summary>
+        /// <param name="controller"></param>
+        public static void Start(this DiaLogController controller, params object[] param)
+        {
+            controller.Start(-1, param);
+        }     
+        
+
+        /// <summary>
+        /// 以当前节点进行随机推进,该方法推进随机一个连接的节点，当节点只有一个时，等同于不传linkId的MoveNext方法
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="failedTip"></param>
+        /// <returns></returns>
+        public static bool MoveRandom(this DiaLogController controller, out string failedTip)
+        {
+            if (controller.DiaLogState != DiaLogState.Running)
+            {
+                failedTip = "对话控制器不在运行状态，请先调用Start方法启动";
+                return false;
+            }
+
+            INode node = controller.CurrentNode;
+
+            int id = node.LinkNodes.Random();
+            return MoveNextInternal(controller, id, false, out failedTip);
+        }
+        /// <summary>
+        /// 以当前节点进行随机推进,该方法推进随机一个连接的节点，当节点只有一个时，等同于不传linkId的MoveNext方法
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <returns></returns>
+        public static bool MoveRandom(this DiaLogController controller)
+        {
+            return MoveRandom(controller, out _);
+        }
+        /// <summary>
+        /// 以当前节点进行推进,该方法推进第一个连接的节点。
+        /// <para>如果没有连接节点，则该推进默认失败</para>
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="failedTip">如果推进返回False，则输出日志</param>
+        /// <returns></returns>
+        public static bool MoveNext(this DiaLogController controller, out string failedTip)
+        {
+            if (controller.DiaLogState != DiaLogState.Running)
+            {
+                failedTip = "对话控制器不在运行状态，请先调用Start方法启动";
+                return false;
+            }
+
+            INode node = controller.CurrentNode;
+
+            int id = node.LinkNodes.FirstOrDefault();
+            return MoveNextInternal(controller,id,false,out failedTip);
+        }
+        /// <summary>
+        /// 以当前节点进行推进,该方法推进第一个连接的节点。
+        /// <para>如果没有连接节点，则该推进默认失败</para>
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <returns></returns>
+        public static bool MoveNext(this DiaLogController controller)
+        {
+            return MoveNext(controller, out _);
+        }
+        /// <summary>
+        /// 以当前节点进行推进,该方法推进指定连接的节点。
+        /// <para>如果没有连接节点，则该推进默认失败</para>
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <returns></returns>
+        public static bool MoveNext(this DiaLogController controller, int linkId)
+        {
+            return MoveNextInternal(controller, linkId, true, out _);
+        }
+        /// <summary>
+        /// 以当前节点进行推进,该方法推进指定连接的节点。
+        /// <para>如果没有连接节点，则该推进默认失败</para>
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <param name="failedTip">如果推进返回False，则输出日志</param>
+        /// <returns></returns>
+        public static bool MoveNext(this DiaLogController controller, int linkId,out string failedTip)
+        {
+            return MoveNextInternal(controller, linkId, true,out failedTip);
+        }     
+        /// <summary>
+        /// 在对话控制器运行状态下,可直接传入节点id进行跳转。该方法无视当前进度可强制切换
+        /// </summary>
+        /// <param name="controller"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public MoveNodeState MoveNode(string id)
-        {
-            return MoveNode(GetAllDiaLogNodes().Find(x => x.id == id));
+        public static bool Move(this DiaLogController controller,int id)
+        {          
+            return controller.MoveInternal(id);
         }
-
-        public bool Release() => this.GlobalRelease();     
-        public IUnRegister RegisterWithNodeEnterEvent(Action<Node> startEvent)
-        {         
-            return tree.onEnterCallBack.RegisterEvent(startEvent);
-        }
-
-        public IUnRegister RegisterWithNodeExitEvent(Action<Node> exitEvent)
-        {            
-            return tree.onExitCallBack.RegisterEvent(exitEvent);
-        }
-
-        public IUnRegister RegisterWithNodeCompleteEvent(Action<Node> completeEvent)
-        {
-            return tree.onCompletedCallBack.RegisterEvent(completeEvent);
-        } 
-
         /// <summary>
-        /// 注册当对话树推进状态为Failed时触发的事件
+        /// 在对话控制器运行状态下,可直接传入节点id进行跳转。该方法无视当前进度可强制切换
         /// </summary>
-        /// <param name="endEvent"></param>
+        /// <param name="controller"></param>
+        /// <param name="id"></param>
+        /// <param name="failedTip">如果推进返回False，则输出日志</param>
         /// <returns></returns>
-        public IUnRegister RegisterNextFailedEvent(Action endEvent)
-            => tree.onFailedCallBack.RegisterEvent(endEvent);
+        public static bool Move(this DiaLogController controller, int id,out string failedTip)
+        {         
+            return controller.MoveInternal(id,out failedTip);
+        }
 
-        public Node GetCurrentRuntimeNode() => tree.runningNode;
+        internal static bool MoveNextInternal(this DiaLogController controller, int id, bool isCheck, out string failedTip)
+        {
+            if (controller.DiaLogState != DiaLogState.Running)
+            {
+                failedTip = "对话控制器不在运行状态，请先调用Start方法启动";
+                return false;
+            }
 
-        public Node GetRootNode() => tree.rootNode;
-   
-        public List<Node> GetAllDiaLogNodes() => tree.nodes;
+            var linkNodes = controller.CurrentNode.LinkNodes;
+            if (linkNodes == null || linkNodes.Count == 0)
+            {
+                failedTip = "对话控制器不在运行状态，请先调用Start方法启动";
+                return false;
+            }
 
-        public Node GetNodeById(int id) => tree.nodes.Find(x => x.nodeId == id);
+            if (isCheck)
+            {
+                for (int i = 0; i < linkNodes.Count; i++)
+                {
+                    if (linkNodes[i] == id)
+                    {
+                        return controller.MoveInternal(id, out failedTip);
+                    }
+                }
+            }
+            else
+            {
+                return controller.MoveInternal(id, out failedTip);
+            }
+            failedTip = $"默认推进失败!请检查id是否传递正确或是为当前节点的连接 linkId:{id}";
+            return false;
+        }
 
-        public void Foreach(Action<Node> each) => tree.ForEach(each);
+        private static void Update(MonoHelper monoHelper)
+        {
+            foreach (var item in runtime_Controllers.Values)
+            {
+                if (item.DiaLogState == DiaLogState.Running)
+                    item.Update();
+            }
+        }
+
+        private static void FixedUpdate(MonoHelper monoHelper)
+        {
+            foreach (var item in runtime_Controllers.Values)
+            {
+                if (item.DiaLogState == DiaLogState.Running)
+                    item.FixedUpdate();
+            }
+        }
+
+        private static void LateUpdate(MonoHelper monoHelper)
+        {
+            foreach (var item in runtime_Controllers.Values)
+            {
+                if (item.DiaLogState == DiaLogState.Running)
+                    item.LateUpdate();
+            }
+        }
+        
     }
+
+  
+    
 }

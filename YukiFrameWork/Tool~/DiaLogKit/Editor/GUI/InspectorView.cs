@@ -28,7 +28,7 @@ namespace YukiFrameWork.DiaLogue
 			if (editor != null)
 				UnityEngine.Object.DestroyImmediate(editor);
 
-			editor = Editor.CreateEditor(node.node, typeof(OdinEditor)) as OdinEditor;
+			editor = Editor.CreateEditor(node.node as ScriptableObject, typeof(OdinEditor)) as OdinEditor;
 
 			IMGUIContainer container = new IMGUIContainer() { onGUIHandler = () => 
 			{

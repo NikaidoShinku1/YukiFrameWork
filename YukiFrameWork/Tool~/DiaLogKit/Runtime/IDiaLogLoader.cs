@@ -12,7 +12,7 @@ using System;
 using XFABManager;
 namespace YukiFrameWork.DiaLogue
 {
-	public interface IDiaLogLoader : IResLoader<NodeTree>
+	public interface IDiaLogLoader : IResLoader<NodeTreeBase>
 	{
 
 	}
@@ -22,17 +22,17 @@ namespace YukiFrameWork.DiaLogue
         readonly string projectName;
         public ABManagerDiaLogLoader(string projectName)
             => this.projectName = projectName;
-        public TItem Load<TItem>(string name) where TItem : NodeTree
+        public TItem Load<TItem>(string name) where TItem : NodeTreeBase
         {
             return AssetBundleManager.LoadAsset<TItem>(projectName,name);
         }
-        public void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : NodeTree
+        public void LoadAsync<TItem>(string name, Action<TItem> onCompleted) where TItem : NodeTreeBase
         {
             AssetBundleManager.LoadAssetAsync<TItem>(projectName, name)
                 .AddCompleteEvent(v => onCompleted?.Invoke(v.asset as TItem));
         }
 
-        public void UnLoad(NodeTree item)
+        public void UnLoad(NodeTreeBase item)
         {
             AssetBundleManager.UnloadAsset(item);
         }

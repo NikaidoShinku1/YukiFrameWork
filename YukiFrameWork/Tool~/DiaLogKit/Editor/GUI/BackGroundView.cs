@@ -26,7 +26,13 @@ namespace YukiFrameWork.DiaLogue
 
         public event Action<GraphNodeView> onNodeSelected = null;
         public static event Action<BackGroundView> onNodeUpdate = null;
-        internal NodeTree tree;
+        internal NodeTreeBase tree;
+
+        private static NodeTreeBase[] allNodeTreeBases;
+
+        private IEnumerable<NodeTreeBase.ColorTip> allNodeTypes => allNodeTreeBases?
+            .SelectMany(x => x.allNodeColorTypeTips);           
+       
 		public BackGroundView() 
 		{
             Insert(0, new GridBackground());
@@ -38,18 +44,59 @@ namespace YukiFrameWork.DiaLogue
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(importPath + "/DiaLogKit/Editor/GUI/BackGround.uss");
             styleSheets.Add(styleSheet);
 
-            void Update() { onNodeUpdate?.Invoke(this); }
+            allNodeTreeBases = YukiAssetDataBase.FindAssets<NodeTreeBase>();
+           
             DiaLogGraphWindow.onUpdate -= Update;
             DiaLogGraphWindow.onUpdate += Update;
 
             DiaLogGraphWindow.OnValidate += () => 
             {
                 Pop(tree);
+                if (tree.IsPerformance)
+                    UpdateColor();
             };
 
-        }    
+        }
        
-        public void Pop(NodeTree tree)
+        private void Update()
+        {           
+            onNodeUpdate?.Invoke(this);
+            if (!tree) return;
+            if(!tree.IsPerformance)
+                UpdateColor();
+        }
+
+        private void UpdateColor()
+        {
+            foreach (var node in graphElements)
+            {
+                if (node is GraphNodeView view)
+                {
+                    if (view.node.IsRoot)
+                        view.style.backgroundColor = tree.rootColorTip;
+                    else 
+                    {
+                        if (Application.isPlaying)
+                        {
+                            if (DiaLogKit.RuntimeControllers.TryGetValue(tree.Key, out var controller))
+                            {
+                                if (controller.CurrentNode == view.node)                               
+                                    continue;                                
+                            }
+                        }
+                        view.style.backgroundColor = default;
+                        if (allNodeTreeBases == null || allNodeTreeBases.Length == 0) return;
+
+                        foreach (var item in allNodeTypes)
+                        {
+                            if (item.key == view.node.NodeType)
+                                view.style.backgroundColor = item.color;
+                        }
+                    }
+                }
+            }
+        }
+        public void Pop(NodeTreeBase tree)
         {
             this.tree = tree;
             graphViewChanged -= OnGraphViewChanged;
@@ -64,64 +111,30 @@ namespace YukiFrameWork.DiaLogue
                 }
             });
 
-            graphViewChanged += OnGraphViewChanged;
+            graphViewChanged += OnGraphViewChanged; 
 
             if (tree != null)
             {
                 tree.ForEach(x => BuildNodeView(x));
                 tree.ForEach(x =>
                 {
-                    GraphNodeView parent = FindNodeViewByGUID(x.id);
+                    GraphNodeView parent = FindNodeViewByGUID(x.GetHashCode().ToString());
                     if (parent != null)
-                    {                       
-                        if (parent.node.IsRandom)
+                    {
+                        tree.ForEach(item =>
                         {
-                            foreach (var item in parent.node.randomItems)
+                            if (x == item) return;
+                            if (x.LinkNodes.Contains(item.Id))
                             {
-                                GraphNodeView child = FindNodeViewByGUID(item.id);
-                                if (child == null) continue;
-
+                                GraphNodeView child = FindNodeViewByGUID(item.GetHashCode().ToString());
                                 Port po = parent.outputport;
 
-                                if (po == null) continue;
+                                if (po == null) return;
 
                                 Edge edge = po.ConnectTo(child.inputPort);
                                 AddElement(edge);
                             }
-                        }
-                        else if (parent.node.IsComposite)
-                        {
-                            foreach (var item in parent.node.optionItems)
-                            {
-                                GraphNodeView child = FindNodeViewByGUID(item.nextNode.id);
-                                if (child != null)
-                                {
-                                    Port po = parent.outputport;
-                                    if (po != null)
-                                    {
-                                        Edge edge = po.ConnectTo(child.inputPort);
-                                        AddElement(edge);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (x.child != null)
-                            {
-                                GraphNodeView child = FindNodeViewByGUID(x.child.id);
-                                if (child != null)
-                                {
-                                    Port po = parent.outputport;
-                                    if (po != null)
-                                    {
-                                        Edge edge = po.ConnectTo(child.inputPort);
-                                        AddElement(edge);
-                                    }
-                                }
-                            }
-                        }
-
+                        });                      
                     }
                 });
             }
@@ -146,39 +159,9 @@ namespace YukiFrameWork.DiaLogue
                 else if (x is Edge edge)
                 {                  
                     GraphNodeView parent = edge.output.node as GraphNodeView;
-                    if (parent.node.IsComposite)
-                    {
-                        Option option = null;
-                        foreach (var item in parent.node.optionItems)
-                        {
-                            if (item.nextNode == ((GraphNodeView)edge.input.node).node)
-                            {
-                                option = item;
-                                break;
-                            }
-                        }
-                        parent.node.optionItems.Remove(option);
-                    }
-                    else if (parent.node.IsRandom)
-                    {
-                        Node node = null;
-                        foreach (var item in parent.node.RandomItems)
-                        {
-                            if (item == ((GraphNodeView)edge.input.node).node)
-                            {
-                                node = item;
-                                break;
-                            }
-                        }
-
-                        parent.node.RandomItems.Remove(node);
-                    }
-                    else
-                    {
-                        parent.node.child = null;
-                    }
-
-                    EditorUtility.SetDirty(parent.node);
+                    int id = ((GraphNodeView)edge.input.node).node.Id;
+                    if (parent.node.LinkNodes.Contains(id))
+                        parent.node.LinkNodes.Remove(id);                                     
                     AssetDatabase.SaveAssets();
 
                 }
@@ -188,23 +171,8 @@ namespace YukiFrameWork.DiaLogue
             {
                 GraphNodeView nodeView = x.output.node as GraphNodeView;
                 GraphNodeView nodeChild = x.input.node as GraphNodeView;
-                if (nodeView.node.IsComposite)
-                {
-                    nodeView.node.optionItems.Add(new Option()
-                    {
-                        nextNode = nodeChild.node
-                    });
-                }
-                else if (nodeView.node.IsRandom)
-                {
-                    nodeView.node.randomItems.Add(nodeChild.node);
-                }
-                else
-                {
-                    nodeView.node.child = nodeChild.node;
-                }
-
-                EditorUtility.SetDirty(nodeView.node);
+                if (!nodeView.node.LinkNodes.Contains(nodeChild.node.Id))
+                    nodeView.node.LinkNodes.Add(nodeChild.node.Id);               
                 AssetDatabase.SaveAssets();
             });
 
@@ -216,56 +184,25 @@ namespace YukiFrameWork.DiaLogue
             if (tree == null) return;
 
             Vector2 pos = evt.localMousePosition;
-            bool c = false;
-            foreach (Type type in TypeCache.GetTypesDerivedFrom<Node>())
+           // bool c = false;
+            foreach (Type type in TypeCache.GetTypesDerivedFrom<INode>())
             {
                 string menu = string.Empty;
-                if (type.IsAbstract) continue;               
-                DiaLogueNodeAttribute nodeAttribute = type.GetCustomAttributes<DiaLogueNodeAttribute>().FirstOrDefault();
+                if (type.IsAbstract) continue; 
+                
+                menu = graphElements.Count() == 0 ? "创建根节点" : $"创建新的对话节点";
+                evt.menu.AppendAction(menu, x => 
+                {
+                    INode node = tree.CreateNode(type);
+                    var item = BuildNodeView(node);
+                    item.SetPosition(new Rect(item.contentRect) { x = pos.x, y = pos.y });
+                }, DropdownMenuAction.Status.Normal);
 
-                if (nodeAttribute == null) continue;
-                c = true;
-                if (nodeAttribute is RootNodeAttribute)
-                {
-                    if (tree.rootNode != null)
-                        continue;
+                ;               
+            }
 
-                    menu = $"创建根节点Node --- {type}";
-                }
-                else if (nodeAttribute is CompositeNodeAttribute)
-                {
-                    menu = $"创建分支节点Node --- {type}";
-                }
-                else if (nodeAttribute is SingleNodeAttribute)
-                {
-                    menu = $"创建默认节点Node --- {type}";
-                }
-                else if (nodeAttribute is RandomNodeAttribute)
-                {
-                    menu = $"创建随机节点Node --- {type}";
-                }
-                if (IsNotRoot() && !type.HasCustomAttribute<RootNodeAttribute>())
-                {
-                    evt.menu.AppendAction(menu, null, DropdownMenuAction.Status.Disabled);
-                }
-                else
-                {
-                    evt.menu.AppendAction(menu, x =>
-                    {
-                        Node node = tree.CreateNode(type);
-                        var item = BuildNodeView(node);
-                        item.SetPosition(new Rect(item.contentRect) {x = pos.x,y = pos.y });     
-                    }, DropdownMenuAction.Status.Normal);
-                }
-            }
-            if (!c)
-            {
-                evt.menu.AppendAction("当前没有创建任何继承Node的节点类,无法添加", null, DropdownMenuAction.Status.Disabled);
-            }
-            bool IsNotRoot()
-            {
-                return tree.rootNode == null && !tree.nodes.Find(x => x.DiscernAttribute is RootNodeAttribute);
-            }
+            
+            
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
@@ -277,7 +214,7 @@ namespace YukiFrameWork.DiaLogue
             ).ToList();
         }
 
-        private GraphNodeView BuildNodeView(Node node)
+        private GraphNodeView BuildNodeView(INode node)
         {
             GraphNodeView item = new GraphNodeView(node);
             item.onNodeSelected += NodeSelected;

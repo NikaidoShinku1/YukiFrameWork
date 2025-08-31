@@ -12,51 +12,55 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using UnityEditor.Experimental.GraphView;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine.UIElements;
 namespace YukiFrameWork.DiaLogue
 {
     public class GraphNodeView : UnityEditor.Experimental.GraphView.Node
     {
         public event Action<GraphNodeView> onNodeSelected = null;       
-        public Node node { get; private set; }
+        public INode node { get; private set; }
         public Port outputport { get; private set; }       
-        public GraphNodeView(Node node)
+        public GraphNodeView(INode node)
         {          
             this.node = node;         
-            this.name = node.name;
-            title = node.GetType().Name + "  " + node.GetName();
+            this.name = node.Name;
+            title = node.GetType().Name + "  " + node.Name;
             titleContainer.style.color = Color.blue;
-            viewDataKey = node.id;
-            style.left = node.position.x;
-            style.top = node.position.y;
+            viewDataKey = node.GetHashCode().ToString();
+            style.left = node.NodePosition.x;
+            style.top = node.NodePosition.y;
             CreateInputPorts();
             CreateOutPutPorts();
 
-            node.onValidate += OnValidate;
+            //node.onValidate += OnValidate;
             DiaLogGraphWindow.OnValidate += OnValidate;
             style.fontSize = 20;
+                   
+            BackGroundView.onNodeUpdate -= UpdateView; 
+            BackGroundView.onNodeUpdate +=  UpdateView;                  
+        }
 
-            void Update_View(BackGroundView view)
+        private void UpdateView(BackGroundView backGroundView)
+        {
+            if (!backGroundView.tree.IsPerformance)
             {
-                
-                if (!Application.isPlaying) return;
+                UpdateInfo();
+            }
+            if (!Application.isPlaying) return;
 
-                if (view.tree == null) return;
+            if (backGroundView.tree == null) return;
 
-                if (view.tree.runningNode == null) return;
-                if (view.tree.runningNode == node)
+            if (DiaLogKit.RuntimeControllers.TryGetValue(backGroundView.tree.Key, out var controller))
+            {
+                if (controller.CurrentNode == node)
                 {
-                    style.backgroundColor = Color.cyan;
-                }
-                else
-                {
-                    style.backgroundColor = default;
+                    style.backgroundColor = GetButtonColor();
                 }
             }
-            BackGroundView.onNodeUpdate -= Update_View;
-            BackGroundView.onNodeUpdate +=  Update_View;                  
+        }
+
+        private static Color GetButtonColor()
+        {
+            return Color.HSVToRGB(Mathf.Cos((float)UnityEditor.EditorApplication.timeSinceStartup + 1f) * 0.225f + 0.325f, 1, 1);
         }
 
         public event Action<GraphNodeView> onNodeValidate = null;
@@ -72,11 +76,11 @@ namespace YukiFrameWork.DiaLogue
             Create(node);
         }       
 
-        private void Create(Node item) 
+        private void Create(INode item) 
         {                     
-            Port o = InstantiatePort(Orientation.Horizontal, Direction.Output, (node.IsComposite || node.IsRandom) ? Port.Capacity.Multi : Port.Capacity.Single, typeof(bool));
+            Port o = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(bool));
             o.name = "OutPut";
-            o.portName = item.GetContext();
+            o.portName = item.Text;
             o.portColor = Color.green;
             outputport = o;
             outputContainer.Add(o);
@@ -84,7 +88,7 @@ namespace YukiFrameWork.DiaLogue
    
         private void CreateInputPorts()
         {
-            if (!node.GetType().HasCustomAttribute<RootNodeAttribute>())
+            if (!node.IsRoot)
             {
                 Port i = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
 
@@ -95,12 +99,12 @@ namespace YukiFrameWork.DiaLogue
                 inputContainer.Add(i);
             }
         }
-
+     
         public override void SetPosition(Rect newPos)
         {
             base.SetPosition(newPos);
 
-            node.position = new Node.Position(newPos.x,newPos.y);
+            node.NodePosition = new Node.Position(newPos.x,newPos.y);
         }
 
         public override void OnSelected()
@@ -110,15 +114,21 @@ namespace YukiFrameWork.DiaLogue
         }
 
         internal void ResetBuildOutPutPorts(BackGroundView backGroundView)
-        {          
-            title = node.GetType().Name + "  " + node.GetName();
-            outputport.portName = node.GetContext();                           
+        {
+            UpdateInfo();   
                  
             foreach (var edge in outputport.connections)
             {
                 edge.input.DisconnectAll();
                 backGroundView.RemoveElement(edge);
             }               
+        }
+
+        public void UpdateInfo()
+        {
+            if (node == null) return;
+            title = node.GetType().Name + "  " + node.Name;
+            outputport.portName = node.Text;
         }
 
         public Port inputPort { get; private set; }

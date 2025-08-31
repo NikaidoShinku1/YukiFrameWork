@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Linq;
 
 #if UNITY_EDITOR
@@ -14,10 +14,10 @@ namespace YukiFrameWork.DiaLogue
     public class DiaLogGraphWindow : EditorWindow
     {
         //[MenuItem("YukiFrameWork/DiaLogGraphWindow")]
-        public static void ShowExample(NodeTree tree)
+        public static void ShowExample(NodeTreeBase tree)
         {
             DiaLogGraphWindow window = GetWindow<DiaLogGraphWindow>();
-            window.titleContent = new GUIContent("¶Ô»°±à¼­Æ÷´°¿Ú");
+            window.titleContent = new GUIContent("å¯¹è¯ç¼–è¾‘å™¨çª—å£");
             window.nodeTree = tree;
             window.objectField.value = tree;
             //Label titleLab = window.rootVisualElement.Q<Label>("Tre")
@@ -63,13 +63,17 @@ namespace YukiFrameWork.DiaLogue
         {
             if (nodeTree == null) return;
 
+            /*nodeTree.ForEach(x => 
+            {
+                if (x.AttributeCount > 1)
+                {
+                    Debug.LogWarning("è¯·å¯¹èŠ‚ç‚¹è¿›è¡Œæ£€æŸ¥ï¼Œæ˜¯å¦æ ‡è®°äº†å¤šä¸ªèŠ‚ç‚¹ç±»å‹ç‰¹æ€§ï¼Œå¦‚ç¡®å®æ ‡è®°ï¼Œè¯·åªç•™ä¸‹ä¸€ä¸ªç‰¹æ€§ï¼Œä¸€ä¸ªNodeç±»åªèƒ½å½’ä¸ºä¸€ç§ç±»å‹,å¤æ•°çš„æƒ…å†µä¸‹ï¼Œå¾€å¾€ä¼˜å…ˆæŸ¥æ‰¾åˆ°çš„ç¬¬ä¸€ä¸ªç‰¹æ€§ --- Multiple attributes are not allowed Node Type:" + node.GetType());
+                }
+            });
             foreach (var node in nodeTree.nodes)
             {
-                if (node.AttributeCount > 1)
-                {
-                    Debug.LogWarning("Çë¶Ô½Úµã½øĞĞ¼ì²é£¬ÊÇ·ñ±ê¼ÇÁË¶à¸ö½ÚµãÀàĞÍÌØĞÔ£¬ÈçÈ·Êµ±ê¼Ç£¬ÇëÖ»ÁôÏÂÒ»¸öÌØĞÔ£¬Ò»¸öNodeÀàÖ»ÄÜ¹éÎªÒ»ÖÖÀàĞÍ,¸´ÊıµÄÇé¿öÏÂ£¬ÍùÍùÓÅÏÈ²éÕÒµ½µÄµÚÒ»¸öÌØĞÔ --- Multiple attributes are not allowed Node Type:" + node.GetType());
-                }
-            }
+                
+            }*/
         }
 
         private BackGroundView backGroundView;
@@ -94,7 +98,7 @@ namespace YukiFrameWork.DiaLogue
             }
         }*/
 
-        private NodeTree nodeTree;
+        private NodeTreeBase nodeTree;
 
         public void CreateGUI()
         {
@@ -111,6 +115,7 @@ namespace YukiFrameWork.DiaLogue
             {              
                 OnValidate?.Invoke();
                 Repaint();
+                RepaintRuntimeTree();
                 AssetDatabase.SaveAssets(); 
             };
 
@@ -129,10 +134,10 @@ namespace YukiFrameWork.DiaLogue
         {
             if (evt.newValue == "None") return;
 
-            if (DiaLogKit.DiaLogs.ContainsKey(evt.newValue))
+            if (DiaLogKit.RuntimeControllers.ContainsKey(evt.newValue))
             {
-                nodeTree = DiaLogKit.DiaLogs[evt.newValue].tree;
-                objectField.value =  DiaLogKit.DiaLogs[evt.newValue].tree;
+                nodeTree = DiaLogKit.RuntimeControllers[evt.newValue].NodeTree;
+                objectField.value =  DiaLogKit.RuntimeControllers[evt.newValue].NodeTree;
                 if (backGroundView != null)
                     backGroundView.Pop(nodeTree);
             }
@@ -147,7 +152,7 @@ namespace YukiFrameWork.DiaLogue
             }
             else
             {
-                dropdownField.choices = DiaLogKit.DiaLogs.Keys.ToList();
+                dropdownField.choices = DiaLogKit.RuntimeControllers.Keys.ToList();
             }
         }
         private void OnNodeTreeChanged(ChangeEvent<UnityEngine.Object> evt)

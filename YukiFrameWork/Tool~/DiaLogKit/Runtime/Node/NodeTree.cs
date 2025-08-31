@@ -5,8 +5,7 @@ using System.Collections;
 using System;
 using YukiFrameWork.Extension;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -15,259 +14,162 @@ using Sirenix.OdinInspector;
 
 namespace YukiFrameWork.DiaLogue
 {
-    public enum MoveNodeState
+  
+    public abstract class NodeTreeBase : ScriptableObject
     {
-        Idle,//没有推进
-        Succeed,//成功推进
-        Failed,//推进失败       
-    }
-    [CreateAssetMenu(fileName = "NodeTree", menuName = "YukiFrameWork/NodeTree")]
-    public class NodeTree : ScriptableObject,IExcelSyncScriptableObject
-    {     
-        // 对话树的开始 根节点
-        [SerializeField, LabelText("对话开始的根节点"), FoldoutGroup("配置")] internal Node rootNode;
-        // 当前正在播放的对话
-        public Node runningNode { get; private set; }
+        [SerializeField,LabelText("对话树的唯一标识")]
+        [InfoBox("根据该标识通过DiaLogKit加载")]
+        private string key;
 
+        public string Key => key;
+        public abstract IEnumerable<INode> Nodes { get; }
+        internal abstract Type NodeType { get; }
+
+        [LabelText("对话控制器绑定类型"),SerializeField]
+        [InfoBox("选择继承DiaLogController的类")]
+        [ValueDropdown(nameof(allControllerTypes))]
+        private string controllerType;
+
+        private Type runtime_ControllerType;
+
+        /// <summary>
+        /// 运行时控制器类型
+        /// </summary>
+        public Type RuntimeControllerType
+        {
+            get
+            {
+                if (runtime_ControllerType == null)
+                    runtime_ControllerType = AssemblyHelper.GetType(ControllerType);
+                return runtime_ControllerType;
+            }
+        }
+
+        #region EditorNodeColor
+       
+        [SerializeField,LabelText("设置根节点的编辑器颜色")]
+        internal Color rootColorTip = Color.red;
+
+        [SerializeField, LabelText("不同类型节点的编辑器颜色")]
+        [InfoBox("该配置全局共享,所有的NodeTree配置都共享该设置,根节点以根节点颜色设置为优先")]
+        [TableList]
+        internal List<ColorTip> allNodeColorTypeTips = new List<ColorTip>()
+        {
+            new ColorTip()
+            {
+                key = "SingleNode",
+                color = Color.black
+                
+            },
+            new ColorTip()
+            { 
+                key = "SelectNode",
+                color = Color.cyan,
+            },
+            new ColorTip()
+            {
+                key = "RandomNode",
+                color = Color.grey
+            }
+
+        };
+        [Serializable]
+        public class ColorTip
+        {
+            [LabelText("节点类型")]
+            public string key;
+            [LabelText("节点颜色")]
+            public Color color;
+        }
+
+        [SerializeField,LabelText("性能模式")]
+        [InfoBox("开启后变更颜色与文本同步不会实时更新，需要手动点击编辑器的刷新脚本")]
+        internal bool IsPerformance;
+        
+        #endregion
+
+
+        #region Controller
+
+        /// <summary>
+        /// 控制器类型
+        /// </summary>
+        public string ControllerType => controllerType;
+
+        IEnumerable allControllerTypes => AssemblyHelper
+            .GetTypes(x => x.IsSubclassOf(typeof(DiaLogController)) && !x.IsAbstract && !x.IsInterface)
+            .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString()});
+        #endregion
+
+        public abstract void ForEach(Action<INode> each);
+#if UNITY_EDITOR
+        internal static IEnumerable AllColorTypes => YukiAssetDataBase.FindAssets<NodeTreeBase>()
+            .Select(x => x.allNodeColorTypeTips)
+            .SelectMany(x => x)
+            .Select(x => new ValueDropdownItem() { Text = x.key, Value = x.key });
+        public abstract INode DeleteNode(INode node);
+        public abstract INode CreateNode(System.Type type, bool IsCustomPosition = false);
+#endif
+    }
+
+    public abstract class NodeTreeBase<T> : NodeTreeBase, IExcelSyncScriptableObject where T :ScriptableObject,INode
+    { 
+        // 所有对话内容的存储列表
+        [LabelText("所有对话内容的存储列表"), SerializeField, HideInInspector]
+        private List<T> nodes = new List<T>();
+        internal override Type NodeType => typeof(T);
+        private IEnumerable<INode> runtimeNodes;
+        public override IEnumerable<INode> Nodes
+        {
+            get
+            {
+                if (runtimeNodes == null)
+                    runtimeNodes = nodes.Select(x => x as INode);
+                return runtimeNodes;
+            }
+        }
         public IList Array => nodes;
 
-        public Type ImportType => typeof(Node);
+        public override void ForEach(Action<INode> each)
+        {
+            foreach (var item in nodes)
+            {
+                each?.Invoke(item as INode);
+            }
+        }
+
+        public Type ImportType => typeof(T);
 
         public bool ScriptableObjectConfigImport => false;
 
-        // 所有对话内容的存储列表
-        [LabelText("所有对话内容的存储列表"),SerializeField,  FoldoutGroup("配置")]
-        internal List<Node> nodes = new List<Node>();
-
-        private Coroutine mEnterCoroutine;
-
-        void IExcelSyncScriptableObject.Create(int maxLength)
+        public void Completed()
         {
-#if UNITY_EDITOR
-            while (nodes.Count > 0)
-                DeleteNode(nodes[nodes.Count - 1]);
-#endif
+            
         }
 
-        void IExcelSyncScriptableObject.Import(int index, object userData)
+        public void Create(int maxLength)
         {
-            var node = userData as Node;
-            if (!Application.isPlaying)
-            {
 #if UNITY_EDITOR
-                AssetDatabase.AddObjectToAsset(node, this);
+            while (nodes.Count > 0)            
+                DeleteNode(nodes[nodes.Count - 1]);
 #endif
-            }
-            nodes.Add(node);
-            if (node.IsRoot && !rootNode)
-                rootNode = node;
+            nodes.Clear();
+        }
+
+        public void Import(int index, object userData)
+        {
+            T item = (T)userData;
+            nodes.Add(item);
 #if UNITY_EDITOR
-            if (node.IsComposite)
-            {
-                foreach (var item in node.optionItems)
-                {
-                    if (item.iconGUID.IsNullOrEmpty()) continue;
-                    item.icon = YukiAssetDataBase.GUIDToInstance<Sprite>(item.iconGUID);
-                }
-            }
-#endif
-#if UNITY_EDITOR
-            Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
-            // EditorUtility.SetDirty(this);
+            AssetDatabase.AddObjectToAsset(item, this);
+            EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
 #endif
         }
 
-        void IExcelSyncScriptableObject.Completed()
-        {
-            foreach (var node in nodes)
-            {
-                foreach (var randomId in node.randomIdItems)
-                {
-                    var temp = nodes.Find(x => x.nodeId == randomId);
-                    if (!temp) continue;
-                    node.randomItems.Add(temp);
-
-                    
-                }
-
-                for (int i = 0; i < node.optionIdItems.Count; i++)
-                {
-                    var temp = node.optionItems[i];
-
-                    if (!temp.nextNode)
-                    {
-                        int id = node.optionIdItems[i];
-                        if (id != default)
-                        {
-                            temp.nextNode = nodes.Find(x => x.nodeId == id);
-                        }
-                    }
-                }
-
-                if (node.IsRoot || node.IsSingle)
-                {
-                    var child = nodes.Find(x => x.nodeId == node.childNodeId);
-                    if (child)
-                    {
-                        node.child = child;
-                    }
-                }
-            }
-        }
-
-        // 判断当前对话树和对话内容都是运行中状态则进行OnUpdate()方法更新
-        internal MoveNodeState MoveNext()
-        {
-            if (!runningNode)
-                return MoveNodeState.Failed;
-            if (!runningNode.IsCompleted)
-            {
-                return MoveNodeState.Idle;
-            }
-
-            if (runningNode.IsSingle || runningNode.IsRoot)
-            {
-                runningNode.OnExit();
-                onExitCallBack.SendEvent(runningNode);
-                runningNode = runningNode.child;
-
-                if (runningNode == null)
-                {
-                    return MoveNodeState.Failed;
-                }
-                mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
-                return MoveNodeState.Succeed;
-            }
-            else if (runningNode.IsComposite)
-            {
-                return MoveNodeState.Idle;
-            }
-            else if (runningNode.IsRandom)
-            {
-                if (runningNode.RandomItems.Count == 0)
-                {
-                    LogKit.W("没有为随机节点{0} -- {1}添加可选分支进行随机变化，请检查", runningNode.id, runningNode.name);
-                    return MoveNodeState.Idle;
-                }
-                else
-                {
-                    runningNode.OnExit();
-                    onExitCallBack.SendEvent(runningNode);
-                    int random = UnityEngine.Random.Range(0, runningNode.RandomItems.Count);
-                    runningNode = runningNode.RandomItems[random];
-
-                    if (runningNode == null)                  
-                        return MoveNodeState.Failed;
-
-                    mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
-                    return MoveNodeState.Succeed;
-                }
-            }
-            return MoveNodeState.Idle;
-
-        }
-
-        internal Vector2 position;
-
-        internal MoveNodeState MoveNextByOption(Option option)
-        {         
-            if (option == null)
-            {
-                LogKit.E("条件不存在!");
-                return MoveNodeState.Failed;
-            }
-
-            if (!runningNode.IsComposite)
-            {
-                LogKit.W("当前运行的节点并不是分支节点，不会进行推进");
-                return MoveNodeState.Idle;
-            }
-
-            return Move(option.nextNode);
-        }
-        private void OnValidate()
-        {
-           
-        }
-        internal MoveNodeState MoveNode(Node node)
-        {            
-            return Move(node);
-
-        }
-
-        private MoveNodeState Move(Node node)
-        {
-            if (runningNode != null)
-            {
-                if (!runningNode.IsCompleted)
-                {
-                    return MoveNodeState.Idle;
-                }
-                runningNode.OnExit();
-                onExitCallBack.SendEvent(runningNode);
-            }
-            runningNode = node;
-
-            if (runningNode == null)
-            {
-                return MoveNodeState.Failed;
-            }
-            mEnterCoroutine = MonoHelper.Start(OnStateEnter(runningNode));
-            return MoveNodeState.Succeed;
-        }
-
-        internal MoveNodeState MoveNode(string key)
-        {
-            return MoveNode(nodes.Find(x => x.id == key));
-        }
-   
-
-        private IEnumerator OnStateEnter(Node node)
-        {
-            node.IsCompleted = false;
-            onEnterCallBack.SendEvent(node);
-            node.OnEnter();
-            yield return CoroutineTool.WaitUntil(() => node.IsCompleted);
-            onCompletedCallBack.SendEvent(node);
-        }    
-
-        // 对话树开始的触发方法
-        internal virtual void OnTreeStart()
-        {           
-            runningNode = rootNode;                       
-            MonoHelper.Start(OnStateEnter(runningNode));
-        }  
-
-        internal readonly EasyEvent<Node> onEnterCallBack = new EasyEvent<Node>();
-        internal readonly EasyEvent<Node> onExitCallBack = new EasyEvent<Node>();
-        internal readonly EasyEvent<Node> onCompletedCallBack = new EasyEvent<Node>();
-
-        //当对话树推进失败/结束时调用
-        internal readonly EasyEvent onFailedCallBack = new EasyEvent();
-        // 对话树结束的触发方法
-        internal virtual void OnTreeEnd()
-        {          
-            if (runningNode != null)
-            {
-                runningNode.OnExit();
-                onExitCallBack.SendEvent(runningNode);
-            }
-
-            MonoHelper.Stop(mEnterCoroutine);        
-        }
-
-        public void ForEach(Action<Node> each)
-        {
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                each?.Invoke(nodes[i]);
-            }
-        }      
-
 #if UNITY_EDITOR
 
-       
+
         [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
         public string excelPath;
         [Button("导出Excel"), HorizontalGroup("Excel")]
@@ -289,52 +191,57 @@ namespace YukiFrameWork.DiaLogue
                 Debug.Log("导入成功");
             }
         }
-        [Button("Edit Graph", ButtonHeight = 30),PropertySpace(20)] 
+        [Button("Edit Graph", ButtonHeight = 30), PropertySpace(20)]
         void OpenWindow()
         {
             DiaLogGraphWindow.ShowExample(this);
         }
-        public Node CreateNode(System.Type type,bool IsCustomPosition = false)
-        {          
-            Node node = ScriptableObject.CreateInstance(type) as Node;
-            node.name = type.Name;
-            node.id = GUID.Generate().ToString();
+        public override INode CreateNode(System.Type type, bool IsCustomPosition = false)
+        {
+            T node = ScriptableObject.CreateInstance(type) as T;
+           
+            if (nodes.Count == 0)
+                node.IsRoot = true;
+            //node.GUID = GUID.Generate().ToString();
             int id = (1000) + nodes.Count + 1;
-            node.nodeId = id;
+            node.Id = id;
+            node.Name = "编号:" + id.ToString();
             // node.nodeType = type.FullName;
-            while (nodes.Any(x => x.nodeId == id))
+            while (nodes.Any(x => x.Id == id))
             {
-                node.nodeId = ++id;
-            }
-            // node.NodeIndex = nodes.Count;
-            if (node.DiscernType == typeof(RootNodeAttribute))
-                rootNode = node;           
-            Undo.RecordObject(this, "Node Tree (CreateNode)");         
+                node.Id = ++id;
+            }          
+            Undo.RecordObject(this, "Node Tree (CreateNode)");
 
             nodes.Add(node);
             if (IsCustomPosition)
             {
-                node.position = new Node.Position(nodes.Count * 100, 0);
-            }
-            if (!Application.isPlaying)
-            {
-                AssetDatabase.AddObjectToAsset(node, this);
-            }
+                node.NodePosition = new Node.Position(nodes.Count * 100, 0);
+            }        
             Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
-           // EditorUtility.SetDirty(this);
+            AssetDatabase.AddObjectToAsset(node,this);
+            EditorUtility.SetDirty(this);
             AssetDatabase.SaveAssets();
-            
+
             return node;
         }
-        public Node DeleteNode(Node node)
+        public override INode DeleteNode(INode node)
         {
             Undo.RecordObject(this, "Node Tree (DeleteNode)");
-            nodes.Remove(node);           
-            Undo.DestroyObjectImmediate(node);
+            nodes.Remove(node as T);
+          
+            Undo.DestroyObjectImmediate(node as T);
             AssetDatabase.SaveAssets();
             return node;
-        }        
+        }
 #endif
+
+    }
+
+    [CreateAssetMenu(fileName = "DiaLogNodeTree", menuName = "YukiFrameWork/DiaLogNodeTree")]
+    public class NodeTree :  NodeTreeBase<Node>
+    {             
+             
 
     }
 }
