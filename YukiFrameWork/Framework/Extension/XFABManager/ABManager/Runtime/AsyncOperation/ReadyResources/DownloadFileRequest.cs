@@ -67,9 +67,7 @@ namespace XFABManager
             this.file_url = file_url;
             this.localfile = localfile;
             tempfile = string.Format("{0}{1}", localfile, tempSuffix);
-#if UNITY_EDITOR  
-            EditorApplication.playModeStateChanged += PlayModeStateChanged;
-#endif
+
         }
  
 
@@ -83,6 +81,13 @@ namespace XFABManager
          
         private IEnumerator Download()
         {
+
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+            EditorApplication.playModeStateChanged += PlayModeStateChanged;
+#endif
+
+
             string downloadError = string.Empty;
 
             // 请求文件大小
@@ -218,6 +223,11 @@ namespace XFABManager
         {
             base.OnCompleted();
             //CurrentDownloadFileCount--;
+
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged; 
+#endif
+
         }
 
         /// <summary>
@@ -246,16 +256,29 @@ namespace XFABManager
         {
             base.OnAbort();
 
-            if (downloadFile.downloadHandler != null)
+#if UNITY_EDITOR
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged; 
+#endif
+            
+            if (downloadFile != null && downloadFile.downloadHandler != null)
             {
                 DownloadHandlerFileRange range = downloadFile.downloadHandler as DownloadHandlerFileRange;
                 if (range != null) range.Close();
             }
-            downloadFile?.Abort();
-            downloadFile?.Dispose();
 
-            if (runing_coroutine != null)
+            if (downloadFile != null) 
+            { 
+                downloadFile.Abort();
+                downloadFile.Dispose();
+                downloadFile = null;
+            }
+
+
+            if (runing_coroutine != null) 
+            { 
                 CoroutineStarter.Stop(runing_coroutine);
+                runing_coroutine = null;
+            }
         }
 
     }

@@ -8,6 +8,20 @@ using UnityEngine;
 
 namespace XFABManager
 {
+
+    public class ProjectTreeItem :TreeViewItem
+    {
+
+        public XFABProject Project { get; private set; }
+
+        public ProjectTreeItem(XFABProject project) : base(project.name.GetHashCode(),0,project.name)
+        {
+            Project = project;
+        }
+
+    }
+
+
     public class ProjectListTree : TreeView
     {
         private string url;
@@ -23,10 +37,7 @@ namespace XFABManager
         private EditorWindow window;
 
         private GUIStyle textStyle;
-
-        private Dictionary<string, bool> projects = new Dictionary<string, bool>();
-  
-
+         
         internal static MultiColumnHeaderState CreateDefaultMultiColumnHeaderState()
         {
             return new MultiColumnHeaderState(GetColumns());
@@ -73,11 +84,7 @@ namespace XFABManager
             showAlternatingRowBackgrounds = true;
             this.window = window;
 
-            projects.Clear();
-            foreach (var item in XFABProjectManager.Instance.Projects)
-            {
-                projects.Add(item.name, true);
-            } 
+           
         }
 
         protected override TreeViewItem BuildRoot()
@@ -88,11 +95,12 @@ namespace XFABManager
                 textStyle.richText = true;
             }
 
+             
             TreeViewItem root = new TreeViewItem(-1, -1);
 
-            foreach (var item in projects.Keys)
+            foreach (var item in XFABProjectManager.Instance.Projects)
             {
-                TreeViewItem groupItem = new TreeViewItem(item.GetHashCode(), 0, item);
+                ProjectTreeItem groupItem = new ProjectTreeItem(item);
                 root.AddChild(groupItem);
             }
 
@@ -117,8 +125,10 @@ namespace XFABManager
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
 
-            XFABProject project = XFABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
-            if (project == null) { return; }
+
+            ProjectTreeItem groupItem = item as ProjectTreeItem;
+             
+            if (groupItem == null) { return; }
 
             switch (column)
             {
@@ -126,22 +136,24 @@ namespace XFABManager
                     CellGUIDisplayName(cellRect, item);
                     break;
                 case 1:         // DisplayName
-                    GUI.Label(cellRect, project.displayName);
-
-
-
+                    GUI.Label(cellRect, groupItem.Project.displayName); 
                     break;
                 case 2:         // 更新模式
-                    if (projects.ContainsKey(project.name))
-                    {
-                         GUI.Label(cellRect,project.version);
-                    }
-
+               
+                    GUI.Label(cellRect, groupItem.Project.version);
+                     
                     break;
 
 
                     //}
 
+            }
+
+
+
+            if (rootItem.hasChildren && rootItem.children.Count != XFABProjectManager.Instance.Projects.Count) {
+
+                Reload();
             }
 
         }

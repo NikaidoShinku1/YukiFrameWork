@@ -1,12 +1,11 @@
 ﻿
 #if UNITY_EDITOR
-using System;
-using System.Collections;
+using System; 
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using UnityEditor;
-using UnityEngine;
+using UnityEditor; 
+using UnityEngine; 
 
 namespace XFABManager
 {
@@ -62,7 +61,7 @@ namespace XFABManager
 
 
         private string _out_path = null;
-
+         
         /// <summary>
         /// 打包后的AssetBundle存放路径
         /// </summary>
@@ -399,9 +398,13 @@ namespace XFABManager
         public XFABProject()
         {
             assetBundles = new List<XFABAssetBundle>();
+
+
 #pragma warning disable CS0612 // 类型或成员已过时
             dependenceProject = new List<string>();
 #pragma warning restore CS0612 // 类型或成员已过时
+
+
             InitBuildOptions();
         }
 
@@ -429,8 +432,9 @@ namespace XFABManager
             buildAssetBundleOptions.Add(new BuildOptionToggleData("AssetBundleStripUnityVersion", "在构建过程中删除存档文件和序列化文件头中的 Unity 版本号。", false, BuildAssetBundleOptions.AssetBundleStripUnityVersion));
 #endif
         }
-        [Obsolete]
+
         // 是否依赖于某个项目
+        [Obsolete]
         public bool IsDependenceProject(string name  ) {
 
 
@@ -602,6 +606,7 @@ namespace XFABManager
         {
 
             XFABAssetBundle bundle = GetAssetBundle(nameHashCode);
+
             if (bundle != null)
             {
                 RemoveAssetBundle(bundle);
@@ -721,7 +726,7 @@ namespace XFABManager
                             bundle.bundle_name = XFABTools.md5(System.IO.Path.GetFileName(file)); // 把文件名转成 md5 
                             // 这里的AssetBundle是为了打包临时构建的,直接把文件加入就可以了
                             // 不需要判断文件是否已经存在别的XFABAssetBundle中
-                            bundle.AddFile(file,true);
+                            bundle.AddFile(file);
                             bundles.Add(bundle);
                         }
                         break;
@@ -729,6 +734,102 @@ namespace XFABManager
             }
 
             return bundles;
+        }
+
+
+        /// <summary>
+        /// 查询重复(已经添加)的文件
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GetDuplicateFiles(IList<string> files)
+        {
+            List<string> strings = new List<string>();
+             
+            foreach (var assetPath in files)
+            {
+                if (string.IsNullOrEmpty(assetPath))
+                    continue;
+
+                if (AssetDatabase.IsValidFolder(assetPath))
+                {
+                    // 目录
+                    string[] guids = AssetDatabase.FindAssets("", new string[] { assetPath });
+                    foreach (var item in guids)
+                    {
+                        string f = AssetDatabase.GUIDToAssetPath(item);
+                        if (string.IsNullOrEmpty(f)) continue;
+                        if (strings.Contains(f)) continue;
+                        strings.Add(f);
+                    }
+
+                }
+                else
+                {
+                    // 文件
+                    if (!strings.Contains(assetPath))
+                        strings.Add(assetPath);
+                }
+
+
+
+            }
+
+            List<string> duplicates = new List<string>();
+
+            foreach (var item in strings)
+            {
+                if (IsContainFile(item))
+                {
+                    duplicates.Add(item);
+                }
+            }
+
+            return duplicates;
+        }
+
+
+        /// <summary>
+        /// 用于判断文件是否 已经添加
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        public bool ValidateFile(IList<string> files)
+        {  
+            return GetDuplicateFiles(files).Count == 0;
+        }
+
+
+
+        public void ShowDuplicateFilesTip(IList<string> files)
+        {
+            List<string> duplicates = GetDuplicateFiles(files);
+
+            int count = 0;
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var item in duplicates) 
+            {
+                string bundle_name = string.Empty;
+
+                XFABAssetBundle bundle =  GetBundleByContainFile(item);
+
+                if (bundle != null)
+                    bundle_name = bundle.bundle_name;
+
+                sb.Append("文件:").Append(item).Append("\t").Append("已添加到: ").Append(bundle_name).Append(" 中!").AppendLine();
+                sb.AppendLine();
+                count++;
+                if (count > 20) break;
+            }
+
+            if (duplicates.Count > 20)
+                sb.AppendLine("...");
+
+            sb.AppendLine();
+            sb.Append("请勿重复添加!");
+
+            EditorUtility.DisplayDialog("文件已存在", sb.ToString(), "确定"); 
         }
 
     }

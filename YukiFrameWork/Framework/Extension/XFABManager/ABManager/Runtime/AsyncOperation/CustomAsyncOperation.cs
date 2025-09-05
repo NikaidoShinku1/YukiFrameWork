@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System; 
+using UnityEngine; 
+
+
 namespace XFABManager
 {
     public class CustomAsyncOperation<T> : CustomYieldInstruction where T : CustomAsyncOperation<T>
@@ -24,7 +24,9 @@ namespace XFABManager
 
         #region 属性 
 
+#pragma warning disable IDE1006 // 命名样式
         public bool isDone { get { return isCompleted; } }
+#pragma warning restore IDE1006 // 命名样式
 
 
         protected bool isCompleted {
@@ -86,6 +88,23 @@ namespace XFABManager
             isCompleted = true;
         }
 
+
+        protected void CompletedWithoutNotify(string error = null) 
+        {
+            this.error = error;
+            CompletedWithoutNotify();  
+        }
+
+        private void CompletedWithoutNotify() 
+        {
+            progress = 1;
+
+            if (isCompleted) return; 
+            _isCompleted = true; 
+            OnCompleted(); 
+        }
+
+
         public void AddCompleteEvent(Action<T> action)
         {
             _completed += action;
@@ -104,16 +123,16 @@ namespace XFABManager
             _completed = null;
         }
 
-        public void Abort()
-        {
+        public void Abort() 
+        { 
             Completed("request abort!");
             OnAbort();
         }
 
-        protected virtual void OnAbort()
-        {
-
+        protected virtual void OnAbort() {
+            
         }
+
     }
 
 }

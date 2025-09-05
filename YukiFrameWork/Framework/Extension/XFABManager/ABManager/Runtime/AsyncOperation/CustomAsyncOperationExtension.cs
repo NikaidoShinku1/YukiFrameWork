@@ -30,6 +30,21 @@ namespace YukiFrameWork
             return awaiter;
         }
 
+        public static YieldTask<LoadSceneRequest> GetAwaiter(this LoadSceneRequest asyncOperation)
+        {
+            var awaiter = new YieldTask<LoadSceneRequest>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return asyncOperation;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+
+                awaiter.Complete(null, asyncOperation);
+            }
+            return awaiter;
+        }
+
         [Obsolete]
         public static YieldTask<UnityEngine.Object> CancelWaitGameObjectDestroy<T>(this LoadAssetRequest asyncOperation,T component)
             where T : Component

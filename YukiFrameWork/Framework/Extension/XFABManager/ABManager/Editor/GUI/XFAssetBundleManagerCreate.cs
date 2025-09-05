@@ -83,7 +83,7 @@ namespace XFABManager
                         return;
                     }
                     path = path.Replace(Application.dataPath, "Assets");
-                    Debug.Log(path);
+                    //Debug.Log(path);
                     XFABProject project = CreateInstance<XFABProject>();
 
                     //设置数据

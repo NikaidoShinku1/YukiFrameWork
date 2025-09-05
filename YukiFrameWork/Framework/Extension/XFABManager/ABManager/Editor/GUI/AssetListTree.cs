@@ -129,14 +129,25 @@ namespace XFABManager
             {
                 if (args.performDrop)
                 {
-                    for (int i = 0; i < DragAndDrop.paths.Length; i++)
+
+                    if (project.ValidateFile(DragAndDrop.paths))
                     {
-                        Debug.Log("添加文件:"+ DragAndDrop.paths[i]);
-                        Bundle.AddFile(DragAndDrop.paths[i]);
+                        // 如果验证通过 添加文件
+                        for (int i = 0; i < DragAndDrop.paths.Length; i++)
+                        { 
+                            Bundle.AddFile(DragAndDrop.paths[i]);
+                        }
+                        // 保存
+                        project.Save();
+                        Reload();
                     }
-                    // 保存
-                    project.Save();
-                    Reload();
+                    else 
+                    {
+                        // 验证不通过 给个提示 
+                        project.ShowDuplicateFilesTip(DragAndDrop.paths);
+                    }
+
+
                 }
 
                 return DragAndDropVisualMode.Copy;
@@ -419,7 +430,7 @@ namespace XFABManager
             List<AssetTreeItem> assets = (List<AssetTreeItem>)obj;
             for (int i = 0; i < assets.Count; i++)
             {
-                Debug.Log(" 移除资源! " + assets[i].FileInfo.AssetPath);
+                Debug.LogFormat("移除成功:{0}" , assets[i].FileInfo.AssetPath);
                 Bundle.RemoveFile(assets[i].FileInfo.guid);
             }
             project.Save();

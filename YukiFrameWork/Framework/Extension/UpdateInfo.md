@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志
 
+V1.53.3 新增Toggle的纯净事件监听，新增XFABManager的LoadSceneRequest的await语法糖
+
+V1.53.2 同步更新XFABManager
+
 V1.53.1修复BuffKit与SkillKit中偶现图片添加失败的问题，DiaLogKit重构升级2.0版本，更加自由通用
 
 V1.52.1 SkillKit底层重构进入2.0版本，BuffKit API优化为拓展方法。文档更新

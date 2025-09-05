@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
+
 namespace XFABManager
 {
 
@@ -54,6 +55,8 @@ namespace XFABManager
         private SearchField searchField;
         private SearchField bundleSerchField;
 
+        private GUIStyle empty_label_style;
+
         public AssetBundlesPanel() {
 
             searchField = new SearchField();
@@ -64,7 +67,7 @@ namespace XFABManager
         {
             this.window = window;
             this.position = position;
-
+             
             if (bundleListTree == null)
             {
                 // 创建
@@ -118,8 +121,12 @@ namespace XFABManager
                 position.height * VerticalLeftSplitPercent - search_field_height);
             bundleListTree.OnGUI(bundleListRect);
 
+
+
             
 
+            EditorGUI.BeginDisabledGroup(!bundleListTree.HasSelection());
+             
 
             assetListRect.Set(position.x + position.width * HorizontalSplitPercent + padding,
                 position.y + search_field_height,
@@ -143,7 +150,31 @@ namespace XFABManager
             VerticalResize();
             HorizontalResize();
 
+
+            EditorGUI.EndDisabledGroup();
+
+            if (!bundleListTree.HasSelection())
+            {
+                if (empty_label_style == null)
+                {
+                    empty_label_style = new GUIStyle("NotificationBackground");
+                    empty_label_style.richText = true;
+                    //empty_label_style.fontSize = 20;
+                    empty_label_style.alignment = TextAnchor.MiddleCenter;
+                }
+
+                Rect r = new Rect();
+
+                r.width = 350; 
+                r.height = 130;
+                r.center = assetListRect.center;
+
+                GUI.Label(r, "未选中AssetBundle!", empty_label_style);
+            }
+
+
             //GUILayout.Label(Input.mousePosition.ToString());
+
 
 
             if (isResizingHorizontal || isResizingVerticalLeft)

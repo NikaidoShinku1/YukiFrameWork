@@ -42,7 +42,7 @@ namespace XFABManager
         private GUIContent profileContent;
         private GUIContent toolsContent;
         private GUIContent showContent;
-
+        private float lastRefreshTime;
         private Rect projectsRect;
         private Dictionary<ProjectsShowMode, BaseShowProjects> showProjects = new Dictionary<ProjectsShowMode, BaseShowProjects>();
 
@@ -155,6 +155,12 @@ namespace XFABManager
             if (showProjects.ContainsKey( XFABManagerSettings.Instances.ShowMode)) {
                 projectsRect.Set(0, showMode.height, FrameWorkDisignWindow.Instance.position.width, FrameWorkDisignWindow.Instance.position.height - showMode.height);
                 showProjects[XFABManagerSettings.Instances.ShowMode].DrawProjects( projectsRect, FrameWorkDisignWindow.Instance);
+
+                if (Time.realtimeSinceStartup - lastRefreshTime > 2 && !EditorApplication.isPlaying)
+                {
+                    XFABProjectManager.Instance.RefreshProjects();
+                    lastRefreshTime = Time.realtimeSinceStartup;
+                }
             }
         }
 

@@ -953,6 +953,13 @@ namespace YukiFrameWork
             return button;
         }
 
+        public static Toggle AddListenerPure(this Toggle toggle, UnityAction<bool> unityAction)
+        {
+            toggle.onValueChanged.RemoveAllListeners();
+            toggle.onValueChanged.AddListener(unityAction);
+            return toggle;
+        }
+
         public static Slider AddListenerPure(this Slider slider, UnityAction<float> unityAction)
         {
             slider.onValueChanged.RemoveAllListeners();

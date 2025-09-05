@@ -56,6 +56,9 @@ namespace XFABManager
 
         //private long size;
         private System.IO.FileInfo fileInfo;
+
+        private List<string> _files;
+
         public string AssetPath {
             get {
                 return AssetDatabase.GUIDToAssetPath(guid);
@@ -84,7 +87,7 @@ namespace XFABManager
                 //}
             }
         }
-        private List<string> _files;
+
         /// <summary>
         /// 返回所有的文件路径
         /// </summary>
@@ -92,7 +95,7 @@ namespace XFABManager
         {
             get
             {
-                if (_files == null)
+                if(_files == null)
                     _files = new List<string>();
 
                 _files.Clear();
@@ -106,12 +109,12 @@ namespace XFABManager
                     string asset_path = AssetPath;
 
                     if (!string.IsNullOrEmpty(asset_path))
-                    {
-                        if (string.IsNullOrEmpty(filter) || filter.ToLower().Equals("all"))
+                    { 
+                        if (string.IsNullOrEmpty(filter) || filter.ToLower().Equals("all") )
                             guids = AssetDatabase.FindAssets("", new string[] { asset_path });
-                        else
-                            guids = AssetDatabase.FindAssets(string.Format("t:{0}", filter), new string[] { asset_path });
-
+                        else 
+                            guids = AssetDatabase.FindAssets(string.Format("t:{0}",filter), new string[] { asset_path });
+                    
 
                         // 去除重复的
                         for (int i = 0; i < guids.Length; i++)
@@ -120,7 +123,7 @@ namespace XFABManager
                             if (!_files.Contains(file_path) && AssetBundleTools.IsValidAssetBundleFile(file_path))
                                 _files.Add(file_path);
                         }
-                    }
+                    } 
                 }
                 else if (type == XFBundleFileType.File)
                     _files.Add(AssetPath);
@@ -202,38 +205,26 @@ namespace XFABManager
             this.projectName = projectName;
         }
 
+
+        [Obsolete("已过时,请使用重载方法AddFile(string asset_path)代替!")]
         public void AddFile(string assetPath,bool ignoreRemoveOther = false) {
             //string asset_path = AssetDatabase.GUIDToAssetPath(guid);
-            if ( string.IsNullOrEmpty(assetPath) )
-            {
-                Debug.Log("文件不存在!");
+            AddFile(assetPath);
+        }
+
+        public void AddFile(string asset_path) {
+
+            if (string.IsNullOrEmpty(asset_path))
+            { 
                 return;
             }
 
-            if (!ignoreRemoveOther) 
-            {  
-                // 判断这个文件是不是存在别的AssetBundle中 ( 一个文件 只能存在一个AssetBundle中 )
-                RemoveOtherBundleFile(assetPath);
-
-                // 如果是文件夹 判断这个文件夹下所有的文件
-                if (AssetDatabase.IsValidFolder(assetPath))
-                {
-
-                    string[] guids = AssetDatabase.FindAssets("", new string[] { assetPath });
-
-                    for (int j = 0; j < guids.Length; j++)
-                    {
-                        RemoveOtherBundleFile(AssetDatabase.GUIDToAssetPath(guids[j]));
-                    }
-                }
-            }
-
-
-
-            FileInfo fileInfo = new FileInfo(AssetDatabase.AssetPathToGUID(assetPath));
+            FileInfo fileInfo = new FileInfo(AssetDatabase.AssetPathToGUID(asset_path));
             AddFile(fileInfo);
-        }
 
+            Debug.LogFormat("添加成功:{0}", asset_path);
+        }
+         
         // 移除其他 bundle 中的文件
         private void RemoveOtherBundleFile(string asset_path)
         {
@@ -429,8 +420,7 @@ namespace XFABManager
                 {
                     files.RemoveAt(i);
                 }
-            }
-
+            } 
         }
 
         public string GetAssetPathByFileName(string fileName,Type type)

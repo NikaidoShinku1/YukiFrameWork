@@ -1,3 +1,17 @@
+## version 1.18.5 更新内容
+
+1. 优化 DownloadFileRequest!
+
+## version 1.18.4 更新内容
+
+1. 优化编辑器添加资源逻辑!
+2. 优化资源模块列表刷新逻辑!
+3. 优化资源管理窗口显示效果!
+
+## version 1.18.3 更新内容
+
+1. CustomAsyncOperation 添加方法 CompletedWithoutNotify！
+
 ## version 1.18.2 更新内容
 
 1. 修复无法创建资源模块的问题!

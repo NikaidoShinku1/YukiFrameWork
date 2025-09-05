@@ -33,6 +33,11 @@ namespace YukiFrameWork
             return task.Invoke().GetAwaiter();
         }
 
+        public static YieldTask<LoadSceneRequest> Run(Func<LoadSceneRequest> task)
+        {
+            return task.Invoke().GetAwaiter();
+        }
+
         public static YieldTask<UnityEngine.Object> Run(Func<ResourceRequest> task)
         {
             return task.Invoke().GetAwaiter();

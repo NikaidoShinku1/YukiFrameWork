@@ -155,7 +155,7 @@ namespace YukiFrameWork
             AssetBundleManager.LoadScene(projectName, sceneName, mode);
         }
 
-        public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack = null, LoadSceneMode mode = LoadSceneMode.Single)
+        public IEnumerator LoadSceneAsync(string sceneName, Action<float> loadingCallBack, LoadSceneMode mode = LoadSceneMode.Single)
             => isInited ? SceneTool.LoadSceneAsync(AssetBundleManager.LoadSceneAsynchrony(projectName, sceneName, mode),loadingCallBack) : throw new Exception("没有完成对SceneTool.XFABManager的初始化，请调用一次Init方法");
 
         public LoadSceneRequest LoadSceneAsync(string sceneName, LoadSceneMode loadSceneMode = LoadSceneMode.Single)

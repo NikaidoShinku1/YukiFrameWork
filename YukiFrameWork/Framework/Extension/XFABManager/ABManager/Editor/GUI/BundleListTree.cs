@@ -358,32 +358,40 @@ public class BundleListTree : DragableTreeView<XFABAssetBundle>
         {
             if (args.performDrop)
             {
-
-                string filename = Path.GetFileNameWithoutExtension(DragAndDrop.paths[0]).ToLower();
-
-                if (mainWindow.Project.IsContainAssetBundleName(filename))
+                if (mainWindow.Project.ValidateFile(DragAndDrop.paths))
                 {
-                    XFABAssetBundle b = mainWindow.Project.GetAssetBundle(filename);
-                    if (b.files.Count == 1 && b.files[0].AssetPath == DragAndDrop.paths[0])
+                    string filename = Path.GetFileNameWithoutExtension(DragAndDrop.paths[0]).ToLower();
+
+                    if (mainWindow.Project.IsContainAssetBundleName(filename))
                     {
-                        mainWindow.ShowNotification(new GUIContent("资源已经存在,请勿重复添加!"));
-                        return DragAndDropVisualMode.None;
+                        XFABAssetBundle b = mainWindow.Project.GetAssetBundle(filename);
+                        if (b.files.Count == 1 && b.files[0].AssetPath == DragAndDrop.paths[0])
+                        {
+                            mainWindow.ShowNotification(new GUIContent("资源已经存在,请勿重复添加!"));
+                            return DragAndDropVisualMode.None;
+                        }
                     }
+
+                    string bundleName = GetBundleName(filename).ToLower();
+                    XFABAssetBundle bundle = new XFABAssetBundle(bundleName, mainWindow.Project.name);
+
+                    for (int i = 0; i < DragAndDrop.paths.Length; i++)
+                    {
+                        bundle.AddFile(DragAndDrop.paths[i]);
+                    }
+
+                    mainWindow.Project.AddAssetBundle(bundle);
+                    // 保存
+                    mainWindow.Project.Save();
+
+                    Reload();
                 }
-
-                string bundleName = GetBundleName(filename).ToLower();
-                XFABAssetBundle bundle = new XFABAssetBundle(bundleName, mainWindow.Project.name);
-
-                for (int i = 0; i < DragAndDrop.paths.Length; i++)
+                else 
                 {
-                    bundle.AddFile(DragAndDrop.paths[i]);
+                    mainWindow.Project.ShowDuplicateFilesTip(DragAndDrop.paths);
                 }
 
-                mainWindow.Project.AddAssetBundle(bundle);
-                // 保存
-                mainWindow.Project.Save();
-
-                Reload();
+                
             }
 
             return DragAndDropVisualMode.Copy;

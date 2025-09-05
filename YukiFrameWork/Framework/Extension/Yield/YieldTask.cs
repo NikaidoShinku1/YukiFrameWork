@@ -15,7 +15,6 @@ using System.Threading;
 using UnityEngine;
 using YukiFrameWork.Extension;
 using UnityEngine.Networking;
-using System.Threading.Tasks;
 namespace YukiFrameWork
 {
 
@@ -218,7 +217,7 @@ namespace YukiFrameWork
         public static YieldTask<AsyncOperation> GetAwaiter(this AsyncOperation instruction)
         {
             return GetAwaiterReturnSelf(instruction);
-        }
+        }    
 
         public static YieldTask<UnityEngine.Object> GetAwaiter(this ResourceRequest instruction)
         {
