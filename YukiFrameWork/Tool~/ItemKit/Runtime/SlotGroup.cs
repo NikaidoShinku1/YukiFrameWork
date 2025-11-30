@@ -118,7 +118,45 @@ namespace YukiFrameWork.Item
             if (uiRefresh)
                 UIRefresh?.Invoke();
             return this;
-        }      
+        }
+
+        /// <summary>
+        /// 根据指定的标识移除插槽本身
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="uiRefresh"></param>
+        /// <returns></returns>
+        public SlotGroup RemoveSlot(int index,bool uiRefresh = false)
+        {
+            if (index >= slots.Count) return this;
+
+            if (index < 0) return this;
+
+            Slot slot = slots[index];
+
+            ClearItemByIndex(index);
+            slots.RemoveAt(index);
+           
+            if (uiRefresh)
+                UIRefresh?.Invoke();
+            return this;
+        }
+
+        /// <summary>
+        /// 根据该分组内指定的插槽移除物品
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <param name="uiRefresh"></param>
+        /// <returns></returns>
+        public SlotGroup RemoveSlot(Slot slot, bool uiRefresh = true)
+        {
+            return RemoveSlot(slots.IndexOf(slot), uiRefresh);
+        }
+
+        public int FindSlotIndex(Slot slot)
+        {
+            return slots.IndexOf(slot);
+        }
 
         /// <summary>
         /// 为物品仓库排序
@@ -346,6 +384,7 @@ namespace YukiFrameWork.Item
         /// <returns></returns>
         public bool RemoveItem(IItem item, int removeCount = 1)
         {
+            if (item == null) return false;
             return RemoveItem(item.Key, removeCount);
         }
 

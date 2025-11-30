@@ -44,6 +44,47 @@ namespace YukiFrameWork.UI
 
         public static SelectableNavigation CurrentSelectedNavigation { get; set; }
 
+        internal static void SendCurrentSelectableEvent(SelectionState selectionState, GamepadPanelExtension gamepadPanelExtension)
+        {
+            if (CurrentSelectedNavigation.gamepadPanel != gamepadPanelExtension)
+                return;
+            SendCurrentSelectableEvent(selectionState);
+        }
+        /// <summary>
+        /// 手动发送当前导航选择对象的事件
+        /// <para>Tips:需要挂载SelectableEvent组件</para>
+        /// </summary>
+        /// <param name="selectionState"></param>
+        public static void SendCurrentSelectableEvent(SelectionState selectionState)
+        {
+            if (!CurrentSelectedNavigation) return;
+
+            if (selectionState == SelectionState.None) return;
+
+            SelectableEvent selectableEvent = CurrentSelectedNavigation.GetComponent<SelectableEvent>();
+
+            if (!selectableEvent) return;
+            switch (selectionState)
+            {
+                case SelectionState.Normal:
+                    selectableEvent.onNormal?.Invoke();
+                    break;
+                case SelectionState.Highlighted:
+                    selectableEvent.onHighlighted?.Invoke();
+                    break;
+                case SelectionState.Pressed:
+                    selectableEvent.onPressed?.Invoke();
+                    break;
+                case SelectionState.Selected:
+                    selectableEvent.onSelected?.Invoke();
+                    break;
+                case SelectionState.Disabled:
+                    selectableEvent.onDisabled?.Invoke();
+                    break;
+                default:
+                    break;
+            }
+        }
         #endregion
 
 
@@ -252,8 +293,49 @@ namespace YukiFrameWork.UI
             }
 
             CurrentSelectedNavigation = this;
+            
+            if (gamepadPanel && gamepadPanel.KeyBoardListener)
+            {
+                //监听键盘上下左右
+                foreach (var keyboard in InputKit.AllKeyboards)
+                {
+                    if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame)
+                    {
+                        // 上
+                        Selectable upObj = FindSelectableUp();
+                        if (upObj != null)
+                            StartCoroutine(DelaySelect(upObj));
+                        break;
+                    }
 
+                    if (keyboard.downArrowKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame)
+                    {
+                        // 下
+                        Selectable upObj = FindSelectableDown();
+                        if (upObj != null)
+                            StartCoroutine(DelaySelect(upObj));
+                        break;
+                    }
 
+                    if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame)
+                    {
+                        // 左
+                        Selectable upObj = FindSelectableLeft();
+                        if (upObj != null)
+                            StartCoroutine(DelaySelect(upObj));
+                        break;
+                    }
+
+                    if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame)
+                    {
+                        // 右
+                        Selectable upObj = FindSelectableRight();
+                        if (upObj != null)
+                            StartCoroutine(DelaySelect(upObj));
+                        break;
+                    }
+                }
+            }
             // 监听手柄上下左右
             foreach (var gamepad in InputKit.AllGamepads)
             {

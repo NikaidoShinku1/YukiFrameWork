@@ -142,7 +142,8 @@ namespace YukiFrameWork.Machine
         public event Action onStateMachineStarted;
 
         /// <summary>
-        /// 获取当前运行的状态信息
+        /// 获取当前正在运行的状态信息
+        /// <para>Tip:CurrentState属性获取当前状态机正在运行的状态。GetCurrentStateInfo方法获取精确到子状态机的状态</para>
         /// </summary>
         /// <returns></returns>
         public StateBase GetCurrentStateInfo()

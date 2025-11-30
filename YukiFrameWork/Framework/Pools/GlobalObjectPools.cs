@@ -11,6 +11,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using YukiFrameWork.Extension;
 namespace YukiFrameWork.Pools
 {
     public interface IGlobalSign
@@ -50,13 +51,19 @@ namespace YukiFrameWork.Pools
         /// </summary>
         public int maxCount;
         /// <summary>
-        /// 池子当前失活数量
+        /// 池子当前物品数量
         /// </summary>
         public int recycleCount;
         /// <summary>
         /// 池子是否可以通过私有构造函数构建
         /// </summary>
         public bool isNoPublic;
+
+        /// <summary>
+        /// 自定义的生成器类型(如没有则为空)
+        /// </summary>
+        public Type generatorType;
+
         /// <summary>
         /// 池子的类型信息
         /// </summary>
@@ -65,11 +72,16 @@ namespace YukiFrameWork.Pools
         /// 池子最后使用的时间
         /// </summary>
         public float lastTime;
+
+        public override string ToString()
+        {
+            return $"池子最大数量:{maxCount}\n池子当前物品数量:{recycleCount}\n池子是否可以通过私有构造函数构建:{isNoPublic} <color=yellow>Tips:具有生成器时该属性恒定为False</color>\n自定义生成器类型:{generatorType}\n池子的类型信息:{type}\n池子最后使用时间:{lastTime}";
+        }
     }
     /// <summary>
     /// 全局对象池,根据类型取出对象,对象池拥有独立的生命周期管理，每一分钟检查一次对象池是否超过五分钟未使用，如果超过五分钟未使用会将整个池清空释放,默认对象池容量为200
     /// </summary>
-    public class GlobalObjectPools : Singleton<GlobalObjectPools>, IPools<IGlobalSign>, IDisposable
+    public static class GlobalObjectPools 
     {
         internal const float RELEASEPOOL_TIMER = 60;
         internal const float MAXRELEASEPOOL_TIMER = 5 * 60;
@@ -147,15 +159,14 @@ namespace YukiFrameWork.Pools
             {
                 return pools.GetEnumerator();
             }
-        }
-
-        private GlobalObjectPools()
+        }      
+        static GlobalObjectPools()
         {           
             if (!Application.isPlaying) return;
             MonoHelper.Start(CheckPools());
         }
 
-        private IEnumerator CheckPools()
+        private static IEnumerator CheckPools()
         {
             while (true)
             {
@@ -193,7 +204,7 @@ namespace YukiFrameWork.Pools
         /// <returns></returns>
         public static bool RemovePools(Type type)
         {
-            return Instance.pools.Remove(type);
+            return pools.Remove(type);
         }
 
         /// <summary>
@@ -214,18 +225,18 @@ namespace YukiFrameWork.Pools
         public static bool RemoveDependPools(Type type)
         {
             //如果跟自动冲突了，先打掉自动部分，确保清空正确有序
-            Instance.releases.Clear();
+            releases.Clear();
 
-            foreach (var item in Instance.pools.Values)
+            foreach (var item in pools.Values)
             {
                 //如果池子的类型与指定类型没有联系直接跳过遍历
                 if (!type.IsAssignableFrom(item.type)) continue;               
-                Instance.releases.Add(item.type);
+                releases.Add(item.type);
             }
 
-            if (Instance.releases.Count == 0) return false;
+            if (releases.Count == 0) return false;
 
-            Instance.CleanType();
+            CleanType();
             
             return true;
         }
@@ -247,21 +258,32 @@ namespace YukiFrameWork.Pools
         /// <returns></returns>
         public static PoolInfo GetPoolInfo(Type type)
         {
-            if (Instance.pools.TryGetValue(type, out var pool))
+            if (pools.TryGetValue(type, out var pool))
             {
-                return new PoolInfo()
+                PoolInfo info = new PoolInfo()
                 {
                     maxCount = pool.MaxSize,
                     recycleCount = pool.Count,
                     type = pool.type,
                     isNoPublic = pool.IsNoPublic,
-                    lastTime = pool.lastTime
+                    lastTime = pool.lastTime,
+                    generatorType = (pool.generator == null) ? null : pool.generator.GetType()
                 };
+                return info;
             }
             return default;
         }
 
-        private void CleanType()
+        /// <summary>
+        /// 清空全局对象池
+        /// </summary>
+        public static void ClearAllPools()
+        {
+            releases.Clear();
+            pools.Clear();
+        }
+
+        private static void CleanType()
         {
             for (int i = 0; i < releases.Count; i++)
             {
@@ -271,9 +293,9 @@ namespace YukiFrameWork.Pools
             releases.Clear();
         }
       
-        private Dictionary<Type, GlobalPool> pools = new Dictionary<Type, GlobalPool>();
+        private static Dictionary<Type, GlobalPool> pools = new Dictionary<Type, GlobalPool>();
 
-        private List<Type> releases = new List<Type>();
+        private static List<Type> releases = new List<Type>();
      
         public static object GlobalAllocation(Type type)
         {
@@ -286,13 +308,16 @@ namespace YukiFrameWork.Pools
             {
                 throw new Exception("对象没有继承IGlobalSign接口，无法使用对象池");
             }
-            if (!Instance.pools.TryGetValue(type, out var pool))
+            if (!pools.TryGetValue(type, out var pool))
             {
                 pool = SetGlobalPoolsBySize_Internal(200,false, type, null);
             }          
             IGlobalSign sign = pool.Get();
             return sign;
         }
+
+        internal static IEnumerable<Type> GetAllPoolTypes()
+            => pools.Keys;
 
         /// <summary>
         /// 设置池子的大小
@@ -342,7 +367,7 @@ namespace YukiFrameWork.Pools
             {
                 throw new InvalidCastException($"池对象生成器类型并不是池类型，请检查后重试! Pool Type:{type} --- generator Type:{generator.Type}");
             }
-            if (!Instance.pools.TryGetValue(type, out var pool))
+            if (!pools.TryGetValue(type, out var pool))
             {
                 pool = new GlobalPool()
                 {
@@ -377,7 +402,7 @@ namespace YukiFrameWork.Pools
                         }
                     }
                 }
-                Instance.pools.Add(type, pool);
+                pools.Add(type, pool);
             }
             else
             {
@@ -386,49 +411,20 @@ namespace YukiFrameWork.Pools
             }
             pool.MaxSize = maxSize;
             return pool;
-        }
-
-        ~GlobalObjectPools()
-        {            
-            Dispose();
-        }
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();           
-            pools.Clear();
-        }
+        }       
 
         public static T GlobalAllocation<T>()
         {
             return (T)GlobalAllocation(typeof(T));
         } 
 
-        public static bool GlobalRelease(IGlobalSign obj) => Instance.Release(obj);
+        public static bool GlobalRelease(IGlobalSign obj) => Release(obj);       
 
-        void IPools<IGlobalSign>.Clear(Action<IGlobalSign> clearMethod)
-        {
-            foreach (var pool in pools.Values)
-            {
-                foreach (var obj in pool)
-                {
-                    clearMethod?.Invoke(obj);
-                }
-            }
-
-            pools.Clear();
-        }
-
-        IGlobalSign IPools<IGlobalSign>.Get()
-        {
-            throw new Exception("无泛型全局对象池应该使用静态的GlobalAllocation进行物品取出");
-        }
-
-        public bool Release(IGlobalSign obj)
+        internal static bool Release(IGlobalSign obj)
         {
             if (obj == null || obj.IsMarkIdle) return false;            
             Type type = obj.GetType();
-            if (!Instance.pools.TryGetValue(type, out var pool))
+            if (!pools.TryGetValue(type, out var pool))
             {
                 pool = SetGlobalPoolsBySize_Internal(200,false, type,null);
             }

@@ -221,7 +221,7 @@ namespace YukiFrameWork.Machine
                 CurrentChildMachine.CheckConditionAndSwitch();
 
             }
-            StateMachineCore.StateManager.onChangeState?.Invoke(StateMachineCore, this, CurrentState.Name);
+            StateMachineCore.StateManager.onChangeState?.Invoke(StateMachineCore, this);
 
         }
 

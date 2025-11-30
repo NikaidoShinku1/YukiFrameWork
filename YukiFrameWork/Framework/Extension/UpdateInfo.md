@@ -1,5 +1,27 @@
 ﻿#### 框架更新日志
 
+V1.53.14 UINavigation模块修复面板切换时可能会多次触发自定义按键的问题，StateMachine模块优化切换状态的事件参数，修复生成代码时命名空间无效的问题
+
+V1.53.13 UINavigation模块新增对SelectableEvent组件的自定义按下按键适配
+
+V1.53.12 UINavigation模块的手柄导航拓展适配添加默认键盘导航处理。
+
+V1.53.11 UINavigation模块优化代码细节，新增部分API，UIColor小工具脚本优化
+
+V1.53.10 BindableProperty新增代码模式匹配，BuffKit新增查询BuffController的API
+ 
+V1.53.9 对象池优化细节，作为全局类，优化PoolInfo的调试信息，ItemKit新增物品移除插槽的API，优化细节
+
+V1.53.8 修复BuffKit移除Buff提示无法操作迭代器的bug
+
+V1.53.7 UiKit修复拖拽只能在PC端使用的问题，修复持久化BindableProperty在安卓端偶现失效的问题
+
+V1.53.6 UIKit新增PreLoadPanelAsync、PreLoadPanel、IsPanelExist方法，更新文档
+
+V1.53.5 UIKit新增可视化生命周期事件注册， RandomKit优化细节
+
+V1.53.4 BindablePropertyStruct新增默认构造函数，屏蔽Texture2d转AnimationClip窗口
+
 V1.53.3 新增Toggle的纯净事件监听，新增XFABManager的LoadSceneRequest的await语法糖
 
 V1.53.2 同步更新XFABManager

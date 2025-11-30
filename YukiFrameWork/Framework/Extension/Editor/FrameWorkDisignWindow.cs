@@ -99,6 +99,7 @@ namespace YukiFrameWork
         [InitializeOnLoadMethod]
         static void EditorInit()
         {
+           // MultipleAnimationConvertWindow
             FrameworkConfigInfo.CreateConfig();
             LogKit.EditorInit();
         }
@@ -169,8 +170,10 @@ namespace YukiFrameWork
 
             try
             {
-                tree.Add("AnimationClip-Sprite转换工具/Single", new AnimationClipConvertWindow(), SdfIconType.Image);
-                tree.Add("AnimationClip-Sprite转换工具/Multiple", new MultipleAnimationConvertWindow(), SdfIconType.Images);
+                tree.Add("AnimationClip-Sprite转换工具", new AnimationClipConvertWindow(), SdfIconType.Image);
+               /* var window = GetWindow<MultipleAnimationConvertWindow>();
+                window.Close();
+                tree.Add("AnimationClip-Sprite转换工具/Multiple", window, SdfIconType.Images);*/
             }
             catch
             {

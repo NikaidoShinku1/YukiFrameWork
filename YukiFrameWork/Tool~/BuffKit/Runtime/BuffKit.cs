@@ -12,6 +12,8 @@ using System.Collections;
 using YukiFrameWork.Pools;
 using UnityEngine;
 using YukiFrameWork.Extension;
+using System.Linq;
+
 namespace YukiFrameWork.Buffer
 {
 
@@ -27,9 +29,9 @@ namespace YukiFrameWork.Buffer
         private static Dictionary<string, IBuff> runtime_buffs = new Dictionary<string, IBuff>();
 
         private static Dictionary<IBuffExecutor, List<BuffController>> allExecutor_BuffControllers = new Dictionary<IBuffExecutor, List<BuffController>>();
-       
+
         public static void Init(string projectName)
-        {          
+        {
             Init(new ABManagerBuffLoader(projectName));
         }
 
@@ -41,7 +43,7 @@ namespace YukiFrameWork.Buffer
             allExecutor_BuffControllers.Clear();
 
             //赋值加载器
-            BuffKit.buffLoader = buffLoader;                  
+            BuffKit.buffLoader = buffLoader;
         }
         [RuntimeInitializeOnLoadMethod]
         static void UpdateInit()
@@ -62,7 +64,7 @@ namespace YukiFrameWork.Buffer
         public static void AddBuffData(IBuff buff)
         {
             runtime_buffs.Add(buff.Key, buff);
-        }    
+        }
 
         /// <summary>
         /// 移除单一个Buff数据,该APi不会影响已经正在执行的Buff
@@ -99,8 +101,8 @@ namespace YukiFrameWork.Buffer
         /// <param name="buffDataBase"></param>
         public static void LoadBuffDataBase(BuffDataBase buffDataBase)
         {
-            foreach (var item in buffDataBase.buffConfigs)            
-                runtime_buffs.Add(item.Key, item.Instantiate());           
+            foreach (var item in buffDataBase.buffConfigs)
+                runtime_buffs.Add(item.Key, item.Instantiate());
         }
 
         /// <summary>
@@ -128,7 +130,7 @@ namespace YukiFrameWork.Buffer
         public static List<IEffect> GetEffects(this IBuffExecutor player)
         {
             List<IEffect> results = new List<IEffect>();
-            GetEffectsNonAlloc(player,results);
+            GetEffectsNonAlloc(player, results);
             return results;
         }
 
@@ -164,10 +166,10 @@ namespace YukiFrameWork.Buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<IEffect> GetEffects(this IBuffExecutor player,string key)
+        public static List<IEffect> GetEffects(this IBuffExecutor player, string key)
         {
             List<IEffect> results = new List<IEffect>();
-            GetEffectsNonAlloc(player, results,key);
+            GetEffectsNonAlloc(player, results, key);
             return results;
         }
 
@@ -176,7 +178,7 @@ namespace YukiFrameWork.Buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static void GetEffectsNonAlloc(this IBuffExecutor player, List<IEffect> results,string key) 
+        public static void GetEffectsNonAlloc(this IBuffExecutor player, List<IEffect> results, string key)
         {
             if (results == null)
                 throw new Exception("集合不能为空");
@@ -193,7 +195,7 @@ namespace YukiFrameWork.Buffer
                 foreach (var effect in item.Buff.EffectDatas)
                 {
                     if (effect.Key != key) continue;
-                 
+
                     results.Add(effect);
                 }
             }
@@ -216,7 +218,7 @@ namespace YukiFrameWork.Buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static void GetEffectsNonAllocByType(this IBuffExecutor player, List<IEffect> results, string type) 
+        public static void GetEffectsNonAllocByType(this IBuffExecutor player, List<IEffect> results, string type)
         {
             if (results == null)
                 throw new Exception("集合不能为空");
@@ -250,6 +252,40 @@ namespace YukiFrameWork.Buffer
             if (buff == null)
                 throw new Exception($"Buff丢失!请检查是否已经载入Buff Key:{key}");
             return buff;
+        }
+
+        /// <summary>
+        /// 获取指定玩家下所有的BuffController       
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public static List<BuffController> GetBuffControllers(this IBuffExecutor player)
+        {
+            CacheExecutor(player);
+            return allExecutor_BuffControllers[player];
+        }
+
+        /// <summary>
+        /// 获取指定玩家下的指定BuffController
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="buffKey"></param>
+        /// <returns></returns>
+        public static BuffController GetBuffController(this IBuffExecutor player,string buffKey)
+        {
+            CacheExecutor(player);
+
+            var controllers = GetBuffControllers(player);
+
+            foreach (var item in controllers)
+            {
+                if(item.IsMarkIdle) continue;
+
+                if (item.Buff.Key == buffKey)
+                    return item;
+
+            }
+            return null;
         }
 
         /// <summary>
@@ -389,13 +425,12 @@ namespace YukiFrameWork.Buffer
         {
             if (player == null) return;
             if (controller == null) return;
-            if (!allExecutor_BuffControllers.TryGetValue(player, out var controllers))
+            if (!allExecutor_BuffControllers.ContainsKey(player))
                 return;
-            if (!controllers.Contains(controller))
+            if (!allExecutor_BuffControllers[player].Contains(controller))
                 return;
 
-            controllers.Remove(controller);
-            allExecutor_BuffControllers[player] = controllers;
+            allExecutor_BuffControllers[player].Remove(controller);            
             controller.Remove();
             player.OnRemove(controller);            
             controller.GlobalRelease();
@@ -537,8 +572,7 @@ namespace YukiFrameWork.Buffer
 
                     controller.Update();
                     if (controller.Progress >= 1)
-                    {
-                        Debug.Log("时间到，移除Buff:" + executor.Key);
+                    {                       
                         RemoveBuff(executor.Key, controller);
                         i--;
                     }

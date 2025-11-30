@@ -252,8 +252,13 @@ namespace YukiFrameWork.UI
 
         internal static T OpenPanelExecute<T>(string name,UILevel level,T panelCore,params object[] param) where T : BasePanel
         {
+            return OpenPanelExecute<T>(name, level, panelCore, true, param);
+        }
+
+        internal static T OpenPanelExecute<T>(string name, UILevel level, T panelCore, bool isActive, params object[] param) where T : BasePanel
+        {
             UIManager uiMgr = UIManager.I;
-            var panel = Table.GetActivityPanel(name,panelCore.Level,panelCore.OpenType);           
+            var panel = Table.GetActivityPanel(name, panelCore.Level, panelCore.OpenType);
             if (panel == null)
             {
                 if (panelCore.OpenType != PanelOpenType.Multiple)
@@ -266,31 +271,31 @@ namespace YukiFrameWork.UI
                 }
                 if (panel == null)
                 {
-                    panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);                  
-                    panel.OnPreInit(param);
-                    panel.OnInit();
+                    panel = Object.Instantiate(panelCore, uiMgr.GetPanelLevel(level), false);
+                    panel.PreInit(param);
+                    panel.Init();
                 }
 
-                if (level != panel.Level)
+                if (level != panel.Level && isActive)
                 {
                     panel.SetLevel(level);
                     Table.ChangeLevelByActivityRemove(panel);
                     panel.gameObject.SetParent(uiMgr.GetPanelLevel(level));
                 }
-                panel.gameObject.name = name;                
-                if(panel.IsPanelCache)
+                panel.gameObject.name = name;
+                if (panel.IsPanelCache)
                     Table.AddActivityPanel(panel);
             }
 
-            if (panel != null && panel.Level != level)
+            if (panel != null && panel.Level != level && isActive)
             {
                 panel.SetLevel(level);
                 Table.ChangeLevelByActivityRemove(panel);
-                if(panel.IsPanelCache)
+                if (panel.IsPanelCache)
                     Table.AddActivityPanel(panel);
             }
 
-            if (!panel.IsActive)
+            if (!panel.IsActive && isActive)
             {
                 PanelInfo info = new PanelInfo();
                 info.panel = panel;
@@ -299,6 +304,11 @@ namespace YukiFrameWork.UI
                 info.panelType = typeof(T);
                 info.param = param;
                 Table.PushPanel(info);
+            }
+            else if(!isActive)
+            {
+                panel.CanvasGroup.blocksRaycasts = false;
+                panel.CanvasGroup.alpha = 0;
             }
             return (T)panel;
         }
@@ -428,6 +438,52 @@ namespace YukiFrameWork.UI
 #endif
         }
 
+        /// <summary>
+        /// 预加载面板(异步)，通过预加载的面板是不显示的，需要进行一次OpenPanel的调用
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="param"></param>
+        public static UILoadAssetRequest PreLoadPanelAsync<T>(string name = "",params object[] param) where T : BasePanel
+        {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
+            UIManager uiMgr = UIManager.I;
+            var panelCore = uiMgr.GetPanelCore<T>();
+            UILoadAssetRequest loadAssetRequest = new UILoadAssetRequest();
+            if (panelCore == null)
+            {
+                loader.LoadAsync<T>(name, panel =>
+                {
+                    uiMgr.AddPanelCore(panel);
+                    loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name, panel.Level, panel,false, param));
+                });
+                return loadAssetRequest;
+            }
+            return loadAssetRequest.LoadPanelAsync(OpenPanelExecute(name, panelCore.Level, panelCore,false, param));
+        }       
+        /// <summary>
+        /// 预加载面板，通过预加载的面板是不显示的，需要进行一次OpenPanel的调用
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static T PreLoadPanel<T>(string name = "", params object[] param) where T : BasePanel
+        {
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
+            T panel;
+            for (UILevel level = UILevel.BG; level <= UILevel.Top; level++)
+            {
+                panel = GetPanel<T>(level);
+
+                if (panel != null)
+                    return panel;
+            }
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
+            IPanel panelCore = GetPanelCore<T>(name);
+            panel = OpenPanelExecute<T>(name, panelCore.Level, panelCore as T, false, param);
+            return panel;
+        }
 
         /// <summary>
         /// 通过层级获取已经加载的该类型所有缓存面板
@@ -453,11 +509,12 @@ namespace YukiFrameWork.UI
         }
 
         /// <summary>
-        /// 强行获取面板(面板如果在场景中不存在则会创建一个,创建的面板如果是缓存面板会先进行关闭)
+        /// 强行获取面板(面板如果在场景中不存在则会创建一个,面板默认是关闭的)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
         /// <returns></returns>
+        [Obsolete("过时的方法，如果需要预加载面板，请通过PreLoadPanel方法!")]
         public static T GetPanel<T>(string name = "") where T : BasePanel
         {
             name = name.IsNullOrEmpty() ? typeof(T).Name : name;
@@ -468,11 +525,10 @@ namespace YukiFrameWork.UI
 
                 if (panel != null)
                     return panel;
-            }           
-            panel = OpenPanel<T>(name);
-            ///如果面板是缓存面板
-            if (panel.IsPanelCache)            
-                ClosePanel(panel);      
+            }
+            name = name.IsNullOrEmpty() ? typeof(T).Name : name;
+            IPanel panelCore = GetPanelCore<T>(name);
+            panel = OpenPanelExecute<T>(name, panelCore.Level, panelCore as T, false);          
             return panel;          
         }
 
@@ -573,7 +629,28 @@ namespace YukiFrameWork.UI
         public static T[] FindPanelsByType<T>(UILevel level) where T : BasePanel
         {
             return UIManager.Instance.GetPanelLevel(level).GetComponentsInChildren<T>();
-        }       
+        }
+
+        /// <summary>
+        /// 通过层级查找场景中是否有面板实例，如果有，即使是缓存关闭状态也返回True
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public static bool IsPanelExist<T>(UILevel level) where T : BasePanel
+        {
+            return FindPanelByType<T>(level);
+        }
+
+        /// <summary>
+        /// 全层级查找场景中是否有面板实例，如果有，即使是缓存关闭状态也返回True
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsPanelExist<T>() where T : BasePanel
+        {
+            return FindPanelByType<T>();
+        }
 
         public static RectTransform GetPanelLevel(UILevel level)
             => UIManager.Instance.GetPanelLevel(level);

@@ -6,6 +6,10 @@ using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
 using YukiFrameWork.InputSystemExtension;
 using Sirenix.OdinInspector;
+using System;
+using UnityEngine.InputSystem.Controls;
+
+
 #if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
 #endif
@@ -21,20 +25,38 @@ namespace YukiFrameWork.UI
     {
         #region 字段   
         /// <summary>
-        /// 是否监听返回按钮,如果监听,当按下 Esc(Keyboard)/Back(Gamepad) 时会关闭该界面(默认:false)
+        /// 是否监听返回按钮,如果监听,当按下 Back(Gamepad) 时会关闭该界面(默认:false)
+        /// <para>当开启键盘监听后，该选项也会监听Esc(Keyboard)按键的返回!</para>
         /// </summary>
-        [InfoBox("是否监听返回按钮,如果监听,当按下 Esc(Keyboard)/Back(Gamepad) 时会关闭该界面(默认:false)")]
+        [InfoBox("是否监听返回按钮,如果监听,当按下 Back(Gamepad) 时会关闭该界面(默认:false)\n当开启键盘监听后，该选项也会监听Esc(Keyboard)按键的返回!")]
         [SerializeField]
         private bool listenerBackButton;
+
+
+        //[LabelText("是否监听默认键盘导航")]
+        [InfoBox("该拓展默认仅为手柄兼容，开启此项后该UI的导航可同时监听键盘的wasd与上下左右！")]
+        [SerializeField]
+        private bool listenerKeyBoard;      
 
         private float sliderTimer = 0;
          
         private SelectableNavigation currentSelectable;
 
-        private bool isTop;
+        [SerializeField, LabelText("当事件需要按下的监听类型")]
+        [InfoBox("检测到该面板至少具备一个SelectableEvent脚本，可以在按下事件的处理中选择自己希望的监听，默认情况下是通过Unity自身的PointerDown监听，也可自定路径(InputSystem)")]
+        [ShowIf(nameof(CheckGamepedForSelectEvent))]
+        private SelectEnterState _pressEnterState;
+
+        private bool SetAction => _pressEnterState == SelectEnterState.CustomKeyBind && CheckGamepedForSelectEvent;
+
+        [SerializeField, LabelText("设置自定义按键"), ShowIf(nameof(SetAction))]
+        private CustomPressAction[] customPressActions;
+
+        private bool isActive;
 
         private BasePanel panel;
-        private BindablePropertyStruct<bool> panelActive = new BindablePropertyStruct<bool>((a, b) => a == b);
+              
+        private CoroutineTokenSource panelEnableTokenSource;
         #endregion 
 
         #region 属性
@@ -44,61 +66,121 @@ namespace YukiFrameWork.UI
         /// </summary>
         public BasePanel BasePanel => panel;
 
-        /// <summary>
-        /// 是否监听返回按钮,如果监听,当按下 Esc(Keyboard)/Back(Gamepad) 时会关闭该界面(默认:false)
+        internal bool KeyBoardListener => listenerKeyBoard;
+
+        internal SelectEnterState PressEnterState => _pressEnterState;
+
+         /// <summary>
+        /// 是否处于活跃状态,当UI处于最上层时,为活跃状态,才能通过控制!
         /// </summary>
-        public bool ListenerBackButton => listenerBackButton;
+        public bool Active => isActive;
 
         #endregion
 
+        private bool CheckGamepedForSelectEvent => GetComponentInChildren<SelectableEvent>();
 
         #region 生命周期
-        
+
         protected override void Awake()
         {
             base.Awake();
+            panelEnableTokenSource = CoroutineTokenSource.Create(this);
             panel = GetComponent<BasePanel>();
 
-            panelActive.Register(value =>
+            panel.onEnter.RemoveListener(PanelEnable);
+            panel.onEnter.AddListener(PanelEnable);
+            panel.onExit.RemoveListener(PanelDisable);
+            panel.onExit.AddListener(PanelDisable);
+            panel.onResume.RemoveListener(PanelEnable);
+            panel.onResume.AddListener(PanelEnable);
+            panel.onPause.RemoveListener(PanelDisable);
+            panel.onPause.AddListener(PanelDisable);
+            if (_pressEnterState == SelectEnterState.CustomKeyBind)
             {
-                if (value)
-                    PanelEnable();
-                else PanelDisable();
-            }).UnRegisterWaitGameObjectDestroy(this);
+                if (customPressActions == null || customPressActions.Length == 0)
+                    throw new Exception("未绑定按键给SelectEvent的按下事件!");
+                foreach (var item in customPressActions)
+                {
+                    if (item._pressContorlPath.IsNullOrEmpty())
+                    {
+                        Debug.LogWarning("未绑定的按键,自动忽略");
+                        continue;
+                    }
+                    item.isAllowTrigger = true;
+                    item.customPressControl = InputSystem.FindControl(item._pressContorlPath);
+                }
+            }
+
         }
 
-        internal async void PanelEnable()
-        {                 
-            AddPanel(BasePanel);
-            await CoroutineTool.WaitForFrame();
-            SelectDefualtSelectable();
-        }
-
-        internal void PanelDisable()
+        private void PanelEnable(BasePanel panel)
         {
-            Debug.Log(BasePanel);
+            PanelEnable(panel, Array.Empty<object>());
+        }
+
+        internal async void PanelEnable(BasePanel panel,params object[] param)
+        {
+            if (BasePanel != panel) return;                                 
+            AddPanel(BasePanel);
+            await CoroutineTool.WaitForFrame().Token(panelEnableTokenSource.Token);
+            SelectDefualtSelectable();
+            
+        }
+
+        internal void PanelDisable(BasePanel panel)
+        {
+            if (BasePanel != panel) return;
             RemovePanel(BasePanel);
+        
         }
 
         void Update()
-        {
-            panelActive.Value = BasePanel.IsActive && !BasePanel.IsPaused;
+        {           
             if (!Application.isFocused)
                 return;
-
             if (BasePanel.IsPaused || !BasePanel.IsActive) return;
-             
-            UpdateTop(IsTop(BasePanel));
-
-            if (isTop == false)
-                return;
-
+            
+            UpdateTop(IsTop(BasePanel));         
+            if (isActive == false)
+                return;          
+            ListenerCustomPressControl();
             UpdateSelection();
             ListenerBack();
             ListenerEvent();
 
             if (SelectableNavigation.CurrentSelectedNavigation && SelectableNavigation.CurrentSelectedNavigation.Active)
                 currentSelectable = SelectableNavigation.CurrentSelectedNavigation;
+        }
+
+        private void ListenerCustomPressControl()
+        {
+            if (_pressEnterState != SelectEnterState.CustomKeyBind) return;
+
+            if (customPressActions == null || customPressActions.Length == 0) return;
+
+            foreach (var item in customPressActions)
+            {
+                if (item.customPressControl == null) continue;
+
+                if (item.customPressControl is ButtonControl buttonControl
+                    )
+                {                   
+                    if (buttonControl.wasPressedThisFrame && item.isAllowTrigger)
+                    {
+                        SelectableNavigation.SendCurrentSelectableEvent(SelectionState.Pressed, this);
+                        item.isAllowTrigger = false;
+                    }
+                    if (buttonControl.wasReleasedThisFrame)
+                    {                       
+                        item.isAllowTrigger = true;
+                    }
+                }
+                else
+                {
+                    Debug.LogWarningFormat("按键并非ButtonControl，无法作为SelectableEvent的按下键模拟!Path:{0}", item._pressContorlPath);
+                }
+                
+            }
         }
 
         #endregion
@@ -184,7 +266,7 @@ namespace YukiFrameWork.UI
         private void UpdateSelection()
         {
             if (IsNeedUpdateSelection())
-            {
+            {              
                 // 监听方向按键(包括键盘和手柄)
                 if (GetDirectionKeyDown())
                 {
@@ -250,7 +332,7 @@ namespace YukiFrameWork.UI
             if (EventSystem.current == null) return;
             if (EventSystem.current.currentSelectedGameObject == null) return;
 
-#if !UNITY_6000_0_OR_NEWER
+//#if !UNITY_6000_0_OR_NEWER
 
             // 经测试发现,UNITY_6000_0_OR_NEWER的版本,当按下手柄的确认按键 ，会自动处理按钮的点击
             // 所以这里就不用处理了
@@ -289,7 +371,7 @@ namespace YukiFrameWork.UI
 
 
                 if (gamepad.buttonEast.wasReleasedThisFrame)
-                { 
+                {
                     // 创建一个模拟的PointerEventData对象
                     PointerEventData eventData = new PointerEventData(EventSystem.current);
                     eventData.button = PointerEventData.InputButton.Left; // 指定按钮类型，例如左键
@@ -298,18 +380,18 @@ namespace YukiFrameWork.UI
                     // 执行pointerDownHandler
                     ExecuteEvents.Execute(EventSystem.current.currentSelectedGameObject, eventData, ExecuteEvents.pointerUpHandler);
 
-                    //if (pointerClickHandler != null)
-                    //    ExecuteEvents.pointerClickHandler(pointerClickHandler, eventData);
-
+#if !UNITY_6000_0_OR_NEWER
+                    ExecuteEvents.Execute(EventSystem.current.currentSelectedGameObject, eventData, ExecuteEvents.pointerClickHandler);                                 
+#endif
                     break;
                 }
+               
             }
 
-#endif
 
-            HandleScrollRect();
+                HandleScrollRect();
 
-            HandleSliderEvent();
+                HandleSliderEvent();
         }
 
         private void HandleScrollRect()
@@ -411,7 +493,6 @@ namespace YukiFrameWork.UI
 
         private bool GetDirectionKeyDown(Keyboard keyboard)
         {
-
             if (keyboard.upArrowKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame)
                 return true;
 
@@ -451,7 +532,7 @@ namespace YukiFrameWork.UI
 
         private bool GetBackKeyDown()
         {
-            if (InputKit.GetKeyDown(Key.Escape))
+            if (InputKit.GetKeyDown(Key.Escape) && listenerKeyBoard)
                 return true;
 
             if (InputKit.GetKeyDown(GamepadButton.South))
@@ -462,8 +543,8 @@ namespace YukiFrameWork.UI
 
         private void UpdateTop(bool top)
         {
-            if (top == isTop) return;
-            isTop = top;
+            if (top == isActive) return;
+            isActive = top;
 
             if (top)
             {
@@ -480,7 +561,7 @@ namespace YukiFrameWork.UI
 
         }
          
-        #endregion
+#endregion
 
 
         #region Top

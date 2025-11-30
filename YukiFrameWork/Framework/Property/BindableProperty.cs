@@ -11,6 +11,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace YukiFrameWork
 {
@@ -37,6 +38,11 @@ namespace YukiFrameWork
         {
             return value.ToString();
         }
+
+        public static implicit operator T(BindablePropertyBase<T> v)
+        {
+            return v.Value;
+        }      
 
         /// <summary>
         /// 注册事件
@@ -155,6 +161,7 @@ namespace YukiFrameWork
                 }
             }
         }
+        
         public BindablePropertyStruct(T value,Func<T,T,bool> comparer)
         {
             this.value = value;
@@ -173,7 +180,16 @@ namespace YukiFrameWork
             this.comparer = new DefaultBindablePropertyStructComparer<T>(comparer);
         }
 
-    }    
+        /// <summary>
+        /// 默认情况下，通过无参构造得来的BindablePropertyStruct通过默认参数对比
+        /// </summary>
+        public BindablePropertyStruct()
+        {
+            this.value = default;
+            this.comparer = new DefaultBindablePropertyStructComparer<T>((a, b) => a.Equals(b));
+        } 
+
+    }
 
     #region 快速持久化属性绑定
     public class BindablePropertyPlayerPrefsByInteger : BindableProperty<int>
@@ -181,7 +197,11 @@ namespace YukiFrameWork
         public BindablePropertyPlayerPrefsByInteger(string key,int value) : base(value)
         {            
             this.Value = PlayerPrefs.GetInt(key,value);
-            this.Register(item => PlayerPrefs.SetInt(key, item));
+            this.Register(item =>
+            { 
+                PlayerPrefs.SetInt(key, item);
+                PlayerPrefs.Save();
+            });
         }
     }
 
@@ -193,6 +213,7 @@ namespace YukiFrameWork
             this.Register(item => 
             {
                 PlayerPrefs.SetInt(key, item ? 1 : 0);
+                PlayerPrefs.Save();
             });
         }
     }
@@ -205,6 +226,7 @@ namespace YukiFrameWork
             this.Register(item => 
             {               
                 PlayerPrefs.SetFloat(key, item);
+                PlayerPrefs.Save();
             });
         }
     }
@@ -214,7 +236,11 @@ namespace YukiFrameWork
         public BindablePropertyPlayerPrefsByString(string key, string value) : base(value)
         {
             this.Value = PlayerPrefs.GetString(key, value);
-            this.Register(item => PlayerPrefs.SetString(key, item));
+            this.Register(item => 
+            { 
+                PlayerPrefs.SetString(key, item);
+                PlayerPrefs.Save();
+            });
         }
     }    
     #endregion

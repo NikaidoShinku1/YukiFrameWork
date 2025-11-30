@@ -26,6 +26,7 @@ using YukiFrameWork.UI;
 |---|----|
 |static Property API|静态属性|
 |SelectableNavigation CurrentSelectedNavigation { get; set; }|当前选择的导航器|
+|void SendCurrentSelectableEvent(SelectionState selectionState)|手动发送当前导航器所挂载的事件(需要为导航器挂载SelectableEvent组件)|
 |---|---|
 |Property API|属性说明|
 |NavigationOption Up{ get; }|上导航|

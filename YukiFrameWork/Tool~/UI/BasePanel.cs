@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using YukiFrameWork.Extension;
 
@@ -18,8 +19,8 @@ namespace YukiFrameWork.UI
         /// <para>注意:该方法仅通过UIKit加载流(OpenPanel)等方法调用有效。使用临时面板:UIKit.ShowPanel方法时该方法不会有任何反应</para>
         /// </summary>
         /// <param name="param"></param>
-        void OnPreInit(params object[] param);     
-        void OnInit();
+        void PreInit(params object[] param);     
+        void Init();
         void Enter(params object[] param);
         void Resume();
         void Pause();
@@ -29,6 +30,7 @@ namespace YukiFrameWork.UI
         bool IsActive { get; }
         bool IsPanelCache { get; }
         GameObject gameObject { get; }
+        CanvasGroup CanvasGroup { get; }
         IUIAnimation Animation { get; set; }
         UILevel Level { get; }
         PanelOpenType OpenType { get; }
@@ -57,6 +59,14 @@ namespace YukiFrameWork.UI
         protected PanelOpenType openType = PanelOpenType.Single;
 
         public PanelOpenType OpenType => openType;
+        #region Event
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel,object[]> onPreInit;
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel> onInit;
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel, object[]> onEnter;
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel> onPause;
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel> onResume;
+        [FoldoutGroup("Visual Event")]public UnityEvent<BasePanel> onExit;
+        #endregion
 
         public CanvasGroup CanvasGroup
         {
@@ -124,7 +134,7 @@ namespace YukiFrameWork.UI
         private void DefaultDragDownEvent(PointerEventData eventData)
         {
             if (!IsPanelDrag) return;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition, UIManager.Instance.Canvas.worldCamera, out var locaoPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, eventData.position, UIManager.Instance.Canvas.worldCamera, out var locaoPosition);
 
             offest = (Vector3)locaoPosition - transform.localPosition;           
            
@@ -133,8 +143,9 @@ namespace YukiFrameWork.UI
         private Vector2 offest;
         private void DefaultDragEvent(PointerEventData eventData)
         {
-            if (!IsPanelDrag) return;          
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, Input.mousePosition , UIManager.Instance.Canvas.worldCamera, out Vector2 localPosition);
+            if (!IsPanelDrag) return;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(UIManager.Instance.Canvas.transform as RectTransform, eventData.position , UIManager.Instance.Canvas.worldCamera, out Vector2 localPosition);
            
             float width = UIManager.I.transform.rect.width;
             float height = UIManager.I.transform.rect.height;          
@@ -211,15 +222,28 @@ namespace YukiFrameWork.UI
             }
             CanvasGroup.blocksRaycasts = true;       
             OnEnter(param);
-           
+            onEnter?.Invoke(this,param);
             IsActive = true;
             IsPaused = false;
+        }
+
+        void IPanel.Init()
+        {
+            OnInit();
+            onInit?.Invoke(this);
+        }
+
+        void IPanel.PreInit(params object[] param) 
+        {
+            OnPreInit(param);
+            onPreInit?.Invoke(this,param);
         }
 
         void IPanel.Resume()
         {
             CanvasGroup.blocksRaycasts = true;
             OnResume();
+            onResume?.Invoke(this);
             IsPaused = false;
         }
 
@@ -227,6 +251,7 @@ namespace YukiFrameWork.UI
         {
             CanvasGroup.blocksRaycasts = false;
             OnPause();
+            onPause?.Invoke(this);
             IsPaused = true;
         }
 
@@ -246,6 +271,7 @@ namespace YukiFrameWork.UI
             CanvasGroup.alpha = 0;
                  
             OnExit();
+            onExit?.Invoke(this);
             IsActive = false;
             IsPaused = false;            
         }     

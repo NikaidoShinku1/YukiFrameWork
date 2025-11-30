@@ -7,31 +7,42 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.OnScreen;
+using UnityEngine.InputSystem.Layouts;
 
 namespace YukiFrameWork.UI
 {
 
-
-
     public enum SelectionState
     {
         None,
-        [LabelText("Normal默认")]
         Normal,
-        [LabelText("Highlighted高亮")]
         Highlighted,
-        [LabelText("Pressed按下")]
         Pressed,
-        [LabelText("Selected选择")]
         Selected,
-        [LabelText("Disabled禁用")]
         Disabled
     }
 
-
-
-
+    public enum SelectEnterState
+    {
+        [LabelText("UI监听事件")]
+        UITrigger,
+        [LabelText("自定绑定按键触发")]
+        CustomKeyBind
+    }
+    [Serializable]
+    public class CustomPressAction
+    {
+        [LabelText("按键路径"), InputControl]
+        public string _pressContorlPath;
+        [HideInInspector]
+        public InputControl customPressControl;
+        /// <summary>
+        /// 是否允许触发
+        /// </summary>
+        internal bool isAllowTrigger;
+    }
     /// <summary>
     /// Selectable事件监听
     /// </summary>
@@ -43,7 +54,7 @@ namespace YukiFrameWork.UI
         #region 字段
 
         private Selectable selectable;
-
+        private GamepadPanelExtension panelExtension;
         [SerializeField,LabelText("是否开启高亮")]
         private bool enableHighlighted = false;
 
@@ -94,13 +105,6 @@ namespace YukiFrameWork.UI
                 return CurrentSelectedGameObject == gameObject;
             }
         }
-
-        public SelectionState SelectionState
-        {
-            get;
-            set;
-        }
-
 
 
         public bool EnableHighlighted
@@ -167,7 +171,7 @@ namespace YukiFrameWork.UI
             {
                 if (_pressed == value) return;
                 _pressed = value;
-                if (_pressed)
+                if((!panelExtension && _pressed) || (panelExtension && panelExtension.PressEnterState == SelectEnterState.UITrigger && _pressed))              
                     onPressed?.Invoke();
             }
         }
@@ -217,6 +221,8 @@ namespace YukiFrameWork.UI
             }
         }
 
+       // protected override string controlPathInternal { get => _pressContorlPath; set => _pressContorlPath = value; }
+
         #endregion
 
         #region 
@@ -238,11 +244,12 @@ namespace YukiFrameWork.UI
         private void Awake()
         {
             selectable = GetComponent<Selectable>();
+            panelExtension = GetComponentInParent<GamepadPanelExtension>();
         }
 
         private void OnEnable()
         {
-            UpdateState();
+            UpdateState();            
             //active = true;
         }
 
@@ -253,11 +260,10 @@ namespace YukiFrameWork.UI
 
 
         private void OnDisable()
-        {
-            SelectionState = SelectionState.None;
+        {           
             isPointerInside = false;
             //active = false;
-            _normal = false;
+            _normal = false;          
         }
 
         private bool GetDisabled()
@@ -294,6 +300,7 @@ namespace YukiFrameWork.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            //if (!enablePressedTrigger) return;           
             isPointerDown = true;
         }
 

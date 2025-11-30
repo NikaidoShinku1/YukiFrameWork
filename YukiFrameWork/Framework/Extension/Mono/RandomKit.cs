@@ -246,6 +246,14 @@ namespace YukiFrameWork
         }
 
         /// <summary>
+        /// 随机概率获取(整形)
+        /// </summary>
+        public static int ProbabilityIntger
+        {
+            get => Range(1, 101);
+        }
+
+        /// <summary>
         /// 是否概率成功
         /// </summary>
         /// <param name="current"></param>

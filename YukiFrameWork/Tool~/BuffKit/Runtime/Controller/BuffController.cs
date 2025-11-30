@@ -83,7 +83,7 @@ namespace YukiFrameWork.Buffer
 		public float ExistedTime { get;private set; }
 
         /// <summary>
-        /// Buff的持续时间,如果Buff是无限时间的，则默认该属性为-1
+        /// Buff的持续时间,默认根据配表，小于0则为无限时间，可重写
         /// </summary>
         public virtual float Duration
 		{

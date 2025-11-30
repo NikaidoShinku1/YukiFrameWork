@@ -18,16 +18,11 @@ namespace YukiFrameWork.Machine
     {
         public StringBuilder BuildFile(params object[] arg)
         {
-            string fileName = "用于替换提示类";
-            string nameSpace = "框架配置没有设置命名空间字符串已生成需要自己替换的默认命名空间";
             if (arg == null || arg.Length == 0)
-            {
-                FrameworkConfigInfo configInfo = Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo));             
-                if (!configInfo.nameSpace.IsNullOrEmpty())
-                {
-                    nameSpace = configInfo.nameSpace;
-                }
-            }
+                throw new NullReferenceException("丢失参数");
+            string fileName = (string)arg[0];
+            string nameSpace = (string)arg[1];
+
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("///=====================================================");
             builder.AppendLine("/// - FileName:      " + fileName + ".cs");

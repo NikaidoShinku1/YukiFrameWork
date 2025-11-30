@@ -431,7 +431,6 @@ namespace YukiFrameWork
 
             return awaitable;
         }
-
         public static YieldTask Token(this IEnumerator enumerator, CoroutineToken token)
             => Token(enumerator.GetAwaiter(), token);
 

@@ -188,10 +188,7 @@ namespace YukiFrameWork.Machine
                 throw new Exception("类名为空");
             if (nameSpace.IsNullOrEmpty())
                 throw new Exception("命名空间为空");
-            var builder = new StateBehaviourGenerator().BuildFile();
-            builder = builder
-                .Replace("用于替换提示类",className)
-                .Replace("框架配置没有设置命名空间字符串已生成需要自己替换的默认命名空间",nameSpace);
+            var builder = new StateBehaviourGenerator().BuildFile(className,nameSpace);         
             builder.CreateFileStream(path,className,".cs");
         }
 

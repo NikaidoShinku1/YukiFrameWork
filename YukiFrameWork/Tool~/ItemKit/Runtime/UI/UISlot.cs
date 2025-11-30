@@ -82,7 +82,7 @@ namespace YukiFrameWork.Item
 
         public virtual void UpdateView(Slot slot)
         {          
-            if (slot.ItemCount == 0)
+            if (slot.ItemCount <= 0)
             {
                 Visual.UpdateCount(0);
                 Visual.ItemIcon.Hide();               
@@ -117,7 +117,7 @@ namespace YukiFrameWork.Item
                 this.UpdateView(slot);
             }
 
-            this.Slot.OnItemChanged.RegisterEvent(UpdateView).UnRegisterWaitGameObjectDestroy(gameObject);
+            this.Slot.OnItemChanged.RegisterEvent(UpdateView).UnRegisterWaitGameObjectDisable(gameObject);
             UpdateView();
             Slot.slotGroup.SlotInitInvoke(this);
             return this;
@@ -238,8 +238,6 @@ namespace YukiFrameWork.Item
                     Slot.OnItemChanged.SendEvent();
                 }              
             }
-        }
-
-        
+        }       
     }
 }

@@ -54,7 +54,7 @@ namespace YukiFrameWork.Machine
         public UnityEvent onInitialized;
 
         [InfoBox(StateMachineConst.onChangeStateEventDisplay)]
-        public UnityEvent<StateMachineCore,StateMachine, string> onChangeState;
+        public UnityEvent<StateMachineCore,StateMachine> onChangeState;
 
         /// <summary>
         /// StateManager组件默认的状态机集合

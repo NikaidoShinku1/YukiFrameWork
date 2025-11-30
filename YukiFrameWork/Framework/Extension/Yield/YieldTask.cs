@@ -347,7 +347,7 @@ namespace YukiFrameWork
 
         public static void Forget(this IEnumerator completion)
         {
-
+            
         }
 
         public static void Forget(this AsyncOperation completion)

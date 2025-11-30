@@ -72,7 +72,7 @@ namespace YukiFrameWork.Item
 
                 foreach (var item in UISlotRoot.GetComponentsInChildren<UISlot>(true))
                 {
-                    if (item == UISlotPrefab) continue;
+                    if (item == UISlotPrefab) continue;                    
                     GameObjectLoader.UnLoad(item.gameObject);
                 }
 

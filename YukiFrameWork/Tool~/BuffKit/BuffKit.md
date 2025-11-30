@@ -96,6 +96,8 @@ public class TestScripts : MonoBehaviour,IBuffExecutor
 |List< IEffect > GetEffectsByType(IBuffExecutor player, string type)|根据效果的类型获取到指定的效果集合|
 |void GetEffectsNonAllocByType(IBuffExecutor player, List< IEffect > results, string type) |如上重载，但需要自行传递集合|
 |IBuff GetBuffData(string key)|获取指定的Buff数据|
+|BuffController GetBuffController(this IBuffExecutor Player,string buffKey)|查询某个角色下的Buff控制器|
+|List<BuffController> GetBuffControllers(this IBuffExecutor Player)|查询某个角色下所有的Buff控制器|
 |BuffController AddBuff(IBuffExecutor player,string buffKey,params object[] param)|为执行者添加Buff，返回Buff控制器|
 |BuffController AddBuff(IBuffExecutor player, IBuff buff, params object[] param)|如上重载|
 |BuffController AddBuff(IBuffExecutor player, string buffKey, float duration, params object[] param)|如上重载，可以动态设置持续时间，以添加Buff传递的时间为准|

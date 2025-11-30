@@ -14,11 +14,12 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork
-{ 
+{
+	
     [SerializeField]
 	public class UIColor : YMonoBehaviour
 	{
-		private Graphic _graphic;
+        private Graphic _graphic;
 		internal Graphic graphic
 		{
 			get
@@ -28,7 +29,55 @@ namespace YukiFrameWork
 				return _graphic;
             }
 		}
-		
+		public void Red()
+		{
+			SetGraphicColor("red");
+		}
+
+		public void Green()
+		{
+			SetGraphicColor("green");
+		}
+
+		public void White()
+		{
+			SetGraphicColor("white");
+		}
+
+		public void Black()
+		{
+			SetGraphicColor("black");
+		}
+
+		public void Blue()
+		{
+			SetGraphicColor("blue");
+		}
+
+		public void Cyan()
+		{
+			SetGraphicColor("cyan");
+		}
+
+		public void Yellow()
+		{
+			SetGraphicColor("yellow");
+		}
+
+		public void Gray()
+		{
+			SetGraphicColor("gray");
+		}
+
+		public void Grey()
+		{
+			SetGraphicColor("grey");
+		}
+
+		public void Set(Color color)
+		{
+			
+		}
 		public void SetGraphicColor(string color)
 		{
 			if (!graphic)
