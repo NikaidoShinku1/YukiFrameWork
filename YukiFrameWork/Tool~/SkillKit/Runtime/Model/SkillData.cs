@@ -102,6 +102,10 @@ namespace YukiFrameWork.Skill
         [JsonIgnore, ExcelIgnore]
         public Sprite Icon { get => icon; set => icon = value; }
 
+        [SerializeField,LabelText("技能参数"), JsonProperty]
+        private SkillParam[] skillParams;
+        [JsonIgnore]
+        public SkillParam[] SkillParams => skillParams;
 #if UNITY_EDITOR
         private void DrawPreview()
         {
@@ -151,9 +155,19 @@ namespace YukiFrameWork.Skill
             return skillData;
         }
 
-        public SkillData Clone() => GameObject.Instantiate(this);     
-      
-        [Button("打开脚本",ButtonHeight = 20),PropertySpace(20)]
+        public SkillData Clone() => GameObject.Instantiate(this);
+#if UNITY_EDITOR
+        private bool IsControllerOrNull => AssemblyHelper.GetType(skillControllerType) != null;
+        [Button("打开控制器脚本", ButtonHeight = 30), PropertySpace(20),ShowIf(nameof(IsControllerOrNull))]
+        void OpenControllerScript()
+        {
+            Type type = AssemblyHelper.GetType(skillControllerType);
+            AssetDatabase.OpenAsset(AssetDatabase.FindAssets("t:monoScript").Select(x => AssetDatabase.GUIDToAssetPath(x))
+               .Select(x => AssetDatabase.LoadAssetAtPath<MonoScript>(x))
+               .FirstOrDefault(x => x?.GetClass() == type));
+        }
+#endif
+        [Button("打开脚本",ButtonHeight = 30),PropertySpace(20)]
         void OpenScript()
         {
 #if UNITY_EDITOR
@@ -161,6 +175,6 @@ namespace YukiFrameWork.Skill
                 .Select(x => AssetDatabase.LoadAssetAtPath<MonoScript>(x))
                 .FirstOrDefault(x => x?.GetClass() == this.GetType()));
 #endif
-        }
+        }      
     }
 }

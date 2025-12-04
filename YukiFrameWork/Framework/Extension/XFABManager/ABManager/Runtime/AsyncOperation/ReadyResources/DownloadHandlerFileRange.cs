@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace XFABManager
-{ 
+{
 
     public class DownloadHandlerFileRange : DownloadHandlerScript
     {
@@ -80,7 +80,7 @@ namespace XFABManager
         /// 已经下载的文件大小
         /// </summary>
         public long DownloadedSize => CurFileSize;
-          
+
         #endregion
 
         #region 公共方法
@@ -142,17 +142,19 @@ namespace XFABManager
 
         public void Close()
         {
-            if (FileStream != null)
-            {
-                try
-                {
-                    FileStream.Close();
-                    FileStream.Dispose();
-                }
-                catch (Exception)
-                {
+            if (FileStream == null) return;
 
-                }
+            try
+            {
+                FileStream.Close();
+                FileStream.Dispose();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
                 FileStream = null;
             }
         }
@@ -180,7 +182,7 @@ namespace XFABManager
                 {
                     TotalFileSize = long.Parse(contentLengthStr);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     TotalFileSize = (long)contentLength;
                 }
@@ -201,13 +203,15 @@ namespace XFABManager
                 return false;
             }
 
+            if (FileStream == null) return false;
+
             try
             {
 
                 FileStream.Write(data, 0, dataLength);
-                FileStream.Flush();  
-                CurFileSize += dataLength; 
-                DownloadedSizeUpdateEvent?.Invoke((ulong)CurFileSize);  
+                FileStream.Flush();
+                CurFileSize += dataLength;
+                DownloadedSizeUpdateEvent?.Invoke((ulong)CurFileSize);
             }
             catch (Exception)
             {
@@ -235,10 +239,11 @@ namespace XFABManager
 
             return true;
         }
-         
+
+
         #endregion
 
 
     }
-     
+
 }

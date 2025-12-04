@@ -9,13 +9,13 @@ using UnityEngine;
 
 namespace XFABManager
 {
-    public class XFAssetBundleProjectPanel  : ScriptableObject
+    public class XFAssetBundleProjectPanel : ScriptableObject
     {
 
-        public new string name = string .Empty;
+        public new string name = string.Empty;
         private string lastName;
         public string displayName;
- 
+
 
         [SerializeField]
         public List<XFABProject> dependenceProjects;        // 依赖的项目
@@ -53,34 +53,28 @@ namespace XFABManager
 
         string nameMatch = "^[A-Za-z0-9-_]+$";
         string suffixMatch = "^[.][A-Za-z0-9]+$";
-        string versionMatch = "^[1-9][.0-9]*$"; // 以数字开头 中间只能有数字 和 . 
+        //string versionMatch = "^[1-9][.0-9]*$"; // 以数字开头 中间只能有数字 和 . 
 
         private XFABProject project;
         private EditorWindow window;
 
 
-        public static XFAssetBundleProjectPanel CreatePanel(EditorWindow window)  
+        public static XFAssetBundleProjectPanel CreatePanel(EditorWindow window)
         {
             XFAssetBundleProjectPanel panel = CreateInstance<XFAssetBundleProjectPanel>();
 
             panel.InitProjects();
             panel.window = window;
 
-            // 默认验证依赖项目
-            //panel.VerifyDependenceProject();
-
             return panel;
         }
-        public static XFAssetBundleProjectPanel CreatePanel(EditorWindow window,XFABProject project)  
+        public static XFAssetBundleProjectPanel CreatePanel(EditorWindow window, XFABProject project)
         {
             XFAssetBundleProjectPanel panel = CreateInstance<XFAssetBundleProjectPanel>();
 
             panel.InitProjects();
             panel.InitProjectToThis(project);
             panel.window = window;
-
-            // 默认验证依赖项目
-           // panel.VerifyDependenceProject();
 
             return panel;
         }
@@ -97,18 +91,20 @@ namespace XFABManager
 
             //GUILayout.Space(20);
             // 画出依赖项目
-           // DrawDependenceProjects();
+            //DrawDependenceProjects();
             // 画出后缀
             GUILayout.Space(20);
             DrawSuffix();
             GUILayout.Space(20);
             DrawVersion();
 
+            // 绘制秘钥
             if (!create)
             {
                 GUILayout.Space(20);
                 DrawSecretKey();
             }
+
         }
 
 
@@ -132,7 +128,7 @@ namespace XFABManager
         private void DrawDisplayName()
         {
             DrawTextFieldLine(displayNameLabel, ref displayName, "*显示名称,非必须,可填任意字符!", "*非必填");
-        }     
+        }
 
         // 画出后缀
         private void DrawSuffix()
@@ -159,39 +155,44 @@ namespace XFABManager
         }
 
         // 绘制秘钥
-        private void DrawSecretKey() {
+        private void DrawSecretKey()
+        {
 
             string tip = string.Empty;
 
-            if (!string.IsNullOrEmpty(secret_key)) {
+            if (!string.IsNullOrEmpty(secret_key))
+            {
                 tip = "<color=red>加密的AssetBundle在加载之前请调用 <color=green> AssetBundleManager.SetSecret(string projectName, string secret);</color>  设置秘钥,否则无法正常加载资源!</color> \n <color=yellow> 加载加密的AssetBundle,会造成额外的内存消耗!请根据项目确认是否需要加密!</color>";
             }
-             
+
 
             DrawTextFieldLine(secretKeyLabel, ref secret_key, "默认不加密!", tip);
             GUILayout.BeginHorizontal();
             GUILayout.Space(150);
-            if (GUILayout.Button("随机生成", GUILayout.Width(100))) {
+            if (GUILayout.Button("随机生成", GUILayout.Width(100)))
+            {
 
                 string tipMessage = "是否生成秘钥?若生成,已上线的旧版本的资源将无法加载!";
 
-                if (EditorUtility.DisplayDialog("提示", tipMessage, "确认", "取消")) {
+                if (EditorUtility.DisplayDialog("提示", tipMessage, "确认", "取消"))
+                {
                     UnityEngine.GUI.FocusControl(null);
                     secret_key = System.Guid.NewGuid().ToString().Substring(0, 10); // 55c9a3db-3b7a-40c0-b8a5-9a8294a168
                 }
             }
             GUILayout.EndHorizontal();
-             
+
 
         }
 
-        private void DrawTextFieldLine(GUIContent label,ref string filedValue,string tip,string downTip = "") {
+        private void DrawTextFieldLine(GUIContent label, ref string filedValue, string tip, string downTip = "")
+        {
 
             GUILayout.BeginVertical();
 
             GUILayout.BeginHorizontal();
 
-            filedValue = EditorGUILayout.TextField(label, filedValue,GUILayout.Width(400));
+            filedValue = EditorGUILayout.TextField(label, filedValue, GUILayout.Width(400));
 
             GUILayout.Label(tip, tipStyle, GUILayout.Width(190), GUILayout.Height(20));
 
@@ -239,15 +240,16 @@ namespace XFABManager
         }
 
         // 配置 Label Content
-        private void ConfigLabelContent() {
+        private void ConfigLabelContent()
+        {
 
-            nameLabel = new GUIContent("项目名:","*项目名要唯一 且 只能为英文 和 数字!");
-            displayNameLabel = new GUIContent("显示名:","*显示名称,选填");
+            nameLabel = new GUIContent("项目名:", "*项目名要唯一 且 只能为英文 和 数字!");
+            displayNameLabel = new GUIContent("显示名:", "*显示名称,选填");
             suffixLabel = new GUIContent("AssetBundle后缀:", "*后缀名,默认为.unity3d!");
             versionLabel = new GUIContent("版本:", "*版本,默认为1.0.0!");
-            outputLabel = new GUIContent("输出目录:","AB包存放目录!");
+            outputLabel = new GUIContent("输出目录:", "AB包存放目录!");
             dependenceProjectLabel = new GUIContent("依赖项目");
-            secretKeyLabel = new GUIContent("秘钥","为空则不加密!");
+            secretKeyLabel = new GUIContent("秘钥", "为空则不加密!");
         }
 
         // 配置验证结果
@@ -276,10 +278,12 @@ namespace XFABManager
         }
 
         // 初始化 Project 
-        private void InitProjectToThis(XFABProject project) {
+        private void InitProjectToThis(XFABProject project)
+        {
 
             name = project.name;
-            displayName = project.displayName;         
+            displayName = project.displayName;
+
             suffix = project.suffix;
             version = project.version;
             secret_key = project.secret_key;
@@ -287,9 +291,11 @@ namespace XFABManager
         }
 
 
-        public void SaveProject() {
+        public void SaveProject()
+        {
 
-            if (!IsAllVerifyPass()) {
+            if (!IsAllVerifyPass())
+            {
 
                 this.window.ShowNotification(new GUIContent("请完善项目信息!"));
                 return;
@@ -299,13 +305,15 @@ namespace XFABManager
             {
                 project.name = name;
                 project.displayName = displayName;
-               
+
+
                 project.suffix = suffix;
                 project.version = version;
                 project.secret_key = secret_key;
                 project.Save();
             }
-            else {
+            else
+            {
                 Debug.Log("project is null!");
             }
 
@@ -319,7 +327,7 @@ namespace XFABManager
         private void VerifyProjectName()
         {
 
-            VerifyItem(name, nameMatch, "只能为英文 数字 - 和 _ !",  verifyNameResult);
+            VerifyItem(name, nameMatch, "只能为英文 数字 - 和 _ !", verifyNameResult);
             if (verifyNameResult.isPass == false)
             {
                 return;
@@ -358,7 +366,7 @@ namespace XFABManager
         // 验证 后缀
         private void VerifySuffix()
         {
-            VerifyItem(suffix, suffixMatch, "必须以 . 开头 且 只能为英文 和 数字!",  verifySuffixResult);
+            VerifyItem(suffix, suffixMatch, "必须以 . 开头 且 只能为英文 和 数字!", verifySuffixResult);
             if (verifySuffixResult.isPass == false)
             {
                 return;
@@ -370,7 +378,11 @@ namespace XFABManager
         // 验证版本
         private void VerifyVersion()
         {
-            VerifyItem(version, versionMatch, "*必须以数字开头 且 只能为 . 和 数字!",  verifyVersionResult);
+            // 版本号不用验证 不能为空即可
+            //VerifyItem(version, versionMatch, "*必须以数字开头 且 只能为 . 和 数字!",  verifyVersionResult);
+
+            verifyVersionResult.isPass = !string.IsNullOrEmpty(version);
+            verifyVersionResult.message = "不能为空!";
             if (verifyVersionResult.isPass == false)
             {
                 return;
@@ -401,17 +413,20 @@ namespace XFABManager
 
             result.isPass = true;
 
-        }      
+        }
 
         // 是不是验证通过 
-        public bool IsAllVerifyPass() {
+        public bool IsAllVerifyPass()
+        {
 
             return verifyNameResult.isPass && verifySuffixResult.isPass && verifyVersionResult.isPass;
         }
 
         // 获取验证失败的原因
-        public string GetErrorMesssage() {
-            if (!verifyNameResult.isPass) {
+        public string GetErrorMesssage()
+        {
+            if (!verifyNameResult.isPass)
+            {
                 return verifyNameResult.GetErrorMessage();
             }
             if (!verifySuffixResult.isPass)
@@ -422,10 +437,10 @@ namespace XFABManager
             {
                 return verifyVersionResult.GetErrorMessage();
             }
-           // if (!verifyDependenceResult.isPass)
-           // {
-           //     return verifyDependenceResult.GetErrorMessage();
-           // }
+            //if (!verifyDependenceResult.isPass)
+            //{
+            //    return verifyDependenceResult.GetErrorMessage();
+            //}
             return string.Empty;
         }
 

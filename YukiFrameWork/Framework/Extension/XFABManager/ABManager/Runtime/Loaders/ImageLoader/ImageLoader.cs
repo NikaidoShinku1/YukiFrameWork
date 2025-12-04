@@ -176,22 +176,22 @@ namespace XFABManager
     /// 图片加载器
     /// </summary> 
     [Serializable]
-    public class ImageLoader : MonoBehaviour 
-    { 
+    public class ImageLoader : MonoBehaviour
+    {
         private static Dictionary<TargetComponentType, TargetComponentAdapter> _allComponentAdapter;
 
         private static Dictionary<TargetComponentType, TargetComponentAdapter> allComponentAdapter
         {
-            get 
+            get
             {
-                if (_allComponentAdapter == null) 
+                if (_allComponentAdapter == null)
                 {
                     _allComponentAdapter = new Dictionary<TargetComponentType, TargetComponentAdapter>();
 
                     // 通过反射查询到所有的适配器
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                     foreach (Assembly assembly in assemblies)
-                    {                    
+                    {
                         foreach (var item in assembly.GetTypes())
                         {
                             if (XFABTools.IsImpInterface(item, typeof(TargetComponentAdapter)))
@@ -201,8 +201,8 @@ namespace XFABManager
                                 if (_allComponentAdapter.ContainsKey(adapter.TargetComponentType)) continue;
                                 _allComponentAdapter.Add(adapter.TargetComponentType, adapter);
                             }
-                        } 
-                    } 
+                        }
+                    }
                 }
 
                 return _allComponentAdapter;
@@ -221,10 +221,10 @@ namespace XFABManager
         {
             get
             {
-                if(imageModel == null)
+                if (imageModel == null)
                     imageModel = new ImageModel();
                 return imageModel;
-            } 
+            }
         }
 
         /// <summary>
@@ -232,14 +232,16 @@ namespace XFABManager
         /// </summary>
         public ImageLoaderType Type
         {
-            set {
+            set
+            {
                 ImageModel model = ImageModel;
                 model.type = value;
                 model.Initialize();
                 OnImageModelChange();
             }
 
-            get {
+            get
+            {
 
                 return ImageModel.type;
             }
@@ -267,7 +269,8 @@ namespace XFABManager
         /// <summary>
         /// 待加载的图片资源所在的模块名 *注: 当加载图片的方式为 ImageLoaderType.AssetBundle 时有效 
         /// </summary>
-        public string ProjectName {
+        public string ProjectName
+        {
             set
             {
                 ImageModel model = ImageModel;
@@ -296,10 +299,10 @@ namespace XFABManager
             }
 
             get
-            { 
+            {
                 return ImageModel.assetName;
             }
-        } 
+        }
 
 
         private ImageLoaderRequest request_image;
@@ -311,9 +314,10 @@ namespace XFABManager
 
         internal TargetComponentType TargetComponentType => targetComponentType;
 
-        private ImageData ImageData { get;set; }
-  
+        private ImageData ImageData { get; set; }
+
         internal UnityEngine.Object TargetComponent { get; set; }
+
 
         public Color color
         {
@@ -331,10 +335,11 @@ namespace XFABManager
             }
         }
 
+
         /// <summary>
         /// 需要赋值的目标组件的全名(包含命名空间) 例如: UnityEngine.UI.Image
         /// </summary>
-        [Tooltip("需要赋值的目标组件的全名(包含命名空间) 例如: UnityEngine.UI.Image")] 
+        [Tooltip("需要赋值的目标组件的全名(包含命名空间) 例如: UnityEngine.UI.Image")]
         public string target_component_full_name;
         /// <summary>
         /// 需要赋值的目标组件的字段名 例如: sprite
@@ -348,7 +353,7 @@ namespace XFABManager
         public Color load_complete_color = Color.white;
         [Tooltip("是否自动 SetNativeSize")]
         public bool auto_set_native_size;
-         
+
         /// <summary>
         /// 开始加载图片的回调
         /// </summary>
@@ -387,7 +392,7 @@ namespace XFABManager
             foreach (var item in allComponentAdapter.Values)
             {
                 if (item.TargetComponentType == TargetComponentType.Other) continue;
-                if (item.TargetComponent(this) != null ) 
+                if (item.TargetComponent(this) != null)
                 {
                     targetComponentType = item.TargetComponentType;
                     break;
@@ -396,14 +401,14 @@ namespace XFABManager
         }
 #endif
 
-        private void Awake() 
+        private void Awake()
         {
             imageModel.Initialize();
         }
 
 
         private void OnEnable()
-        { 
+        {
             Refresh();
         }
 
@@ -413,13 +418,13 @@ namespace XFABManager
             request_image?.Abort(); // 如果正在请求 立即中断
 
             if (isLoading)
-                OnLoadCompleted?.Invoke(false, "加载中游戏物体被隐藏或销毁导致中断!"); 
+                OnLoadCompleted?.Invoke(false, "加载中游戏物体被隐藏或销毁导致中断!");
         }
 
         /// <summary>
         /// 刷新 (如果加载图片失败,可调用此方法重新加载)
         /// </summary>
-        public void Refresh() 
+        public void Refresh()
         {
 
             // 图片设置为空
@@ -429,8 +434,8 @@ namespace XFABManager
             if (imageModel.type == ImageLoaderType.Local || imageModel.type == ImageLoaderType.Network)
                 if (string.IsNullOrEmpty(imageModel.path)) return;
 
-            if (imageModel.type == ImageLoaderType.AssetBundle )
-                if (string.IsNullOrEmpty(imageModel.projectName) || string.IsNullOrEmpty(imageModel.assetName)) 
+            if (imageModel.type == ImageLoaderType.AssetBundle)
+                if (string.IsNullOrEmpty(imageModel.projectName) || string.IsNullOrEmpty(imageModel.assetName))
                     return;
 
             if (!gameObject.activeInHierarchy) return;
@@ -438,23 +443,23 @@ namespace XFABManager
             ImageData = null;
 
             // 修改颜色
-            if (allComponentAdapter.ContainsKey(targetComponentType)) 
+            if (allComponentAdapter.ContainsKey(targetComponentType))
                 allComponentAdapter[targetComponentType].SetColor(this, loading_color);
-            
+
             // 如果正在请求 立即中断
-            request_image?.Abort(); 
+            request_image?.Abort();
 
             OnStartLoad?.Invoke();
-              
-            request_image = ImageLoaderManager.LoadImage(imageModel,this.GetHashCode());
+
+            request_image = ImageLoaderManager.LoadImage(imageModel, this.GetHashCode());
 
             request_image.onProgressChange -= OnProgressChange;
             request_image.onProgressChange += OnProgressChange;
 
 
-            if (request_image != null) 
-                request_image.AddCompleteEvent(OnRefreshFinsh); 
-            
+            if (request_image != null)
+                request_image.AddCompleteEvent(OnRefreshFinsh);
+
 
             isLoading = true; // 正在加载中...
         }
@@ -462,7 +467,7 @@ namespace XFABManager
         /// <summary>
         /// 清空当前显示的图片
         /// </summary>
-        public void Clear() 
+        public void Clear()
         {
             if (allComponentAdapter.ContainsKey(targetComponentType))
             {
@@ -476,11 +481,10 @@ namespace XFABManager
 
         private void OnRefreshFinsh(ImageLoaderRequest request_image)
         {
-  
             // 加载完成
             isLoading = false;
             if (request_image != null)
-                request_image.RemoveCompleteEvent(OnRefreshFinsh);  
+                request_image.RemoveCompleteEvent(OnRefreshFinsh);
 
             ImageData = request_image.NetworkImage;
 
@@ -492,20 +496,23 @@ namespace XFABManager
                     allComponentAdapter[targetComponentType].SetValue(this, ImageData);
                 }
             }
-            else 
+            else
             {
-                if (allComponentAdapter.ContainsKey(targetComponentType)) 
-                    allComponentAdapter[targetComponentType].SetValue(this, null); 
+                if (allComponentAdapter.ContainsKey(targetComponentType))
+                    allComponentAdapter[targetComponentType].SetValue(this, null);
             }
 
             OnLoadCompleted?.Invoke(string.IsNullOrEmpty(request_image.error), string.IsNullOrEmpty(request_image.error) ? "success" : request_image.error);
 
             if (string.IsNullOrEmpty(request_image.error))
                 OnLoadSuccess?.Invoke();
-            else 
+            else
                 OnLoadFailure?.Invoke(request_image.error);
+
+            // 请求完成 清空引用
+            this.request_image = null;
         }
-  
+
         private void OnProgressChange(float progress)
         {
             OnLoading?.Invoke(progress);
@@ -517,7 +524,7 @@ namespace XFABManager
             if (!ImageModel.IsEmpty())
                 ImageLoaderManager.UnloadImage(ImageModel, this.GetHashCode());
 
-            ImageData = null; 
+            ImageData = null;
 
 #if UNITY_EDITOR
             if (Application.isPlaying)

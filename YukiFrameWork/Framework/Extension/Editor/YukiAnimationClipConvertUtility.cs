@@ -130,14 +130,11 @@ namespace YukiFrameWork
             AnimationUtility.SetAnimationClipSettings(animationClip, setting);
             for (int i = 0; i < length; i++)
             {
-                string guid = YukiAssetDataBase.InstanceToGUID(sprites[i]);
-                if (string.IsNullOrEmpty(guid)) continue;
-                Sprite sprite = YukiAssetDataBase.GUIDToInstance<Sprite>(guid);
-                if (!sprite) continue;
+                 
                 ObjectReferenceKeyframe objectReferenceKeyframe = new ObjectReferenceKeyframe()
                 {
-                    time = convertAnimationClip.GetFrameRate(sprite,i,length) / length,
-                    value = sprite,
+                    time = convertAnimationClip.GetFrameRate(sprites[i],i,length) / length,
+                    value = sprites[i],
                 };
                 objectReferenceKeyframes[i] = objectReferenceKeyframe;
 

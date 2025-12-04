@@ -17,9 +17,20 @@ namespace XFABManager
         private Rect position;
 
 
+#if UNITY_6000_2_OR_NEWER
+
+        private TreeViewState<int> bundleListState;
+        private TreeViewState<int> bundleInfoState;
+        private TreeViewState<int> assetListState;
+
+#else
+
         private TreeViewState bundleListState;
         private TreeViewState bundleInfoState;
         private TreeViewState assetListState;
+
+#endif
+
 
         MultiColumnHeaderState m_AssetListMCHState;
 
@@ -31,7 +42,7 @@ namespace XFABManager
         private Rect bundleListRect;
         private Rect bundleInfoRect;
         private Rect assetListRect;
- 
+
 
         private Rect searchFieldRect;
 
@@ -41,10 +52,10 @@ namespace XFABManager
 
         private float HorizontalSplitPercent = 0.4f;
         private float VerticalLeftSplitPercent = 0.7f;
- 
+
         private Rect HorizontalSplitRect;       // 水平分割的矩形
         private Rect VerticalLeftSplitRect;     // 水平分割的矩形
- 
+
 
         private bool isResizingHorizontal;      // 是不是正在调整 水平的比例
         //private bool isResizingVerticalRight;   // 是不是正在调整 竖直右边的比例
@@ -57,7 +68,8 @@ namespace XFABManager
 
         private GUIStyle empty_label_style;
 
-        public AssetBundlesPanel() {
+        public AssetBundlesPanel()
+        {
 
             searchField = new SearchField();
             bundleSerchField = new SearchField();
@@ -67,29 +79,42 @@ namespace XFABManager
         {
             this.window = window;
             this.position = position;
-             
+
             if (bundleListTree == null)
             {
                 // 创建
 
                 if (bundleListState == null)
                 {
+#if UNITY_6000_2_OR_NEWER
+                    bundleListState = new TreeViewState<int>();
+#else
                     bundleListState = new TreeViewState();
+#endif
                 }
 
-                bundleListTree = new BundleListTree(bundleListState, window,this );
+                bundleListTree = new BundleListTree(bundleListState, window, this);
                 bundleListTree.Reload();
 
                 if (bundleInfoState == null)
                 {
+#if UNITY_6000_2_OR_NEWER
+                    bundleInfoState = new TreeViewState<int>();
+#else
                     bundleInfoState = new TreeViewState();
+#endif
                 }
 
-                bundleInfoTree = new BundleInfoTree(bundleInfoState,window);
+                bundleInfoTree = new BundleInfoTree(bundleInfoState, window);
                 bundleInfoTree.Reload();
                 if (assetListState == null)
                 {
+#if UNITY_6000_2_OR_NEWER
+                    assetListState = new TreeViewState<int>();
+#else
                     assetListState = new TreeViewState();
+#endif
+
                 }
 
                 var headerState = AssetListTree.CreateDefaultMultiColumnHeaderState();// multiColumnTreeViewRect.width);
@@ -100,7 +125,9 @@ namespace XFABManager
 
                 //m_AssetList = new AssetListTree(m_AssetListState, m_AssetListMCHState, this);
 
+
                 assetListTree = new AssetListTree(assetListState, m_AssetListMCHState, window.Project, this);
+
                 assetListTree.Reload();
 
             }
@@ -109,7 +136,7 @@ namespace XFABManager
                 (position.width * HorizontalSplitPercent - padding) * 0.7f, search_field_height);
             OnGUIBundleSerchFiled(bundleSearchRect);
 
-            abCountRect.Set(position.x + padding + (position.width * HorizontalSplitPercent - padding) * 0.7f + 10, 
+            abCountRect.Set(position.x + padding + (position.width * HorizontalSplitPercent - padding) * 0.7f + 10,
                 position.y,
                 (position.width * HorizontalSplitPercent - padding) * 0.3f - 10, search_field_height);
             //OnGUIBundleSerchFiled(bundleSearchRect);
@@ -123,10 +150,10 @@ namespace XFABManager
 
 
 
-            
+
 
             EditorGUI.BeginDisabledGroup(!bundleListTree.HasSelection());
-             
+
 
             assetListRect.Set(position.x + position.width * HorizontalSplitPercent + padding,
                 position.y + search_field_height,
@@ -165,7 +192,7 @@ namespace XFABManager
 
                 Rect r = new Rect();
 
-                r.width = 350; 
+                r.width = 350;
                 r.height = 130;
                 r.center = assetListRect.center;
 
@@ -265,7 +292,8 @@ namespace XFABManager
         }
 
 
-        public void UpdateSelectBundle(List<Object> selectedObjects) {
+        public void UpdateSelectBundle(List<Object> selectedObjects)
+        {
             if (selectedObjects.Count > 1) return;
             bundleInfoTree.SetSelectAssets(AssetDatabase.GetAssetPath(selectedObjects[0]));
         }
@@ -273,11 +301,12 @@ namespace XFABManager
         void OnGUISearchBar(Rect rect)
         {
             assetListTree.searchString = searchField.OnGUI(rect, assetListTree.searchString);
-            
+
         }
 
-        void OnGUIBundleSerchFiled(Rect rect) {
-            bundleListTree.searchString =  bundleSerchField.OnGUI(rect, bundleListTree.searchString);
+        void OnGUIBundleSerchFiled(Rect rect)
+        {
+            bundleListTree.searchString = bundleSerchField.OnGUI(rect, bundleListTree.searchString);
         }
 
 

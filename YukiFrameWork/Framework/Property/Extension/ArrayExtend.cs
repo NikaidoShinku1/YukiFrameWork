@@ -49,19 +49,7 @@ public static class ArrayExtend
             action(i, self[i]);
         }
     }
-    #endregion
-
-    /// <summary>
-    /// 随机一个值,在数组0-count范围内
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="self"></param>
-    /// <returns></returns>
-    public static T Random<T>(this T[] self)
-    {
-        if (self == null || self.Length == 0) return default;
-        return self[UnityEngine.Random.Range(0, self.Length)];
-    }
+    #endregion   
 
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WSA || UNITY_WEBGL
     public static void ClearObjects<T>(this T[] self) where T : Object

@@ -79,21 +79,14 @@ namespace XFABManager {
                 PlayerPrefs.Save();
             }
         }
-         
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Init() 
-        { 
-            images.Clear();
-        }
 
-        [RuntimeInitializeOnLoadMethod()]
-        static void Init2()
-        { 
+        static ImageLoaderManager()
+        {
+            images.Clear();
             // 这里需要启动协程 所以必须要在协程启动器之后调用 不能和上面的初始化一起
             CoroutineStarter.Start(AutomaticRecovery());
             CoroutineStarter.Start(AutoClearCacheImage());
         }
-
 
         internal static ImageLoaderRequest LoadImage(ImageModel imageModel, int reference_hash_code)
         {  

@@ -222,7 +222,7 @@ namespace XFABManager
             FileInfo fileInfo = new FileInfo(AssetDatabase.AssetPathToGUID(asset_path));
             AddFile(fileInfo);
 
-            Debug.LogFormat("添加成功:{0}", asset_path);
+            //Debug.LogFormat("添加成功:{0}", asset_path);
         }
          
         // 移除其他 bundle 中的文件

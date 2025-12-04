@@ -29,13 +29,16 @@ namespace XFABManager
 
         #endregion
 
-        public IEnumerator RequestImage(ImageModel imageModel ) {
+        public IEnumerator RequestImage(ImageModel imageModel)
+        {
+
+            //Debug.LogFormat("请求图片:{0}",imageModel.path);
 
             // 判断该图片是否已经存在
             if (ImageLoaderManager.IsHaveImage(imageModel.Key))
             {
-                NetworkImage = ImageLoaderManager.images[imageModel.Key]; 
-                NetworkImage.last_time = Time.time; 
+                NetworkImage = ImageLoaderManager.images[imageModel.Key];
+                NetworkImage.last_time = Time.time;
                 onProgressChange?.Invoke(1);
                 Completed();
                 yield break;
@@ -60,14 +63,14 @@ namespace XFABManager
                         texture = null;
                         sprite = sprite_request?.asset as Sprite;
                     }
-                    else 
-                    {                         
+                    else
+                    {
                         LoadAssetRequest texture_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Texture2D>(imageModel.projectName, imageModel.assetName);
                         while (texture_request != null && !texture_request.isDone)
                         {
                             yield return null;
                             onProgressChange?.Invoke(texture_request.progress);
-                        } 
+                        }
                         LoadAssetRequest sprite_request = AssetBundleManager.LoadAssetAsyncWithoutTips<Sprite>(imageModel.projectName, imageModel.assetName);
                         yield return sprite_request;
 
@@ -76,17 +79,17 @@ namespace XFABManager
                     }
 
                 }
-                else 
+                else
                 {
                     if (imageModel.IsSubAsset)
                     {
                         texture = null;
                         sprite = AssetBundleManager.LoadSubAsset<Sprite>(imageModel.projectName, imageModel.MainAssetName, imageModel.SubAssetName);
                     }
-                    else 
+                    else
                     {
-                      //  Debug.LogFormat("加载图片:{0}/{1}",imageModel.projectName,imageModel.assetName);
-                        texture = AssetBundleManager.LoadAsset<Texture2D>(imageModel.projectName,imageModel.assetName);
+                        //Debug.LogFormat("加载图片:{0}/{1}",imageModel.projectName,imageModel.assetName);
+                        texture = AssetBundleManager.LoadAsset<Texture2D>(imageModel.projectName, imageModel.assetName);
                         sprite = AssetBundleManager.LoadAsset<Sprite>(imageModel.projectName, imageModel.assetName);
                     }
 
@@ -108,9 +111,9 @@ namespace XFABManager
                 NetworkImage.native_path = string.Empty;
                 NetworkImage.type = imageModel.type;
                 ImageLoaderManager.images.Add(NetworkImage.key, NetworkImage);
-                Completed(); 
+                Completed();
             }
-            else 
+            else
             {
                 while (currentDownloadCount > MAX_DOWNLOAD_COUNT)
                 {
@@ -119,37 +122,44 @@ namespace XFABManager
 
                 currentDownloadCount++;
 
-                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(imageModel.path);  
-                string fileName = XFABTools.md5(fileNameWithoutExtension); // 防止图片名称中包含特殊字符 导致异常
-                 
+                //string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(imageModel.path);  
+                string fileName = XFABTools.md5(imageModel.path); // 防止图片名称中包含特殊字符 导致异常
+
                 string path = string.Empty;
 
                 if (imageModel.type == ImageLoaderType.Network)
                 {
 
-                    // 把图片下载到本地
-                    path = string.Format("{0}/Caches/CacheImages/{1}", Application.temporaryCachePath, fileName);
-
-                    if (!File.Exists(path))
+                    if (!string.IsNullOrEmpty(imageModel.path))
                     {
-                        // 本地没有该文件 从服务端下载
-                        // 下载文件
-                        request_file = DownloadFileRequest.Download(imageModel.path, path);
+                        // 把图片下载到本地
+                        path = string.Format("{0}/Caches/CacheImages/{1}", Application.temporaryCachePath, fileName);
 
-                        while (!request_file.isDone) {
-                            yield return null;
-                            onProgressChange.Invoke(request_file.progress * 0.5f); 
-                        }
 
-                        //yield return request_file;
-
-                        if (!string.IsNullOrEmpty(request_file.error))
+                        if (!File.Exists(path))
                         {
-                            Completed(request_file.error);
-                            currentDownloadCount--;
-                            yield break;
-                        } 
+                            // 本地没有该文件 从服务端下载
+                            // 下载文件
+                            request_file = DownloadFileRequest.Download(imageModel.path, path);
+
+                            while (!request_file.isDone)
+                            {
+                                yield return null;
+                                onProgressChange.Invoke(request_file.progress * 0.5f);
+                            }
+
+                            //yield return request_file;
+
+                            if (!string.IsNullOrEmpty(request_file.error))
+                            {
+                                Completed(request_file.error);
+                                currentDownloadCount--;
+                                yield break;
+                            }
+                            //Debug.LogFormat("图片下载成功:{0}",path); 
+                        }
                     }
+
                 }
                 else if (imageModel.type == ImageLoaderType.Local)
                 {
@@ -164,48 +174,62 @@ namespace XFABManager
 
                 Texture2D texture2D = null;
 
-                if (Application.platform == RuntimePlatform.WebGLPlayer)
+
+                if (!string.IsNullOrEmpty(path))
                 {
-                    byte[] bytes = File.ReadAllBytes(path);
-                    texture2D = new Texture2D(2, 2);
-                    texture2D.LoadImage(bytes);
-                    texture2D.Apply();
-                }
-                else 
-                { 
-                    // 从本地读取
-                    request_local_file = UnityWebRequestTexture.GetTexture(string.Format("file://{0}", path), true);
-                    request_local_file.disposeUploadHandlerOnDispose = true;
-                    request_local_file.disposeDownloadHandlerOnDispose = true;
-                    request_local_file.timeout = 5;
 
-                    UnityWebRequestAsyncOperation operation = request_local_file.SendWebRequest();
-
-                    while (!operation.isDone) {
-                        yield return null;
-                        onProgressChange?.Invoke(operation.progress * 0.5f + 0.5f);
-                    }
-
-
-                    onProgressChange?.Invoke(1);
-
-    #if UNITY_2020_1_OR_NEWER
-                    if (request_local_file.result == UnityWebRequest.Result.Success && string.IsNullOrEmpty(request_local_file.error))
-    #else
-                    if (string.IsNullOrEmpty(request_local_file.error))
-    #endif
+                    if (Application.platform == RuntimePlatform.WebGLPlayer)
                     {
-                        DownloadHandlerTexture handler = request_local_file.downloadHandler as DownloadHandlerTexture;
-                        texture2D = handler.texture;
-                        texture2D.name = fileName; 
+                        byte[] bytes = File.ReadAllBytes(path);
+                        texture2D = new Texture2D(2, 2);
+                        texture2D.LoadImage(bytes);
+                        texture2D.Apply();
                     }
                     else
-                        Completed($"请求url={imageModel.path}失败，错误{request_local_file.error}");
+                    {
+
+                        //Debug.LogFormat("从本地读取:{0}",path);
+
+                        // 从本地读取
+                        request_local_file = UnityWebRequestTexture.GetTexture(string.Format("file://{0}", path), true);
+                        request_local_file.disposeUploadHandlerOnDispose = true;
+                        request_local_file.disposeDownloadHandlerOnDispose = true;
+                        request_local_file.timeout = 5;
+
+                        UnityWebRequestAsyncOperation operation = request_local_file.SendWebRequest();
+
+                        while (!operation.isDone)
+                        {
+                            yield return null;
+                            onProgressChange?.Invoke(operation.progress * 0.5f + 0.5f);
+                        }
+
+
+                        onProgressChange?.Invoke(1);
+
+#if UNITY_2020_1_OR_NEWER
+                        if (request_local_file.result == UnityWebRequest.Result.Success && string.IsNullOrEmpty(request_local_file.error))
+#else
+                        if (string.IsNullOrEmpty(request_local_file.error))
+#endif
+                        {
+                            DownloadHandlerTexture handler = request_local_file.downloadHandler as DownloadHandlerTexture;
+                            texture2D = handler.texture;
+                            texture2D.name = fileName;
+                        }
+                        else
+                            Completed($"请求url={imageModel.path}失败，错误{request_local_file.error}");
+                    }
+                }
+                else
+                {
+                    Completed("path is empty!");
                 }
 
 
-                if (texture2D != null) 
-                { 
+
+                if (texture2D != null)
+                {
                     NetworkImage = new ImageData();
                     NetworkImage.key = imageModel.Key;
                     NetworkImage.texture = texture2D;
@@ -218,7 +242,7 @@ namespace XFABManager
 
                 currentDownloadCount--;
             }
-             
+
 
         }
 

@@ -1,3 +1,35 @@
+## version 1.19.3 更新内容
+
+1. 优化 ApplicationTool.isPlaying 属性代码!
+
+## version 1.19.2 更新内容
+
+1. 删除特性 RuntimeInitializeOnLoadMethod, 这个特性在部分平台(比如:WebGL)不能正常运行;
+
+## version 1.19.1 更新内容
+
+1. 优化DownloadFileRequest代码!
+
+## version 1.19.0 更新内容
+
+1. 优化 ImageLoader 网络图片加载!
+
+## version 1.18.9 更新内容
+
+1. 删除编辑器模式的测试日志!
+
+## version 1.18.8 更新内容
+
+1. 调整编辑器资源版本验证逻辑!
+
+## version 1.18.7 更新内容
+
+1. 兼容 Unity6000.2 及以上版本, 调整过时的Api!
+
+## version 1.18.6 更新内容
+
+1. 兼容 Unity6000.2 及以上版本!
+
 ## version 1.18.5 更新内容
 
 1. 优化 DownloadFileRequest!

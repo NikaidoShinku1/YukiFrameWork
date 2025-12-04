@@ -8,16 +8,11 @@ using UnityEngine;
 namespace XFABManager
 { 
     /// <summary>
-    /// EditorApplication工具
+    /// Application工具
     /// </summary>
-    public class EditorApplicationTool
+    public class ApplicationTool
     {
-        // Fix编码  
-        /// <summary>
-        /// 默认是运行中
-        /// </summary>
-        private static bool _isPlaying = true;
-
+#pragma warning disable IDE1006 // 命名样式
         /// <summary>
         /// 判断当前编辑器是否处于运行状态(UnityEngine.Application.isPlaying在停止运行编辑器时触发OnDestroy时仍返回true)
         /// </summary>
@@ -25,38 +20,14 @@ namespace XFABManager
         {
             get
             {
-                return _isPlaying;
+#if UNITY_EDITOR
+                return EditorApplication.isPlayingOrWillChangePlaymode;  // 如果是编辑器模式 使用这个数据
+#else  
+                return true; // 如果是非编辑器模式一定是true
+#endif  
             }
-        }
 
-        [RuntimeInitializeOnLoadMethod]
-        static void Init()
-        {
-            _isPlaying = true;
-#if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= EditorApplication_playModeStateChanged;
-            EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
-#endif
         }
-#if UNITY_EDITOR
-        private static void EditorApplication_playModeStateChanged(PlayModeStateChange obj)
-        {
-            switch (obj)
-            {
-                case PlayModeStateChange.ExitingPlayMode:
-                    _isPlaying = false;
-                    break;
-                case PlayModeStateChange.ExitingEditMode:
-                    _isPlaying = true;
-                    break;
-                case PlayModeStateChange.EnteredEditMode:
-                    _isPlaying = false;
-                    break;
-                case PlayModeStateChange.EnteredPlayMode:
-                    _isPlaying = true;
-                    break;
-            }
-        }
-#endif
-    } 
+#pragma warning restore IDE1006 // 命名样式 
+    }
 }

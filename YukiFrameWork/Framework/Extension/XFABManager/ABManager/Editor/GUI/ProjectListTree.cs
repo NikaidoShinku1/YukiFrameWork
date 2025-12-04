@@ -9,12 +9,18 @@ using UnityEngine;
 namespace XFABManager
 {
 
-    public class ProjectTreeItem :TreeViewItem
+#if UNITY_6000_2_OR_NEWER
+
+    public class ProjectTreeItem :TreeViewItem<int>
+#else
+    public class ProjectTreeItem : TreeViewItem
+#endif
+
     {
 
         public XFABProject Project { get; private set; }
 
-        public ProjectTreeItem(XFABProject project) : base(project.name.GetHashCode(),0,project.name)
+        public ProjectTreeItem(XFABProject project) : base(project.name.GetHashCode(), 0, project.name)
         {
             Project = project;
         }
@@ -22,7 +28,12 @@ namespace XFABManager
     }
 
 
+#if UNITY_6000_2_OR_NEWER
+    public class ProjectListTree : TreeView<int>
+#else
     public class ProjectListTree : TreeView
+#endif
+
     {
         private string url;
         private UpdateMode updateModel;
@@ -37,7 +48,7 @@ namespace XFABManager
         private EditorWindow window;
 
         private GUIStyle textStyle;
-         
+
         internal static MultiColumnHeaderState CreateDefaultMultiColumnHeaderState()
         {
             return new MultiColumnHeaderState(GetColumns());
@@ -77,26 +88,38 @@ namespace XFABManager
             return retVal;
         }
 
-        public ProjectListTree(TreeViewState state, MultiColumnHeaderState mchs, EditorWindow window ) : base(state, new MultiColumnHeader(mchs))
+
+#if UNITY_6000_2_OR_NEWER
+        public ProjectListTree(TreeViewState<int> state, MultiColumnHeaderState mchs, EditorWindow window ) : base(state, new MultiColumnHeader(mchs))
+#else
+        public ProjectListTree(TreeViewState state, MultiColumnHeaderState mchs, EditorWindow window) : base(state, new MultiColumnHeader(mchs))
+#endif
+
         {
             m_Mchs = mchs;
             showBorder = true;
             showAlternatingRowBackgrounds = true;
             this.window = window;
 
-           
-        }
 
+        }
+#if UNITY_6000_2_OR_NEWER
+        protected override TreeViewItem<int> BuildRoot()
+#else
         protected override TreeViewItem BuildRoot()
+#endif
+
         {
             if (textStyle == null)
             {
                 textStyle = new GUIStyle(EditorStyles.label);
                 textStyle.richText = true;
             }
-
-             
+#if UNITY_6000_2_OR_NEWER 
+            TreeViewItem<int> root = new TreeViewItem<int>(-1, -1); 
+#else
             TreeViewItem root = new TreeViewItem(-1, -1);
+#endif
 
             foreach (var item in XFABProjectManager.Instance.Projects)
             {
@@ -107,10 +130,21 @@ namespace XFABManager
 
             return root;
         }
+
+#if UNITY_6000_2_OR_NEWER
+
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+        {
+            return base.BuildRows(root);
+        }
+
+#else 
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             return base.BuildRows(root);
         }
+#endif
+
         protected override void RowGUI(RowGUIArgs args)
         {
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
@@ -121,13 +155,19 @@ namespace XFABManager
             }
         }
 
+#if UNITY_6000_2_OR_NEWER 
+        private void CellGUI(Rect cellRect, TreeViewItem<int> item, int column, ref RowGUIArgs args)
+
+#else
         private void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
+#endif
+
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
 
 
             ProjectTreeItem groupItem = item as ProjectTreeItem;
-             
+
             if (groupItem == null) { return; }
 
             switch (column)
@@ -136,12 +176,12 @@ namespace XFABManager
                     CellGUIDisplayName(cellRect, item);
                     break;
                 case 1:         // DisplayName
-                    GUI.Label(cellRect, groupItem.Project.displayName); 
+                    GUI.Label(cellRect, groupItem.Project.displayName);
                     break;
                 case 2:         // 更新模式
-               
+
                     GUI.Label(cellRect, groupItem.Project.version);
-                     
+
                     break;
 
 
@@ -151,14 +191,22 @@ namespace XFABManager
 
 
 
-            if (rootItem.hasChildren && rootItem.children.Count != XFABProjectManager.Instance.Projects.Count) {
+            if (rootItem.hasChildren && rootItem.children.Count != XFABProjectManager.Instance.Projects.Count)
+            {
 
                 Reload();
             }
 
         }
 
+
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUIDisplayName(Rect cellRect, TreeViewItem<int> item)
+#else
         private void CellGUIDisplayName(Rect cellRect, TreeViewItem item)
+#endif
+
+
         {
 
             cellRect.x += 20;
@@ -173,9 +221,13 @@ namespace XFABManager
             EditorGUI.LabelField(cellRect, item.displayName);
         }
 
-        
 
+#if UNITY_6000_2_OR_NEWER
+        protected override bool CanRename(TreeViewItem<int> item)
+#else
         protected override bool CanRename(TreeViewItem item)
+#endif
+
         {
             return false;
         }
@@ -194,7 +246,13 @@ namespace XFABManager
                         this.window.ShowNotification(new GUIContent("Default Profile 不能改名!"));
                         return;
                     }
+
+#if UNITY_6000_2_OR_NEWER
+                    TreeViewItem<int> item = FindItem(args.itemID, rootItem);
+#else
                     TreeViewItem item = FindItem(args.itemID, rootItem);
+#endif
+
                     // 判断是重命名Group  还是重命名 Profile
                     if (item.depth == 0)
                     {
@@ -252,12 +310,13 @@ namespace XFABManager
             //Debug.Log(item.displayName);
             var project = XFABProjectManager.Instance.Projects.Where(x => x.name.Equals(item.displayName)).FirstOrDefault();
 
-            if ( project == null ) {
+            if (project == null)
+            {
                 return;
             }
-            
+
             BaseShowProjects.OpenProject(project);
-        } 
+        }
         private void ReloadAndSelect(int hashCode, bool rename)
         {
             var selection = new List<int>();

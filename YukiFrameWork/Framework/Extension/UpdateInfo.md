@@ -1,4 +1,14 @@
-﻿#### 框架更新日志
+﻿#### 框架更新日志、
+
+V1.55.2 修复SkillKit模块中查询技能状态冷却返回Success的bug，优化StateMachine模块细节，优化图集转换AnimationClip配置窗口
+
+V1.55.1 重构对于模式为Multiple的Texture转换AnimationCliip的功能并解除对窗口的屏蔽，现在可以正常使用
+
+补充更新XFABManager
+
+V1.54.1 SkillKit新增配置自定义参数，修复SkillController无法进行动态自定义数据的问题，BuffKit新增自定义配置参数，MissionKit优化细节
+
+V1.53.15 优化ActionKit细节，优化SkillKit与BuffKit可以在配置中打开已绑定的单独的控制器脚本
 
 V1.53.14 UINavigation模块修复面板切换时可能会多次触发自定义按键的问题，StateMachine模块优化切换状态的事件参数，修复生成代码时命名空间无效的问题
 

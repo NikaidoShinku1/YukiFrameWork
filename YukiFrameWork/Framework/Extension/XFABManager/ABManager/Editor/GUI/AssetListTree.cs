@@ -19,7 +19,12 @@ namespace XFABManager
         Size = 2
     }
 
+#if UNITY_6000_2_OR_NEWER
+    public class AssetListTree : TreeView<int>
+#else
     public class AssetListTree : TreeView
+#endif
+
     {
 
         #region 字段
@@ -106,15 +111,35 @@ namespace XFABManager
 
             return retVal;
         }
+
+#if UNITY_6000_2_OR_NEWER
+
+        protected override TreeViewItem<int> BuildRoot()
+        {
+            return CreateView();
+        }
+
+
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+        {
+            return base.BuildRows(root);
+        }
+
+#else
+
         protected override TreeViewItem BuildRoot()
         {
             return CreateView();
         }
 
+
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             return base.BuildRows(root);
         }
+
+#endif
+
 
         protected override void RowGUI(RowGUIArgs args)
         {
@@ -134,14 +159,14 @@ namespace XFABManager
                     {
                         // 如果验证通过 添加文件
                         for (int i = 0; i < DragAndDrop.paths.Length; i++)
-                        { 
+                        {
                             Bundle.AddFile(DragAndDrop.paths[i]);
                         }
                         // 保存
                         project.Save();
                         Reload();
                     }
-                    else 
+                    else
                     {
                         // 验证不通过 给个提示 
                         project.ShowDuplicateFilesTip(DragAndDrop.paths);
@@ -193,7 +218,7 @@ namespace XFABManager
 
         protected override void ContextClickedItem(int id)
         {
-            List<AssetTreeItem> selectedNodes = new List< AssetTreeItem>();
+            List<AssetTreeItem> selectedNodes = new List<AssetTreeItem>();
             foreach (var nodeID in GetSelection())
             {
                 selectedNodes.Add(FindItem(nodeID, rootItem) as AssetTreeItem);
@@ -203,7 +228,7 @@ namespace XFABManager
             {
                 GenericMenu menu = new GenericMenu();
 
-                if(AllDepathGreaterZero(selectedNodes)) 
+                if (AllDepathGreaterZero(selectedNodes))
                     menu.AddDisabledItem(new GUIContent("Remove asset(s) from bundle."), false);
                 else
                     menu.AddItem(new GUIContent("Remove asset(s) from bundle."), false, RemoveAssets, selectedNodes);
@@ -214,7 +239,8 @@ namespace XFABManager
         }
 
 
-        private bool AllDepathGreaterZero(List<AssetTreeItem> assetTreeItems) {
+        private bool AllDepathGreaterZero(List<AssetTreeItem> assetTreeItems)
+        {
             foreach (var item in assetTreeItems)
             {
                 if (item.depth <= 0) return false;
@@ -228,8 +254,11 @@ namespace XFABManager
 
         #region 方法
 
-
+#if UNITY_6000_2_OR_NEWER
+        public AssetListTree(TreeViewState<int> state, MultiColumnHeaderState mchs, XFABProject project, AssetBundlesPanel bundlesPanel) : base(state, new MultiColumnHeader(mchs))
+#else
         public AssetListTree(TreeViewState state, MultiColumnHeaderState mchs, XFABProject project, AssetBundlesPanel bundlesPanel) : base(state, new MultiColumnHeader(mchs))
+#endif
         {
             showBorder = true;
             showAlternatingRowBackgrounds = true;
@@ -256,7 +285,7 @@ namespace XFABManager
                         {
                             item_offset_x += 15;
                         }
-                         
+
                         var iconRect = new Rect(cellRect.x + 1 + item_offset_x, cellRect.y + 1, cellRect.height - 2, cellRect.height - 2);
                         if (item.icon != null)
                             GUI.DrawTexture(iconRect, item.icon, ScaleMode.ScaleToFit);
@@ -273,19 +302,19 @@ namespace XFABManager
                     break;
                 //case 2:
                 //    DefaultGUI.Label(cellRect, item.FileInfo.SizeString, args.selected, args.focused);
-                    //break;
+                //break;
                 case 2:
                     DefaultGUI.Label(cellRect, item.FileInfo.AssetPath, args.selected, args.focused);
                     break;
                 case 3:
 
                     if (item.FileInfo.type == XFBundleFileType.Directory && item.depth == 0)
-                    { 
+                    {
 
                         string filter = string.IsNullOrEmpty(item.FileInfo.filter) ? "All" : item.FileInfo.filter;
 
                         filterContent.text = filter;
-                        
+
                         if (EditorGUI.DropdownButton(cellRect, filterContent, FocusType.Passive, EditorStyles.toolbarDropDown))
                         {
                             var menu = new GenericMenu();
@@ -299,13 +328,13 @@ namespace XFABManager
                                     Reload();
                                 });
                             }
-                             
+
                             menu.DropDown(cellRect);
                         }
 
 
                     }
-                     
+
                     break;
             }
             GUI.color = oldColor;
@@ -317,7 +346,11 @@ namespace XFABManager
             Reload();
         }
 
+#if UNITY_6000_2_OR_NEWER
+        private TreeViewItem<int> CreateView()
+#else
         private TreeViewItem CreateView()
+#endif
         {
 
             AssetTreeItem root = new AssetTreeItem();
@@ -358,7 +391,12 @@ namespace XFABManager
         void OnSortingChanged(MultiColumnHeader multiColumnHeader)
         {
             //SortIfNeeded(rootItem, GetRows());
+#if UNITY_6000_2_OR_NEWER
+            IList<TreeViewItem<int>> rows = GetRows();
+#else
             IList<TreeViewItem> rows = GetRows();
+#endif
+
             if (rows.Count <= 1) // 不需要排序
                 return;
 
@@ -390,8 +428,12 @@ namespace XFABManager
 
 
             var orderedItems = InitialOrder(assetList, sortedColumns);
-
+#if UNITY_6000_2_OR_NEWER
+            rootItem.children = orderedItems.Cast<TreeViewItem<int>>().ToList();
+#else
             rootItem.children = orderedItems.Cast<TreeViewItem>().ToList();
+#endif
+
         }
 
         IOrderedEnumerable<AssetTreeItem> InitialOrder(IEnumerable<AssetTreeItem> myTypes, int[] columnList)
@@ -409,8 +451,8 @@ namespace XFABManager
                     {
                         return myTypes.OrderByDescending(l => l.displayName);
                     }
-                //return myTypes.Order(l => l.displayName, ascending);
-                //case SortOption.Size:
+                    //return myTypes.Order(l => l.displayName, ascending);
+                    //case SortOption.Size:
 
                     //if (ascending)
                     //{
@@ -430,7 +472,7 @@ namespace XFABManager
             List<AssetTreeItem> assets = (List<AssetTreeItem>)obj;
             for (int i = 0; i < assets.Count; i++)
             {
-                Debug.LogFormat("移除成功:{0}" , assets[i].FileInfo.AssetPath);
+                Debug.LogFormat("移除成功:{0}", assets[i].FileInfo.AssetPath);
                 Bundle.RemoveFile(assets[i].FileInfo.guid);
             }
             project.Save();
@@ -455,13 +497,13 @@ namespace XFABManager
 
         // 是不是能够拖拽
         protected bool IsValidDragDrop()
-        { 
+        {
             //can't drag nothing
             if (DragAndDrop.paths == null || DragAndDrop.paths.Length == 0)
                 return false;
 
             // bundle_name 为空的时候 不能拖放
-            if (string.IsNullOrEmpty(bundle_name))  return false; 
+            if (string.IsNullOrEmpty(bundle_name)) return false;
 
             if (Bundle == null || Bundle.bundleType == XFBundleType.Group) return false;
 
@@ -470,8 +512,8 @@ namespace XFABManager
                 // 是无效的AssetBundle文件 并且不是目录
                 if (!AssetBundleTools.IsValidAssetBundleFile(DragAndDrop.paths[i]) && AssetDatabase.IsValidFolder(DragAndDrop.paths[i]) == false) { return false; }
             }
-             
-            return true; 
+
+            return true;
         }
 
 

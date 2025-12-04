@@ -366,7 +366,7 @@ namespace YukiFrameWork
     public struct ActionUpdateNodeController : IActionUpdateNodeController
     {
         public IActionUpdateNode UpdateNode { get; set; }
-
+        public IActionNode Action => UpdateNode;
         public IActionNodeController Start<T>(T component, Action callBack = null) where T : Component
         {
             var uC = component.GetComponent<MonoExecute>();
@@ -380,6 +380,7 @@ namespace YukiFrameWork
     public struct MonoActionController<TK> : IActionNodeController where TK : Delegate
     {
         public MonoAction<TK> mono;
+        public IActionNode Action => throw new InvalidCastException("Mono拓展不由IActionNode管理，请解除对该属性的调用");
         public IActionNodeController Start<T>(T component, Action callBack = null) where T : Component
         {
             var uC = component.GetComponent<MonoExecute>();

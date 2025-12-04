@@ -6,7 +6,11 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using XFABManager;
 
+#if UNITY_6000_2_OR_NEWER
+public class BundleInfoTree : TreeView<int>
+#else
 public class BundleInfoTree : TreeView
+#endif
 {
 
     #region 字段

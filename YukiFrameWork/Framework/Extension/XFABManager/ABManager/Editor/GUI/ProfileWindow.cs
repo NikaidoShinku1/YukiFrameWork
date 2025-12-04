@@ -8,21 +8,31 @@ using UnityEngine;
 using YukiFrameWork;
 
 namespace XFABManager {
-	
-	public class ProfileWindow
-	{
 
-		TreeViewState profileState;
-		ProfileTreeView profileView;
-		MultiColumnHeaderState profileMCHState;
+    public class ProfileWindow 
+    {
 
-		Rect area = new Rect();
+#if UNITY_6000_2_OR_NEWER
+		TreeViewState<int> profileState;
+#else
+        TreeViewState profileState;
+#endif
 
-		[OnInspectorGUI]
-		private void OnGUI() {
+        ProfileTreeView profileView;
+        MultiColumnHeaderState profileMCHState;
 
-			if (profileState == null || profileView ==null) {
-				profileState = new TreeViewState();
+        Rect area = new Rect();
+        [OnInspectorGUI]
+        private void OnGUI()
+        {
+
+            if (profileState == null || profileView == null)
+            {
+#if UNITY_6000_2_OR_NEWER
+                profileState = new TreeViewState<int>();
+#else
+                profileState = new TreeViewState();
+#endif
 
                 var headerState = ProfileTreeView.CreateDefaultMultiColumnHeaderState();// multiColumnTreeViewRect.width);
                 if (MultiColumnHeaderState.CanOverwriteSerializedFields(profileMCHState, headerState))
@@ -30,17 +40,17 @@ namespace XFABManager {
                 profileMCHState = headerState;
 
                 profileView = new ProfileTreeView(profileState, profileMCHState, FrameWorkDisignWindow.Instance);
-				profileView.Reload();
+                profileView.Reload();
             }
 
-			 
 
-			area.Set(0, 0, FrameWorkDisignWindow.Instance.position.width, FrameWorkDisignWindow.Instance.position.height);
-			profileView.OnGUI(area);
 
-		}
+            area.Set(0, 0, FrameWorkDisignWindow.Instance.position.width, FrameWorkDisignWindow.Instance.position.height);
+            profileView.OnGUI(area);
 
-	}
+        }
+
+    }
 
 }
 

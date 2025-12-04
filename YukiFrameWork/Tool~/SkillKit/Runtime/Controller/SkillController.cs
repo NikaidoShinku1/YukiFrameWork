@@ -56,19 +56,31 @@ namespace YukiFrameWork.Skill
         /// </summary>
         public bool IsSkillRelease { get; internal set; }
 
+        private float releaseTime;
         /// <summary>
         /// 技能释放时间
         /// </summary>
-        public float ReleaseTime { get; internal set; }  
+        public virtual float ReleaseTime
+        {
+            get => releaseTime;
+            set => releaseTime = value;
+        }
         
         /// <summary>
         /// 技能释放计时
         /// </summary>
-        public virtual float ReleasingTimer { get; set; }
+        public float ReleasingTimer { get;internal set; }
 
         public List<string> SimultaneousSkillKeys { get; set; } = new List<string>();
 
         internal float fixedTimer;
+
+        private Dictionary<string, SkillParam> skillParams = new Dictionary<string, SkillParam>();
+
+        /// <summary>
+        /// 技能所使用的参数(控制器可动态修改)
+        /// </summary>
+        public Dictionary<string, SkillParam> SkillParams => skillParams;
 
         public float ReleasingProgress
         {
@@ -101,15 +113,21 @@ namespace YukiFrameWork.Skill
 
             }
         }
+
+        private float coolDownTime;
         /// <summary>
         /// 技能冷却时间
         /// </summary>
-        public float CoolDownTime { get;internal set; }
+        public virtual float CoolDownTime
+        {
+            get => coolDownTime;
+            set => coolDownTime = value;
+        }
 
         /// <summary>
         /// 技能冷却计时
         /// </summary>
-        public virtual float CoolDownTimer { get; set; }
+        public float CoolDownTimer { get; internal set; }
 
         /// <summary>
         /// 是否能够主动取消
@@ -142,7 +160,7 @@ namespace YukiFrameWork.Skill
                 if (IsSkillRelease)
                     return ReleaseSkillStatus.Releasing;
 
-                if (IsSkillCoolDown)
+                if (!IsSkillCoolDown)
                     return ReleaseSkillStatus.InCooling;
 
                 if (!SkillKit.CheckRuntimeSkillRelease(SkillKit.GetSkillControllers(Player), SkillData.SkillKey))
@@ -173,9 +191,11 @@ namespace YukiFrameWork.Skill
             SkillController controller = GlobalObjectPools.GlobalAllocation(type) as SkillController;
             controller.Player = executor;
             controller.SkillData = skill;
-            controller.CoolDownTime = skill.CoolDownTime;
-            controller.ReleaseTime = skill.ReleaseTime;
+            controller.coolDownTime = skill.CoolDownTime;
+            controller.releaseTime = skill.ReleaseTime;
             controller.IsSkillCoolDown = true;
+            if (skill.SkillParams != null && skill.SkillParams.Length > 0)
+                controller.skillParams = skill.SkillParams.ToDictionary(x => x.paramKey,x => x);
             controller.ActiveCancellation = skill.ActiveCancellation;
             if(skill.SimultaneousSkillKeys != null && skill.SimultaneousSkillKeys.Length != 0)
                 controller.SimultaneousSkillKeys = skill.SimultaneousSkillKeys.ToList();

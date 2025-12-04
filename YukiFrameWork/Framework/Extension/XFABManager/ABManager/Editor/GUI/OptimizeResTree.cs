@@ -9,7 +9,12 @@ using UnityEngine;
 
 namespace XFABManager
 {
+#if UNITY_6000_2_OR_NEWER
+    public class OptimizeResTree : TreeView<int>
+#else
     public class OptimizeResTree : TreeView
+#endif
+
     {
 
         private Dictionary<string, List<string>> data;
@@ -21,7 +26,12 @@ namespace XFABManager
         //    this.data = data;
         //}
 
+#if UNITY_6000_2_OR_NEWER
+        public OptimizeResTree(TreeViewState<int> state, MultiColumnHeaderState mchs, Dictionary<string, List<string>> data) : base(state, new MultiColumnHeader(mchs))
+#else
         public OptimizeResTree(TreeViewState state, MultiColumnHeaderState mchs, Dictionary<string, List<string>> data) : base(state, new MultiColumnHeader(mchs))
+#endif
+
         {
             showBorder = true;
             showAlternatingRowBackgrounds = true;
@@ -30,6 +40,19 @@ namespace XFABManager
             //multiColumnHeader.sortingChanged += OnSortingChanged;
         }
 
+
+#if UNITY_6000_2_OR_NEWER
+        protected override TreeViewItem<int> BuildRoot()
+        {
+            return CreateItem();
+        }
+
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+        {
+            return base.BuildRows(root);
+        }
+
+#else
         protected override TreeViewItem BuildRoot()
         {
             return CreateItem();
@@ -39,20 +62,36 @@ namespace XFABManager
         {
             return base.BuildRows(root);
         }
+#endif
 
         // 名称 引用次数 大小 路径 AssetBundles
 
         // 创建 item 
-        private TreeViewItem CreateItem() {
 
+#if UNITY_6000_2_OR_NEWER
+        private TreeViewItem<int> CreateItem()
+#else
+        private TreeViewItem CreateItem()
+#endif
+        {
+
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> root = new TreeViewItem<int>(0, -1);
+#else
             TreeViewItem root = new TreeViewItem(0, -1);
+#endif
 
             if (data != null)
             {
-                
+
                 foreach (var item in data.Keys)
                 {
-                    root.AddChild( new TreeViewItem(item.GetHashCode(),0,item) );
+#if UNITY_6000_2_OR_NEWER
+                    root.AddChild( new TreeViewItem<int>(item.GetHashCode(),0,item) );
+#else
+                    root.AddChild(new TreeViewItem(item.GetHashCode(), 0, item));
+#endif
+
                 }
 
             }
@@ -102,10 +141,15 @@ namespace XFABManager
         protected override void RowGUI(RowGUIArgs args)
         {
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
-                CellGUI(args.GetCellRect(i), args.item , args.GetColumn(i), ref args);
+                CellGUI(args.GetCellRect(i), args.item, args.GetColumn(i), ref args);
         }
 
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUI(Rect cellRect, TreeViewItem<int> item, int column, ref RowGUIArgs args)
+#else
         private void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
+#endif
+
         {
             Color oldColor = GUI.color;
             CenterRectUsingSingleLineHeight(ref cellRect);
@@ -114,9 +158,10 @@ namespace XFABManager
             {
                 case 0:
                     {
-                        var iconRect = new Rect(cellRect.x + 1 , cellRect.y + 1, cellRect.height - 2, cellRect.height - 2);
+                        var iconRect = new Rect(cellRect.x + 1, cellRect.y + 1, cellRect.height - 2, cellRect.height - 2);
 
-                        if ( item.icon == null ) {
+                        if (item.icon == null)
+                        {
                             item.icon = AssetDatabase.GetCachedIcon(item.displayName) as Texture2D;
                         }
 
@@ -125,13 +170,13 @@ namespace XFABManager
 
                         DefaultGUI.Label(
                             new Rect(cellRect.x + iconRect.xMax + 1, cellRect.y, cellRect.width - iconRect.width, cellRect.height),
-                            Path.GetFileName( item.displayName ),
+                            Path.GetFileName(item.displayName),
                             args.selected,
                             args.focused);
                     }
                     break;
                 case 1:
-                     DefaultGUI.Label(cellRect, ListToString( data[item.displayName] ) , args.selected, args.focused);
+                    DefaultGUI.Label(cellRect, ListToString(data[item.displayName]), args.selected, args.focused);
                     break;
                 case 2:
                     System.IO.FileInfo fileInfo = new System.IO.FileInfo(item.displayName);
@@ -140,14 +185,15 @@ namespace XFABManager
                     {
                         size = EditorUtility.FormatBytes(fileInfo.Length);
                     }
-                    else {
+                    else
+                    {
                         size = EditorUtility.FormatBytes(0);
                     }
                     DefaultGUI.Label(cellRect, size, args.selected, args.focused);
                     break;
 
             }
-            
+
         }
 
         protected override void DoubleClickedItem(int id)
@@ -161,19 +207,21 @@ namespace XFABManager
             }
         }
 
-        private string ListToString(List<string> list) {
+        private string ListToString(List<string> list)
+        {
 
             StringBuilder stringBuilder = new StringBuilder();
 
             for (int i = 0; i < list.Count; i++)
             {
                 stringBuilder.Append(list[i]);
-                if ( i != list.Count - 1 ) {
+                if (i != list.Count - 1)
+                {
                     stringBuilder.Append(",");
                 }
             }
 
- 
+
             return stringBuilder.ToString();
         }
 

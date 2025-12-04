@@ -134,6 +134,7 @@ namespace YukiFrameWork.Machine
         /// <returns></returns>
         public StateBase GetCurrentStateInfo()
         {
+            if (CurrentState == null) return null;
             if (!CurrentState.Runtime_StateData.IsSubStateMachine)
                 return CurrentState;
             var subMachine = GetChildMachine(CurrentState.Name);

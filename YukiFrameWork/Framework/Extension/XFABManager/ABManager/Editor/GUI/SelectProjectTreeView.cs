@@ -1,6 +1,9 @@
 ﻿#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_6000_2_OR_NEWER
+using System.Diagnostics.Eventing.Reader;
+#endif
 using System.Linq;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -10,9 +13,11 @@ using UnityEngine;
 namespace XFABManager
 {
 
+
     public class SelectProjectTreeViewHeader : MultiColumnHeader
     {
-        public SelectProjectTreeViewHeader(MultiColumnHeaderState state, SelectProjectTreeView treeView) :base(state) {
+        public SelectProjectTreeViewHeader(MultiColumnHeaderState state, SelectProjectTreeView treeView) : base(state)
+        {
             this.treeView = treeView;
         }
 
@@ -29,7 +34,7 @@ namespace XFABManager
 
             if (columnIndex == 2)
             {
-                column3.Set(headerRect.x+3, headerRect.y+7, headerRect.width, headerRect.height);
+                column3.Set(headerRect.x + 3, headerRect.y + 7, headerRect.width, headerRect.height);
                 //GUI.Label(headerRect, "TestA");
                 isSelectAll = GUI.Toggle(column3, isSelectAll, column.headerContent);
 
@@ -40,7 +45,8 @@ namespace XFABManager
                 }
 
             }
-            else {
+            else
+            {
                 base.ColumnHeaderGUI(column, headerRect, columnIndex);
             }
 
@@ -48,7 +54,14 @@ namespace XFABManager
 
     }
 
+#if UNITY_6000_2_OR_NEWER
+    public class SelectProjectTreeView : TreeView<int>
+#else
     public class SelectProjectTreeView : TreeView
+#endif
+
+
+
     {
         private string url;
         private UpdateMode updateModel;
@@ -124,7 +137,12 @@ namespace XFABManager
             return retVal;
         }
 
+#if UNITY_6000_2_OR_NEWER
+        public SelectProjectTreeView(TreeViewState<int> state, MultiColumnHeaderState mchs, EditorWindow window) : base(state, new MultiColumnHeader(mchs))
+#else
         public SelectProjectTreeView(TreeViewState state, MultiColumnHeaderState mchs, EditorWindow window) : base(state, new MultiColumnHeader(mchs))
+#endif
+
         {
             m_Mchs = mchs;
             showBorder = true;
@@ -142,29 +160,52 @@ namespace XFABManager
 
         }
 
+#if UNITY_6000_2_OR_NEWER
+        protected override TreeViewItem<int> BuildRoot()
+#else
         protected override TreeViewItem BuildRoot()
+#endif
+
         {
             if (textStyle == null)
             {
                 textStyle = new GUIStyle(EditorStyles.label);
                 textStyle.richText = true;
             }
-
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> root = new TreeViewItem<int>(-1, -1);
+#else
             TreeViewItem root = new TreeViewItem(-1, -1);
+#endif
 
             foreach (var item in projects.Keys)
             {
+#if UNITY_6000_2_OR_NEWER
+                TreeViewItem<int> groupItem = new TreeViewItem<int>(item.GetHashCode(), 0, item);
+#else
                 TreeViewItem groupItem = new TreeViewItem(item.GetHashCode(), 0, item);
+#endif
                 root.AddChild(groupItem);
             }
 
 
             return root;
         }
+
+#if UNITY_6000_2_OR_NEWER
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+        {
+            return base.BuildRows(root);
+        }
+
+#else  
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             return base.BuildRows(root);
         }
+#endif
+
+
         protected override void RowGUI(RowGUIArgs args)
         {
             for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
@@ -175,7 +216,13 @@ namespace XFABManager
             }
         }
 
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUI(Rect cellRect, TreeViewItem<int> item, int column, ref RowGUIArgs args)
+#else
         private void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
+#endif
+
+
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
 
@@ -207,8 +254,12 @@ namespace XFABManager
             }
 
         }
-
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUIDisplayName(Rect cellRect, TreeViewItem<int> item)
+#else
         private void CellGUIDisplayName(Rect cellRect, TreeViewItem item)
+#endif
+
         {
 
             cellRect.x += 20;
@@ -224,7 +275,8 @@ namespace XFABManager
         }
 
 
-        public void SelectAll(bool select) {
+        public void SelectAll(bool select)
+        {
 
             //foreach (var item in projects.Keys)
             //{
@@ -233,7 +285,8 @@ namespace XFABManager
 
             foreach (var item in XFABProjectManager.Instance.Projects)
             {
-                if (projects.ContainsKey(item.name)) {
+                if (projects.ContainsKey(item.name))
+                {
                     projects[item.name] = select;
                 }
             }
@@ -286,7 +339,11 @@ namespace XFABManager
         //    menu.ShowAsContext();
         //}
 
+#if UNITY_6000_2_OR_NEWER
+        protected override bool CanRename(TreeViewItem<int> item)
+#else
         protected override bool CanRename(TreeViewItem item)
+#endif
         {
             return false;
         }
@@ -305,7 +362,11 @@ namespace XFABManager
                         this.window.ShowNotification(new GUIContent("Default Profile 不能改名!"));
                         return;
                     }
+#if UNITY_6000_2_OR_NEWER
+                    TreeViewItem<int> item = FindItem(args.itemID, rootItem);
+#else
                     TreeViewItem item = FindItem(args.itemID, rootItem);
+#endif
                     // 判断是重命名Group  还是重命名 Profile
                     if (item.depth == 0)
                     {
@@ -358,11 +419,19 @@ namespace XFABManager
 
         void CreateNewProfile(object item)
         {
-
+#if UNITY_6000_2_OR_NEWER
+            string name = GetProfileName(((TreeViewItem<int>)item).displayName);
+#else
             string name = GetProfileName(((TreeViewItem)item).displayName);
+#endif
 
             Profile profile = new Profile(name);
+#if UNITY_6000_2_OR_NEWER
+            profile.GroupName = ((TreeViewItem<int>)item).displayName;
+#else
             profile.GroupName = ((TreeViewItem)item).displayName;
+#endif
+
             XFABManagerSettings.Instances.Profiles.Add(profile);
 
             ReloadAndSelect(string.Format("{0}{1}", profile.GroupName, name).GetHashCode(), true);
@@ -375,8 +444,11 @@ namespace XFABManager
 
         void DeleteBundle(object id)
         {
-
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> item = FindItem((int)id, rootItem);
+#else
             TreeViewItem item = FindItem((int)id, rootItem);
+#endif
 
             if (item.displayName.Equals("Default"))
             {
@@ -423,7 +495,12 @@ namespace XFABManager
             Reload();
 
             var selection = new List<int>();
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> item = FindItemByName(name);
+#else
             TreeViewItem item = FindItemByName(name);
+#endif
+
             if (item == null) { return; }
             selection.Add(item.id);
             ReloadAndSelect(selection);
@@ -477,7 +554,11 @@ namespace XFABManager
             return name;
         }
 
+#if UNITY_6000_2_OR_NEWER
+        private TreeViewItem<int> FindItemByName(string name)
+#else
         private TreeViewItem FindItemByName(string name)
+#endif
         {
 
             foreach (var item in rootItem.children)

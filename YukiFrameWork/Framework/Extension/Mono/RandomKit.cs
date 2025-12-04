@@ -12,6 +12,7 @@ using System;
 using URandom = UnityEngine.Random;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 namespace YukiFrameWork
 {   
 	public static class RandomKit
@@ -226,9 +227,20 @@ namespace YukiFrameWork
 
         public static T Random<T>(this IEnumerable<T> t)
         {
-            T[] targets = t.ToArray();
+            return Random(t.ToArray());
+        }
+
+        public static T Random<T>(this IList<T> targets)
+        {
+            if (targets == null || targets.Count == 0)
+                return default;
+            return targets[Range(0, targets.Count)];
+        }
+
+        public static T Random<T>(this T[] targets)
+        {
             if (targets == null || targets.Length == 0)
-                throw new NullReferenceException("传递的集合内容是空的，无法进行随机");
+                return default;
             return targets[Range(0, targets.Length)];
         }
        

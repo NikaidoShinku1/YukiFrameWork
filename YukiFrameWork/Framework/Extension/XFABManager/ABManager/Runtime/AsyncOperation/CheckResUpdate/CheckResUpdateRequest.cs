@@ -138,7 +138,7 @@ namespace XFABManager
             // 保存后缀信息
             LocalAssetBundleInfoManager.Instance.SaveSuffix(result.projectName, projectBuildInfo.suffix);
 
-            // 如果版本号 不相同 获取到服务端文件列表 与本地进行比较 找出需要更新的文件 
+            // 与本地进行比较找出需要更新的文件 
             yield return CompareLocalResRequest.Compare(projectName, projectBuildInfo.bundleInfos, result); // 这个不存在出错 除非抛异常
 
             // 获取更新内容

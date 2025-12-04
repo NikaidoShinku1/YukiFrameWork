@@ -9,7 +9,12 @@ using UnityEngine;
 
 namespace XFABManager
 {
+#if UNITY_6000_2_OR_NEWER
+
+    public class AssetTreeItem : TreeViewItem<int>
+#else
     public class AssetTreeItem : TreeViewItem
+#endif
     {
 
         private FileInfo fileInfo;

@@ -58,10 +58,8 @@ namespace XFABManager
     }
 
     public class AssetBundleManager
-    {
-  
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Init() 
+    {      
+        static AssetBundleManager()
         {  
             Initialize();
             CoroutineStarter.Start(AutomaticResourceClearing());

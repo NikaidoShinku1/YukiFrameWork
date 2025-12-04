@@ -85,7 +85,7 @@ namespace YukiFrameWork.Missions
             }
         }
         /// <summary>
-        /// 可以获取String型参数，当参数类型不是Float时，会抛出异常
+        /// 可以获取String型参数，当参数类型不是String时，会抛出异常
         /// </summary>
         public string StringValue
         {
@@ -98,7 +98,7 @@ namespace YukiFrameWork.Missions
             }
         }
         /// <summary>
-        /// 可以获取Integer型参数，当参数类型不是Float时，会抛出异常
+        /// 可以获取Integer型参数，当参数类型不是Integer时，会抛出异常
         /// </summary>
         public int IntValue
         {
@@ -111,7 +111,7 @@ namespace YukiFrameWork.Missions
             }
         }
         /// <summary>
-        /// 可以获取Boolan型参数，当参数类型不是Float时，会抛出异常
+        /// 可以获取Boolan型参数，当参数类型不是Boolan时，会抛出异常
         /// </summary>
         public bool BoolValue
         {

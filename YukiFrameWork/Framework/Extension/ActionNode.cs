@@ -57,7 +57,7 @@ namespace YukiFrameWork
 
     public interface IActionNodeController
     {
-      
+        IActionNode Action { get; }
     }
 
     public interface IActionUpdateNodeController : IActionNodeController
@@ -159,7 +159,7 @@ namespace YukiFrameWork
         public void Cancel()
         {
             IsCompleted = true;
-        }      
+        }
     }
 
     public class ActionUpdateNode : ActionNode, IActionUpdateNode

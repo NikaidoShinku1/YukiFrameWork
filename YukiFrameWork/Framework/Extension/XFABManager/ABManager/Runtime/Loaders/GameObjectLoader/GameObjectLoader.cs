@@ -195,7 +195,7 @@ namespace XFABManager {
         public static void UnLoad(GameObject obj)
         {
 #if UNITY_EDITOR 
-            if (!EditorApplicationTool.isPlaying)
+            if (!ApplicationTool.isPlaying)
             {
                 // 如果是编辑器非运行模式 直接销毁
                 if (obj)

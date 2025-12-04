@@ -14,6 +14,9 @@ using System.Linq;
 using System.Collections;
 using YukiFrameWork.Extension;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 namespace YukiFrameWork.Buffer
 {
     /// <summary>
@@ -55,6 +58,9 @@ namespace YukiFrameWork.Buffer
         [CustomValueDrawer(nameof(DrawPreview))]
 #endif
         private Sprite icon;
+        [SerializeField,LabelText("Buff参数")]
+        private BuffParam[] buffParams;
+        
         [SerializeField,LabelText("Buff默认效果集合")]
         [InfoBox("当EffectDatas被重写时，该字段不可用，请自行序列化"),ShowIf(nameof(IsNormalEffect))]
         private List<NormalEffect> normalEffects = new List<NormalEffect>();
@@ -64,6 +70,7 @@ namespace YukiFrameWork.Buffer
         [SerializeField,PropertySpace,LabelText("Buff绑定的控制器类型")]
         [ValueDropdown(nameof(AllControllerType))]
         private string buffControllerType;
+        [ExcelIgnore]public BuffParam[] BuffParams => buffParams;
         [ExcelIgnore]public string Key { get => key; set => key = value; }
         [ExcelIgnore]public string Name { get => _name ; set => _name = value; }
         [ExcelIgnore]public string Description { get => description; set => description = value ; }
@@ -96,13 +103,33 @@ namespace YukiFrameWork.Buffer
             UnityEditor.EditorGUI.BeginChangeCheck();
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label("技能图标");
+            GUILayout.Label("Buff图标");
             icon = (Sprite)UnityEditor.EditorGUILayout.ObjectField(this.icon, typeof(Sprite), true, GUILayout.Width(50), GUILayout.Height(50));
             GUILayout.EndHorizontal();
             if (UnityEditor.EditorGUI.EndChangeCheck())
             {
                 this.Save();
             }
+        }
+
+        private bool IsControllerOrNull => AssemblyHelper.GetType(buffControllerType) != null;
+        [Button("打开控制器脚本", ButtonHeight = 30), PropertySpace(20), ShowIf(nameof(IsControllerOrNull))]
+        void OpenControllerScript()
+        {
+            Type type = AssemblyHelper.GetType(buffControllerType);
+            AssetDatabase.OpenAsset(AssetDatabase.FindAssets("t:monoScript").Select(x => AssetDatabase.GUIDToAssetPath(x))
+               .Select(x => AssetDatabase.LoadAssetAtPath<MonoScript>(x))
+               .FirstOrDefault(x => x?.GetClass() == type));
+        }
+
+        [Button("打开脚本", ButtonHeight = 30), PropertySpace(20)]
+        void OpenScript()
+        {
+#if UNITY_EDITOR
+            AssetDatabase.OpenAsset(AssetDatabase.FindAssets("t:monoScript").Select(x => AssetDatabase.GUIDToAssetPath(x))
+                .Select(x => AssetDatabase.LoadAssetAtPath<MonoScript>(x))
+                .FirstOrDefault(x => x?.GetClass() == this.GetType()));
+#endif
         }
 #endif
 

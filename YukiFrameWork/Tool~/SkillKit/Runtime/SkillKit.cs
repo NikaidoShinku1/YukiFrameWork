@@ -422,7 +422,7 @@ namespace YukiFrameWork.Skill
                 throw new Exception("不存在的技能,无法取消，请检查是否为该Handler添加指定的技能，SkillKey:" + skillKey);
             }
 
-            if (controller.SkillData.ActiveCancellation && controller.IsSkillRelease)
+            if (controller.ActiveCancellation && controller.IsSkillRelease)
             {
                 Interruption(player,controller);
             }

@@ -10,6 +10,8 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using YukiFrameWork.Pools;
+using System.Collections.Generic;
+using System.Linq;
 namespace YukiFrameWork.Buffer
 {
     public abstract class BuffController : IGlobalSign,IController
@@ -65,17 +67,22 @@ namespace YukiFrameWork.Buffer
 
         private float duration;
 		private float fixedTimer;
+        private Dictionary<string, BuffParam> buffParams;
 
-
-		/// <summary>
-		/// Buff执行者
-		/// </summary>
-		public IBuffExecutor Player { get;private set; }
+        /// <summary>
+        /// Buff执行者
+        /// </summary>
+        public IBuffExecutor Player { get;private set; }
 
 		/// <summary>
 		/// Buff的配置
 		/// </summary>
 		public IBuff Buff { get; private set; }
+      
+        /// <summary>
+        /// Buff的可使用参数
+        /// </summary>
+        public Dictionary<string, BuffParam> BuffParams => buffParams;
 
 		/// <summary>
 		/// Buff添加后过的时间
@@ -165,6 +172,8 @@ namespace YukiFrameWork.Buffer
 			controller.Buff = buff;
 			controller.Player = buffExecutor;
             controller.duration = buff.Duration;
+            if(buff.BuffParams != null && buff.BuffParams.Length > 0)
+                controller.buffParams = buff.BuffParams.ToDictionary(x => x.paramKey,x => x);
             return controller;
 		}
     }

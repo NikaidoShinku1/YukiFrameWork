@@ -1,6 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,13 +20,11 @@ namespace XFABManager
 
         private const string tempSuffix = ".tempFile";
 
-        private const int DOWNLOAD_FILE_TIME_OUT = 20; // 下载文件的超时时间（当下载速度为0超过20s，认为这个文件下载超时）
+        private const int DOWNLOAD_FILE_TIME_OUT = 10; // 下载文件的超时时间（当下载速度为0超过20s，认为这个文件下载超时）
 
         private string file_url;
         private string localfile;
-        //private long length;
         private string tempfile;                // 下载的临时文件路径
-        //private float lastProgress = 0;
 
         private UnityWebRequest downloadFile;
 
@@ -36,12 +33,14 @@ namespace XFABManager
         /// <summary>
         /// 下载速度，单位:字节/秒
         /// </summary>
-        public long Speed 
+        public long Speed
         {
-            get {
-                if (downloadFile != null && downloadFile.downloadHandler != null) {
+            get
+            {
+                if (downloadFile != null && downloadFile.downloadHandler != null)
+                {
                     DownloadHandlerFileRange range = downloadFile.downloadHandler as DownloadHandlerFileRange;
-                    if(range != null) return range.Speed;
+                    if (range != null) return range.Speed;
                 }
                 return 0;
             }
@@ -69,7 +68,7 @@ namespace XFABManager
             tempfile = string.Format("{0}{1}", localfile, tempSuffix);
 
         }
- 
+
 
 #if UNITY_EDITOR
         private void PlayModeStateChanged(PlayModeStateChange obj)
@@ -78,7 +77,7 @@ namespace XFABManager
                 Abort();
         }
 #endif
-         
+
         private IEnumerator Download()
         {
 
@@ -104,34 +103,34 @@ namespace XFABManager
                 downloadFile.disposeCertificateHandlerOnDispose = true;
                 DownloadHandlerFileRange downloadHandler = null;
 
-                if (Application.platform != RuntimePlatform.WebGLPlayer) 
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
                     try
                     {
                         // 如果文件大于1g ，采用10mb缓冲区 , 理想情况下网速大概能达到200 ~ 300 mb /s 足够使用了 (100g 10分钟不到就能下载完毕) 
-                        if (length <= GB) 
-                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile); 
+                        if (length <= GB)
+                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile);
                         else
-                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile,1024 * 1024 * 10);
+                            downloadHandler = new DownloadHandlerFileRange(tempfile, downloadFile, 1024 * 1024 * 10);
                     }
                     catch (System.Exception e)
                     {
                         Completed(e.Message);
                         yield break;
                     }
-                 
+
 
                     downloadFile.downloadHandler = downloadHandler;
                 }
 
                 UnityWebRequestAsyncOperation asyncOperation = null;
-                 
+
                 try
                 {
                     asyncOperation = downloadFile.SendWebRequest();
                 }
                 catch (System.InvalidOperationException e)
-                { 
+                {
                     Completed(string.Format("{0},Non-secure network connections disabled in Player Settings!", e.Message));
                     yield break;
                 }
@@ -147,7 +146,8 @@ namespace XFABManager
                 while (!asyncOperation.isDone)
                 {
                     yield return null;
-                    if(progress < downloadFile.downloadProgress)
+
+                    if (progress < downloadFile.downloadProgress)
                         progress = downloadFile.downloadProgress;
 
                     // 计算网速
@@ -156,7 +156,8 @@ namespace XFABManager
                         DownloadedSize = downloadHandler.DownloadedSize;
                         AllSize = downloadHandler.FileSize;
                     }
-                    else {
+                    else
+                    {
                         DownloadedSize = (long)downloadFile.downloadedBytes;
                         AllSize = length;
                     }
@@ -165,17 +166,17 @@ namespace XFABManager
                     if (Speed == 0) // 当前下载速度为0 开始计时
                     {
                         timer += Time.deltaTime;
-                        if (timer >= DOWNLOAD_FILE_TIME_OUT) {
-                            downloadFile.Abort();
-                            break;
+                        if (timer >= DOWNLOAD_FILE_TIME_OUT)
+                        {
+                            break; // 超时了 直接完成 跳出循环
                         }
                     }
                     else
-                        timer = 0; 
+                        timer = 0;
                 }
-                 
-                downloadHandler.Close();
-                
+
+                downloadHandler?.Close();
+
                 downloadError = string.Empty;
 
                 if (timer >= DOWNLOAD_FILE_TIME_OUT)
@@ -183,51 +184,63 @@ namespace XFABManager
                     downloadError = string.Format("下载文件超时:{0}", file_url);
                 }
 
-                // 如果是416 说明本地文件已经下载完成
-                if (!string.IsNullOrEmpty(downloadFile.error) && downloadFile.responseCode != 416)
+                if (downloadFile != null)
                 {
-                    downloadError = string.Format("url:{0} error:{1}",file_url,downloadFile.error) ;
+                    // 如果是416 说明本地文件已经下载完成
+                    if (!string.IsNullOrEmpty(downloadFile.error) && downloadFile.responseCode != 416)
+                    {
+                        downloadError = string.Format("url:{0} error:{1}", file_url, downloadFile.error);
+                    }
                 }
-                 
-                if (!string.IsNullOrEmpty(downloadError)) {
-                    downloadFile?.Dispose();
+
+                if (!string.IsNullOrEmpty(downloadError))
+                {
+                    // 说明出错了 可以重新尝试下载
+                    ClearDownload();
                     yield return new WaitForSeconds(1); // 一秒之后重试
                 }
-                else 
-                    break;
+                else
+                    break; // 成功了 跳出循环 下载完成
+
             }
 
-            if (!string.IsNullOrEmpty(downloadError)) 
+            // 如果downloadError 为空 说明下载成功了
+            if (string.IsNullOrEmpty(downloadError))
             {
-                Completed(downloadError);
-                yield break;
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
+                {
+                    try
+                    {
+                        // 说明已经下载完成 但是没有把临时文件转成正式文件
+                        if (File.Exists(localfile))
+                            File.Delete(localfile);
+
+                        File.Move(tempfile, localfile);
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                }
+                else
+                {
+                    // Webgl平台不能用文件系统 只能保存字节数据 可以考虑使用 UnityWebRequestAssetBundle.GetAssetBundle 这个来优化 TODO
+                    File.WriteAllBytes(localfile, downloadFile.downloadHandler.data);
+                }
             }
 
-            if (Application.platform != RuntimePlatform.WebGLPlayer)
-            {
-                // 说明已经下载完成 但是没有把临时文件转成正式文件
-                if (File.Exists(localfile))
-                    File.Delete(localfile);
-
-                File.Move(tempfile, localfile);
-            }
-            else {
-                File.WriteAllBytes(localfile, downloadFile.downloadHandler.data);
-            }
-            
-            downloadFile?.Dispose();
-
-            Completed();
+            // 下载完成
+            Completed(downloadError);
         }
         protected override void OnCompleted()
         {
             base.OnCompleted();
-            //CurrentDownloadFileCount--;
 
 #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= PlayModeStateChanged; 
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged;
 #endif
 
+            ClearDownload(); // 清空下载数据
         }
 
         /// <summary>
@@ -239,6 +252,8 @@ namespace XFABManager
         /// <returns></returns>
         public static DownloadFileRequest Download(string file_url, string localfile)
         {
+            if (string.IsNullOrEmpty(file_url))
+                return null;
 
             string key = string.Format("DownloadFileRequest:{0}", file_url);
             return AssetBundleManager.ExecuteOnlyOnceAtATime<DownloadFileRequest>(key, () => {
@@ -256,28 +271,53 @@ namespace XFABManager
         {
             base.OnAbort();
 
+            // 中断下载
+            AbortDownload();
+        }
+
+
+        private void AbortDownload()
+        {
+
 #if UNITY_EDITOR
-            EditorApplication.playModeStateChanged -= PlayModeStateChanged; 
+            EditorApplication.playModeStateChanged -= PlayModeStateChanged;
 #endif
-            
-            if (downloadFile != null && downloadFile.downloadHandler != null)
+
+            if (runing_coroutine != null)
+            {
+                CoroutineStarter.Stop(runing_coroutine);
+                runing_coroutine = null;
+            }
+
+            ClearDownload();
+        }
+
+
+        private void ClearDownload()
+        {
+
+            if (downloadFile == null) return;  // 如果为空直接return 
+
+            if (downloadFile.downloadHandler != null)
             {
                 DownloadHandlerFileRange range = downloadFile.downloadHandler as DownloadHandlerFileRange;
                 if (range != null) range.Close();
             }
 
-            if (downloadFile != null) 
-            { 
-                downloadFile.Abort();
+            try
+            {
+                // 如果正在下载 就中断掉
+                if (!downloadFile.isDone)
+                    downloadFile.Abort();
                 downloadFile.Dispose();
-                downloadFile = null;
             }
-
-
-            if (runing_coroutine != null) 
-            { 
-                CoroutineStarter.Stop(runing_coroutine);
-                runing_coroutine = null;
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+            finally
+            {
+                downloadFile = null;
             }
         }
 

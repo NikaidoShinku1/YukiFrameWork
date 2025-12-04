@@ -11,7 +11,7 @@ namespace XFABManager
     /// <summary>
     /// 本地的AssetBundle文件信息的管理类(内部类)
     /// </summary>
-    internal class LocalAssetBundleInfoManager 
+    internal class LocalAssetBundleInfoManager
     {
 
         #region 常量
@@ -31,46 +31,53 @@ namespace XFABManager
         #region 字段 
         private Dictionary<string, Dictionary<string, string>> bundle_md5_infos = new Dictionary<string, Dictionary<string, string>>();
         //private List<string> temp_list = new List<string>();
-        private Dictionary<string,string> suffixs = new Dictionary<string, string>();
-        private Dictionary<string,string> temp_dictionary = new Dictionary<string,string>();
-        private Dictionary<string,string> data_paths = new Dictionary<string,string>();
+        private Dictionary<string, string> suffixs = new Dictionary<string, string>();
+        private Dictionary<string, string> temp_dictionary = new Dictionary<string, string>();
+        private Dictionary<string, string> data_paths = new Dictionary<string, string>();
+
+        private static LocalAssetBundleInfoManager _instance;
+
         #endregion
 
         #region 属性
 
-        internal static LocalAssetBundleInfoManager Instance { get; private set; }
+        internal static LocalAssetBundleInfoManager Instance
+        {
+            get
+            {
+
+                if (_instance == null)
+                    _instance = new LocalAssetBundleInfoManager();
+
+                return _instance;
+            }
+        }
 
         #endregion
 
         #region 方法
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void Init() 
-        { 
-            Instance = new LocalAssetBundleInfoManager();
-        }
-
-
-        internal string GetAssetBundleMd5(string projectName, string bundleName) 
+        internal string GetAssetBundleMd5(string projectName, string bundleName)
         {
             if (string.IsNullOrEmpty(bundleName))
                 return string.Empty;
+
             if (bundle_md5_infos.ContainsKey(projectName) && bundle_md5_infos[projectName].ContainsKey(bundleName))
-                return bundle_md5_infos[projectName][bundleName]; 
-             
+                return bundle_md5_infos[projectName][bundleName];
+
             // 没有读取 去读取文件
             string info_path = GetAssetBundleInfoPath(projectName, bundleName);
-            string assetbundle_file_path = XFABTools.LocalResPath(projectName, bundleName); 
+            string assetbundle_file_path = XFABTools.LocalResPath(projectName, bundleName);
             string buildInPath = XFABTools.BuildInDataPath(projectName, bundleName);
 
             bool fileExist = File.Exists(assetbundle_file_path) || File.Exists(buildInPath);
 
 
             // 要确保当前这个assetbundle文件是存在的，如果文件不存在即使md5信息存在也没用
-            if (File.Exists(info_path) && fileExist ) 
-            { 
+            if (File.Exists(info_path) && fileExist)
+            {
                 string md5 = File.ReadAllText(info_path);
-                if(!bundle_md5_infos.ContainsKey(projectName))
+                if (!bundle_md5_infos.ContainsKey(projectName))
                     bundle_md5_infos.Add(projectName, new Dictionary<string, string>());
                 bundle_md5_infos[projectName].Add(bundleName, md5);
                 return md5;
@@ -79,22 +86,22 @@ namespace XFABManager
             return string.Empty;
         }
 
-        internal void SetAssetBundleMd5(string projectName, string bundleName,string md5) 
+        internal void SetAssetBundleMd5(string projectName, string bundleName, string md5)
         {
 
             // 如果说已有的md5和现有的md5一致则不需要重复操作
             if (bundle_md5_infos.ContainsKey(projectName) && bundle_md5_infos[projectName].ContainsKey(bundleName) && bundle_md5_infos[projectName][bundleName].Equals(md5))
                 return;
-             
+
 
             if (!bundle_md5_infos.ContainsKey(projectName))
-                bundle_md5_infos.Add(projectName,new Dictionary<string, string>());
+                bundle_md5_infos.Add(projectName, new Dictionary<string, string>());
 
             if (!bundle_md5_infos[projectName].ContainsKey(bundleName))
                 bundle_md5_infos[projectName].Add(bundleName, md5);
-            else 
+            else
                 bundle_md5_infos[projectName][bundleName] = md5;
-             
+
             string info_path = GetAssetBundleInfoPath(projectName, bundleName);
 
             string directory = Path.GetDirectoryName(info_path);
@@ -104,7 +111,7 @@ namespace XFABManager
             File.WriteAllText(info_path, md5);
         }
 
-        internal void DeleteAssetBundleMd5(string projectName,string bundleName) 
+        internal void DeleteAssetBundleMd5(string projectName, string bundleName)
         {
             try
             {
@@ -114,10 +121,10 @@ namespace XFABManager
                 if (File.Exists(info_path)) File.Delete(info_path);
             }
             catch (System.Exception)
-            { 
-            } 
+            {
+            }
         }
-         
+
         /// <summary>
         /// 同步文件列表(不涉及创建，只涉及删除)
         /// </summary>
@@ -133,9 +140,9 @@ namespace XFABManager
             UnityEngine.Debug.LogFormat("Test Application.persistentDataPath : {0}", Application.persistentDataPath);
 #endif
 
-            
- 
-            await Task.Run(() => 
+
+
+            await Task.Run(() =>
             {
                 temp_dictionary.Clear();
                 foreach (BundleInfo info in bundleInfos)
@@ -161,26 +168,26 @@ namespace XFABManager
                     if (!temp_dictionary.ContainsKey(name))
                         DeleteAssetBundleMd5(projectName, name);
                 }
-            }); 
+            });
         }
-  
-        private string GetAssetBundleInfoPath(string projectName,string bundleName)
+
+        private string GetAssetBundleInfoPath(string projectName, string bundleName)
         {
-            return string.Format("{0}/{1}/{2}",GetDataPath(projectName), BUNDLE_FILE_MD5_INFO_DIR, bundleName);
+            return string.Format("{0}/{1}/{2}", GetDataPath(projectName), BUNDLE_FILE_MD5_INFO_DIR, bundleName);
         }
- 
-        internal string GetSuffix(string projectName) 
+
+        internal string GetSuffix(string projectName)
         {
-            if (suffixs.ContainsKey(projectName)) 
+            if (suffixs.ContainsKey(projectName))
                 return suffixs[projectName];
 
-            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName),XFABConst.bundles_suffix_info);
+            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName), XFABConst.bundles_suffix_info);
 
             if (!File.Exists(suffix_path))
                 suffix_path = XFABTools.BuildInDataPath(projectName, XFABConst.bundles_suffix_info);
 
 
-            if (File.Exists(suffix_path)) 
+            if (File.Exists(suffix_path))
             {
                 string suffix = File.ReadAllText(suffix_path);
                 suffixs.Add(projectName, suffix);
@@ -213,7 +220,7 @@ namespace XFABManager
                 return info.suffix;
             }
             catch (System.Exception)
-            { 
+            {
             }
 
             // 为了兼容旧版本的资源
@@ -242,7 +249,7 @@ namespace XFABManager
         {
             if (suffixs.ContainsKey(projectName) && suffixs[projectName].Equals(suffix)) return;
 
-            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName),SAVE_BUNDLE_SUFFIX);
+            string suffix_path = string.Format("{0}/{1}", GetDataPath(projectName), SAVE_BUNDLE_SUFFIX);
             if (!Directory.Exists(GetDataPath(projectName)))
                 Directory.CreateDirectory(GetDataPath(projectName));
             File.WriteAllText(suffix_path, suffix);
@@ -260,17 +267,18 @@ namespace XFABManager
         /// <param name="projectName"></param>
         /// <returns></returns>
         internal string GetDataPath(string projectName)
-        { 
-            if(data_paths.ContainsKey(projectName))
+        {
+            if (data_paths.ContainsKey(projectName))
                 return data_paths[projectName];
             string dataPath = XFABTools.DataPath(projectName);
             data_paths.Add(projectName, dataPath);
             return dataPath;
         }
 
-        internal void SetDataPath(string projectName) {
+        internal void SetDataPath(string projectName)
+        {
             if (data_paths.ContainsKey(projectName)) return;
-            data_paths.Add(projectName,XFABTools.DataPath(projectName));
+            data_paths.Add(projectName, XFABTools.DataPath(projectName));
         }
 
         #endregion

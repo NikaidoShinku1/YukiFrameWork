@@ -78,43 +78,22 @@ namespace YukiFrameWork
         [HideInInspector]
         public Texture2D texture;
         [HideInInspector]
-        public List<Sprite> sprites = new List<Sprite>();
-        [LabelText("AnimationClip预数据")]
-        [InfoBox("作为图集的Texture2D有着许多不确定性，一个图集也许可以制作多个AnimationClip，可在此进行添加")]
-        public MultipleInfo[] multipleInfos;
+        public List<Sprite> sprites = new List<Sprite>();      
+        public List<Info> infos = new List<Info>(); 
         [Serializable]
-        public class MultipleInfo
+        public class Info
         {
-            [LabelText("AnimationClip名称")]
-            public string clipName;
-            [LabelText("帧信息")]
-            [ListDrawerSettings(CustomAddFunction = nameof(Add))]
-            public List<MultipleFrameInfo> multipleFrameInfos = new List<MultipleFrameInfo>();
-
-            void Add()
-            {
-                var multipleFrameInfo = new MultipleFrameInfo();
-                multipleFrameInfo.frame = multipleFrameInfos.Count;
-                multipleFrameInfos.Add(multipleFrameInfo);
-            }
-            [Serializable]
-            public class MultipleFrameInfo
-            {
-                [LabelText("当前帧")]
-                public float frame;
-                [LabelText("当前选择的Sprite")]
-#if UNITY_EDITOR
-                [ValueDropdown(nameof(GetAllSprites))]
-#endif
-                public Sprite sprite;
-
-#if UNITY_EDITOR
-                private IEnumerable GetAllSprites()
-                    => Resources.Load<FrameworkConfigInfo>(nameof(FrameworkConfigInfo)).multipleAnimationConvertInfo.sprites;
-#endif
-            }
-            public bool loop;
+            public bool IsSceleted;
+            public bool loop;            
             public float cycleOffset;
+            public string animName;
+            public List<FrameInfo> frameInfos = new List<FrameInfo>();
+            [Serializable]
+            public class FrameInfo
+            {
+                public Sprite sprite;
+                public float frame;
+            }
         }
     }
 

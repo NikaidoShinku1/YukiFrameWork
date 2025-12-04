@@ -8,7 +8,12 @@ using UnityEngine;
 
 namespace XFABManager
 {
+#if UNITY_6000_2_OR_NEWER
+    public class ProfileTreeView : TreeView<int>
+#else
     public class ProfileTreeView : TreeView
+#endif
+
     {
 
         private string url;
@@ -35,7 +40,7 @@ namespace XFABManager
                 new MultiColumnHeaderState.Column(),
                 new MultiColumnHeaderState.Column(),
                 new MultiColumnHeaderState.Column(),
-                new MultiColumnHeaderState.Column(), 
+                new MultiColumnHeaderState.Column(),
                 new MultiColumnHeaderState.Column(),
             };
             retVal[0].headerContent = new GUIContent("Name", "配置文件名称!");
@@ -88,35 +93,55 @@ namespace XFABManager
 
             return retVal;
         }
+#if UNITY_6000_2_OR_NEWER
+        public ProfileTreeView(TreeViewState<int> state, MultiColumnHeaderState mchs,EditorWindow window) : base(state, new MultiColumnHeader(mchs))
+#else
+        public ProfileTreeView(TreeViewState state, MultiColumnHeaderState mchs, EditorWindow window) : base(state, new MultiColumnHeader(mchs))
+#endif
 
-        public ProfileTreeView(TreeViewState state, MultiColumnHeaderState mchs,EditorWindow window) : base(state, new MultiColumnHeader(mchs))
         {
             m_Mchs = mchs;
             showBorder = true;
             showAlternatingRowBackgrounds = true;
             this.window = window;
         }
-
+#if UNITY_6000_2_OR_NEWER
+        protected override TreeViewItem<int> BuildRoot()
+#else
         protected override TreeViewItem BuildRoot()
+#endif
+
         {
-            if (textStyle == null) {
+            if (textStyle == null)
+            {
                 textStyle = new GUIStyle(EditorStyles.label);
                 textStyle.richText = true;
             }
 
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> root = new TreeViewItem<int>(-1, -1);
+#else
             TreeViewItem root = new TreeViewItem(-1, -1);
-
+#endif
 
             for (int i = 0; i < XFABManagerSettings.Instances.Groups.Count; i++)
             {
                 string group = XFABManagerSettings.Instances.Groups[i];
+#if UNITY_6000_2_OR_NEWER
+                TreeViewItem<int> groupItem = new TreeViewItem<int>(group.GetHashCode(), 0, group);
+#else
                 TreeViewItem groupItem = new TreeViewItem(group.GetHashCode(), 0, group);
+#endif
 
                 var profiles = XFABManagerSettings.Instances.Profiles.Where(x => x.GroupName.Equals(group));
 
                 foreach (var profile in profiles)
                 {
+#if UNITY_6000_2_OR_NEWER
+                    TreeViewItem<int> profileItem = new TreeViewItem<int>(string.Format("{0}{1}", profile.GroupName, profile.name).GetHashCode(), 1, profile.name);
+#else
                     TreeViewItem profileItem = new TreeViewItem(string.Format("{0}{1}", profile.GroupName, profile.name).GetHashCode(), 1, profile.name);
+#endif
                     groupItem.AddChild(profileItem);
                 }
                 root.AddChild(groupItem);
@@ -124,20 +149,37 @@ namespace XFABManager
 
             return root;
         }
+
+#if UNITY_6000_2_OR_NEWER
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+        {
+            return base.BuildRows(root);
+        }
+
+#else
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             return base.BuildRows(root);
         }
+
+#endif
+
         protected override void RowGUI(RowGUIArgs args)
         {
-            for (int i = 0; i < args.GetNumVisibleColumns(); ++i) {
+            for (int i = 0; i < args.GetNumVisibleColumns(); ++i)
+            {
                 // 如果正在重命名 就不用绘制当前这一行了
                 if (args.isRenaming) { continue; }
                 CellGUI(args.GetCellRect(i), args.item, m_Mchs.visibleColumns[i], ref args);
             }
         }
 
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUI(Rect cellRect, TreeViewItem<int> item, int column, ref RowGUIArgs args)
+#else
         private void CellGUI(Rect cellRect, TreeViewItem item, int column, ref RowGUIArgs args)
+#endif
+
         {
             CenterRectUsingSingleLineHeight(ref cellRect);
 
@@ -147,11 +189,12 @@ namespace XFABManager
                 if (column == 0)
                     CellGUIDisplayName(cellRect, item);
             }
-            else if(item.depth == 1){
+            else if (item.depth == 1)
+            {
                 // Profile 
                 Profile profile = XFABManagerSettings.Instances.Profiles.Where(a => a.name.Equals(item.displayName) && a.GroupName.Equals(item.parent.displayName)).FirstOrDefault();
                 //Profile profileDefault = XFABManagerSettings.Settings.Profiles.Where(a => a.name.Equals("Default") && a.GroupName.Equals(item.parent.displayName)).FirstOrDefault();
-                if (profile == null  )
+                if (profile == null)
                 {
                     return;
                 }
@@ -219,7 +262,7 @@ namespace XFABManager
 
                     case 4:
 
-                        if (item.depth == 0 ) { return; }
+                        if (item.depth == 0) { return; }
 
                         if (item.displayName.Equals("Default"))
                         {
@@ -241,8 +284,14 @@ namespace XFABManager
             }
 
         }
+#if UNITY_6000_2_OR_NEWER
+        private void CellGUIDisplayName(Rect cellRect,TreeViewItem<int> item)
+#else
+        private void CellGUIDisplayName(Rect cellRect, TreeViewItem item)
+#endif
 
-        private void CellGUIDisplayName(Rect cellRect,TreeViewItem item) {
+        {
+
 
             cellRect.x += 20;
             cellRect.width -= 20;
@@ -277,30 +326,42 @@ namespace XFABManager
             //Debug.Log(" context click item: "+id);
             isContextClickItem = true;
             GenericMenu menu = new GenericMenu();
-
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> item = FindItem(id, rootItem);
+#else
             TreeViewItem item = FindItem(id, rootItem);
+#endif
 
-            if (item != null) {
+            if (item != null)
+            {
 
-                if (item.depth == 0) {
+                if (item.depth == 0)
+                {
                     menu.AddItem(new GUIContent("Add new group"), false, AddNewGroup, null);
                     menu.AddItem(new GUIContent("Add new profile"), false, CreateNewProfile, item);
                     menu.AddItem(new GUIContent("rename"), false, RenameBundle, id);
                     menu.AddItem(new GUIContent("delete"), false, DeleteBundle, id);
-                } else if (item.depth == 1) {
+                }
+                else if (item.depth == 1)
+                {
                     //menu.AddItem(new GUIContent("Add new profile"), false, CreateNewProfile, null);
                     menu.AddItem(new GUIContent("rename"), false, RenameBundle, id);
                     menu.AddItem(new GUIContent("delete"), false, DeleteBundle, id);
                 }
             }
 
-            
+
             menu.ShowAsContext();
         }
 
+#if UNITY_6000_2_OR_NEWER
+        protected override bool CanRename(TreeViewItem<int> item) 
+#else 
         protected override bool CanRename(TreeViewItem item)
+#endif
+
         {
-            return item != null && item.displayName.Length > 0 ;
+            return item != null && item.displayName.Length > 0;
         }
 
         protected override void RenameEnded(RenameEndedArgs args)
@@ -310,13 +371,20 @@ namespace XFABManager
             {
                 if (!args.newName.Equals(args.originalName))
                 {
-                    
+
                     // 默认的配置不能改名
-                    if ( args.originalName.Equals("Default") ) {
+                    if (args.originalName.Equals("Default"))
+                    {
                         this.window.ShowNotification(new GUIContent("Default Profile 不能改名!"));
                         return;
                     }
+
+#if UNITY_6000_2_OR_NEWER
+                    TreeViewItem<int> item = FindItem(args.itemID, rootItem);
+#else
                     TreeViewItem item = FindItem(args.itemID, rootItem);
+#endif
+
                     // 判断是重命名Group  还是重命名 Profile
                     if (item.depth == 0)
                     {
@@ -341,7 +409,7 @@ namespace XFABManager
                         ReloadAndSelect(args.newName.GetHashCode(), false);
                         //XFABManagerSettings.Settings.Save();
                     }
-                    else if(item.depth == 1)
+                    else if (item.depth == 1)
                     {
                         // Profile
                         // 新名称已经存在
@@ -355,10 +423,10 @@ namespace XFABManager
                         // 重命名
                         profile.name = args.newName;
 
-                        ReloadAndSelect(string.Format("{0}{1}",profile.GroupName,args.newName).GetHashCode(), false);
+                        ReloadAndSelect(string.Format("{0}{1}", profile.GroupName, args.newName).GetHashCode(), false);
                     }
                     XFABManagerSettings.Instances.Save();
-                    
+
                 }
             }
             else
@@ -372,13 +440,21 @@ namespace XFABManager
         void CreateNewProfile(object item)
         {
 
+#if UNITY_6000_2_OR_NEWER 
+            string name = GetProfileName(((TreeViewItem<int>)item).displayName);
+#else
             string name = GetProfileName(((TreeViewItem)item).displayName);
+#endif
 
             Profile profile = new Profile(name);
+#if UNITY_6000_2_OR_NEWER
+            profile.GroupName = ((TreeViewItem<int>)item).displayName;
+#else
             profile.GroupName = ((TreeViewItem)item).displayName;
+#endif
             XFABManagerSettings.Instances.Profiles.Add(profile);
 
-            ReloadAndSelect(string.Format("{0}{1}",profile.GroupName,name).GetHashCode(), true);
+            ReloadAndSelect(string.Format("{0}{1}", profile.GroupName, name).GetHashCode(), true);
 
             XFABManagerSettings.Instances.Save();
         }
@@ -390,21 +466,28 @@ namespace XFABManager
 
         void DeleteBundle(object id)
         {
-
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> item = FindItem((int)id, rootItem);
+#else
             TreeViewItem item = FindItem((int)id, rootItem);
+#endif
 
-            if (item.displayName.Equals("Default")) {
+            if (item.displayName.Equals("Default"))
+            {
                 this.window.ShowNotification(new GUIContent("Default Profile 不能删除!"));
                 return;
             }
 
-            if ( item != null )
+            if (item != null)
             {
-                if (item.depth == 0) {
+                if (item.depth == 0)
+                {
                     // 删除 Group 
                     XFABManagerSettings.Instances.Groups.RemoveAll(x => x.Equals(item.displayName));
                     XFABManagerSettings.Instances.Profiles.RemoveAll(x => x.GroupName.Equals(item.displayName));
-                } else if (item.depth == 1) { 
+                }
+                else if (item.depth == 1)
+                {
                     // 删除 Profile
                     XFABManagerSettings.Instances.Profiles.RemoveAll(x => x.name.Equals(item.displayName));
                 }
@@ -415,7 +498,8 @@ namespace XFABManager
             XFABManagerSettings.Instances.Save();
         }
 
-        void AddNewGroup(object id) {
+        void AddNewGroup(object id)
+        {
             string name = GetGroupName();
 
             //Profile profile = new Profile(name);
@@ -436,7 +520,11 @@ namespace XFABManager
             Reload();
 
             var selection = new List<int>();
+#if UNITY_6000_2_OR_NEWER
+            TreeViewItem<int> item = FindItemByName(name);
+#else
             TreeViewItem item = FindItemByName(name);
+#endif
             if (item == null) { return; }
             selection.Add(item.id);
             ReloadAndSelect(selection);
@@ -472,28 +560,36 @@ namespace XFABManager
             {
                 index++;
                 name = string.Format("new profile{0}", index);
-            } while ( XFABManagerSettings.Instances.IsContainsProfileName(name,group) );
+            } while (XFABManagerSettings.Instances.IsContainsProfileName(name, group));
 
             return name;
         }
 
-        public string GetGroupName() {
+        public string GetGroupName()
+        {
             int index = 0;
             string name = null;
             do
             {
                 index++;
                 name = string.Format("new group{0}", index);
-            } while ( XFABManagerSettings.Instances.Groups.Contains(name) );
+            } while (XFABManagerSettings.Instances.Groups.Contains(name));
 
             return name;
         }
 
-        private TreeViewItem FindItemByName(string name) {
+#if UNITY_6000_2_OR_NEWER
+        private TreeViewItem<int> FindItemByName(string name)
+#else
+        private TreeViewItem FindItemByName(string name)
+#endif
+
+        {
 
             foreach (var item in rootItem.children)
             {
-                if (item.displayName.Equals(name)) {
+                if (item.displayName.Equals(name))
+                {
                     return item;
                 }
             }
