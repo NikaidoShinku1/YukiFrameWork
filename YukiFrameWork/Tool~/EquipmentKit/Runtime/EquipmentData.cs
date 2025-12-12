@@ -76,7 +76,8 @@ namespace YukiFrameWork.Equips
         [JsonIgnore,ExcelIgnore]public string EquipmentType { get => equipmentType; set => equipmentType = value; }
         [JsonIgnore,ExcelIgnore] public IReadOnlyList<EquipParam> EquipParams => equipParams;
         [ExcelIgnore,JsonIgnore]
-        private IEnumerable AllEquipmentsType => AssemblyHelper.GetTypes(type => type.IsSubclassOf(typeof(IEquipment)))
+        private IEnumerable AllEquipmentsType => AssemblyHelper.GetTypes(type => typeof(IEquipment).IsAssignableFrom(type))
+            .Where(x => x.IsAbstract == false && x.IsInterface == false && x.IsClass)
            .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });
 #if UNITY_EDITOR
         private void DrawPreview()

@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志、
 
+V1.56.2 修复SkillKit、BuffKit、EquipmentKit可以添加抽象类型的问题
+
 V1.56.1 框架新增EquipmentKit装备系统，优化编辑器细节
 
 V1.55.6 修复StateMachine模块创建脚本引发参数异常的问题

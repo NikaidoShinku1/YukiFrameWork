@@ -145,6 +145,7 @@ namespace YukiFrameWork.Skill
         [JsonIgnore, ExcelIgnore]
         IEnumerable list => SkillDataBase.allSkillNames;
         IEnumerable skillControllerTypes => AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(SkillController)))
+            .Where(x => x.IsAbstract == false)
             .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });
 #endif
         public static SkillData CreateInstance(string skillName, Type type)

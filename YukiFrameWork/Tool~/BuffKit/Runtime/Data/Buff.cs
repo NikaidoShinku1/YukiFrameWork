@@ -95,6 +95,7 @@ namespace YukiFrameWork.Buffer
 
         [ExcelIgnore]private bool IsNormalEffect => this.GetType().GetRealProperty(nameof(EffectDatas)).DeclaringType == typeof(Buff);
         [ExcelIgnore]private IEnumerable AllControllerType => AssemblyHelper.GetTypes(type => type.IsSubclassOf(typeof(BuffController)))
+            .Where(x => x.IsAbstract == false)
             .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });
 
 #if UNITY_EDITOR
