@@ -178,6 +178,13 @@ namespace YukiFrameWork.Extension
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SkillKit/SkillKit.md",
             },
+            ["EquipmentKit"] = new ToolDataInfo() 
+            {
+                key = "EquipmentKit",
+                path = packagePath + "/Tool~/EquipmentKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/EquipmentKit/EquipmentKit.md"
+            },
             ["UI"] = new ToolDataInfo() 
             {
                 key = "UI",
@@ -232,7 +239,7 @@ namespace YukiFrameWork.Extension
             ["StateManager"] = new ToolDataInfo()
             {
                 key = "StateManager",
-                active = true,
+                active = false,
                 path = packagePath + "/Tool~/StateManager",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateManager/StateManager.md"
             },
@@ -409,14 +416,26 @@ namespace YukiFrameWork.Extension
         }      
         void Button(string url, Color color = default)
         {
-            if (color != default)
-                GUI.color = color;
-            if (GUILayout.Button("文档官网", GUILayout.Height(40), GUILayout.Width(250)))
+            if (string.IsNullOrEmpty(url))
             {
-                Application.OpenURL(url);
+                EditorGUILayout.HelpBox("该模块暂时还没有文档", MessageType.Warning);
             }
-            GUI.color = Color.white;
-            GUILayout.Space(5);
+            else
+            {
+                if (color != default)
+                    GUI.color = color;
+                if (string.IsNullOrEmpty(url))
+                {
+                    EditorGUILayout.HelpBox("该模块暂时还没有文档", MessageType.Warning);
+                }
+
+                if (GUILayout.Button("文档官网", GUILayout.Height(40), GUILayout.Width(250)))
+                {
+                    Application.OpenURL(url);
+                }
+                GUI.color = Color.white;
+                GUILayout.Space(5);
+            }
         }
 
         private void OpenUrl(string name,string url)

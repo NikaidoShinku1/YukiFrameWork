@@ -57,10 +57,10 @@ namespace YukiFrameWork.DrawEditor
                 return GUIContent.none;
             return new GUIContent($"{item.name}_{item.GetInstanceID()}");
         }
-        private string selectGUID;     
+        private string selectGUID;
         protected override void DrawMenu()
-        {           
-            EditorGUILayout.BeginVertical("OL Box",GUILayout.Width(MenuWidth),GUILayout.Height(40));
+        {
+            EditorGUILayout.BeginVertical("OL Box", GUILayout.Width(MenuWidth), GUILayout.Height(40));
 
             GUIContent nameContentCurrent = GetCurrentBaseContent();
             if (selectGUID.IsNullOrEmpty() == false && tBase)
@@ -75,7 +75,7 @@ namespace YukiFrameWork.DrawEditor
                 {
                     T item = YukiAssetDataBase.GUIDToInstance<T>(guid);
                     bool isOn = selectGUID == guid;
-                    selectMenu.AddItem(GetBaseContent(item), isOn, () => 
+                    selectMenu.AddItem(GetBaseContent(item), isOn, () =>
                     {
                         selectGUID = guid;
 
@@ -84,7 +84,7 @@ namespace YukiFrameWork.DrawEditor
                         if (!isOn)
                         {
                             tBase = item;
-                            ConfigRefresh();                          
+                            ConfigRefresh();
                         }
                         GUIDRefresh();
                     });
@@ -96,12 +96,16 @@ namespace YukiFrameWork.DrawEditor
             {
                 GUIContent content = EditorGUIUtility.ObjectContent(tBase, typeof(ScriptableObject));
                 Texture2D icon = content.image as Texture2D;
-                EditorGUILayout.LabelField(new GUIContent(icon),GUILayout.Height(20),GUILayout.Width(20));
+                EditorGUILayout.LabelField(new GUIContent(icon), GUILayout.Height(20), GUILayout.Width(20));
                 EditorGUILayout.EndHorizontal();
             }
-          
-                  
-            MenuTree.DrawSearchToolbar();          
+            EditorGUILayout.BeginHorizontal();
+            MenuTree.DrawSearchToolbar();
+            if (GUILayout.Button("刷新", GUILayout.Width(35)))
+            {
+                GUIDRefresh();
+            }
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
            
             GUILayout.Space(10);

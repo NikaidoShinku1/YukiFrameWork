@@ -27,10 +27,9 @@ namespace YukiFrameWork.Audio
         public string GroupName { get; private set; }        
         public IAudioGroupSetting Setting { get; set; }
         public AudioPlayType AudioPlayType { get; private set; }
-
         
         internal static RuntimeAudioGroups runtimeAudioGroups = new RuntimeAudioGroups();
-
+        internal static Dictionary<AudioPlayType, BindablePropertyPlayerPrefsByFloat> mAudioGroupVolumeScales = new Dictionary<AudioPlayType, BindablePropertyPlayerPrefsByFloat>();
         internal static void StopAll(AudioPlayType audioPlayType)
         {
             if (!runtimeAudioGroups.TryGetValue(audioPlayType, out var dicts))
@@ -44,8 +43,12 @@ namespace YukiFrameWork.Audio
         }
         static AudioGroup()
         {
-            for (AudioPlayType audioPlayType = AudioPlayType.Music; audioPlayType <= AudioPlayType.Sound; audioPlayType++)            
-                runtimeAudioGroups.Add(audioPlayType, new Dictionary<string, AudioGroup>());          
+            for (AudioPlayType audioPlayType = AudioPlayType.Music; audioPlayType <= AudioPlayType.Sound; audioPlayType++)
+            {
+                runtimeAudioGroups.Add(audioPlayType, new Dictionary<string, AudioGroup>());
+                mAudioGroupVolumeScales.Add(audioPlayType, new BindablePropertyPlayerPrefsByFloat("AUDIOKIT_" + audioPlayType.ToString() + "_GROUPVOLUMESCALE_SETTING", 1));
+            }
+
         }
 
         internal static void Release()
@@ -99,6 +102,22 @@ namespace YukiFrameWork.Audio
                 _ => true,
             };
         }
+
+        /// <summary>
+        /// 这个音频分组所绑定的音频缩放
+        /// </summary>
+        public BindablePropertyPlayerPrefsByFloat AudioGroupVolumeScale
+        {
+            get => AudioPlayType switch
+            {
+                AudioPlayType.Music => AudioKit.MusicVolumeScale,
+                AudioPlayType.Voice => AudioKit.VoiceVolumeScale,
+                AudioPlayType.Sound => AudioKit.SoundVolumeScale,
+                _ => throw new Exception("未知的分组")
+            };
+        }
+
+
         private bool IsMusicFree => audioPlayer.IsAudioFree;
         private bool IsVoiceFree => audioPlayer.IsAudioFree;
         private bool IsSoundFree 
@@ -471,7 +490,7 @@ namespace YukiFrameWork.Audio
                 audioPlayer = this.audioPlayer;
             void SetAudioVolume(float value)
             {
-                audioPlayer.Volume = value;
+                audioPlayer.Volume = value * AudioKit.AudioVolumeScale.Value * AudioGroupVolumeScale.Value;
             }
 
             this.Setting.IsOn.Register(value =>

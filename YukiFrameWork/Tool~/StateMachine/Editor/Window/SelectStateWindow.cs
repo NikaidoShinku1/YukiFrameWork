@@ -289,7 +289,7 @@ namespace YukiFrameWork.Machine
                 return false;
             }
 
-            var content = codeGenerator.BuildFile();
+            var content = codeGenerator.BuildFile("用于替换提示类", "");
             content = content.Replace("用于替换提示类", fileName);           
             using (FileStream stream = new FileStream(pathName,FileMode.Create,FileAccess.ReadWrite,FileShare.ReadWrite))
             {

@@ -18,10 +18,15 @@ namespace YukiFrameWork.Machine
     {
         public StringBuilder BuildFile(params object[] arg)
         {
+            string fileName = string.Empty;
+            string nameSpace = string.Empty;
             if (arg == null || arg.Length == 0)
-                throw new NullReferenceException("丢失参数");
-            string fileName = (string)arg[0];
-            string nameSpace = (string)arg[1];
+            { }
+            else
+            {
+                fileName = (string)arg[0];
+                nameSpace = (string)arg[1];
+            }
 
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("///=====================================================");
@@ -36,8 +41,11 @@ namespace YukiFrameWork.Machine
             builder.AppendLine("using YukiFrameWork.Machine;");
             builder.AppendLine("using UnityEngine;");
             builder.AppendLine("using YukiFrameWork;");
-            builder.AppendLine($"namespace {nameSpace}");
-            builder.AppendLine("{");           
+            if (!nameSpace.IsNullOrEmpty())
+            {
+                builder.AppendLine($"namespace {nameSpace}");
+                builder.AppendLine("{");
+            }
             builder.AppendLine($"\tpublic class {fileName} : StateBehaviour");
             builder.AppendLine("\t{");
             builder.AppendLine("\t\tpublic override void OnInit()");
@@ -58,8 +66,8 @@ namespace YukiFrameWork.Machine
             builder.AppendLine("\t\t}");            
             builder.AppendLine("");
             builder.AppendLine("\t}");
-
-            builder.AppendLine("}");
+            if (!nameSpace.IsNullOrEmpty())
+                builder.AppendLine("}");
 
             return builder;
         }

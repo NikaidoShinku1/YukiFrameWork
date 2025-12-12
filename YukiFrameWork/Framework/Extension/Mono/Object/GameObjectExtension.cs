@@ -986,7 +986,7 @@ namespace YukiFrameWork
             field.onValueChanged.RemoveAllListeners();
             field.onValueChanged.AddListener(unityAction);
             return field;
-        }
+        }        
 
         #region Component
         public static T GetOrAddComponent<T>(this GameObject core) where T : Component

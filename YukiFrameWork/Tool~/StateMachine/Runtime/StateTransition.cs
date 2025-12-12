@@ -21,7 +21,7 @@ namespace YukiFrameWork.Machine
         private StateMachine stateMachine;
         public StateTransitionData TransitionData => stateTransition;
 
-        private List<StateConditionGroup> stateConditions = new List<StateConditionGroup>();
+        private List<List<YukiFrameWork.Machine.StateCondition>> stateConditions = new List<List<YukiFrameWork.Machine.StateCondition>>();
 
         public StateBase To => toState;
 
@@ -30,14 +30,13 @@ namespace YukiFrameWork.Machine
             this.stateMachine = stateMachine;
             this.stateTransition = stateTransitionData;
 
-            StateConditionGroup stateConditionGroup = new StateConditionGroup(stateTransition.conditions
-                .Select(x => new StateCondition(x,stateMachine)));
+            List<StateCondition> normalStateCondition = new List<StateCondition>(stateTransition.conditions.stateConditionDatas.Select(x => new StateCondition(x, stateMachine)));
 
-            stateConditions.Add(stateConditionGroup);
+            stateConditions.Add(normalStateCondition);
 
             foreach (var item in stateTransition.conditionGroups)
             {
-                StateConditionGroup itemGroup = new StateConditionGroup(item
+                List<StateCondition> itemGroup = new List<StateCondition>(item
                .Select(x => new StateCondition(x, stateMachine)));
                 stateConditions.Add(itemGroup);
             }
@@ -133,6 +132,8 @@ namespace YukiFrameWork.Machine
             foreach (var items in stateConditions)
             {
                 bool isMeet = true;
+                if (items.Count == 0)
+                    continue;
                 foreach (var condition in items)
                 {
                     if (!condition.IsMeet)
@@ -141,9 +142,9 @@ namespace YukiFrameWork.Machine
                         break;
                     }
                 }
-                if (!isMeet) return false;
+                if (isMeet) return true;
             }
-            return true;
+            return false;
         }
 
     }

@@ -60,7 +60,7 @@ namespace YukiFrameWork.Machine
         public static void CreateCondition(RuntimeStateMachineCore controller, StateTransitionData transition)
         {
             StateConditionData condition = CreateCondition(controller);
-            transition.conditions.Add(condition);
+            transition.conditions.stateConditionDatas.Add(condition);
 
             UnityEditor.EditorUtility.SetDirty(controller);
             UnityEditor.AssetDatabase.SaveAssets();
@@ -73,7 +73,7 @@ namespace YukiFrameWork.Machine
                 return;
             }
 
-            transition.conditions.RemoveAt(index);
+            transition.conditions.stateConditionDatas.RemoveAt(index);
 
 
             UnityEditor.EditorUtility.SetDirty(controller);

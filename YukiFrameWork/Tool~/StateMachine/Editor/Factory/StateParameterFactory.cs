@@ -96,10 +96,10 @@ namespace YukiFrameWork.Machine
                     {
                         for (int i = item.conditions.Count - 1; i >= 0; i--)
                         {
-                            StateConditionData condition = item.conditions[i];
+                            StateConditionData condition = item.conditions.stateConditionDatas[i];
                             if (condition.parameterName != null && condition.parameterName.Equals(parameter.parameterName))
                             {
-                                item.conditions.RemoveAt(i);
+                                item.conditions.stateConditionDatas.RemoveAt(i);
                             }
                         }
 

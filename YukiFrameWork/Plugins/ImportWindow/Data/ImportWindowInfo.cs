@@ -58,6 +58,8 @@ namespace YukiFrameWork.Extension
                 return UINAvigation;
             else if (key == "Localization")
                 return LocalizationInfo;
+            else if (key == "EquipmentKit")
+                return EquipmentKitInfo;
             return default;
         }
 
@@ -73,6 +75,8 @@ namespace YukiFrameWork.Extension
         public static string ActionKitInfo => !IsEN ? "ActionKit动作时序套件,可以完成例如定时、队列、事件循环、强化Update、等待帧回调等强化功能实现" : "ActionKit Action timing suite, you can complete such as timing, queue, event loop, enhanced Update, wait for frame callback and other enhanced functions";
 
         public static string BezierInfo => !IsEN ? "贝塞尔曲线计算公式管理类" : "Bessel curve calculation formula management class";
+
+        public static string EquipmentKitInfo => "框架通用式装备系统,可定义装备的配置与生命周期";
 
         public static string LocalizationInfo => !IsEN ? "框架本地化多语言套件" : "Framework LocalizationKit";
 

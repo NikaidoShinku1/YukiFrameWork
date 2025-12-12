@@ -52,7 +52,7 @@ namespace YukiFrameWork.Machine
 
         public override Vector2 GetWindowSize()
         {
-            return new Vector2(this.width, 120);
+            return new Vector2(this.width, 250);
         }
 
         public override void OnGUI(Rect rect)

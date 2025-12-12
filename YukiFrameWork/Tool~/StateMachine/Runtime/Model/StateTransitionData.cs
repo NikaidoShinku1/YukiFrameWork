@@ -10,7 +10,7 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using StateConditionGroup = System.Collections.Generic.List<YukiFrameWork.Machine.StateConditionData>;
+using System.Collections;
 namespace YukiFrameWork.Machine
 {    
     [Serializable]
@@ -48,5 +48,32 @@ namespace YukiFrameWork.Machine
                 return true;
             }
         }
+    }
+    [Serializable]
+    public class StateConditionGroup : IEnumerable<StateConditionData>
+    {
+        public List<StateConditionData> stateConditionDatas = new List<StateConditionData>();
+
+        public IEnumerator<StateConditionData> GetEnumerator()
+        {
+            return stateConditionDatas.GetEnumerator();
+        }
+
+        public StateConditionGroup(List<StateConditionData> stateConditionDatas)
+        {
+            this.stateConditionDatas = stateConditionDatas;
+        }
+
+        public StateConditionGroup() { }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public static implicit operator List<StateConditionData>(StateConditionGroup group)
+            => group.stateConditionDatas;
+
+        public int Count => stateConditionDatas.Count;
     }
 }

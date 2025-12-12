@@ -378,7 +378,7 @@ namespace YukiFrameWork
                         EditorGUILayout.BeginHorizontal();
                         GUILayout.Label("预览图", GUILayout.Width(50));
                         EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
-                        EditorGUILayout.ObjectField(frameInfo.sprite,typeof(Sprite),true,GUILayout.Height(50));
+                        frameInfo.sprite = (Sprite)EditorGUILayout.ObjectField(frameInfo.sprite,typeof(Sprite),true,GUILayout.Height(50));
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.EndHorizontal();
@@ -437,7 +437,7 @@ namespace YukiFrameWork
                         continue;
                     }
                     Debug.Log(targetPath);
-                   Sprite[] sprites = item.frameInfos.Select(x => x.sprite).ToArray();
+                    Sprite[] sprites = item.frameInfos.Select(x => x.sprite).ToArray();
                     foreach (var i in  sprites)
                     {
                         Debug.Log(i);

@@ -133,8 +133,42 @@ namespace YukiFrameWork.Audio
         /// <summary>
         /// Sound层播放间隔帧数设置(默认为10)
         /// </summary>
-        public static int SoundFrameCountForIgnoreSameSound { get; set; } = 10;      
-       
+        public static int SoundFrameCountForIgnoreSameSound { get; set; } = 10;
+
+        /// <summary>
+        /// AudioKit全层级共享音量缩放值，最终播放的音效会在设定好不同分组中内定的音量后根据缩放值计算
+        /// <para>Tips:适合设计总音量时使用，默认值为1</para>
+        /// </summary>
+        public static BindablePropertyPlayerPrefsByFloat AudioVolumeScale { get;} = new BindablePropertyPlayerPrefsByFloat("AUDIOKIT_ALLAUDIOVOLUME_SCALE",1);
+
+        /// <summary>
+        /// Music分组的音量缩放值,默认是1
+        /// <para>Music层所有的分组均共享该值，默认值为1</para>
+        /// </summary>
+        public static BindablePropertyPlayerPrefsByFloat MusicVolumeScale
+        {
+            get => AudioGroup.mAudioGroupVolumeScales[AudioPlayType.Music];
+        }
+
+
+        /// <summary>
+        /// Voice分组的音量缩放值,默认是1
+        /// <para>Voice层所有的分组均共享该值，默认值为1</para>
+        /// </summary>
+        public static BindablePropertyPlayerPrefsByFloat VoiceVolumeScale
+        {
+            get => AudioGroup.mAudioGroupVolumeScales[AudioPlayType.Voice];
+        }
+
+
+        /// <summary>
+        /// Sound分组的音量缩放值,默认是1
+        /// <para>Sound层所有的分组均共享该值，默认值为1</para>
+        /// </summary>
+        public static BindablePropertyPlayerPrefsByFloat SoundVolumeScale
+        {
+            get => AudioGroup.mAudioGroupVolumeScales[AudioPlayType.Sound];
+        }
 
         public enum PlaySoundModes
         {

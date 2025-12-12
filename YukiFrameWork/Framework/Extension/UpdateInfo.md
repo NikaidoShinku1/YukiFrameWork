@@ -1,5 +1,15 @@
 ﻿#### 框架更新日志、
 
+V1.56.1 框架新增EquipmentKit装备系统，优化编辑器细节
+
+V1.55.6 修复StateMachine模块创建脚本引发参数异常的问题
+
+V1.55.5 AudioKit新增AudioVolumeScale控制全层级的音量缩放(总音量值),以及不同层级分组的统一音频缩放,更新文档，优化部分代码细节
+
+V1.55.4 图集转AnimationClip窗口优化，可以进行拖拽指定Sprite到预览图上
+
+V1.55.3 修复StateMachine模块中AutoSwitch不开启也会强制切换没有条件的状态的bug
+
 V1.55.2 修复SkillKit模块中查询技能状态冷却返回Success的bug，优化StateMachine模块细节，优化图集转换AnimationClip配置窗口
 
 V1.55.1 重构对于模式为Multiple的Texture转换AnimationCliip的功能并解除对窗口的屏蔽，现在可以正常使用

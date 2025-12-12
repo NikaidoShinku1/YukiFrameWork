@@ -14,10 +14,11 @@ namespace YukiFrameWork
 	public static class ScreenTool
 	{
 		public static readonly EasyEvent OnScreenChanged = new EasyEvent();
+		public static readonly EasyEvent OnvSyncChanged = new EasyEvent();
 		public static void SetFullScreen(bool active)
 		{
-            OnScreenChanged.SendEvent();
-            Screen.fullScreen = active;		
+            Screen.fullScreen = active;
+            OnScreenChanged.SendEvent();           
 		}
 
 		public static FullScreenMode GetScreenMode()
@@ -27,6 +28,12 @@ namespace YukiFrameWork
 		{
 			Screen.SetResolution(width, height, fullScreen);
 			OnScreenChanged.SendEvent();
-		}	
-	}
+		}
+
+		public static void SetvSyncCount(int count)
+		{
+			QualitySettings.vSyncCount = count;
+			OnvSyncChanged.SendEvent();
+		}
+    }
 }

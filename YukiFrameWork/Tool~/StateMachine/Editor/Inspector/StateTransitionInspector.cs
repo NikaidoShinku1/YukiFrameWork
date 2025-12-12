@@ -45,7 +45,7 @@ namespace YukiFrameWork.Machine
             StateTransitionInspectorHelper helper = target as StateTransitionInspectorHelper;
             if (helper == null) { return; }
 
-            reorderableList = new ReorderableList(helper.transition.conditions, typeof(StateConditionData), true, true, true, true);
+            reorderableList = new ReorderableList(helper.transition.conditions.stateConditionDatas, typeof(StateConditionData), true, true, true, true);
             reorderableList.drawHeaderCallback += OnDrawHeaderCallback;
             reorderableList.onAddCallback += this.OnAddCallback;
             reorderableList.onRemoveCallback += this.OnRemoveCallback;
@@ -89,7 +89,7 @@ namespace YukiFrameWork.Machine
             GUILayout.Space(30);
             EditorGUI.EndDisabledGroup();
 
-            reorderableList.list = helper.transition.conditions;
+            reorderableList.list = helper.transition.conditions.stateConditionDatas;
             reorderableList.DoLayoutList();
 
             GUILayout.Space(10);
@@ -101,7 +101,7 @@ namespace YukiFrameWork.Machine
                 ReorderableList list = GetReorderableList(condition);
                 if (list != null)
                 {
-                    list.list = condition;
+                    list.list = condition.stateConditionDatas;
                     list.DoLayoutList();
                     GUILayout.Space(10);
                 }
@@ -127,7 +127,7 @@ namespace YukiFrameWork.Machine
 
             if (GUILayout.Button(add_a_sets_of_conditions, GUILayout.Width(260), GUILayout.Height(25)))
             {
-                helper.transition.conditionGroups.Add(new List<StateConditionData>());
+                helper.transition.conditionGroups.Add(new StateConditionGroup(new List<StateConditionData>()));
                 helper.runtimeStateMachineCore.Save();
             }
 
@@ -199,7 +199,7 @@ namespace YukiFrameWork.Machine
             StateTransitionInspectorHelper helper = target as StateTransitionInspectorHelper;
             if (helper == null) { return; }
 
-            var conditon = helper.transition.conditions[index];
+            var conditon = helper.transition.conditions.stateConditionDatas[index];
 
             DrawItemExcute(rect, conditon);
         }
@@ -250,7 +250,7 @@ namespace YukiFrameWork.Machine
             GUI.Label(rect, "条件集合");
         }
 
-        public ReorderableList GetReorderableList(List<StateConditionData> conditions)
+        public ReorderableList GetReorderableList(StateConditionGroup conditions)
         {
             if (conditions == null)
                 return null;
@@ -263,7 +263,7 @@ namespace YukiFrameWork.Machine
             if (!reorderables.ContainsKey(key))
             {
 
-                ReorderableList list = new ReorderableList(conditions, typeof(StateConditionData), true, true, true, true);
+                ReorderableList list = new ReorderableList(conditions.stateConditionDatas, typeof(StateConditionData), true, true, true, true);
                 list.drawHeaderCallback += (rect) => {
 
                     GUI.Label(rect, "Conditions");
@@ -279,20 +279,20 @@ namespace YukiFrameWork.Machine
                 };
                 list.onAddCallback += (a) => {
                     StateConditionData data = StateConditionFactory.CreateCondition(helper.runtimeStateMachineCore);
-                    conditions.Add(data);
+                    conditions.stateConditionDatas.Add(data);
                     helper.runtimeStateMachineCore.Save();
                 };
 
                 list.onRemoveCallback += (a) =>
                 {
                     if (a.index >= 0 && a.index < conditions.Count)
-                        conditions.RemoveAt(a.index);
+                        conditions.stateConditionDatas.RemoveAt(a.index);
                     helper.runtimeStateMachineCore.Save();
                 };
 
                 list.drawElementCallback += (rect, index, c, d) =>
                 {
-                    DrawItemExcute(rect, conditions[index]);
+                    DrawItemExcute(rect, conditions.stateConditionDatas[index]);
                 };
                 reorderables.Add(key, list);
             }
@@ -301,7 +301,7 @@ namespace YukiFrameWork.Machine
         }
 
 
-        private void ShowConditionMenu(List<StateConditionData> condition)
+        private void ShowConditionMenu(StateConditionGroup condition)
         {
             StateTransitionInspectorHelper helper = target as StateTransitionInspectorHelper;
             if (helper == null) { return; }
