@@ -12,7 +12,6 @@ using System;
 using Sirenix.OdinInspector;
 using YukiFrameWork.Events;
 using UnityEngine.Events;
-using CodiceApp.EventTracking.Plastic;
 namespace YukiFrameWork
 {
     public abstract class EventListener<TEventArg> : YMonoBehaviour where TEventArg : IEventArgs
