@@ -46,7 +46,7 @@ namespace YukiFrameWork.Buffer
             BuffKit.buffLoader = buffLoader;
         }
         [RuntimeInitializeOnLoadMethod]
-        static void UpdateInit()
+        public static void UpdateInit()
         {
             MonoHelper.Update_RemoveListener(Update);
             MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);

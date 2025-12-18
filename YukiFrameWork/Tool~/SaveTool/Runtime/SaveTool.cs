@@ -19,41 +19,104 @@ using UnityEditor;
 #endif
 namespace YukiFrameWork
 {
+  
     public static class SaveTool
-    {             
-        private static SaveToolConfig saveConfig;       
-        private static string saveDirPath => saveConfig.saveDirPath;
+    {
+#if UNITY_EDITOR
+        [MenuItem("YukiFrameWork/SaveTool/Application.persistentDataPath")]
+        static void OpenPersistenDataPath()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", Application.persistentDataPath.Replace("/", "\\"));
+        }
+
+        [MenuItem("YukiFrameWork/SaveTool/Application.dataPath")]
+        static void OpenDataPath()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", Application.dataPath.Replace("/", "\\"));
+        }
+
+        [MenuItem("YukiFrameWork/SaveTool/Application.streamingAssetsPath")]
+        static void OpenStreamingAssetsPath()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", Application.streamingAssetsPath.Replace("/", "\\"));
+        }
+
+        [MenuItem("YukiFrameWork/SaveTool/Application.temporaryCachePath")]
+        static void OpenTemporaryCachePath()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", Application.temporaryCachePath.Replace("/", "\\"));
+        }
+#endif
+        private static string saveFolderName;
+        private static FolderType folderType;
+        private static string saveCustomDirName;
         private static Dictionary<int, Dictionary<string, object>> cacheDict = new Dictionary<int, Dictionary<string, object>>();
 
         private static bool isInited = false;
         private static Dictionary<int, SaveInfo> runtime_saveInfos = new Dictionary<int, SaveInfo>();
         private const string SAVEINFO_ALL_CACHE_INDEXKEY = nameof(SAVEINFO_ALL_CACHE_INDEXKEY);
+        public static string saveDirPath
+        {
+            get
+            {
+                string fileName = @"/" + saveFolderName;
+                switch (folderType)
+                {
+                    case FolderType.persistentDataPath:
+                        return Application.persistentDataPath + fileName;
+                    case FolderType.dataPath:
+                        return Application.dataPath + fileName;
+                    case FolderType.streamingAssetsPath:
+                        return Application.streamingAssetsPath + fileName;
+                    case FolderType.temporaryCachePath:
+                        return Application.temporaryCachePath + fileName;
+                    case FolderType.custom:
+                        return saveCustomDirName + fileName;
+                }
 
+                return default;
+            }
+        }
         /// <summary>
         /// 当前存档的信息数量
         /// </summary>
         public static int CurrentSaveCount => runtime_saveInfos.Count;
         /// <summary>
-        /// 初始化SaveTool,需要传递指定的存档配置，当存档配置变更时，所有的存档信息也有所变更。
+        /// 初始化SaveTool。
         /// </summary>
-        /// <param name="saveToolConfig"></param>
-        public static void Init(SaveToolConfig saveToolConfig)
+        /// <param name="saveToolConfig"></param>       
+        public static void Init(FolderType folderType = FolderType.persistentDataPath, string saveFolderName = "SaveData")
         {
             if (isInited) return;
-            if (saveToolConfig)
-            {
-                isInited = true;
-                SaveTool.saveConfig = saveToolConfig;
-                LoadPrefs();
-                CheckAndCreateFolder();
-            }
-            else
-                LogKit.W("初始化存档工具失败,请检查SaveToolConfig是否为空");
+            isInited = true;
+            SaveTool.saveFolderName = saveFolderName;
+            SaveTool.folderType = folderType;
+            LoadPrefs();
+            CheckAndCreateFolder();
         }
+
+        /// <summary>
+        /// 自定义文件夹路径初始化 文件夹路径不需要跟"/"符号，框架自动补全
+        /// </summary>
+        /// <param name="saveCustomDirName"></param>
+        /// <param name="saveFolderName"></param>
+        /// <param name=""></param>
+        public static void Init(string saveCustomDirName, string saveFolderName = "SaveData")
+        {
+            if (isInited) return;
+            isInited = true;
+            SaveTool.saveFolderName = saveFolderName;
+            SaveTool.folderType = FolderType.custom;
+            SaveTool.saveCustomDirName = saveCustomDirName;
+            LoadPrefs();
+            CheckAndCreateFolder();
+        }
+
+        
 
         private static void SavePrefs()
         {
-            PlayerPrefs.SetString(SAVEINFO_ALL_CACHE_INDEXKEY, runtime_saveInfos.Count == 0 ? string.Empty : SerializationTool.SerializedObject( runtime_saveInfos.Values.ToList()));
+            PlayerPrefs.SetString(SAVEINFO_ALL_CACHE_INDEXKEY, runtime_saveInfos.Count == 0 ? string.Empty : SerializationTool.SerializedObject( runtime_saveInfos.Values));
             PlayerPrefs.Save();
         }
 

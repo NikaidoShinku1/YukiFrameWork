@@ -124,8 +124,11 @@ namespace YukiFrameWork.InputSystemExtension
 
         #region 静态方法
 
+        /// <summary>
+        /// 如遇到该特性不触发的情况下，可手动调用初始化
+        /// </summary>
         [RuntimeInitializeOnLoadMethod]
-        private static void InitInputManager()
+        public static void InitInputKit()
         { 
             gamepads = null;
             keyboards = null;
@@ -215,7 +218,8 @@ namespace YukiFrameWork.InputSystemExtension
                 if (keyboard != null)
                 { 
                     foreach (var item in keyboard.allKeys)
-                    {  
+                    {
+                        if (item == null) continue;
                         if (item.wasPressedThisFrame)
                         {
                             buttonControl = item;

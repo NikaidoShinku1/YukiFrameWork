@@ -1324,8 +1324,7 @@ namespace YukiFrameWork
             float v_hor = Vector3.Distance(targetPosition, rigidbody.transform.position) / t;
 
             return (targetPosition - rigidbody.transform.position).normalized * v_hor + Vector3.up * upSpeed;
-        }
-
+        }       
         /// <summary>
         /// 让刚体以抛物线的形式移动到某一个位置
         /// </summary>

@@ -57,10 +57,10 @@ namespace YukiFrameWork.Equips
 
         public void Completed()
         {
-/*#if UNITY_EDITOR
-            if (MissionConfigBaseEditorWindow.Instance)
-                MissionConfigBaseEditorWindow.Instance.ForceMenuTreeRebuild();
-#endif*/
+#if UNITY_EDITOR
+            if (EquipmentConfigDataEditorWindow.Instance)
+                EquipmentConfigDataEditorWindow.Instance.ForceMenuTreeRebuild();
+#endif
         }
         [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
         public string excelPath;

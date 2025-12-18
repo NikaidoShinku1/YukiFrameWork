@@ -55,7 +55,7 @@ namespace YukiFrameWork.Skill
 		}
 
 		[RuntimeInitializeOnLoadMethod]
-		static void Init_Update()
+		public static void Init_Update()
 		{
 			MonoHelper.Update_RemoveListener(Update);
 			MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);

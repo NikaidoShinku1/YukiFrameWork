@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志、
 
+V1.57.1 新增事件可视化注册，更新文档，Texture2D转换AnimationClip优化细节，SaveTool重构初始化逻辑
+
+V1.56.3 修复EquipmentKitExcel导入后编辑器没刷新的问题
+
 V1.56.2 修复SkillKit、BuffKit、EquipmentKit可以添加抽象类型的问题
 
 V1.56.1 框架新增EquipmentKit装备系统，优化编辑器细节

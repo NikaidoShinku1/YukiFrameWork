@@ -357,6 +357,7 @@ namespace YukiFrameWork
                 }
                 GUI.color = Color.white;
                 EditorGUILayout.EndHorizontal();
+                MultipleAnimationConvertInfo.Info.FrameInfo removeInfo = null;
                 foreach (var frameInfo in info.frameInfos)
                 {
                     EditorGUILayout.Space(15);
@@ -378,13 +379,20 @@ namespace YukiFrameWork
                         EditorGUILayout.BeginHorizontal();
                         GUILayout.Label("预览图", GUILayout.Width(50));
                         EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
-                        frameInfo.sprite = (Sprite)EditorGUILayout.ObjectField(frameInfo.sprite,typeof(Sprite),true,GUILayout.Height(50));
+                        frameInfo.sprite = (Sprite)EditorGUILayout.ObjectField(frameInfo.sprite,typeof(Sprite),true,GUILayout.Height(50));                       
+                        if (GUILayout.Button("移除",GUILayout.Width(50)))
+                        {
+                            removeInfo = frameInfo;
+                        }
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.Space(5);
                     }
                 }
+
+                if (removeInfo != null)
+                    info.frameInfos.Remove(removeInfo);
 
                 if (info.frameInfos.Count > 0)
                 {

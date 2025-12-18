@@ -207,8 +207,11 @@ namespace YukiFrameWork.UI
 
         #region 静态方法
 
+        /// <summary>
+        /// 如果在部分平台以及插件适配上该方法不触发，则可以手动触发
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void OnStartGame()
+        public static void OnStartGame()
         {
             navigations.Clear();
         }
