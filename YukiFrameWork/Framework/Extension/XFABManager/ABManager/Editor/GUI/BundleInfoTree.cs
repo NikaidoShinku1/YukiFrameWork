@@ -35,25 +35,49 @@ public class BundleInfoTree : TreeView
     #endregion
 
 
+#if UNITY_6000_2_OR_NEWER
+
+    public BundleInfoTree(TreeViewState<int> state, XFAssetBundleProjectMain mainWindow) : base(state)
+#else
     public BundleInfoTree(TreeViewState state, XFAssetBundleProjectMain mainWindow) : base(state)
+#endif
     {
         showBorder = true;
         //this.project = project;
         this.mainWindow = mainWindow;
     }
-
+#if UNITY_6000_2_OR_NEWER
+    protected override TreeViewItem<int> BuildRoot()
+#else
     protected override TreeViewItem BuildRoot()
+#endif
     {
+#if UNITY_6000_2_OR_NEWER
+        TreeViewItem<int> root = new TreeViewItem<int>(-1, -1);
+#else
         TreeViewItem root = new TreeViewItem(-1, -1);
+#endif
         UpdateInfo(root);
         return root;
     }
+#if UNITY_6000_2_OR_NEWER
+
+    protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
+    {
+        return base.BuildRows(root);
+    }
+#else
     protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
     {
         return base.BuildRows(root);
     }
+#endif
+#if UNITY_6000_2_OR_NEWER
 
+    private void UpdateInfo(TreeViewItem<int> root)
+#else
     private void UpdateInfo(TreeViewItem root)
+#endif
     {
 
         //if ( Bundle != null ) {
@@ -83,10 +107,17 @@ public class BundleInfoTree : TreeView
         {
 
             System.IO.FileInfo fileInfo = new System.IO.FileInfo(asset);
+#if UNITY_6000_2_OR_NEWER
 
+            TreeViewItem<int> bundleRoot = new TreeViewItem<int>(0, 0, Bundle.bundle_name);
+             
+            TreeViewItem<int> size = new TreeViewItem<int>(1, 0, string.Empty);
+
+#else
             TreeViewItem bundleRoot = new TreeViewItem(0, 0, Bundle.bundle_name);
              
             TreeViewItem size = new TreeViewItem(1, 0, string.Empty);
+#endif
             if (fileInfo.Exists && fileInfo.Length != 0)
             {
                 size.displayName = string.Format("Size:{0}", EditorUtility.FormatBytes(fileInfo.Length));

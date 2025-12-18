@@ -35,12 +35,9 @@ public class BundleListTree : DragableTreeView<XFABAssetBundle>
 
 #if UNITY_6000_2_OR_NEWER 
     protected override TreeViewItem<int> BuildRoot()
-
 #else
     protected override TreeViewItem BuildRoot()
 #endif
-
-
     {
         return CreateView();
     }

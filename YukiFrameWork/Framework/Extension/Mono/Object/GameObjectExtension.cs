@@ -1333,7 +1333,11 @@ namespace YukiFrameWork
         /// <param name="targetPosition"></param>
         public static void ParabolicMotion(this Rigidbody rigidbody, float upSpeed, Vector3 targetPosition)
         {
+#if UNITY_6000_0_OR_NEWER
+            rigidbody.linearVelocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+#else
             rigidbody.velocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+#endif
         }
 
         /// <summary>
@@ -1373,12 +1377,17 @@ namespace YukiFrameWork
         /// <param name="targetPosition"></param>
         public static void ParabolicMotion(this Rigidbody2D rigidbody, float upSpeed, Vector3 targetPosition)
         {
+#if UNITY_6000_0_OR_NEWER
+            rigidbody.linearVelocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+#else
+
             rigidbody.velocity = rigidbody.ParabolicMotionVelocity(upSpeed, targetPosition);
+#endif
         }
 
 
 
-        #endregion
+#endregion
 
         #region Action
 
@@ -1800,7 +1809,7 @@ namespace YukiFrameWork
 
             layerMask = LayerMask.GetMask(layers.ToArray());
         }
-        #endregion       
+        #endregion
     }
 
     public static class MonoAPIExtension

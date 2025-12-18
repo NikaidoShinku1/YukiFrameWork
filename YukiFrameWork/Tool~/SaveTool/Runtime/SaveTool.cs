@@ -115,16 +115,24 @@ namespace YukiFrameWork
         
 
         private static void SavePrefs()
-        {
-            PlayerPrefs.SetString(SAVEINFO_ALL_CACHE_INDEXKEY, runtime_saveInfos.Count == 0 ? string.Empty : SerializationTool.SerializedObject( runtime_saveInfos.Values));
-            PlayerPrefs.Save();
+        {            
+            string json = SerializationTool.SerializedObject(runtime_saveInfos.Values);
+            json.CreateFileStream(saveDirPath,"SaveInfos",".Json");
+            //PlayerPrefs.SetString(SAVEINFO_ALL_CACHE_INDEXKEY, runtime_saveInfos.Count == 0 ? string.Empty : SerializationTool.SerializedObject( runtime_saveInfos.Values));
+            //PlayerPrefs.Save();
         }
 
         private static void LoadPrefs()
         {
-            string json = PlayerPrefs.GetString(SAVEINFO_ALL_CACHE_INDEXKEY, string.Empty);
-            if (json.IsNullOrEmpty()) return;
-            List<SaveInfo> saveInfos = SerializationTool.DeserializedObject<List<SaveInfo>>(json);
+            string path = saveDirPath + "/" + "SaveInfos.Json";
+            List<SaveInfo> saveInfos = null;
+            if (File.Exists(path))
+            {
+                string json = File.ReadAllText(path);
+                if (json.IsNullOrEmpty()) return;
+                saveInfos = SerializationTool.DeserializedObject<List<SaveInfo>>(json);
+            }
+            else saveInfos = new List<SaveInfo>();
             runtime_saveInfos = saveInfos.ToDictionary(x => x.saveID, x => x);
         }
 
@@ -582,7 +590,7 @@ namespace YukiFrameWork
         {          
             if (!Directory.Exists(saveDirPath))
             {
-                Directory.CreateDirectory(saveDirPath);
+                Directory.CreateDirectory(saveDirPath);              
             }           
 
 #if UNITY_EDITOR

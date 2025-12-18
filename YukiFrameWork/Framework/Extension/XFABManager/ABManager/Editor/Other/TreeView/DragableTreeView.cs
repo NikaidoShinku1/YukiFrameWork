@@ -7,8 +7,12 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace XFABManager
-{  
+{
+#if UNITY_6000_2_OR_NEWER
+        public class DragableTreeView<T> : TreeView<int> where T : class 
+#else
     public class DragableTreeView<T> : TreeView where T : class
+#endif
     {
         #region 字段
 
@@ -27,8 +31,11 @@ namespace XFABManager
         #endregion
 
         #region 构造函数
-
+#if UNITY_6000_2_OR_NEWER 
+        public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState<int> state) : base(state) 
+#else
         public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState state) : base(state)
+#endif
         {
             this.scriptableObject = scriptableObject;
             this.datas = datas;
@@ -39,8 +46,11 @@ namespace XFABManager
 
             //getNewSelectionOverride = GetNewSelectionOverride; 
         }
-
+#if UNITY_6000_2_OR_NEWER
+        public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState<int> state,MultiColumnHeader header) : base(state,header) 
+#else
         public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState state, MultiColumnHeader header) : base(state, header)
+#endif
         {
             this.scriptableObject = scriptableObject;
             this.datas = datas;
@@ -62,19 +72,38 @@ namespace XFABManager
             base.OnGUI(rect); 
             Refresh(); 
         }
-         
-        protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+#if UNITY_6000_2_OR_NEWER
+
+        protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
         {
             return base.BuildRows(root);
         }
 
+#else
+        protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
+        {
+            return base.BuildRows(root);
+        }
+#endif
+
+#if UNITY_6000_2_OR_NEWER
+
+
+        protected override TreeViewItem<int> BuildRoot()
+        {
+            TreeViewItem<int> root = new TreeViewItem<int>(0, -1);
+            OnBuildRoot(root, datas);
+            return root;
+        }
+
+#else
         protected override TreeViewItem BuildRoot()
         {
             TreeViewItem root = new TreeViewItem(0, -1);
             OnBuildRoot(root, datas);
             return root;
         }
-
+#endif
         protected override bool CanStartDrag(CanStartDragArgs args)
         {
             // 如果不加这句代码 编辑器会输出如下警告:
@@ -179,14 +208,21 @@ namespace XFABManager
         { 
             base.SetupDragAndDrop(args);  
         }
+#if UNITY_6000_2_OR_NEWER
 
-        protected virtual void OnBuildRoot(TreeViewItem root, IList<T> datas)
+        protected virtual void OnBuildRoot(TreeViewItem<int> root, IList<T> datas)
         {
 
         }
 
-     
-        #endregion
+#else
+        protected virtual void OnBuildRoot(TreeViewItem root, IList<T> datas)
+        {
+
+        }
+#endif
+
+#endregion
 
         #region 方法
 
@@ -252,8 +288,16 @@ namespace XFABManager
 
         private int GetItemIndex(int id) 
         {
-            TreeViewItem item = FindItem(id, rootItem);    
-            if(item == null) return -1;  
+#if UNITY_6000_2_OR_NEWER
+
+            TreeViewItem<int> item = FindItem(id, rootItem);
+
+#else
+            TreeViewItem item = FindItem(id, rootItem);
+#endif
+
+
+            if (item == null) return -1;
             return rootItem.children.IndexOf(item);
         }
 

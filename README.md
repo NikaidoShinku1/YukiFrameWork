@@ -28,6 +28,8 @@ QFramework架构教程：https://www.bilibili.com/video/BV1cG4y1H7uU/?spm_id_fro
 
 将图片中的Odin Inspector UnityPackage包项目导入到Assets文件夹下，在完成这一步之后再进行导入框架的操作！
 
+注意：Unity6000.3版本后，Odin需要导入4.0版本的package包（框架已内置）其余以下版本可自由选择
+
 在packagemanager里选择Add package from disk找到下载的包目录层级内找到package.json导入即可
 ![输入图片说明](YukiFrameWork/Plugins/Description/Texture/Loading2.png)
 

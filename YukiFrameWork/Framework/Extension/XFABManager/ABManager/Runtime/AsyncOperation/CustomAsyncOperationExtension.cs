@@ -15,7 +15,69 @@ namespace YukiFrameWork
 {
 	public static class CustomAsyncOperationExtension
 	{
-		public static YieldTask<UnityEngine.Object> GetAwaiter(this LoadAssetRequest asyncOperation)
+        public static YieldTask<ReadyResRequest> GetAwaiter(this ReadyResRequest readyResRequest)
+        {
+            var awaiter = new YieldTask<ReadyResRequest>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return readyResRequest;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+
+                awaiter.Complete(null, readyResRequest);
+            }
+            return awaiter;
+        }
+
+        public static YieldTask<CheckResUpdateRequest> GetAwaiter(this CheckResUpdateRequest result)
+        {
+            var awaiter = new YieldTask<CheckResUpdateRequest>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return result;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+
+                awaiter.Complete(null, result);
+            }
+            return awaiter;
+        }
+
+        public static YieldTask<CheckResUpdatesRequest> GetAwaiter(this CheckResUpdatesRequest result)
+        {
+            var awaiter = new YieldTask<CheckResUpdatesRequest>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return result;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+
+                awaiter.Complete(null, result);
+            }
+            return awaiter;
+        }
+
+        public static YieldTask<ExtractResRequest> GetAwaiter(this ExtractResRequest result)
+        {
+            var awaiter = new YieldTask<ExtractResRequest>();
+            YieldTaskExtension.SetRunOnUnityScheduler(awaiter, MonoHelper.Start(NextVoid()));
+            IEnumerator NextVoid()
+            {
+                yield return result;
+                if (awaiter.token != null)
+                    yield return CoroutineTool.WaitUntil(() => awaiter.token.IsRunning);
+
+                awaiter.Complete(null, result);
+            }
+            return awaiter;
+        }
+
+
+
+        public static YieldTask<UnityEngine.Object> GetAwaiter(this LoadAssetRequest asyncOperation)
 		{
             var awaiter = new YieldTask<UnityEngine.Object>();
             YieldTaskExtension.SetRunOnUnityScheduler(awaiter,MonoHelper.Start(NextVoid()));

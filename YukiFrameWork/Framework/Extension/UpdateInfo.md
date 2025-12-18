@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志、
 
+V1.58.1 优化API兼容Unity6000.2以上版本，框架包新增4.0版本的OdinInspector包，6000.2版本以上都必须用该包。
+
+V1.57.2 修复SaveTool出现打包与编辑器存档读取不统一的问题
+
 V1.57.1 新增事件可视化注册，更新文档，Texture2D转换AnimationClip优化细节，SaveTool重构初始化逻辑
 
 V1.56.3 修复EquipmentKitExcel导入后编辑器没刷新的问题
