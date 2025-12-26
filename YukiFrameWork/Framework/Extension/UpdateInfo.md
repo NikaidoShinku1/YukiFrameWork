@@ -1,5 +1,15 @@
 ﻿#### 框架更新日志、
 
+V1.59.1 框架新增DynamicValue特性可自动为字段赋值(仅新增DynamicViewController有效)，优化文档。
+
+V1.58.5 优化SkillKit的同时释放标识配置。
+
+V1.58.4 优化ActionKit细节
+
+V1.58.3 修复BuffKit GetEffectsByType方法内部逻辑问题
+
+V1.58.2 BuffKit将参数移动到效果中。SkillKit优化细节
+
 V1.58.1 优化API兼容Unity6000.2以上版本，框架包新增4.0版本的OdinInspector包，6000.2版本以上都必须用该包。
 
 V1.57.2 修复SaveTool出现打包与编辑器存档读取不统一的问题

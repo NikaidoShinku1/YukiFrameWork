@@ -385,7 +385,7 @@ namespace YukiFrameWork.Skill
             bool contains = true;
             foreach (var item in skills.Values)
             {
-                if (!item.IsSkillRelease)
+                if (!item.IsSkillRelease) 
                     continue;
 
                 contains = false;

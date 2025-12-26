@@ -251,219 +251,234 @@ namespace YukiFrameWork
             {
                 ReLoad();
             }
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Multiple Sprite-AnimationClip转换工具", titleStyle);
-            GUILayout.FlexibleSpace();
-            GUILayout.Label("Single");
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space(15);
-            EditorGUI.BeginChangeCheck();
+            try
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Multiple Sprite-AnimationClip转换工具", titleStyle);
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("Multiple");
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Space(15);
+                EditorGUI.BeginChangeCheck();
 
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.HelpBox("Texture的Mode必须是Multiple类型，否则不起作用\n注意:切割的图片每一个名字也必须唯一", MessageType.Warning);
-            EditorGUILayout.LabelField("设定图片",GUILayout.Width(60));
-            texture  = (Texture2D)EditorGUILayout.ObjectField(texture, typeof(Texture2D), true);
-            if (GUILayout.Button("清空", GUILayout.Width(40)))
-            {
-                texture = null;
-                configInfo.multipleAnimationConvertInfo.infos.Clear();
-                EditorUtility.SetDirty(configInfo);
-            }
-            EditorGUILayout.EndHorizontal();
-          
-            EditorGUILayout.Space(20);
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("文档官网", GUILayout.Height(50), GUILayout.Width(100)))
-            {
-                Application.OpenURL(@"https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/17.AnimationClip转换.md");
-            }
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("创建一个新的分组", GUILayout.Width(120)))
-            {
-                var item = new MultipleAnimationConvertInfo.Info();
-                if (configInfo.multipleAnimationConvertInfo.infos.Count == 0)
-                    item.IsSceleted = true;
-                configInfo.multipleAnimationConvertInfo.infos.Add(item);               
-            }
-            EditorGUILayout.EndHorizontal();          
-            if (texture)
-            {
-                if (texture.GetSpriteImportMode() != SpriteImportMode.Multiple)
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.HelpBox("Texture的Mode必须是Multiple类型，否则不起作用\n注意:切割的图片每一个名字也必须唯一", MessageType.Warning);
+                EditorGUILayout.LabelField("设定图片", GUILayout.Width(60));
+                texture = (Texture2D)EditorGUILayout.ObjectField(texture, typeof(Texture2D), true);
+                if (GUILayout.Button("清空", GUILayout.Width(40)))
                 {
-                   // texture = null;
-                    EditorGUILayout.HelpBox("精灵并非Multiple类型!", MessageType.Error);
-
+                    texture = null;
+                    configInfo.multipleAnimationConvertInfo.infos.Clear();
+                    EditorUtility.SetDirty(configInfo);
                 }
-                else if(configInfo.multipleAnimationConvertInfo.infos.Count > 0)
-                {
-                    var whe = EditorGUILayout.BeginVertical();
-                    EditorGUILayout.BeginHorizontal();
-                    if (GUILayout.Button("添加精灵"))
-                    {
-                        whe.x += whe.width / 2;
-                        PopupWindow.Show(whe, new MultipleAnimationClipConvertSearenchWindow(whe.width / 2, 200, configInfo, texture));
-                    }
-                    if (GUILayout.Button("添加精灵(该图集全部)"))
-                    {
-                        var info = configInfo.multipleAnimationConvertInfo.infos.FirstOrDefault(x => x.IsSceleted);
+                EditorGUILayout.EndHorizontal();
 
-                        if (info == null)
+                EditorGUILayout.Space(20);
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("文档官网", GUILayout.Height(50), GUILayout.Width(100)))
+                {
+                    Application.OpenURL(@"https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Framework/Extension/17.AnimationClip转换.md");
+                }
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("创建一个新的分组", GUILayout.Width(120)))
+                {
+                    var item = new MultipleAnimationConvertInfo.Info();
+                    if (configInfo.multipleAnimationConvertInfo.infos.Count == 0)
+                        item.IsSceleted = true;
+                    configInfo.multipleAnimationConvertInfo.infos.Add(item);
+                }
+                EditorGUILayout.EndHorizontal();
+                if (texture)
+                {
+                    if (texture.GetSpriteImportMode() != SpriteImportMode.Multiple)
+                    {
+                        // texture = null;
+                        EditorGUILayout.HelpBox("精灵并非Multiple类型!", MessageType.Error);
+
+                    }
+                    else if (configInfo.multipleAnimationConvertInfo.infos.Count > 0)
+                    {
+                        var whe = EditorGUILayout.BeginVertical();
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button("添加精灵"))
                         {
-                            Debug.LogError("当前没有选中图集");
+                            whe.x += whe.width / 2;
+                            PopupWindow.Show(whe, new MultipleAnimationClipConvertSearenchWindow(whe.width / 2, 200, configInfo, texture));
                         }
-                        else
+                        if (GUILayout.Button("添加精灵(该图集全部)"))
                         {
-                            var sprites = texture.GetSprites();
-                            foreach (var sprite in sprites)
-                            {                               
-                                if (!CheckSprite(sprite))
-                                {                                  
-                                    info.frameInfos.Add(new MultipleAnimationConvertInfo.Info.FrameInfo() { frame = info.frameInfos.Count, sprite = sprite });
+                            var info = configInfo.multipleAnimationConvertInfo.infos.FirstOrDefault(x => x.IsSceleted);
+
+                            if (info == null)
+                            {
+                                Debug.LogError("当前没有选中图集");
+                            }
+                            else
+                            {
+                                var sprites = texture.GetSprites();
+                                foreach (var sprite in sprites)
+                                {
+                                    if (!CheckSprite(sprite))
+                                    {
+                                        info.frameInfos.Add(new MultipleAnimationConvertInfo.Info.FrameInfo() { frame = info.frameInfos.Count, sprite = sprite });
+                                    }
                                 }
                             }
                         }
-                    }
-                    EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndHorizontal();
 
-                    EditorGUILayout.EndVertical();
-                }
-            }
-            scrollView = EditorGUILayout.BeginScrollView(scrollView, GUI.skin.box);
-            MultipleAnimationConvertInfo.Info deleteInfo = null;
-            foreach (var info in configInfo.multipleAnimationConvertInfo.infos)
-            {
-                EditorGUILayout.BeginVertical("OL Box");
-
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("选中这个分组", GUILayout.Width(90));
-                bool value = info.IsSceleted;
-                info.IsSceleted = EditorGUILayout.Toggle(info.IsSceleted);
-
-                if (!value && info.IsSceleted)
-                {
-                    foreach (var normalInfo in configInfo.multipleAnimationConvertInfo.infos)
-                    {
-                        if (normalInfo == info) continue;
-                        normalInfo.IsSceleted = false;
+                        EditorGUILayout.EndVertical();
                     }
                 }
+                scrollView = EditorGUILayout.BeginScrollView(scrollView, GUI.skin.box);
+                MultipleAnimationConvertInfo.Info deleteInfo = null;
+                foreach (var info in configInfo.multipleAnimationConvertInfo.infos)
+                {
+                    EditorGUILayout.BeginVertical("OL Box");
 
-                GUILayout.FlexibleSpace();
-                GUI.color = Color.red;
-                if (GUILayout.Button("Delete", GUILayout.Width(60)))
-                {
-                    if (deleteInfo == null)
-                        deleteInfo = info;
-                }
-                GUI.color = Color.white;
-                EditorGUILayout.EndHorizontal();
-                MultipleAnimationConvertInfo.Info.FrameInfo removeInfo = null;
-                foreach (var frameInfo in info.frameInfos)
-                {
-                    EditorGUILayout.Space(15);
-                    if (!frameInfo.sprite) continue;
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label("选中这个分组", GUILayout.Width(90));
+                    bool value = info.IsSceleted;
+                    info.IsSceleted = EditorGUILayout.Toggle(info.IsSceleted);
+
+                    if (!value && info.IsSceleted)
                     {
-                        EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.BeginHorizontal();
-                        GUI.color = Color.yellow;
-                        GUILayout.Label("精灵名称", GUILayout.Width(75));
-                        GUILayout.Label(frameInfo.sprite.name);
-
-                        GUI.color = Color.white;
-                        EditorGUILayout.EndHorizontal();
-                        EditorGUILayout.BeginHorizontal();
-                        GUILayout.Label("时间帧", GUILayout.Width(40));
-                        frameInfo.frame = EditorGUILayout.FloatField(frameInfo.frame, GUILayout.Width(25));
-                        EditorGUILayout.EndHorizontal();
-                        GUILayout.FlexibleSpace();
-                        EditorGUILayout.BeginHorizontal();
-                        GUILayout.Label("预览图", GUILayout.Width(50));
-                        EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
-                        frameInfo.sprite = (Sprite)EditorGUILayout.ObjectField(frameInfo.sprite,typeof(Sprite),true,GUILayout.Height(50));                       
-                        if (GUILayout.Button("移除",GUILayout.Width(50)))
+                        foreach (var normalInfo in configInfo.multipleAnimationConvertInfo.infos)
                         {
-                            removeInfo = frameInfo;
+                            if (normalInfo == info) continue;
+                            normalInfo.IsSceleted = false;
                         }
-                        EditorGUILayout.EndHorizontal();
-                        EditorGUILayout.EndHorizontal();
-                        EditorGUILayout.EndHorizontal();
-                        EditorGUILayout.Space(5);
                     }
-                }
 
-                if (removeInfo != null)
-                    info.frameInfos.Remove(removeInfo);
-
-                if (info.frameInfos.Count > 0)
-                {
-                    EditorGUILayout.BeginVertical(GUI.skin.box);
-                    GUILayout.Label("基本设置");
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label("Loop", GUILayout.Width(100));
-                    info.loop = EditorGUILayout.Toggle(info.loop);
-                    EditorGUILayout.EndHorizontal();
-
-                    if (info.loop)
+                    GUILayout.FlexibleSpace();
+                    GUI.color = Color.red;
+                    if (GUILayout.Button("Delete", GUILayout.Width(60)))
                     {
+                        if (deleteInfo == null)
+                            deleteInfo = info;
+                    }
+                    GUI.color = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                    MultipleAnimationConvertInfo.Info.FrameInfo removeInfo = null;
+                    foreach (var frameInfo in info.frameInfos)
+                    {
+                        EditorGUILayout.Space(15);
+                        if (!frameInfo.sprite) continue;
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            EditorGUILayout.BeginHorizontal();
+                            GUI.color = Color.yellow;
+                            GUILayout.Label("精灵名称", GUILayout.Width(75));
+                            GUILayout.Label(frameInfo.sprite.name);
+
+                            GUI.color = Color.white;
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.Label("时间帧", GUILayout.Width(40));
+                            frameInfo.frame = EditorGUILayout.FloatField(frameInfo.frame, GUILayout.Width(25));
+                            EditorGUILayout.EndHorizontal();
+                            GUILayout.FlexibleSpace();
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.Label("预览图", GUILayout.Width(50));
+                            EditorGUILayout.BeginHorizontal(GUILayout.Width(50));
+                            frameInfo.sprite = (Sprite)EditorGUILayout.ObjectField(frameInfo.sprite, typeof(Sprite), true, GUILayout.Height(50));
+                            if (GUILayout.Button("移除", GUILayout.Width(50)))
+                            {
+                                removeInfo = frameInfo;
+                            }
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.Space(5);
+                        }
+                    }
+
+                    if (removeInfo != null)
+                        info.frameInfos.Remove(removeInfo);
+
+                    if (info.frameInfos.Count > 0)
+                    {
+                        EditorGUILayout.BeginVertical(GUI.skin.box);
+                        GUILayout.Label("基本设置");
                         EditorGUILayout.BeginHorizontal();
-                        GUILayout.Label("CycleOffset", GUILayout.Width(100));
-                        info.cycleOffset = EditorGUILayout.FloatField(info.cycleOffset);
+                        GUILayout.Label("Loop", GUILayout.Width(100));
+                        info.loop = EditorGUILayout.Toggle(info.loop);
                         EditorGUILayout.EndHorizontal();
+
+                        if (info.loop)
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            GUILayout.Label("CycleOffset", GUILayout.Width(100));
+                            info.cycleOffset = EditorGUILayout.FloatField(info.cycleOffset);
+                            EditorGUILayout.EndHorizontal();
+                        }
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Label("设定动画名称", GUILayout.Width(120));
+                        info.animName = EditorGUILayout.TextField(info.animName, GUILayout.Width(120));
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndVertical();
                     }
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label("设定动画名称",GUILayout.Width(120));
-                    info.animName = EditorGUILayout.TextField(info.animName,GUILayout.Width(120));
-                    EditorGUILayout.EndHorizontal();
                     EditorGUILayout.EndVertical();
+
                 }
-                EditorGUILayout.EndVertical();
 
-            }
-            
-            EditorGUILayout.EndScrollView();
-            if ((configInfo.multipleAnimationConvertInfo.infos.Count != 0) && texture && GUILayout.Button("构建全部AnimationClip", GUILayout.Height(25)))
-            {
-                float progress = 0;
-
-                foreach (var item in configInfo.multipleAnimationConvertInfo.infos)
+                EditorGUILayout.EndScrollView();
+                if ((configInfo.multipleAnimationConvertInfo.infos.Count != 0) && texture && GUILayout.Button("构建全部AnimationClip", GUILayout.Height(25)))
                 {
-                    if (item.animName.IsNullOrEmpty())
-                    {
-                        Debug.LogWarning("已自动过滤没有填写动画名称的分组");
-                        continue;
-                    }
-                    progress++;
+                    float progress = 0;
 
-                    string importPath = AssetDatabase.GetAssetPath(texture);
-                    string directoryPath = Path.GetDirectoryName(importPath);
-                    Debug.Log(directoryPath);
-                    
-                    string targetPath = directoryPath + "/" + item.animName  + ".anim";
-                    if (File.Exists(targetPath))
+                    foreach (var item in configInfo.multipleAnimationConvertInfo.infos)
                     {
-                        Debug.LogWarning("已存在同名动画，自动过滤 AnimName:" + item.animName);
-                        continue;
+                        if (item.animName.IsNullOrEmpty())
+                        {
+                            Debug.LogWarning("已自动过滤没有填写动画名称的分组");
+                            continue;
+                        }
+                        progress++;
+
+                        string importPath = AssetDatabase.GetAssetPath(texture);
+                        string directoryPath = Path.GetDirectoryName(importPath);
+                        Debug.Log(directoryPath);
+
+                        string targetPath = directoryPath + "/" + item.animName + ".anim";
+                        if (File.Exists(targetPath))
+                        {
+                            Debug.LogWarning("已存在同名动画，自动过滤 AnimName:" + item.animName);
+                            continue;
+                        }
+                        Debug.Log(targetPath);
+                        Sprite[] sprites = item.frameInfos.Select(x => x.sprite).ToArray();
+                        foreach (var i in sprites)
+                        {
+                            Debug.Log(i);
+                        }
+                        YukiAnimationClipConvertUtility.CreateAnimationClipAndCreateAsset(new MultipleTexture2DConvertSetting(item), sprites, targetPath);
+                        EditorUtility.DisplayProgressBar("构建AnimationClip", $"正在根据所有的预制信息生成AnimationClip ---进度:{progress}/{configInfo.AnimationConvertInfo.info_Values.Count}", progress / configInfo.AnimationConvertInfo.info_Values.Count);
                     }
-                    Debug.Log(targetPath);
-                    Sprite[] sprites = item.frameInfos.Select(x => x.sprite).ToArray();
-                    foreach (var i in  sprites)
-                    {
-                        Debug.Log(i);
-                    }
-                   YukiAnimationClipConvertUtility.CreateAnimationClipAndCreateAsset(new MultipleTexture2DConvertSetting(item),sprites,targetPath);
-                   EditorUtility.DisplayProgressBar("构建AnimationClip", $"正在根据所有的预制信息生成AnimationClip ---进度:{progress}/{configInfo.AnimationConvertInfo.info_Values.Count}", progress / configInfo.AnimationConvertInfo.info_Values.Count);
+
+                    EditorUtility.ClearProgressBar();
+                }
+                if (deleteInfo != null)
+                {
+                    configInfo.multipleAnimationConvertInfo.infos.Remove(deleteInfo);
                 }
 
-                EditorUtility.ClearProgressBar();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    EditorUtility.SetDirty(configInfo);
+                }
             }
-            if (deleteInfo != null)
+            catch (System.Exception ex)
             {
-                configInfo.multipleAnimationConvertInfo.infos.Remove(deleteInfo);
-            }
+                EditorGUILayout.HelpBox("遇到异常错误! " + ex.ToString(),MessageType.Error);
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorUtility.SetDirty(configInfo);
+                if (GUILayout.Button("修复并刷新重置",GUILayout.Height(50)))
+                {
+                    texture = null;
+                    configInfo.multipleAnimationConvertInfo.infos.Clear();
+                    EditorUtility.SetDirty(configInfo);
+                }
+
             }
 
         }

@@ -73,8 +73,8 @@ namespace YukiFrameWork
         public static ISequence Delay(this ISequence sequence, float currentTime, Action onDelayFinish = null, bool isRealTime = false)
             => sequence.AddSequence(YukiFrameWork.Delay.Get(currentTime, onDelayFinish,isRealTime));
 
-        public static ISequence NextFrame(this ISequence sequence)       
-            => DelayFrame(sequence, 1);       
+        public static ISequence NextFrame(this ISequence sequence,Action onFrameFinish = null)       
+            => DelayFrame(sequence, 1,onFrameFinish);       
 
         public static ISequence DelayFrame(this ISequence sequence, int frameCount,Action onFrameFinish = null)       
             => sequence.AddSequence(YukiFrameWork.NextFrame.Get(frameCount, onFrameFinish));       
@@ -314,6 +314,7 @@ namespace YukiFrameWork
 
         public override void OnFinish()
         {
+            callBack.OnFinish();
             callBack = default;
             onEvent = null;
             IsInit = false;

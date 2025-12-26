@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Linq;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector;
+using YukiFrameWork;
 namespace YukiFrameWork.Extension
 {
     [CustomEditor(typeof(ViewController), true)]
@@ -104,7 +105,8 @@ namespace YukiFrameWork.Extension
             catch { }
 
             controller.Data.Parent.Clear();
-            controller.Data.Parent.Insert(0, typeof(ViewController).Name);
+            controller.Data.Parent.Insert(0, typeof(ViewController).FullName);
+            controller.Data.Parent.Insert(1, typeof(DynamicViewController).FullName);
             try
             {
                 var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));

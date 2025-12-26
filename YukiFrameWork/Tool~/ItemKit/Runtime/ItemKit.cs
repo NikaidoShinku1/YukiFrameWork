@@ -227,7 +227,7 @@ namespace YukiFrameWork.Item
                     if (i < slotGroup.Slots.Count)
                     {
                         slotGroup.Slots[i].Item = item;
-                        slotGroup.Slots[i].ItemCount = slot.itemCount;
+                        slotGroup.Slots[i].ItemCount = slot.itemCount;                       
                        // slotGroup.Slots[i].
                         if (eventTrigger)
                             slotGroup.Slots[i].OnItemChanged.SendEvent();
@@ -237,6 +237,8 @@ namespace YukiFrameWork.Item
                         slotGroup.CreateSlot(item, slot.itemCount);
                     }
                 }
+
+                slotGroup.UpdateSlotsIndex();
             }
         }
 

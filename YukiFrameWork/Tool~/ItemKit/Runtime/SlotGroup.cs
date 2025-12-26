@@ -35,6 +35,8 @@ namespace YukiFrameWork.Item
 
         public bool IsFull => !slots.Any(x => x.Item == null);
 
+        public event Action<Slot, int, int> SlotIndexRefresh;
+
         public SlotGroup ForEach(Action<Slot> action)
         {
             ForEach((_, slot) => action?.Invoke(slot));
@@ -88,7 +90,8 @@ namespace YukiFrameWork.Item
         {
             if (item != null && !mCondition.Invoke(item))
                 return this;
-            slots.Add(new Slot(item, count,this));
+            slots.Add(new Slot(item, count,this,slots.Count));
+            UpdateSlotsIndex();
             return this;
         }
 
@@ -136,7 +139,7 @@ namespace YukiFrameWork.Item
 
             ClearItemByIndex(index);
             slots.RemoveAt(index);
-           
+            UpdateSlotsIndex();
             if (uiRefresh)
                 UIRefresh?.Invoke();
             return this;
@@ -167,6 +170,7 @@ namespace YukiFrameWork.Item
         public SlotGroup OrderBy<TKey>(Func<Slot,TKey> orders)
         {
             slots = slots.OrderBy(orders).ToList();
+            UpdateSlotsIndex();
             UIRefresh?.Invoke();
             return this;
         }
@@ -180,6 +184,7 @@ namespace YukiFrameWork.Item
         public SlotGroup OrderByDescending<TKey>(Func<Slot, TKey> orders)
         {
             slots = slots.OrderByDescending(orders).ToList();
+            UpdateSlotsIndex();
             UIRefresh?.Invoke();
             return this;
         }
@@ -487,6 +492,17 @@ namespace YukiFrameWork.Item
         {
             mOnSlotPointerExit += slotPointerExit;
             return this;
+        }
+
+        internal void UpdateSlotsIndex()
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                int oldId = slot.Id;
+                slot.Id = i;
+                SlotIndexRefresh?.Invoke(slot,oldId,slot.Id);             
+            }
         }
 
         internal void Clear()

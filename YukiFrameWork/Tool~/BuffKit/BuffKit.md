@@ -39,6 +39,7 @@ public class AttackBuff : Buff
 |string Name { get; set; }|效果名称|
 |string Type { get; set; }|效果的类型(可查询使用)|
 |string Description { get; set; }|效果的介绍|
+|IReadOnlyDictionary<string,EffectParam> EffectParams { get; }|效果可用的参数|
 
 对于框架默认配表的Buff基类，有默认可使用的效果类型NormalEffect类。如需要自定义可重写EffectData属性如下：
 

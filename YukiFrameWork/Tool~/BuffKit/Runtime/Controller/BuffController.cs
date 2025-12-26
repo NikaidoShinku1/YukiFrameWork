@@ -67,8 +67,6 @@ namespace YukiFrameWork.Buffer
 
         private float duration;
 		private float fixedTimer;
-        private Dictionary<string, BuffParam> buffParams;
-
         /// <summary>
         /// Buff执行者
         /// </summary>
@@ -78,12 +76,7 @@ namespace YukiFrameWork.Buffer
 		/// Buff的配置
 		/// </summary>
 		public IBuff Buff { get; private set; }
-      
-        /// <summary>
-        /// Buff的可使用参数
-        /// </summary>
-        public Dictionary<string, BuffParam> BuffParams => buffParams;
-
+        
 		/// <summary>
 		/// Buff添加后过的时间
 		/// </summary>
@@ -122,7 +115,7 @@ namespace YukiFrameWork.Buffer
 
         internal void Update()
         {
-                ExistedTime += Time.deltaTime;
+            ExistedTime += Time.deltaTime;
             OnUpdate();
         }
 
@@ -171,9 +164,7 @@ namespace YukiFrameWork.Buffer
 			BuffController controller = GlobalObjectPools.GlobalAllocation(buffType) as BuffController;
 			controller.Buff = buff;
 			controller.Player = buffExecutor;
-            controller.duration = buff.Duration;
-            if(buff.BuffParams != null && buff.BuffParams.Length > 0)
-                controller.buffParams = buff.BuffParams.ToDictionary(x => x.paramKey,x => x);
+            controller.duration = buff.Duration;           
             return controller;
 		}
     }

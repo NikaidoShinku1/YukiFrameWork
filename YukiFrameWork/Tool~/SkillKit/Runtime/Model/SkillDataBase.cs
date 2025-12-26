@@ -117,7 +117,7 @@ namespace YukiFrameWork.Skill
             }
             return obj != null;
         }
-        public static IEnumerable allSkillNames => YukiAssetDataBase.FindAssets<SkillDataBase>().SelectMany(x => x.SkillDataConfigs).Select(x => new ValueDropdownItem() { Text = x.SkillName, Value = x.SkillKey });
+        public static IEnumerable allSkillKeys => YukiAssetDataBase.FindAssets<SkillDataBase>().SelectMany(x => x.SkillDataConfigs).Select(x => new ValueDropdownItem() { Text = x.SkillKey, Value = x.SkillKey });
 #endif
 
         internal void CreateSkillData(Type SkillDataType)

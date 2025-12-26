@@ -174,6 +174,26 @@ namespace YukiFrameWork.Buffer
         }
 
         /// <summary>
+        /// 获取某一个执行者正在执行Buff的指定标识的具体的某一个效果
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="key"></param>
+        /// <param name="effect_key"></param>
+        /// <returns></returns>
+        public static IEffect GetEffect(this IBuffExecutor player, string key, string effect_key)
+        {
+            var effects = GetEffects(player, key);
+
+            foreach (var item in effects)
+            {
+                if (item.Key == effect_key)
+                    return item;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         ///  获取某一个执行者正在执行Buff的指定标识的效果
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -209,7 +229,7 @@ namespace YukiFrameWork.Buffer
         public static List<IEffect> GetEffectsByType(this IBuffExecutor player, string type)
         {
             List<IEffect> results = new List<IEffect>();
-            GetEffectsNonAlloc(player, results, type);
+            GetEffectsNonAllocByType(player, results, type);
             return results;
         }
 

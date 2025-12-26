@@ -15,6 +15,10 @@ namespace YukiFrameWork.Item
     [Serializable]
     public class Slot
     {
+        /// <summary>
+        /// 插槽的Id
+        /// </summary>
+        public int Id { get; set; }
         [field: SerializeField, LabelText("物品")]
         public IItem Item { get; set; }
         [field: SerializeField, LabelText("物品的数量")]
@@ -22,11 +26,12 @@ namespace YukiFrameWork.Item
         public readonly EasyEvent OnItemChanged = new EasyEvent();
 
         public SlotGroup slotGroup { get; }
-        public Slot(IItem item, int itemCount,SlotGroup group)
+        public Slot(IItem item, int itemCount,SlotGroup group,int id)
         {
             Item = item;
             ItemCount = itemCount;
             this.slotGroup = group;
+            this.Id = id;
         }
 
         /// <summary>

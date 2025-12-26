@@ -29,7 +29,7 @@ namespace YukiFrameWork.Skill
         [SerializeField, LabelText("Skill的唯一标识"), InfoBox("该标识应该唯一，不允许出现多个一样标识的技能"), JsonProperty()]
         private string skillKey;
 
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public string SkillKey
         {
             get => skillKey;
@@ -104,7 +104,7 @@ namespace YukiFrameWork.Skill
 
         [SerializeField,LabelText("技能参数"), JsonProperty]
         private SkillParam[] skillParams;
-        [JsonIgnore]
+        [JsonIgnore,ExcelIgnore]
         public SkillParam[] SkillParams => skillParams;
 #if UNITY_EDITOR
         private void DrawPreview()
@@ -133,7 +133,7 @@ namespace YukiFrameWork.Skill
         [ValueDropdown(nameof(skillControllerTypes))]
 #endif
         private string skillControllerType;
-        [ExcelIgnore]
+        [ExcelIgnore,JsonIgnore]
         public string SkillControllerType
         {
             get => skillControllerType;
@@ -143,7 +143,7 @@ namespace YukiFrameWork.Skill
         public string[] SimultaneousSkillKeys { get => simultaneousSkillKeys; set => simultaneousSkillKeys = value; }
 #if UNITY_EDITOR
         [JsonIgnore, ExcelIgnore]
-        IEnumerable list => SkillDataBase.allSkillNames;
+        IEnumerable list => SkillDataBase.allSkillKeys;
         IEnumerable skillControllerTypes => AssemblyHelper.GetTypes(x => x.IsSubclassOf(typeof(SkillController)))
             .Where(x => x.IsAbstract == false)
             .Select(x => new ValueDropdownItem() { Text = x.ToString(), Value = x.ToString() });

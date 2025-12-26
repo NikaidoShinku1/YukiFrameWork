@@ -31,7 +31,7 @@ namespace YukiFrameWork.Buffer
     }
     [Serializable]
     [JsonObject(MemberSerialization.OptIn)]
-    public class BuffParam
+    public class EffectParam
     {
         [SerializeField, LabelText("参数标识"), JsonProperty]
         [InfoBox("参数的标识应该唯一!仅为该Buff所使用")]
@@ -47,7 +47,7 @@ namespace YukiFrameWork.Buffer
         private bool target3;
         [SerializeField, LabelText("target"), ShowIf(nameof(paramType), ParamType.String), JsonProperty]
         private string target4;
-        public BuffParam(ParamType paramType, object value)
+        public EffectParam(ParamType paramType, object value)
         {
             switch (paramType)
             {
@@ -68,7 +68,7 @@ namespace YukiFrameWork.Buffer
         }
 
         [JsonConstructor]
-        private BuffParam() { }
+        private EffectParam() { }
 
         /// <summary>
         /// 可以通过Value属性获取到对应的参数
@@ -202,11 +202,6 @@ namespace YukiFrameWork.Buffer
 		/// </summary>
 		Sprite Icon { get; set; }
 
-        /// <summary>
-        /// Buff可用的所有参数
-        /// </summary>
-        BuffParam[] BuffParams { get; }
-
 		/// <summary>
 		/// 这个Buff存在的所有效果(如继承框架提供的Buff基类，需要自定义Effect的类型，可通过override的方式重写该属性)
 		/// </summary>
@@ -243,5 +238,11 @@ namespace YukiFrameWork.Buffer
 		/// 效果的类型(当一个Buff有多个效果时,可以为效果指定类型，在查询时获取复数的效果)
 		/// </summary>
 		string Type { get; set; }
-	}
+
+        /// <summary>
+        /// 效果可用的所有参数
+        /// </summary>
+        IReadOnlyDictionary<string,EffectParam> EffectParams { get; }
+
+    }
 }

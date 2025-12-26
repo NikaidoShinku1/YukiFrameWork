@@ -46,6 +46,8 @@ namespace YukiFrameWork
         public override bool OnExecute(float delta)
         {
             if (!IsInit) OnInit();
+            if (ActionNode == null)
+                return true;
             if (CurrentCount != -1 && CurrentCount > 0)
             {
                 if (ActionNode.OnExecute(delta))
@@ -83,6 +85,8 @@ namespace YukiFrameWork
         {
             if(CurrentCount != -1)
                 CurrentCount--;
+            if (ActionNode == null)
+                throw new Exception("ActionNode丢失，请检查调用ActionKit.Repeat是否有继续链式调用Action API！例如ActionKit.Repeat().Delay() //ToDo");
             ActionNode.OnInit();
             IsInit = true;
             IsCompleted = false;
