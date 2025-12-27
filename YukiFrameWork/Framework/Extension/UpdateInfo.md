@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志、
 
+V1.59.2 框架进一步强化DynamicValue，改注入为IDynamicMonoBehaviour接口，自由性拓展，背包系统新增点击事件
+
 V1.59.1 框架新增DynamicValue特性可自动为字段赋值(仅新增DynamicViewController有效)，优化文档。
 
 V1.58.5 优化SkillKit的同时释放标识配置。

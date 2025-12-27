@@ -15,7 +15,7 @@ using System.Linq;
 namespace YukiFrameWork.Item
 {
     
-	public class SlotGroup
+	public class SlotGroup : IDisposable
 	{
         [field:JsonProperty,SerializeField]
 		public string Key { get; internal set; }
@@ -451,6 +451,7 @@ namespace YukiFrameWork.Item
         private Action<UISlot> mOnSlotDeselect;
         private Action<UISlot> mOnSlotPointerEnter;
         private Action<UISlot> mOnSlotPointerExit;
+        private Action<UISlot> mOnSlotPointerDown;
 
         public void SlotInitInvoke(UISlot slot)
             => mOnSlotInit?.Invoke(slot);
@@ -466,6 +467,9 @@ namespace YukiFrameWork.Item
 
         public void SlotPointerExitInvoke(UISlot slot)
            => mOnSlotPointerExit?.Invoke(slot);
+
+        public void SlotPointerDownInvoke(UISlot slot)
+           => mOnSlotPointerDown?.Invoke(slot);
 
         public SlotGroup OnSlotInit(Action<UISlot> onSlotInit)
         {
@@ -494,6 +498,46 @@ namespace YukiFrameWork.Item
             return this;
         }
 
+        public SlotGroup OnSlotPointerDown(Action<UISlot> slotPointerDown)
+        {
+            mOnSlotPointerDown += slotPointerDown;
+            return this;
+        }
+
+        public SlotGroup OnSlotInitRemoveEvent(Action<UISlot> onSlotInit)
+        {
+            mOnSlotInit -= onSlotInit;
+            return this;
+        }
+
+        public SlotGroup OnSlotSelectRemoveEvent(Action<UISlot> onSlotSelect)
+        {
+            mOnSlotSelect -= onSlotSelect;
+            return this;
+        }
+        public SlotGroup OnSlotDeselectRemoveEvent(Action<UISlot> onSlotDeslect)
+        {
+            mOnSlotDeselect -= onSlotDeslect;
+            return this;
+        }
+        public SlotGroup OnSlotPointerEnterRemoveEvent(Action<UISlot> onSlotPointerEnter)
+        {
+            mOnSlotPointerEnter -= onSlotPointerEnter;
+            return this;
+        }
+        public SlotGroup OnSlotPointerExitRemoveEvent(Action<UISlot> slotPointerExit)
+        {
+            mOnSlotPointerExit -= slotPointerExit;
+            return this;
+        }
+
+        public SlotGroup OnSlotPointerDownRemoveEvent(Action<UISlot> slotPointerDown)
+        {
+            mOnSlotPointerDown -= slotPointerDown;
+            return this;
+        }
+
+
         internal void UpdateSlotsIndex()
         {
             for (int i = 0; i < slots.Count; i++)
@@ -505,7 +549,7 @@ namespace YukiFrameWork.Item
             }
         }
 
-        internal void Clear()
+        public void Dispose()
         {
             mOnSlotDeselect = null;
             mOnSlotInit = null;
@@ -513,6 +557,7 @@ namespace YukiFrameWork.Item
             mOnSlotPointerExit = null;
             mOnSlotSelect = null;
             mOnSlotDeselect = null;
+            mOnSlotPointerDown = null;
             slots.Clear();
         }
     }

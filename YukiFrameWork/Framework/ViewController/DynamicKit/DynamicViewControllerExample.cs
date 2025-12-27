@@ -12,7 +12,7 @@ using System;
 using Sirenix.OdinInspector;
 namespace YukiFrameWork
 {
-	public partial class DynamicViewControllerExample : YukiFrameWork.DynamicViewController
+	public partial class DynamicViewControllerExample : ViewController
 	{
 		[DynamicValue]
 		[InfoBox("[DynamicValue]")]
@@ -23,8 +23,8 @@ namespace YukiFrameWork
 		[InfoBox("[DynamicValue(\"Cube\")]")]
 		[DynamicValue("Cube")]
 		public BoxCollider boxCollider;
-		[InfoBox("[DynamicValue(true,true)]")]
-		[DynamicValue(true,true)]
+		[InfoBox("[DynamicValue(true,false)]")]
+		[DynamicValue(true,false)]
 		public CapsuleCollider capsuleCollider;
 		[InfoBox("[DynamicValue(\"Sphere\",false)]")]
 		[DynamicValue("Sphere",false)]
@@ -36,8 +36,17 @@ namespace YukiFrameWork
 		[DynamicValueFromScene("Directional Light")]
 		public Light mLight;
 		[InfoBox("[DynamicValueFromScene(true)]")]
-		[DynamicValueFromScene(true)]
+		[DynamicValueFromScene(false)]
 		public MeshCollider meshCollider;
-	}
+
+		private DynamicValue dynamicValue;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+			//var item = dynamicValue[typeof(int)];
+        }
+    }
 	
 }

@@ -147,6 +147,7 @@ namespace YukiFrameWork.Item
             this.BindPointerExitEvent(OnPointerExit);
             this.BindSelectEvent(OnSelect);
             this.BindDeselectEvent(OnDeselect);
+            this.BindPointerDownEvent(OnPointerDown);
         }
 
         protected virtual void OnSelect(BaseEventData eventData)
@@ -164,6 +165,12 @@ namespace YukiFrameWork.Item
             Slot.slotGroup.SlotPointerExitInvoke(this);        
             if (Equals(ItemKit.CurrentSlotPointer, this))
                 ItemKit.CurrentSlotPointer = null;
+        }
+
+        protected virtual void OnPointerDown(PointerEventData eventData)
+        {
+            Slot.slotGroup.SlotPointerEnterInvoke(this);
+            ItemKit.CurrentSlotPointer = this;
         }
 
         protected virtual void OnPointerEnter(PointerEventData eventData)

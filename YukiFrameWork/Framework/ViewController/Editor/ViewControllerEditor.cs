@@ -106,7 +106,6 @@ namespace YukiFrameWork.Extension
 
             controller.Data.Parent.Clear();
             controller.Data.Parent.Insert(0, typeof(ViewController).FullName);
-            controller.Data.Parent.Insert(1, typeof(DynamicViewController).FullName);
             try
             {
                 var types = AssemblyHelper.GetTypes(Assembly.Load(info.assembly));

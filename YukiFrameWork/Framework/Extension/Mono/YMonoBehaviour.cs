@@ -17,7 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 namespace YukiFrameWork
 {
-	public class YMonoBehaviour : Sirenix.OdinInspector.SerializedMonoBehaviour
+	public class YMonoBehaviour : Sirenix.OdinInspector.SerializedMonoBehaviour,IDynamicMonoBehaviour
 	{       
         [SerializeField]
         [LabelText("可视化Awake")]
@@ -25,6 +25,7 @@ namespace YukiFrameWork
         private UnityEvent<Transform> onAwake;       
         protected virtual void Awake()
         {
+            DynamicValue.Inject(this);
             onAwake?.Invoke(transform);
           
         }       

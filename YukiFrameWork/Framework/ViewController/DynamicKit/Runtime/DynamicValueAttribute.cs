@@ -13,7 +13,7 @@ namespace YukiFrameWork
 {
 
     /// <summary>
-    /// YukiFrameWork带有的动态字段特性,标记该动态字段后类型继承DynamicViewController即可实现对组件的完全自动赋值，无需手动操作绑定
+    /// YukiFrameWork带有的动态字段特性,标记该动态字段后类型继承IDynamicMonoBehaviour接口即可实现对组件的完全自动赋值，无需手动操作绑定
     /// <para>组件可从自身或子对象进行查找!</para>
     /// <code>[DynamicValue]public Transform Value</code>
     /// <para>Tips:任何情况下，DynamicValue都要比DynamicFromSceneValue要快一步执行，若非必要情况不要两个特性同时挂给一个字段</para>
@@ -60,7 +60,7 @@ namespace YukiFrameWork
         }
     }
     /// <summary>
-    /// YukiFrameWork带有的动态字段特性,标记该动态字段后类型继承DynamicViewController即可实现对组件的完全自动赋值，无需手动操作绑定
+    /// YukiFrameWork带有的动态字段特性,标记该动态字段后类型继承IDynamicMonoBehaviour接口即可实现对组件的完全自动赋值，无需手动操作绑定
     /// <code>[DynamicValueFromScene]public Transform Value</code>
     /// <para>Tips:任何情况下，DynamicValue都要比DynamicFromSceneValue要快一步执行，若非必要情况不要两个特性同时挂给一个字段</para>
     /// </summary>
