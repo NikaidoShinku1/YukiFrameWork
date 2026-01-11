@@ -64,8 +64,9 @@ namespace YukiFrameWork.DiaLogue
         public static void Release(string key)
         {
             if (runtime_Controllers.TryGetValue(key, out var controller))            
-                controller.GlobalRelease();           
+                controller.GlobalRelease();
         }
+
         /// <summary>
         /// 获取或者创建对话控制器(通过内置Loader加载，需要Init)
         /// </summary>

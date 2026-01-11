@@ -18,6 +18,7 @@ namespace YukiFrameWork
     /// <code>[DynamicValue]public Transform Value</code>
     /// <para>Tips:任何情况下，DynamicValue都要比DynamicFromSceneValue要快一步执行，若非必要情况不要两个特性同时挂给一个字段</para>
     /// </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
     public class DynamicValueAttribute : PropertyAttribute
     {
         /// <summary>
@@ -62,26 +63,36 @@ namespace YukiFrameWork
     /// <summary>
     /// YukiFrameWork带有的动态字段特性,标记该动态字段后类型继承IDynamicMonoBehaviour接口即可实现对组件的完全自动赋值，无需手动操作绑定
     /// <code>[DynamicValueFromScene]public Transform Value</code>
-    /// <para>Tips:任何情况下，DynamicValue都要比DynamicFromSceneValue要快一步执行，若非必要情况不要两个特性同时挂给一个字段</para>
+    /// <para>Tips:任何情况下，不要两个特性同时挂给一个字段(参数),DynamicValue会覆盖掉该特性</para>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field,AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter,AllowMultiple = false, Inherited = true)]
     public class DynamicValueFromSceneAttribute : PropertyAttribute
     {
         /// <summary>
-        /// 场景中存在的对象名称
+        /// 场景中存在的对象标识,根据Mode的不同有不同的获取方式
         /// </summary>
-        public string SceneObjName { get; internal set; }
+        public string SceneObjLabel { get; }
         /// <summary>
         /// 是否查找只激活的对象
         /// </summary>
         public bool OnlyMonoEnable { get; }
+
+        /// <summary>
+        /// 场景动态添加的方式
+        /// <para>Tips:Name模式下通过从场景的根(非子对象)进行查找，必须保证对象的名称唯一</para>
+        /// <para>Name模式下通过从场景的根(非子对象)进行查找，必须保证对象的名称唯一</para>
+        /// <para>Path模式等同于GameObject.Find</para>
+        /// <para>Tag模式等同于GameObject.FindGameObjectWithTag</para>
+        /// </summary>
+        public DynamicValueFromSceneMode DynamicValueFromSceneMode { get; }
         /// <summary>
         /// 输入场景中存在的对象名称，通过指定的对象查找组件
         /// </summary>
-        /// <param name="sceneObjName"></param>
-        public DynamicValueFromSceneAttribute(string sceneObjName)
-        {
-            SceneObjName = sceneObjName;
+        /// <param name="sceneObjLebel"></param>
+        public DynamicValueFromSceneAttribute(string sceneObjLebel,DynamicValueFromSceneMode dynamicValueFromSceneMode = DynamicValueFromSceneMode.Name)
+        {          
+            this.SceneObjLabel = sceneObjLebel;
+            this.DynamicValueFromSceneMode = dynamicValueFromSceneMode;
         }
 
         /// <summary>
@@ -91,6 +102,26 @@ namespace YukiFrameWork
         public DynamicValueFromSceneAttribute(bool onlyMonoEnable = true)
         {
             this.OnlyMonoEnable = onlyMonoEnable;
+        }
+    }
+
+    public enum DynamicValueFromSceneMode
+    {
+        Path,
+        Name,
+        Tag
+    }
+
+    /// <summary>
+    /// 动态特性标记,如注入希望自定义，则需要定义规则器后标记该特性进行识别，字段/方法参数会优先识别参数的该特性，如具备该特性，则DynamicValue与DynamicValueFromScene在该特性上的标记均会被覆盖。
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Field,AllowMultiple = false)]
+    public class DynamicRegulationAttribute : PropertyAttribute
+    {
+        public Type RegulationType { get; }
+        public DynamicRegulationAttribute(Type regulationType)
+        {
+            this.RegulationType = regulationType;
         }
     }
 }

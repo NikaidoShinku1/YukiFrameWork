@@ -71,7 +71,7 @@ namespace YukiFrameWork
         }
 
         private void OnDestroy()
-        {            
+        {
             LocalizationKit.UnRegisterLanguageEvent(Update_Component);
         }
 

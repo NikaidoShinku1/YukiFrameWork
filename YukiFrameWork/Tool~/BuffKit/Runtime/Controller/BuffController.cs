@@ -164,7 +164,7 @@ namespace YukiFrameWork.Buffer
 			BuffController controller = GlobalObjectPools.GlobalAllocation(buffType) as BuffController;
 			controller.Buff = buff;
 			controller.Player = buffExecutor;
-            controller.duration = buff.Duration;           
+            //controller.duration = buff.Duration;           
             return controller;
 		}
     }

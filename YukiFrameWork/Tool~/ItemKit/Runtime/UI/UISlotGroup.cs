@@ -54,17 +54,14 @@ namespace YukiFrameWork.Item
         [LabelText("已经存在的分组集合"), HideIf(nameof(Type),UISlotGenericType.Template)]
         public List<UISlot> existSlots = new List<UISlot>();     
 
-        private void Start()
+        private void OnEnable()
         {
-            if (firstRefresh) return;
-            Refresh();    
+            Refresh();
         }
-        private bool firstRefresh;
         private void Refresh()
         {
             //如果没有标识就不初始化
             if (GroupKey.IsNullOrEmpty()) return;
-            firstRefresh = true;
             SlotGroup slotGroup = ItemKit.GetSlotGroup(GroupKey);
             if (Type == UISlotGenericType.Template)
             {
@@ -100,7 +97,7 @@ namespace YukiFrameWork.Item
            
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             ItemKit.GetSlotGroup(GroupKey)?.UnRegisterOrderRefresh(Refresh);
         }

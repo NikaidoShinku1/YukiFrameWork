@@ -49,7 +49,7 @@ namespace YukiFrameWork.UI
 
         private bool SetAction => _pressEnterState == SelectEnterState.CustomKeyBind && CheckGamepedForSelectEvent;
 
-        [SerializeField, LabelText("设置自定义按键"), ShowIf(nameof(SetAction))]
+        [SerializeField, LabelText("设置自定义按键"), ShowIf(nameof(SetAction)),ListDrawerSettings]
         private CustomPressAction[] customPressActions;
 
         private bool isActive;

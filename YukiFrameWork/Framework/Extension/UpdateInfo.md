@@ -1,5 +1,25 @@
 ﻿#### 框架更新日志、
 
+V1.60.1 新增IDynamicBuilder的方法注入功能，支持DynamicValue特性，新增DynamicRegulation特性支持自定义注入
+
+V1.59.11 优化LocalizationKit的序列化器在初始化时可进行添加。
+
+V1.59.10 更新DynamicValue特性的可视化支持，仅当对应字段可被序列化时生效
+
+V1.59.9 公开DynamicValue的注入方法，StateMachine模块支持动态字段注入
+
+V1.59.8 ItemKit优化细节，EquipmentKit新增检查装备方法
+
+V1.59.7 修复DiaLogKit通过Start调用Move时抛出异常的问题，优化BuffKit细节，EquipmentKit新增API
+
+V1.59.6 修复UINavigation模块中偶现触发事件报空的问题
+
+V1.59.5 UIKit修复不缓存面板打开后在结束运行时出现的已销毁的异常。同时支持动态字段特性
+
+V1.59.4 BuffKit优化细节部分。明确获取效果的API职责
+
+V1.59.3 DynamicValueFromScene特性支持Path与Tag的搜索方式
+
 V1.59.2 框架进一步强化DynamicValue，改注入为IDynamicMonoBehaviour接口，自由性拓展，背包系统新增点击事件
 
 V1.59.1 框架新增DynamicValue特性可自动为字段赋值(仅新增DynamicViewController有效)，优化文档。

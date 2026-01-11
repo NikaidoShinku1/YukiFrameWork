@@ -101,10 +101,13 @@ namespace YukiFrameWork.Example
 
 |LocalizationKit static API|本地化套件类静态API说明|
 |---|---|
-|void Init(string projectName)|初始化方法,本地化套件使用框架自带XFABManager进行资源加载|
-|void Init(ILocalizationLoader loader)|初始化方法，用户自定义初始化器|
+|void Init(string projectName,Language language = Language.SimplifiedChinese)|初始化方法,本地化套件使用框架自带XFABManager进行资源加载|
+|void Init(ILocalizationLoader loader,Language language = Language.SimplifiedChinese)|初始化方法，用户自定义初始化器|
+|void Init(string projectName,ILocalizationSerializer serializer, Language language = Language.SimplifiedChinese)|初始化方法，用户自定义初始化器,可自定义序列化器|
+|void Init(ILocalizationLoader loader, ILocalizationSerializer serializer, Language language = Language.SimplifiedChinese)|初始化方法，用户自定义初始化器,可自定义序列化器|
 |IUnRegister RegisterLanguageEvent(Action< Language > action)|注册当语言变更时的回调|
 |void UnRegisterLanguageEvent(Action< Language > action)|注销当语言变更时的回调|
+|bool IsContainsLanguage(Language language)|判断有没有指定语言的信息|
 |void OnLanguageValueChanged()|发送当语言变更时的事件|
 |void LoadLocalizationManagerConfig(LocalizationManager configManager)|添加配置(该API无需初始化加载器)|
 |void LoadLocalizationManagerConfig(string path)|根据路径从加载器加载后添加配置|
@@ -116,7 +119,7 @@ namespace YukiFrameWork.Example
 |---|---|
 |LocalizationKit static Property API|本地化套件类静态属性API说明|
 |Language LanguageType { get; set; }|本地化当前的语言|
-|ILocalizationSerializer Serializer { get;set; }|本地持久化语言序列化器|
+|ILocalizationSerializer Serializer { get; }|本地持久化语言序列化器|
 
 |ILocalizationSerializer API|本地序列化器接口说明|
 |--|--|

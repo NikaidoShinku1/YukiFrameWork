@@ -16,18 +16,12 @@ namespace YukiFrameWork
     [CustomEditor(typeof(MonoHelper))]
     public class MonoHelperInspector : Editor 
     {
-        private SerializedProperty coreProperty;
+      
         private void Awake()
         {
             MonoHelper helper = target as MonoHelper;
             if (helper == null) return;
         }
-
-        private void OnEnable()
-        {
-            coreProperty = serializedObject.FindProperty("cores");
-        }
-
         public override void OnInspectorGUI()
         {
             MonoHelper helper = target as MonoHelper;

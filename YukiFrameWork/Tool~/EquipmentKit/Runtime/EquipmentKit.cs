@@ -229,6 +229,20 @@ namespace YukiFrameWork.Equips
             return equipment;
         }
 
+        /// <summary>
+        /// 检查执行者是否已经有这个装备
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="equipment"></param>
+        /// <returns></returns>
+        public static bool IsContainsEquipment(this IEquipExecutor player,IEquipment equipment)
+        {
+            CacheExecutor(player);
+
+            List<IEquipment> equipments = runtime_executor_equipments[player];
+            //如果已经有这个装备了则返回
+            return equipments.Contains(equipment);
+        }
 
         /// <summary>
         /// 根据装备信息创建装备
@@ -241,6 +255,65 @@ namespace YukiFrameWork.Equips
         }
 
         /// <summary>
+        /// 创建继承自MonoBehaviour的装备，需要已经为GameObject挂载组件
+        /// </summary>
+        /// <param name="equipmentData"></param>
+        /// <param name="gameObject"></param>
+        /// <returns></returns>
+        public static IEquipment CreateEquipment(IEquipmentData equipmentData, GameObject gameObject)
+        {
+            return CreateEquipment(equipmentData.Key, gameObject);
+        }
+
+        /// <summary>
+        /// 创建(此处为获取组件)继承自MonoBehaviour的装备，需要已经为GameObject挂载组件
+        /// </summary>
+        /// <param name="equipmentData"></param>
+        /// <param name="gameObject"></param>
+        /// <returns></returns>
+        public static IEquipment CreateEquipment(string key, GameObject gameObject)
+        {
+            if (!gameObject)
+                throw new Exception("游戏对象丢失! gameObject is Null");
+
+            if (!runtime_equipmentDatas.TryGetValue(key, out var data))
+            {
+                throw new Exception("没有添加指定标识的装备信息!Key:" + key);
+            }
+
+            if (data.EquipmentType.IsNullOrEmpty())
+                throw new Exception($"装备:{key}的指定装备类型为空，无法创建装备");
+
+            Type equipmentType = AssemblyHelper.GetType(data.EquipmentType);
+
+            if (equipmentType == null)
+                throw new Exception($"装备:{key}的指定装备类型错误，无法转换创建装备");
+
+            IEquipment equipment = gameObject.GetComponent(equipmentType) as IEquipment;
+
+            if (equipment == null)
+                throw new Exception("装备丢失!不存在gameObject:" + gameObject.name + "上");
+            equipment.IsMarkIdle = false;
+            equipment.Init();
+
+            equipment.EquipExecutor = null;
+            equipment.EquipmentData = data;
+
+            return equipment;
+        }
+
+        /// <summary>
+        /// 获取所有的装备
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public static IEnumerable<IEquipment> GetEquipments(this IEquipExecutor player)
+        {
+            CacheExecutor(player);
+            return runtime_executor_equipments[player];
+        }
+    
+        /// <summary>
         /// 创建装备并装备给执行者
         /// </summary>
         /// <param name="player">执行者玩家</param>
@@ -252,6 +325,22 @@ namespace YukiFrameWork.Equips
         {
             IEquipment equipment = CreateEquipment(key);
             equipState = Equip(player,equipment,param);
+            return equipment;
+        }
+
+        /// <summary>
+        /// 创建(此处为获取组件)继承自MonoBehaviour的装备并给执行者
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="key"></param>
+        /// <param name="gameObject"></param>
+        /// <param name="equipState"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public static IEquipment CreateEquipmentAndEquip(this IEquipExecutor player, string key,GameObject gameObject, out EquipState equipState, params object[] param)
+        {
+            IEquipment equipment = CreateEquipment(key,gameObject);
+            equipState = Equip(player, equipment, param);
             return equipment;
         }
 
@@ -302,9 +391,19 @@ namespace YukiFrameWork.Equips
             equipment.OnUnEquip();
             equipment.EquipExecutor = null;
             equipment.EquipmentData = null;
-            equipment.GlobalRelease();
+            if (equipment is Component component && component)
+            {
+                equipment.IsMarkIdle = true;
+                equipment.Release();
+            }
+            else
+                equipment.GlobalRelease();
         }
 
+        /// <summary>
+        /// 卸下执行者所有的装备
+        /// </summary>
+        /// <param name="player"></param>
         public static void UnEquipAll(this IEquipExecutor player)
         {
             CacheExecutor(player);
@@ -315,7 +414,13 @@ namespace YukiFrameWork.Equips
                 item.OnUnEquip();
                 item.EquipExecutor = null;
                 item.EquipmentData = null;
-                item.GlobalRelease();
+                if (item is Component component && component)
+                {
+                    item.IsMarkIdle = true;
+                    item.Release();
+                }
+                else
+                    item.GlobalRelease();
             }
 
             runtime_executor_equipments[player].Clear();

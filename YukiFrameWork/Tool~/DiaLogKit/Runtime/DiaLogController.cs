@@ -209,9 +209,9 @@ namespace YukiFrameWork.DiaLogue
                 failedTip = "节点为空，请检查对话是否正确连接或已经完成对话";
                 return false;
             }
+            CurrentNodeId = node.Id;
             OnMove(CurrentNode, node);
-            onMove?.Invoke(this,CurrentNode, node);
-            CurrentNodeId = node.Id;          
+            onMove?.Invoke(this,CurrentNode, node);                 
             
             //如果节点没有连接，则视为完成对话
             if (node.LinkNodes == null || node.LinkNodes.Count == 0)

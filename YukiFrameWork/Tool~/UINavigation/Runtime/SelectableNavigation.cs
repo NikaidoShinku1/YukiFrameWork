@@ -45,8 +45,8 @@ namespace YukiFrameWork.UI
         public static SelectableNavigation CurrentSelectedNavigation { get; set; }
 
         internal static void SendCurrentSelectableEvent(SelectionState selectionState, GamepadPanelExtension gamepadPanelExtension)
-        {
-            if (CurrentSelectedNavigation.gamepadPanel != gamepadPanelExtension)
+        {        
+            if (CurrentSelectedNavigation && CurrentSelectedNavigation.gamepadPanel != gamepadPanelExtension)
                 return;
             SendCurrentSelectableEvent(selectionState);
         }

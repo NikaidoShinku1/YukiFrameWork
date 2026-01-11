@@ -277,7 +277,8 @@ namespace YukiFrameWork.UI
             {
                 if (!panels[i].IsPanelCache)
                 {
-                    panels[i].gameObject.Destroy();
+                    if (panels[i] is Component component && component)
+                        panels[i].gameObject.Destroy();
                 }
             }
             panels.Clear();

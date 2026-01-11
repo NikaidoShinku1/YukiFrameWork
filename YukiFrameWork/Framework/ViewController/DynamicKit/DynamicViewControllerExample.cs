@@ -10,43 +10,56 @@ using YukiFrameWork;
 using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
-namespace YukiFrameWork
+namespace YukiFrameWork.Dynamic
 {
-	public partial class DynamicViewControllerExample : ViewController
+	[RuntimeInitializeOnArchitecture(typeof(ExampleRule.Example))]
+	public partial class DynamicViewControllerExample : ViewController,IDynamicBuilder<ParticleSystem,OnTriggerEnter2DEvent,TestA>
 	{
 		[DynamicValue]
-		[InfoBox("[DynamicValue]")]
+
 		public Transform mTransform;
-		[InfoBox("[DynamicValue]")]
+
 		[DynamicValue]
 		public DynamicViewControllerExample example;
-		[InfoBox("[DynamicValue(\"Cube\")]")]
+
 		[DynamicValue("Cube")]
 		public BoxCollider boxCollider;
-		[InfoBox("[DynamicValue(true,false)]")]
+
 		[DynamicValue(true,false)]
 		public CapsuleCollider capsuleCollider;
-		[InfoBox("[DynamicValue(\"Sphere\",false)]")]
+		
 		[DynamicValue("Sphere",false)]
 		public SphereCollider sphereCollider;
-		[InfoBox("[DynamicValueFromScene]")]
+		
 		[DynamicValueFromScene]
 		public Camera mCamera;
-		[InfoBox("[DynamicValueFromScene(\"Directional Light\")]")]
+		
 		[DynamicValueFromScene("Directional Light")]
 		public Light mLight;
-		[InfoBox("[DynamicValueFromScene(true)]")]
+
 		[DynamicValueFromScene(false)]
 		public MeshCollider meshCollider;
 
-		private DynamicValue dynamicValue;
-
-        protected override void Awake()
+		[Button]
+		public void Builder([DynamicValueFromScene]ParticleSystem authoring1, OnTriggerEnter2DEvent authoring2,[DynamicRegulation(typeof(TestARegulation))]TestA test)
         {
-            base.Awake();
-
-			//var item = dynamicValue[typeof(int)];
+			Debug.Log(authoring1);
+			Debug.Log(authoring2);
+			Debug.Log(test);
         }
     }
-	
+
+	public class TestA
+	{
+		
+	}
+
+    public class TestARegulation : IDynamicRegulation
+    {
+        public object Build(Type parameterType, IDynamicMonoBehaviour builder)
+        {
+			return new TestA();
+        }
+    }
+
 }

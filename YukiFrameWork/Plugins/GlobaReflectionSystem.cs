@@ -288,6 +288,17 @@ namespace YukiFrameWork
             return HasCustomAttribute<T>(info, inherit, out _);
         }
 
+        public static bool HasCustomAttribute<T>(this ParameterInfo info, bool inherit, out T attribute) where T : Attribute
+        {
+            attribute = info.GetCustomAttribute<T>(inherit);
+            return attribute != null;
+        }
+
+        public static bool HasCustomAttribute<T>(this ParameterInfo info, bool inherit = false) where T : Attribute
+        {
+            return HasCustomAttribute<T>(info, inherit, out _);
+        }
+
         /// <summary>
         ///  获取某个类型所有的字段数据
         ///  <para>与默认提供的反射API不同 该API会对于这个类型的基类字段进行添加并获取</para>

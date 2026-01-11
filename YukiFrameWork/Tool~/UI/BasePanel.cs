@@ -39,7 +39,7 @@ namespace YukiFrameWork.UI
     }
     [RequireComponent(typeof(CanvasGroup))]
     [ClassAPI("框架UI面板基类")]
-    public class BasePanel : YMonoBehaviour,ISerializedFieldInfo,IPanel
+    public class BasePanel : YMonoBehaviour,ISerializedFieldInfo,IPanel,IDynamicMonoBehaviour
     {        
         private CanvasGroup canvasGroup;
         protected new RectTransform transform => base.transform as RectTransform;
@@ -212,7 +212,8 @@ namespace YukiFrameWork.UI
         async void IPanel.Enter(params object[] param)
         {           
             //进入先将Alpha设置为1，在动画播放完成后再设置可交互
-            CanvasGroup.alpha = 1;
+            if(CanvasGroup)
+                CanvasGroup.alpha = 1;
             if (Animation != null)
             {
                 Animation.OnEnter(param);
@@ -220,7 +221,8 @@ namespace YukiFrameWork.UI
                     .WaitUntil(Animation.OnEnterAnimation)
                     .Token(uiTokenScoure.Token);
             }
-            CanvasGroup.blocksRaycasts = true;       
+            if (CanvasGroup)
+                CanvasGroup.blocksRaycasts = true;       
             OnEnter(param);
             onEnter?.Invoke(this,param);
             IsActive = true;
@@ -241,7 +243,8 @@ namespace YukiFrameWork.UI
 
         void IPanel.Resume()
         {
-            CanvasGroup.blocksRaycasts = true;
+            if(CanvasGroup)
+                CanvasGroup.blocksRaycasts = true;
             OnResume();
             onResume?.Invoke(this);
             IsPaused = false;
@@ -249,7 +252,8 @@ namespace YukiFrameWork.UI
 
         void IPanel.Pause()
         {
-            CanvasGroup.blocksRaycasts = false;
+            if (CanvasGroup)
+                CanvasGroup.blocksRaycasts = false;
             OnPause();
             onPause?.Invoke(this);
             IsPaused = true;
@@ -259,6 +263,7 @@ namespace YukiFrameWork.UI
         {
 
             //退出先禁止交互，且等待动画播放后再直接把canvasGroup的alpha设置为0
+            if (!this) return;
             if (!transform) return;
             CanvasGroup.blocksRaycasts = false;
             if (Animation != null)
@@ -273,7 +278,10 @@ namespace YukiFrameWork.UI
             OnExit();
             onExit?.Invoke(this);
             IsActive = false;
-            IsPaused = false;            
+            IsPaused = false;
+
+            //退出面板后放到最底层
+            transform.SetAsFirstSibling();
         }     
         #endregion
 

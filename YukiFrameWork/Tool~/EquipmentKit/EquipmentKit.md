@@ -91,8 +91,11 @@ public class TestScript : MonoBehaviour,IEquipExecutor
 |bool RemoveEquipmentData(string key)|根据标识移除装备信息|
 |IEquipmentData GetEquipmentData(string key)|获取装备信息|
 |IEquipment CreateEquipment(string key)|根据标识创建装备|
+|IEquipment CreateEquipment(string key, GameObject gameObject)|根据标识在指定的游戏对象上查找装备(需要已经挂载)|
+|IEquipment CreateEquipment(IEquipmentData equipmentData, GameObject gameObject)|根据装备信息在指定的游戏对象上查找装备(需要已经挂载)|
 |IEquipment CreateEquipment(IEquipmentData equipmentData)|根据装备信息创建装备|
 |IEquipment CreateEquipmentAndEquip(this IEquipExecutor player,string key, out EquipState equipState,params object[] param)|创建装备并装备给执行者|
+|IEquipment CreateEquipmentAndEquip(this IEquipExecutor player, string key,GameObject gameObject, out EquipState equipState, params object[] param)|创建装备(来自组件)并装备给执行者|
 |EquipState Equip(this IEquipExecutor player, IEquipment equipment, params object[] param)|为执行者装备|
 |void UnEquip(this IEquipExecutor player, IEquipment equipment)|为执行者卸下装备|
 |void UnEquipAll(this IEquipExecutor player)|为执行者卸下所有的装备|

@@ -51,18 +51,21 @@ namespace YukiFrameWork
     }
     public class DefaultLocalizationSerializer : ILocalizationSerializer
     {
+        private readonly BindablePropertyPlayerPrefsByInteger defaultIntger;
+        public DefaultLocalizationSerializer()
+        {
+            this.defaultIntger = new BindablePropertyPlayerPrefsByInteger(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY, 0); 
+        }
+
         public Language DeSerialize()
         {
-            return Enum
-                .GetValues(typeof(Language))
-                .Cast<Language>()
-                .FirstOrDefault(x => (int)x == PlayerPrefs.GetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY));
+            return (Language)defaultIntger.Value;
         }
 
         public void Serialize(Language language)
         {
             int value = (int)language;
-            PlayerPrefs.SetInt(LocalizationKit.DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY, value);
+            defaultIntger.Value = value;
         }
     }
     /// <summary>
@@ -72,12 +75,14 @@ namespace YukiFrameWork
 	{    
         private static ILocalizationLoader loader;
         private static Dictionary<Language,Dictionary<string,ILocalizationData>> all_localizations = new Dictionary<Language, Dictionary<string, ILocalizationData>>();
+        private static BindablePropertyPlayerPrefsByBoolan firstPlayMode;
         internal const string DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY = "DEFAULTLANGUAGEBYYUKIFRAMEWORK_KEY";
+        internal const string DEFAULTFIRSTPLAYMODBYLOCALIZATION_KEY = nameof(DEFAULTFIRSTPLAYMODBYLOCALIZATION_KEY);
 
         /// <summary>
         /// 本地化套件的序列化器
         /// </summary>
-        public static ILocalizationSerializer Serializer { get; set; } = new DefaultLocalizationSerializer();
+        public static ILocalizationSerializer Serializer { get; private set; }
            
         /// <summary>
         /// 注册语言改变时的事件
@@ -147,19 +152,47 @@ namespace YukiFrameWork
         /// <summary>
         /// 初始化本地化套件以赋值配置加载器
         /// </summary>       
-        public static void Init(string projectName)
+        public static void Init(string projectName,Language language = Language.SimplifiedChinese)
         {
-            Init(new ABManagerLocalizationLoader(projectName));
+            Init(new ABManagerLocalizationLoader(projectName),language);
         }
 
         /// <summary>
         /// 初始化本地化套件以赋值配置加载器
         /// </summary>
         /// <param name="loader"></param>
-        public static void Init(ILocalizationLoader loader)
-        {          
+        public static void Init(ILocalizationLoader loader, Language language = Language.SimplifiedChinese)
+        {
+            Init(loader,new DefaultLocalizationSerializer(),language);
+        }
+
+        /// <summary>
+        /// 初始化本地化套件以赋值配置加载器,可选自定义序列化器
+        /// </summary>       
+        public static void Init(string projectName,ILocalizationSerializer serializer, Language language = Language.SimplifiedChinese)
+        {
+            Init(new ABManagerLocalizationLoader(projectName),serializer,language);
+        }
+
+        /// <summary>
+        /// 初始化本地化套件以赋值配置加载器,可选自定义序列化器
+        /// </summary>
+        /// <param name="loader"></param>
+        public static void Init(ILocalizationLoader loader, ILocalizationSerializer serializer, Language language = Language.SimplifiedChinese)
+        {
+            Serializer = serializer;           
             LocalizationKit.loader = loader;
-            languageType = Serializer.DeSerialize();
+            firstPlayMode = new BindablePropertyPlayerPrefsByBoolan(DEFAULTFIRSTPLAYMODBYLOCALIZATION_KEY,false);
+            if (!firstPlayMode)
+            {
+                Debug.Log("第一次进入项目");
+                languageType = language;
+                firstPlayMode.Value = true;
+            }
+            else
+            {
+                languageType = Serializer.DeSerialize();
+            }
         }
 
         internal static void LoadLocalizationManagerConfigInternal(LocalizationManager configManager, bool isLoaderLoad)
@@ -190,6 +223,16 @@ namespace YukiFrameWork
         /// </summary>
         /// <returns></returns>
         public static Language[] GetLanguages() => all_localizations.Keys.ToArray();
+
+        /// <summary>
+        /// 判断目前的配表在运行中,有没有指定语言的信息
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        public static bool IsContainsLanguage(Language language)
+        {
+            return all_localizations.ContainsKey(language);
+        }
 
         /// <summary>
         /// 手动添加配置

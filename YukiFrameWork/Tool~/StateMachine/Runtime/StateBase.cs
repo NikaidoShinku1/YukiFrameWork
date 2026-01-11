@@ -106,6 +106,7 @@ namespace YukiFrameWork.Machine
                 switch (stateExecuteType)
                 {
                     case StateExecuteType.Init:
+                        DynamicValue.Inject(item);
                         item.OnInit();
                         break;
                     case StateExecuteType.Enter:

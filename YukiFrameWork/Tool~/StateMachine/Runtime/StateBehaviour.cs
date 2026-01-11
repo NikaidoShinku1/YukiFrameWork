@@ -11,7 +11,7 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Machine
 {
-    public abstract class StateBehaviour : IController
+    public abstract class StateBehaviour : IController,IDynamicMonoBehaviour
     {
         /// <summary>
         /// 这个状态所属的状态机
@@ -44,7 +44,9 @@ namespace YukiFrameWork.Machine
         /// 这个状态类的真实类型缓存
         /// </summary>
         public Type Type { get; internal set; }
-        
+
+        public GameObject gameObject => transform.gameObject;
+
         /// <summary>
         /// 当状态初始化
         /// </summary>

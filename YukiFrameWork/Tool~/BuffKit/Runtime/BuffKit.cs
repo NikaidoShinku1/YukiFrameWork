@@ -166,15 +166,15 @@ namespace YukiFrameWork.Buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static List<IEffect> GetEffects(this IBuffExecutor player, string key)
+        public static List<IEffect> GetEffects(this IBuffExecutor player, string effect_key)
         {
             List<IEffect> results = new List<IEffect>();
-            GetEffectsNonAlloc(player, results, key);
+            GetEffectsNonAlloc(player, results, effect_key);
             return results;
         }
 
         /// <summary>
-        /// 获取某一个执行者正在执行Buff的指定标识的具体的某一个效果
+        /// 获取某一个执行者正在执行的具体标识的Buff的指定标识的具体的效果
         /// </summary>
         /// <param name="player"></param>
         /// <param name="key"></param>
@@ -182,14 +182,22 @@ namespace YukiFrameWork.Buffer
         /// <returns></returns>
         public static IEffect GetEffect(this IBuffExecutor player, string key, string effect_key)
         {
-            var effects = GetEffects(player, key);
+            CacheExecutor(player);
 
-            foreach (var item in effects)
+            var buffs = allExecutor_BuffControllers[player];
+
+            foreach (var buff in buffs)
             {
-                if (item.Key == effect_key)
-                    return item;
+                if (buff.Buff.Key == key)
+                {
+                    foreach (var effect in buff.Buff.EffectDatas)
+                    {
+                        if (effect.Key == effect_key)
+                            return effect;
+                    }
+                }
             }
-
+            
             return null;
         }
 
@@ -198,7 +206,7 @@ namespace YukiFrameWork.Buffer
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static void GetEffectsNonAlloc(this IBuffExecutor player, List<IEffect> results, string key)
+        public static void GetEffectsNonAlloc(this IBuffExecutor player, List<IEffect> results, string effect_key)
         {
             if (results == null)
                 throw new Exception("集合不能为空");
@@ -214,7 +222,7 @@ namespace YukiFrameWork.Buffer
             {
                 foreach (var effect in item.Buff.EffectDatas)
                 {
-                    if (effect.Key != key) continue;
+                    if (effect.Key != effect_key) continue;
 
                     results.Add(effect);
                 }

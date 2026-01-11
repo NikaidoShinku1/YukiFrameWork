@@ -34,7 +34,7 @@ namespace YukiFrameWork.UI
     [Serializable]
     public class CustomPressAction
     {
-        [LabelText("按键路径"), InputControl]
+        [LabelText("按键路径"), InputControl()]
         public string _pressContorlPath;
         [HideInInspector]
         public InputControl customPressControl;
