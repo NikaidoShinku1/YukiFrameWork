@@ -85,6 +85,7 @@ namespace YukiFrameWork.Extension
             public string path;
             public bool active;
             public string url;
+            public bool obstate;
             public DependInfo[] depends;
            
         }
@@ -155,6 +156,7 @@ namespace YukiFrameWork.Extension
                 key = "IOCContainer",
                 path = packagePath + "/Tool~/IOCContainer",
                 active = true,
+                obstate = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md"
             },
             ["DiaLogKit"] = new ToolDataInfo() 
@@ -374,9 +376,15 @@ namespace YukiFrameWork.Extension
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
                     EditorGUILayout.Space(20);
                    
-                    bool isImport = info.active;
+                    bool isImport = info.active && !info.obstate;
                     if (!isImport)
-                        EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
+                    {
+                        if (!info.active)
+                            EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
+                        else if (info.obstate)
+                            EditorGUILayout.HelpBox("该模块已被废弃", MessageType.Warning);
+                    }
+
 
                     if (info.depends != null && info.depends.Length != 0)
                     {                        
