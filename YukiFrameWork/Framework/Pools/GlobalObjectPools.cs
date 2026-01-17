@@ -287,7 +287,8 @@ namespace YukiFrameWork.Pools
         {
             for (int i = 0; i < releases.Count; i++)
             {
-                pools.Remove(releases[i]);
+                //保持缓存，仅清空池
+                pools[releases[i]].pools.Clear();
             }
 
             releases.Clear();

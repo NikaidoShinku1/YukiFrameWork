@@ -38,7 +38,26 @@ namespace YukiFrameWork
         [LabelText("同步组件")]
         private MaskableGraphic component;
 
-        public string Key => key;
+        /// <summary>
+        /// 本地化标识动态修改
+        /// </summary>
+        public string Key
+        {
+            get
+            {
+                return key;
+            }
+            set
+            {
+                if (value.IsNullOrEmpty())
+                    return;
+                if (value != key)
+                {
+                    key = value;
+                    Update_Component(LocalizationKit.LanguageType);
+                }
+            }
+        }
 
         public MaskableGraphic Component => component;
         /// <summary>

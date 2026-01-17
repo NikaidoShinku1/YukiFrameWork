@@ -27,6 +27,7 @@ namespace YukiFrameWork.DiaLogue
         public event Action<GraphNodeView> onNodeSelected = null;
         public static event Action<BackGroundView> onNodeUpdate = null;
         internal NodeTreeBase tree;
+        private Vector2 startPosition;
 
         private static NodeTreeBase[] allNodeTreeBases;
 
@@ -55,6 +56,8 @@ namespace YukiFrameWork.DiaLogue
                 if (tree.IsPerformance)
                     UpdateColor();
             };
+
+            startPosition = viewTransform.position;
 
         }
        
@@ -183,8 +186,8 @@ namespace YukiFrameWork.DiaLogue
         {
             if (tree == null) return;
 
-            Vector2 pos = evt.localMousePosition;
-           // bool c = false;
+            var pos = ((evt.localMousePosition - ((Vector2)viewTransform.position - startPosition))) * (1 / scale);
+            // bool c = false;
             foreach (Type type in TypeCache.GetTypesDerivedFrom<INode>())
             {
                 string menu = string.Empty;

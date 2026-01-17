@@ -36,6 +36,7 @@ namespace YukiFrameWork.Extension
     /// </summary>
 	public static class SerializationTool
 	{
+
         public static T DeserializedObject<T>(string value,JsonSerializerSettings settings = default)
             => JsonConvert.DeserializeObject<T>(value,settings);
 
@@ -166,6 +167,24 @@ namespace YukiFrameWork.Extension
             package.Save();
         }
 #if UNITY_EDITOR
+        public enum SpriteConvertType
+        {
+            Guid,
+            Path
+        }
+
+        const string SPRITECONVERTYPE_EXCELCONVERTKEY = nameof(SPRITECONVERTYPE_EXCELCONVERTKEY);
+        public static SpriteConvertType ConvertType
+        {
+            get
+            {
+                return (SpriteConvertType)PlayerPrefs.GetInt(SPRITECONVERTYPE_EXCELCONVERTKEY, 0);
+            }
+            set
+            {
+                PlayerPrefs.SetInt(SPRITECONVERTYPE_EXCELCONVERTKEY, (int)value);
+            }
+        }
         /// <summary>
         /// 将Excel文件的数据转换为可继承自IExcelSyncScriptableObject的ScriptableObject配置中
         /// </summary>
@@ -209,7 +228,8 @@ namespace YukiFrameWork.Extension
                                     if (fieldInfo.FieldType.IsSubclassOf(typeof(UnityEngine.Object)))
                                     {
 #if UNITY_EDITOR
-                                        fieldInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), fieldInfo.FieldType));
+                                        string path = ConvertType == SpriteConvertType.Guid ? UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()) : item.Value.ToString();
+                                        fieldInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(path, fieldInfo.FieldType));
 #endif
                                     }
                                     else
@@ -222,7 +242,8 @@ namespace YukiFrameWork.Extension
                                     if (propertyInfo.PropertyType.IsSubclassOf(typeof(UnityEngine.Object)))
                                     {
 #if UNITY_EDITOR
-                                        propertyInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()), propertyInfo.PropertyType));
+                                        string path = ConvertType == SpriteConvertType.Guid ? UnityEditor.AssetDatabase.GUIDToAssetPath(item.Value.ToString()) : item.Value.ToString();
+                                        propertyInfo.SetValue(data, UnityEditor.AssetDatabase.LoadAssetAtPath(path, propertyInfo.PropertyType));
 #endif
                                     }
                                     else
@@ -273,7 +294,8 @@ namespace YukiFrameWork.Extension
                                         if (fieldInfo.FieldType.IsSubclassOf(typeof(UnityEngine.Object)))
                                         {
 #if UNITY_EDITOR
-                                            fieldInfo.SetValue(scriptable, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(token.ToString()), fieldInfo.FieldType));
+                                            string assetPath = ConvertType == SpriteConvertType.Guid ? UnityEditor.AssetDatabase.GUIDToAssetPath(token.ToString()) : token.ToString();
+                                            fieldInfo.SetValue(scriptable, UnityEditor.AssetDatabase.LoadAssetAtPath(assetPath, fieldInfo.FieldType));
 #endif
                                         }
                                         else
@@ -289,7 +311,8 @@ namespace YukiFrameWork.Extension
                                     if (propertyInfo.PropertyType.IsSubclassOf(typeof(UnityEngine.Object)))
                                     {
 #if UNITY_EDITOR
-                                        propertyInfo.SetValue(scriptable, UnityEditor.AssetDatabase.LoadAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(token.ToString()), propertyInfo.PropertyType));
+                                        string assetPath = ConvertType == SpriteConvertType.Guid ? UnityEditor.AssetDatabase.GUIDToAssetPath(token.ToString()) : token.ToString();
+                                        propertyInfo.SetValue(scriptable, UnityEditor.AssetDatabase.LoadAssetAtPath(assetPath, propertyInfo.PropertyType));
 #endif
                                     }
                                     else
@@ -734,7 +757,9 @@ namespace YukiFrameWork.Extension
                     {
                         UnityEngine.Object unityObj = obj as UnityEngine.Object;
                         string asset_path = AssetDatabase.GetAssetPath(unityObj);
-                        return AssetDatabase.AssetPathToGUID(asset_path);
+                        if (ConvertType == SpriteConvertType.Guid)
+                            return AssetDatabase.AssetPathToGUID(asset_path);
+                        else return asset_path;
                     }
 
                     return obj != null ? obj.ToString() : string.Empty;

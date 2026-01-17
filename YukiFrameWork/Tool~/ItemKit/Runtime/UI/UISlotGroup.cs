@@ -61,7 +61,11 @@ namespace YukiFrameWork.Item
         private void Refresh()
         {
             //如果没有标识就不初始化
-            if (GroupKey.IsNullOrEmpty()) return;
+            if (GroupKey.IsNullOrEmpty())
+            {
+                Debug.LogError("GroupKey字段为空!");
+                return;
+            }
             SlotGroup slotGroup = ItemKit.GetSlotGroup(GroupKey);
             if (Type == UISlotGenericType.Template)
             {

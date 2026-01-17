@@ -86,6 +86,7 @@ namespace YukiFrameWork.Extension
             public bool active;
             public string url;
             public bool obstate;
+            public string obstateTip = "该模块已被弃用";
             public DependInfo[] depends;
            
         }
@@ -108,8 +109,8 @@ namespace YukiFrameWork.Extension
                 path = packagePath + "/Tool~/InputSystemExtension",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md",
-                depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem",depend = "Unity.InputSystem" } }
-                
+                depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem", depend = "Unity.InputSystem" } }
+
             },
             ["Localization"] = new ToolDataInfo()
             {
@@ -132,10 +133,10 @@ namespace YukiFrameWork.Extension
                 path = packagePath + "/Tool~/EntitiesExtension",
                 url = string.Empty,
                 active = false,
-                depends = new DependInfo[] 
-                { new DependInfo() { des = "Unity Entities包 通过packageManager安装 \n如通过搜索Entities无法找到，则导入URL:",depend = "Unity.Entities",dependUrl = "com.unity.entities",version = "1.0" },
-                    new DependInfo(){des = "Unity Entities Graphics包 通过packageManager安装 \n如通过搜索Entities Graphics无法找到，则导入URL:",depend = "Unity.Entities.Graphics",dependUrl = "com.unity.entities.graphics",version = "1.0"},
-                  new DependInfo(){ des = "Unity Burst包 通过packageManager安装，如通过搜索Burst无法找到，则导入URL:",depend = "Unity.Burst",dependUrl = "com.unity.burst"} }
+                depends = new DependInfo[]
+                { new DependInfo() { des = "Unity Entities包 通过packageManager安装 \n如通过搜索Entities无法找到，则导入URL:", depend = "Unity.Entities", dependUrl = "com.unity.entities", version = "1.0" },
+                    new DependInfo() { des = "Unity Entities Graphics包 通过packageManager安装 \n如通过搜索Entities Graphics无法找到，则导入URL:", depend = "Unity.Entities.Graphics", dependUrl = "com.unity.entities.graphics", version = "1.0" },
+                    new DependInfo() { des = "Unity Burst包 通过packageManager安装，如通过搜索Burst无法找到，则导入URL:", depend = "Unity.Burst", dependUrl = "com.unity.burst" } }
             },
             ["SaveTool"] = new ToolDataInfo()
             {
@@ -150,44 +151,43 @@ namespace YukiFrameWork.Extension
                 active = true,
                 path = packagePath + "/Tool~/StateMachine",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/StateMachine/StateMachine.md"
-            },          
-            ["IOCContainer"] = new ToolDataInfo() 
-            {
-                key = "IOCContainer",
-                path = packagePath + "/Tool~/IOCContainer",
-                active = true,
-                obstate = true,
-                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/IOCContainer/1.LifeTimeScope.md"
             },
-            ["DiaLogKit"] = new ToolDataInfo() 
+            ["MissionTree"] = new ToolDataInfo()
+            {
+                key = "MissionTree",
+                path = packagePath + "/Tool~/MissionTree",
+                active = true,               
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionTree/MissionTree.md"
+            },
+            ["DiaLogKit"] = new ToolDataInfo()
             {
                 key = "DiaLogKit",
                 path = packagePath + "/Tool~/DiaLogKit",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/DiaLogKit/DiaLogKit.md"
             },
-            ["BuffKit"] = new ToolDataInfo() 
+            ["BuffKit"] = new ToolDataInfo()
             {
                 active = true,
                 key = "BuffKit",
                 path = packagePath + "/Tool~/BuffKit",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/BuffKit/BuffKit.md"
             },
-            ["SkillKit"] = new ToolDataInfo() 
+            ["SkillKit"] = new ToolDataInfo()
             {
                 key = "SkillKit",
                 path = packagePath + "/Tool~/SkillKit",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/SkillKit/SkillKit.md",
             },
-            ["EquipmentKit"] = new ToolDataInfo() 
+            ["EquipmentKit"] = new ToolDataInfo()
             {
                 key = "EquipmentKit",
                 path = packagePath + "/Tool~/EquipmentKit",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/EquipmentKit/EquipmentKit.md"
             },
-            ["UI"] = new ToolDataInfo() 
+            ["UI"] = new ToolDataInfo()
             {
                 key = "UI",
                 path = packagePath + "/Tool~/UI",
@@ -196,38 +196,40 @@ namespace YukiFrameWork.Extension
             },
             ["UINavigation"] = new ToolDataInfo()
             {
-               key = "UINavigation",
-               path = packagePath + "/Tool~/UINavigation",
-               active = true,
-               url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UINavigation/Readme.md",
-               depends = new DependInfo[] { new DependInfo() { des = "框架UI模块", depend = "UIKit" }
+                key = "UINavigation",
+                path = packagePath + "/Tool~/UINavigation",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/UINavigation/Readme.md",
+                depends = new DependInfo[] { new DependInfo() { des = "框架UI模块", depend = "UIKit" }
                , new DependInfo() { des = "框架InputSystemExtension输入系统拓展模块", depend = "InputSystemExtension" } }
             },
-            ["Audio"] = new ToolDataInfo() 
+            ["Audio"] = new ToolDataInfo()
             {
                 active = true,
                 key = "Audio",
                 path = packagePath + "/Tool~/Audio",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/Audio/8.%E5%A3%B0%E9%9F%B3%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97.md"
-            }, 
-            ["ItemKit"] = new ToolDataInfo() 
+            },
+            ["ItemKit"] = new ToolDataInfo()
             {
                 key = "ItemKit",
                 path = packagePath + "/Tool~/ItemKit",
                 active = true,
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/ItemKit/14.%E8%83%8C%E5%8C%85%E7%B3%BB%E7%BB%9F(%E9%80%9A%E7%94%A8).md"
             },
-            ["NavMeshPlus"] = new ToolDataInfo() 
+            ["NavMeshPlus"] = new ToolDataInfo()
             {
                 key = "NavMeshPlus",
                 active = true,
                 path = packagePath + "/Tool~/NavMeshPlus",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/NavMeshPlus/README.md"
             },
-            ["MissionKit"] = new ToolDataInfo() 
+            ["MissionKit"] = new ToolDataInfo()
             {
                 key = "MissionKit",
                 active = true,
+                obstate = true,
+                obstateTip = "该模块已经被弃用，如有任务需求请选择MissionTree模块! 在下一个大版本后会被移除",
                 path = packagePath + "/Tool~/MissionKit",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/MissionKit/MissionKit.md"
             },
@@ -382,7 +384,7 @@ namespace YukiFrameWork.Extension
                         if (!info.active)
                             EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
                         else if (info.obstate)
-                            EditorGUILayout.HelpBox("该模块已被废弃", MessageType.Warning);
+                            EditorGUILayout.HelpBox(info.obstateTip, MessageType.Warning);
                     }
 
 

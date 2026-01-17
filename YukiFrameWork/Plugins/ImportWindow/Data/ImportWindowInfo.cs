@@ -60,8 +60,12 @@ namespace YukiFrameWork.Extension
                 return LocalizationInfo;
             else if (key == "EquipmentKit")
                 return EquipmentKitInfo;
+            else if (key == "MissionTree")
+                return MissionTreeInfo;
             return default;
         }
+
+        public static string MissionTreeInfo => "框架图结构任务树。对任务系统的高度封装以及自由定义,上手简单具有完整示例包";
 
         public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";
 

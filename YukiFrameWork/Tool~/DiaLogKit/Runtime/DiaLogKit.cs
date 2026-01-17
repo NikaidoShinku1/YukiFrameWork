@@ -41,7 +41,6 @@ namespace YukiFrameWork.DiaLogue
         [RuntimeInitializeOnLoadMethod]
         static void Init_Update()
         {
-            Debug.Log("Init");
             MonoHelper.Update_RemoveListener(Update);
             MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);
             MonoHelper.LateUpdate_RemoveListener(LateUpdate);

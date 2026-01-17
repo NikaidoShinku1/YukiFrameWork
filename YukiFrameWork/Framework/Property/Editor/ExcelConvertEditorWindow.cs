@@ -48,13 +48,15 @@ namespace YukiFrameWork
             if (configInfo.excelConvertConfig && configInfo.excelConvertConfig is not IExcelSyncScriptableObject)
             {
                 EditorGUILayout.HelpBox("传递的配置必须是继承自IExcelSyncScriptableObject的接口!", MessageType.Error);
-            }          
+            }
 #else
             if (configInfo.excelConvertConfig && !(configInfo.excelConvertConfig is IExcelSyncScriptableObject))
             {
                 EditorGUILayout.HelpBox("传递的配置必须是继承自IExcelSyncScriptableObject的接口!", MessageType.Error);
             }
 #endif
+            EditorGUILayout.HelpBox("图片类型应用数据全局应用(包括各个模块中自设的导出)", MessageType.Info);
+            SerializationTool.ConvertType = (SerializationTool.SpriteConvertType)EditorGUILayout.EnumPopup("导出图片数据类型", SerializationTool.ConvertType);
             EditorGUILayout.BeginHorizontal();
             configInfo.excelConvertConfig = (ScriptableObject)EditorGUILayout.ObjectField("配置", configInfo.excelConvertConfig, typeof(ScriptableObject), true);
             if (configInfo.excelConvertConfig is IExcelSyncScriptableObject && configInfo.excelConvertConfig && GUILayout.Button("刷新配置",GUILayout.Width(80)))

@@ -43,11 +43,10 @@ namespace YukiFrameWork.UI
         private SelectableNavigation currentSelectable;
 
         [SerializeField, LabelText("当事件需要按下的监听类型")]
-        [InfoBox("检测到该面板至少具备一个SelectableEvent脚本，可以在按下事件的处理中选择自己希望的监听，默认情况下是通过Unity自身的PointerDown监听，也可自定路径(InputSystem)")]
-        [ShowIf(nameof(CheckGamepedForSelectEvent))]
+        [InfoBox("该面板至少具备一个SelectableEvent脚本，才可以在按下事件的处理中选择自己希望的监听，否则该操作无效，默认情况下是通过Unity自身的PointerDown监听，也可自定路径(InputSystem)")]      
         private SelectEnterState _pressEnterState;
 
-        private bool SetAction => _pressEnterState == SelectEnterState.CustomKeyBind && CheckGamepedForSelectEvent;
+        private bool SetAction => _pressEnterState == SelectEnterState.CustomKeyBind;
 
         [SerializeField, LabelText("设置自定义按键"), ShowIf(nameof(SetAction)),ListDrawerSettings]
         private CustomPressAction[] customPressActions;
@@ -75,9 +74,7 @@ namespace YukiFrameWork.UI
         /// </summary>
         public bool Active => isActive;
 
-        #endregion
-
-        private bool CheckGamepedForSelectEvent => GetComponentInChildren<SelectableEvent>();
+        #endregion     
 
         #region 生命周期
 

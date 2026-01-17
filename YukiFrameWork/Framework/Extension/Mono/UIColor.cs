@@ -76,7 +76,7 @@ namespace YukiFrameWork
 
 		public void Set(Color color)
 		{
-			
+			graphic.color = color;
 		}
 		public void SetGraphicColor(string color)
 		{

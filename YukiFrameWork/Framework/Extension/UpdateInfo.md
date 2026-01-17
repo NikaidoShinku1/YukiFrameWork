@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志、
 
+V1.61.1 框架新增MissionTree模块，图结构任务树，废弃旧版MissionKit，优化细节，Excel转SO全局配置可支持Sprite导出路径。优化部分细节。同步更新XFABManager
+
+V1.60.2 UIColor优化细节，UINavigation模块优化细节
+
 V1.60.1 新增IDynamicBuilder的方法注入功能，支持DynamicValue特性，新增DynamicRegulation特性支持自定义注入
 
 V1.59.11 优化LocalizationKit的序列化器在初始化时可进行添加。
@@ -199,78 +203,5 @@ V1.40.3 修复Excel转So序列化窗口在2020版本因语法糖不支持报错�
 V1.40.2 原Excel转So仅对自定的序列化类生效。修复在配置中不对Int、float等基本结构类型生效的Bug(如int[])
 
 V1.40.1 移除老版本有限状态机，新增全新纯粹有限状态机。文档已在官网标注。框架工具导入窗口样式优化。打开文档链接更醒目。同步更新XFABManager
-
-V1.39.1 框架新增Excel-So转换工具。为MissionKit，ItemKit，BuffKit，SkillKit，DiaLogKit完成Excel转换适配
-
-V1.38.5 框架新增BindablePropertyStruct属性绑定类，BindableProperty的少gc消耗版本，仅为结构体打造
-
-V1.38.4 新增UI背景分辨率适组件BackgroundAdaptation 边界适配分辨率组件BorderAdaptation，修复ItemKit OnSlotSelect方法委托不正确的问题
-
-V1.38.3 优化ItemKit，修复读取存档还存在上一个背包数据，添加部分API
-
-V1.38.2 UiKit新增全层级判断面板是否开启API，新增Type的几个获取的拓展方法，ActionKit新增Lerp01方法
-
-V1.38.1 框架新增红点系统。在主页更新文档示例链接。优化细节
-
-V1.37.9 优化编辑器窗口细节。导入窗口新增未公开ECS包导入界面。同步XFABManager更新
-
-V1.37.8 UIKit细节优化。
-
-V1.37.7 AudioKit新增判断播放层级是否处于闲置状态的API。优化部分细节。
-
-V1.37.6 ActionKit新增Lerp插值方法
-
-V1.37.5 修复XFABManager通过ab包加载资源数据不正确的问题。优化GameObjectLoader预加载。优化架构初始化异步执行。修复对象池套件在池子满的情况下无法取出池内对象的问题。
-
-V1.37.4 统一UI模块释放操作。只需要调用UIKit.Release方法即可
-
-V1.37.3 修复UI模块调用UIManager.Instance.Dispose方法后重新初始化层级丢失的问题
-
-V1.37.2 优化AudioKit资源池释放管理。优化UIKit的释放面板方法。新增BindableProperty拓展方法，修复架构初始化时机不正确的问题。
-
-V1.37.1 框架资源加载器新增UnLoad释放方法。同步更新所有的模块。
-
-V1.36.1 架构为Model/System层新增IAsync_InitModule接口，这两个层级继承该接口时，在准备架构时可以自动进行异步的初始化行为。优化细节
-
-V1.35.7 新增集合拓展方法RandomEnumerable与RandomChoose方法，MonoHelper类新增ApplicationQuit_AddListener方法。优化细节
-
-V1.35.6 修复UIKit自带的拖拽功能会强制令鼠标位置为面板正中心的问题。
-
-V1.35.5 修复状态机模块切换自身动作时的异常问题。修正Animator作为状态机动作组件时，偶现鬼畜问题。
-
-V1.35.4 优化任务系统，移除过时API。示例包问题修复。
-
-V1.35.3 UIKit新增OnPreInit方法。作为面板的预初始化方法。会在OnInit之前调用。通过OpenPanel打开可以传递参数!
-
-V1.35.2 优化拓展框架标准容器类Container
-
-V1.35.1 优化动作状态机模块。该版本开始移除Hybridclr，经考虑，该插件应与项目需求本身为准。与框架互不冲突也不依赖，应自行导入。
-
-V1.34.1 同步更新XFABManager，Hybridclr，修复ActionKit在回收时没有清理子节点的问题。OdinInspector的导入改为UnityPackage包
-
-V1.33.5 修复ActionKit中Update无法手动打断的问题。修复任务系统在刷新UI时的执行顺序问题。优化细节。
-
-V1.33.4 优化任务系统。
-
-V1.33.3 修复行为树模块编辑器在Unity6显示异常的问题。
-
-V1.33.2 AudioKit模块新增AudioVolumeListener组件，可在Inspector监听音量的变更事件。
-
-V1.33.1优化行为树模块，修复打断导致状态异常的Bug，新增行为树模块文档，对话系统优化，运行时使用完全clone出来的配置进行处理。
-
-V1.32.1 重构框架的导入窗口。单独分离不与基本设置窗口一起。同步更新XFABManager，改变华佗的导入方式为内置。内部进行华佗的更新周期同步，不需要自己手动导入git。
-
-V1.31.1 (beta测试版)框架新增行为树模块，高级代码生成设置新增So的路径生成。同步封装属性到接口。优化部分代码细节
-
-V1.30.5 优化对话系统细节。
-
-V1.30.4 优化任务系统的部分细节。优化代码生成细节。修复XFABManager资源加载时，派生类不能统一加载基类的问题。
-
-V1.30.3 高级代码生成新增字段/方法注释，为预览视图优化，贴合真实编译样式
-
-V1.30.2 为高级代码生成新增文件夹分离功能。优化部分代码细节
-
-V1.30.1 框架新增高级代码生成设置。更完善的代码生成，规则生成以及接口处理。可配置字段方法一键式生成，优化细节
-
 
 其余均为不稳定版功能的修正，不以浏览。

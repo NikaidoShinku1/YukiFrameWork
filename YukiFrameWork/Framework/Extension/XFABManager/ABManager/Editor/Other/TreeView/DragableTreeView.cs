@@ -1,19 +1,22 @@
+#if UNITY_EDITOR
+using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace XFABManager
 {
-#if UNITY_6000_2_OR_NEWER
-        public class DragableTreeView<T> : TreeView<int> where T : class 
+
+#if UNITY_6000_2_OR_NEWER 
+    public class DragableTreeView<T> : TreeView<int> where T : class 
 #else
     public class DragableTreeView<T> : TreeView where T : class
-#endif
+#endif 
     {
+         
         #region 字段
 
         private ScriptableObject scriptableObject;
@@ -22,7 +25,7 @@ namespace XFABManager
           
         private float startDragTime = 0;
 
-        private IList<int> draggedItemIDs;
+        //private IList<int> draggedItemIDs;
 
         private int dragCount = 0;
 
@@ -31,11 +34,13 @@ namespace XFABManager
         #endregion
 
         #region 构造函数
+
+
 #if UNITY_6000_2_OR_NEWER 
         public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState<int> state) : base(state) 
 #else
         public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState state) : base(state)
-#endif
+#endif 
         {
             this.scriptableObject = scriptableObject;
             this.datas = datas;
@@ -47,10 +52,11 @@ namespace XFABManager
             //getNewSelectionOverride = GetNewSelectionOverride; 
         }
 #if UNITY_6000_2_OR_NEWER
-        public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState<int> state,MultiColumnHeader header) : base(state,header) 
+        public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState<int> state, MultiColumnHeader header) : base(state, header)
 #else
         public DragableTreeView(ScriptableObject scriptableObject, IList<T> datas, TreeViewState state, MultiColumnHeader header) : base(state, header)
 #endif
+
         {
             this.scriptableObject = scriptableObject;
             this.datas = datas;
@@ -63,7 +69,7 @@ namespace XFABManager
              
         }
 
-        #endregion
+#endregion
 
         #region 重写方法
          
@@ -72,6 +78,7 @@ namespace XFABManager
             base.OnGUI(rect); 
             Refresh(); 
         }
+
 #if UNITY_6000_2_OR_NEWER
 
         protected override IList<TreeViewItem<int>> BuildRows(TreeViewItem<int> root)
@@ -80,10 +87,12 @@ namespace XFABManager
         }
 
 #else
+
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
         {
             return base.BuildRows(root);
         }
+
 #endif
 
 #if UNITY_6000_2_OR_NEWER
@@ -97,28 +106,31 @@ namespace XFABManager
         }
 
 #else
+
         protected override TreeViewItem BuildRoot()
         {
             TreeViewItem root = new TreeViewItem(0, -1);
             OnBuildRoot(root, datas);
             return root;
-        }
+        }        
+
 #endif
+
+
         protected override bool CanStartDrag(CanStartDragArgs args)
         {
-            // 如果不加这句代码 编辑器会输出如下警告:
-            // Drag started without any data. Nothing will be dropped. Did you call DragAndDrop.SetGenericData() from inside your override of SetupDragAndDrop()?
-            DragAndDrop.SetGenericData(string.Empty, args.draggedItemIDs); 
 
             // 只有第一层的节点可以拖拽 因为这个可以拖拽的TreeView中的数据是List, 只有一层结构, 子节点无法参数到排序中
             // 如果子节点也希望参与排序 ，需要使用其他的数据结构 
             if (args.draggedItem.depth != 0)
                 return true;
+
+            DragAndDrop.SetGenericData(GetType().FullName, args.draggedItemIDs); 
             
             DragAndDrop.paths = null;
             DragAndDrop.StartDrag(string.Empty);
              
-            draggedItemIDs = args.draggedItemIDs;
+            //draggedItemIDs = args.draggedItemIDs;
 
             startDragTime = Time.realtimeSinceStartup;
             dragCount = 0;
@@ -135,7 +147,8 @@ namespace XFABManager
                 dragCount++;
 
             if (Event.current != null && Event.current.type == EventType.DragUpdated && dragCount > 5)
-            { 
+            {
+                IList<int> draggedItemIDs = DragAndDrop.GetGenericData(GetType().FullName) as IList<int>; 
                 SetSelection(draggedItemIDs);
             }
 
@@ -199,6 +212,7 @@ namespace XFABManager
                 if (scriptableObject != null)
                     EditorUtility.SetDirty(scriptableObject);
 
+                DragAndDrop.SetGenericData(GetType().FullName, null); // 拖拽结束 清空数据 
             }
 
             return DragAndDropVisualMode.Link;
@@ -208,6 +222,8 @@ namespace XFABManager
         { 
             base.SetupDragAndDrop(args);  
         }
+
+
 #if UNITY_6000_2_OR_NEWER
 
         protected virtual void OnBuildRoot(TreeViewItem<int> root, IList<T> datas)
@@ -216,13 +232,16 @@ namespace XFABManager
         }
 
 #else
+
         protected virtual void OnBuildRoot(TreeViewItem root, IList<T> datas)
         {
 
         }
+
 #endif
 
-#endregion
+
+        #endregion
 
         #region 方法
 
@@ -255,31 +274,20 @@ namespace XFABManager
                 RefreshDatas();
             }
         }
-
-        // 判断当前数据是否全为空
-        private bool IsAllEmpty()
-        {
-            if (datas == null) return true;
-
-            for (int i = 0; i < datas.Count; i++)
-            {
-                if (datas[i] != null)
-                    return false;
-            }
-
-            return true;
-        }
+         
         protected virtual void RefreshDatas()
         {
-            if (!IsAllEmpty())
+            // 如果全为空 不需要清空
+            if (!IsAllEmpty()) 
             {
                 // 清空为空的数据
                 for (int i = datas.Count - 1; i >= 0; i--)
                 {
-                    if (datas[i] != null) continue;
+                    if (datas[i] != null) continue;  
                     datas.RemoveAt(i);
                 }
             }
+
             Reload();
 
             if (scriptableObject != null)
@@ -288,21 +296,36 @@ namespace XFABManager
 
         private int GetItemIndex(int id) 
         {
+
 #if UNITY_6000_2_OR_NEWER
 
             TreeViewItem<int> item = FindItem(id, rootItem);
 
-#else
+#else 
             TreeViewItem item = FindItem(id, rootItem);
 #endif
 
 
-            if (item == null) return -1;
+            if (item == null) return -1;  
             return rootItem.children.IndexOf(item);
         }
 
+
+        // 判断当前数据是否全为空
+        private bool IsAllEmpty() 
+        {
+            if (datas == null) return true;
+
+            for (int i = 0; i < datas.Count; i++)
+            {
+                if (datas[i] != null) 
+                    return false;
+            }
+
+            return true;
+        }
         
-        #endregion
+#endregion
 
     }
 

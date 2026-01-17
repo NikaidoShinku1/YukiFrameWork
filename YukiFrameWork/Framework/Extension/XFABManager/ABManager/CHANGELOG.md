@@ -1,3 +1,11 @@
+## version 1.19.5 更新内容
+
+1. 优化 DragableTreeView 拖拽代码!
+
+## version 1.19.4 更新内容
+
+1. 优化编辑器模式禁用选项: Edit > Project Settings > Editor > Enter Play Mode Settings > Reload Domain  导致运行异常的问题!
+
 ## version 1.19.3 更新内容
 
 1. 优化 ApplicationTool.isPlaying 属性代码!

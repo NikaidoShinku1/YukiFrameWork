@@ -108,7 +108,7 @@ namespace YukiFrameWork.DiaLogue
             .SelectMany(x => x)
             .Select(x => new ValueDropdownItem() { Text = x.key, Value = x.key });
         public abstract INode DeleteNode(INode node);
-        public abstract INode CreateNode(System.Type type, bool IsCustomPosition = false);
+        public abstract INode CreateNode(System.Type type);
 #endif
     }
 
@@ -196,7 +196,7 @@ namespace YukiFrameWork.DiaLogue
         {
             DiaLogGraphWindow.ShowExample(this);
         }
-        public override INode CreateNode(System.Type type, bool IsCustomPosition = false)
+        public override INode CreateNode(System.Type type)
         {
             T node = ScriptableObject.CreateInstance(type) as T;
            
@@ -205,19 +205,16 @@ namespace YukiFrameWork.DiaLogue
             //node.GUID = GUID.Generate().ToString();
             int id = (1000) + nodes.Count + 1;
             node.Id = id;
-            node.Name = "编号:" + id.ToString();
+            
             // node.nodeType = type.FullName;
             while (nodes.Any(x => x.Id == id))
             {
                 node.Id = ++id;
-            }          
+            }
+            node.Name = "编号:" + id.ToString();
             Undo.RecordObject(this, "Node Tree (CreateNode)");
 
-            nodes.Add(node);
-            if (IsCustomPosition)
-            {
-                node.NodePosition = new Node.Position(nodes.Count * 100, 0);
-            }        
+            nodes.Add(node);     
             Undo.RegisterCreatedObjectUndo(node, "Node Tree (CreateNode)");
             AssetDatabase.AddObjectToAsset(node,this);
             EditorUtility.SetDirty(this);

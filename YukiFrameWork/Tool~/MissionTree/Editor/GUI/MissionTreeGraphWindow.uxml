@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <YukiFrameWork.Missions.MissionTreeView name="MissionTreeView" fixed-pane-initial-dimension="350">
+        <ui:VisualElement name="LeftView" style="flex-shrink: 1; flex-grow: 1; width: 379px; height: auto; position: relative; align-self: auto; align-items: stretch; opacity: 1;">
+            <uie:Toolbar tooltip="节点属性" name="Toolbar" style="flex-direction: row;">
+                <ui:Label text="Inspector" display-tooltip-when-elided="true" style="width: 47px; flex-shrink: 1; flex-grow: 1; align-items: stretch; justify-content: flex-start; flex-direction: column; flex-wrap: nowrap; -unity-text-align: middle-center; -unity-font-style: bold; font-size: 14px; color: rgb(74, 248, 176);" />
+            </uie:Toolbar>
+            <ui:VisualElement name="LeftContent" style="flex-grow: 1; width: auto;">
+                <YukiFrameWork.Missions.InspectorView name="InspectorView" style="height: auto; width: auto; flex-grow: 1;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="RightView" style="flex-shrink: 1; flex-grow: 0.4; width: auto; height: auto;">
+            <uie:Toolbar tooltip="节点属性" style="flex-direction: row;">
+                <uie:ObjectField name="MissionTreeField" allow-scene-objects="true" type="YukiFrameWork.Missions.MissionTreeSO, MissionTree" style="width: 248px; padding-left: 0;" />
+                <uie:Toolbar style="flex-shrink: 0; flex-grow: 1;">
+                    <ui:Label text="任务图编辑窗口" display-tooltip-when-elided="true" name="Label" style="flex-grow: 1; -unity-text-align: middle-center; color: rgb(0, 255, 255); -unity-font-style: bold;" />
+                </uie:Toolbar>
+                <ui:DropdownField label="RuntimeTree:" index="-1" name="RuntimeNode" choices="Keyasasaasasasasasa," />
+                <ui:Button text="刷新脚本" display-tooltip-when-elided="true" name="SaveButton" />
+            </uie:Toolbar>
+            <ui:VisualElement name="RightContent" style="flex-grow: 1;">
+                <YukiFrameWork.Missions.BackGroundView name="BackGroundView" focusable="true" style="height: auto; width: auto; flex-grow: 1;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </YukiFrameWork.Missions.MissionTreeView>
+</ui:UXML>

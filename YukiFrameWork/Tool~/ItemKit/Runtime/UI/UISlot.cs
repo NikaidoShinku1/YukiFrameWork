@@ -74,11 +74,23 @@ namespace YukiFrameWork.Item
 		private Text Count;
 
         public Slot Slot { get;private set; }
-   
+
         /// <summary>
         /// UISlot自由定制视觉接口。当不希望使用内部自带的Image与Text时，继承UISlot添加组件/或直接使用后为该属性赋值即可。
         /// </summary>
-        public IUISlotVisual Visual { get; set; }
+        private IUISlotVisual visual;
+        public IUISlotVisual Visual
+        {
+            get
+            {
+                visual ??= new DefaultUISlotVisual(Icon, Count);
+                return visual;
+            }
+            set
+            {
+                visual = value;
+            }
+        }
 
         public virtual void UpdateView(Slot slot)
         {          

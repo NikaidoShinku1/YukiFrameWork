@@ -97,6 +97,7 @@ namespace YukiFrameWork
         }
     }
 
+
     [HideMonoScript]  
     public class FrameworkConfigInfo : ScriptableObject
     {
@@ -139,7 +140,7 @@ namespace YukiFrameWork
         public string excelTempPath;
         [HideInInspector,SerializeField]
         public AnimationConvertInfo AnimationConvertInfo;
-        [SerializeField,ReadOnly]
+        [SerializeField,HideInInspector]
         public MultipleAnimationConvertInfo multipleAnimationConvertInfo;
 #if UNITY_EDITOR
         private LocalScriptGenerator generator = new LocalScriptGenerator();
