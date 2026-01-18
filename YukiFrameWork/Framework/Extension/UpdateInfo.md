@@ -1,5 +1,7 @@
 ﻿#### 框架更新日志、
 
+V1.62.2 修复MissionTree编辑器无法拖拽，打开报空的问题。优化细节
+
 V1.61.1 框架新增MissionTree模块，图结构任务树，废弃旧版MissionKit，优化细节，Excel转SO全局配置可支持Sprite导出路径。优化部分细节。同步更新XFABManager
 
 V1.60.2 UIColor优化细节，UINavigation模块优化细节

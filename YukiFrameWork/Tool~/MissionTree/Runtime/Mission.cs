@@ -114,6 +114,14 @@ namespace YukiFrameWork.Missions
             }
         }
 
+        internal virtual void ForEachParents(Action<Mission> each)
+        {
+            foreach (var item in parents)
+            {
+                each?.Invoke(item);
+            }
+        }
+
 #if UNITY_EDITOR
 
         private void DrawPreview()

@@ -67,6 +67,7 @@ namespace YukiFrameWork.Missions
             Mission runtimeNode = missionTree.Create(type);
             GraphMissionView nodeView = new GraphMissionView(missionTree, runtimeNode);
             nodeView.backGroundView = view;
+            nodeView.onNodeSelected -= view.BehaviourSelected;
             nodeView.onNodeSelected += view.BehaviourSelected;
             view.AddElement(nodeView);
             Undo.RecordObject(missionTree, $"Create {type.Name} Mission");

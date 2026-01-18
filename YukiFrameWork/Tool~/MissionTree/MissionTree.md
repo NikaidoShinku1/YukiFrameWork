@@ -1,24 +1,24 @@
-¿ò¼ÜMissionTree Í¼½á¹¹ÈÎÎñÊ÷Ä£¿é
+æ¡†æ¶MissionTree å›¾ç»“æ„ä»»åŠ¡æ ‘æ¨¡å—
 
 using YukiFrameWork.Missions;
 
-ÔÚAssetsÄ¿Â¼ÏÂÓÒ¼ü´´½¨ÈÎÎñÊ÷½Úµã
+åœ¨Assetsç›®å½•ä¸‹å³é”®åˆ›å»ºä»»åŠ¡æ ‘èŠ‚ç‚¹
 
 ![1](Texture/1.png)
 
-ÔÚÍø¸ñÖĞÓÒ¼üĞÂ½¨ÈÎÎñ:
+åœ¨ç½‘æ ¼ä¸­å³é”®æ–°å»ºä»»åŠ¡:
 
 ![2](Texture/2.png)
 ![3](Texture/3.png)
 ![3](Texture/5.png)
 
-¶ÔÓÚÈÎÎñ½Úµã£¬ÊÇÒÔÍ¼µÄĞÎÊ½£¬ÈÎÎñµÄÁ÷³ÌÉè¼Æ¾ùÓÉÏîÄ¿/ÓÃ»§×ÔÓÉ¶¨Òå£¬¿ÉÏòÏÂ¼æÈİÎªÊ÷£¬Ò²¿ÉÒÔÆäËû·½Ê½´æÔÚ£¬¹æÔò¸´ÔÓ¶ÈÈçÏÂ:
+å¯¹äºä»»åŠ¡èŠ‚ç‚¹ï¼Œæ˜¯ä»¥å›¾çš„å½¢å¼ï¼Œä»»åŠ¡çš„æµç¨‹è®¾è®¡å‡ç”±é¡¹ç›®/ç”¨æˆ·è‡ªç”±å®šä¹‰ï¼Œå¯å‘ä¸‹å…¼å®¹ä¸ºæ ‘ï¼Œä¹Ÿå¯ä»¥å…¶ä»–æ–¹å¼å­˜åœ¨ï¼Œè§„åˆ™å¤æ‚åº¦å¦‚ä¸‹:
 
 ![4](Texture/4.png)
 
-ÈÎÎñ±¾ÉíµÄ¸¸×Ó¶¨ÒåÒ²¾ùÓÉÓÃ»§¾ö¶¨¡£¿É½â¾ö¼¸ºõËùÓĞµÄÈÎÎñĞèÇó¡£Èç²»¹ØÁªÈÎÎñ¶ÔÍ¬Ò»ÈÎÎñµÄ½âËø£¬ÈçÈÎÎñÖ®¼äµÄ»¥Ïà½âËø¡£ÈçÖ§ÏßĞèÇóµÈµÈ¡£
+ä»»åŠ¡æœ¬èº«çš„çˆ¶å­å®šä¹‰ä¹Ÿå‡ç”±ç”¨æˆ·å†³å®šã€‚å¯è§£å†³å‡ ä¹æ‰€æœ‰çš„ä»»åŠ¡éœ€æ±‚ã€‚å¦‚ä¸å…³è”ä»»åŠ¡å¯¹åŒä¸€ä»»åŠ¡çš„è§£é”ï¼Œå¦‚ä»»åŠ¡ä¹‹é—´çš„äº’ç›¸è§£é”ã€‚å¦‚æ”¯çº¿éœ€æ±‚ç­‰ç­‰ã€‚
 
-ÈÎÎñ±¾Éí¾ßÓĞÎå¸ö×´Ì¬:
+ä»»åŠ¡æœ¬èº«å…·æœ‰äº”ä¸ªçŠ¶æ€:
 
     public enum MissionStatus
     {
@@ -29,19 +29,19 @@ using YukiFrameWork.Missions;
         Success
     }
 
-|ÈÎÎñÅäÖÃÀàMission API|APIËµÃ÷|
+|ä»»åŠ¡é…ç½®ç±»Mission API|APIè¯´æ˜|
 |--|--|
-|MissionStatus MissionStatus { get; set; }|ÈÎÎñÔËĞĞÊ±µ±Ç°µÄ×´Ì¬|
-|int MissionId { get ; set ; }|ÈÎÎñµÄId|
-|string MissionName  { get ; set ; }|ÈÎÎñÃû³Æ|
-|string Description { get; set;}|ÈÎÎñ½éÉÜ|
-|string MissionControllerType { get; }|ÈÎÎñµÄ¿ØÖÆÆ÷ÀàĞÍ|
-|bool IsChild { get; }|ÈÎÎñÊÇ·ñÊÇ×ÓÈÎÎñ(¾ß±¸¸¸ÈÎÎñ)|
-|Sprite Icon { get ; set ; }|ÈÎÎñÍ¼±ê|
-|List(MissionParam) MissionTargetParams|ÈÎÎñµÄÍê³ÉÄ¿±ê²ÎÊı|
-|List(MissionParam) MissionAwardParams|ÈÎÎñµÄ½±Àø²ÎÊı|
+|MissionStatus MissionStatus { get; set; }|ä»»åŠ¡è¿è¡Œæ—¶å½“å‰çš„çŠ¶æ€|
+|int MissionId { get ; set ; }|ä»»åŠ¡çš„Id|
+|string MissionName  { get ; set ; }|ä»»åŠ¡åç§°|
+|string Description { get; set;}|ä»»åŠ¡ä»‹ç»|
+|string MissionControllerType { get; }|ä»»åŠ¡çš„æ§åˆ¶å™¨ç±»å‹|
+|bool IsChild { get; }|ä»»åŠ¡æ˜¯å¦æ˜¯å­ä»»åŠ¡(å…·å¤‡çˆ¶ä»»åŠ¡)|
+|Sprite Icon { get ; set ; }|ä»»åŠ¡å›¾æ ‡|
+|List(MissionParam) MissionTargetParams|ä»»åŠ¡çš„å®Œæˆç›®æ ‡å‚æ•°|
+|List(MissionParam) MissionAwardParams|ä»»åŠ¡çš„å¥–åŠ±å‚æ•°|
 
-ËùÓĞµÄÈÎÎñ¶¼±ØĞë¾ß±¸ÈÎÎñ¿ØÖÆÆ÷ÀàĞÍÈçÏÂ:
+æ‰€æœ‰çš„ä»»åŠ¡éƒ½å¿…é¡»å…·å¤‡ä»»åŠ¡æ§åˆ¶å™¨ç±»å‹å¦‚ä¸‹:
 
 ``` csharp
 
@@ -83,52 +83,52 @@ using YukiFrameWork.Missions;
 
 ```
 
-ÔÚ¹¹½¨ÍêÀàĞÍºó¿ÉÎªÈÎÎñÅäÖÃÌí¼ÓÀàĞÍ¡£
+åœ¨æ„å»ºå®Œç±»å‹åå¯ä¸ºä»»åŠ¡é…ç½®æ·»åŠ ç±»å‹ã€‚
 
-|MissionController API|ÈÎÎñ¿ØÖÆÆ÷»ùÀàAPIËµÃ÷|
+|MissionController API|ä»»åŠ¡æ§åˆ¶å™¨åŸºç±»APIè¯´æ˜|
 |--|--|
-|Mission Mission { get; }|¿ØÖÆÆ÷°ó¶¨µÄÈÎÎñÊı¾İ|
-|IReadOnlyList(Mission) Parents { get; }|ÈÎÎñËùÓĞµÄ¸¸ÈÎÎñ|
-|IReadOnlyList(Mission) Childs { get; }|ÈÎÎñËùÓĞµÄ¸¸ÈÎÎñ|
-|MissionTreeSO MissionTreeSO { get; }|ÈÎÎñËù°ó¶¨µÄÍ¼ÅäÖÃ(¿ËÂ¡,²»Ó°ÏìEditor)|
-|MissionTree MissionTree { get; }|ÈÎÎñ°ó¶¨µÄÔËĞĞÊ±ÈÎÎñÊ÷|
-|bool IsChild { get; }|ÈÎÎñÊÇ·ñÊÇ×ÓÈÎÎñ|
-|Dictionary<string, MissionParam> MissionAwards|ÈÎÎñËùÓĞµÄ½±Àø²ÎÊı(ÔËĞĞÊ±¿É×ÔÓÉ¶¯Ì¬Ìí¼Ó)|
-|Dictionary<string, MissionParam> MissionTargets { get; }|ÈÎÎñËùÓĞµÄÄ¿±ê²ÎÊı(ÔËĞĞÊ±¿É×ÔÓÉ¶¯Ì¬Ìí¼Ó)|
-|IReadOnlyList(MissionController) ChildControllers { get; }|ÈÎÎñËùÓĞµÄ×ÓÈÎÎñ¿ØÖÆÆ÷|
-|IReadOnlyList(MissionController) ParentControllers { get; }|ÈÎÎñËùÓĞµÄ¸¸ÈÎÎñ¿ØÖÆÆ÷|
-|MissionStatus MissionStatus { get; }|ÈÎÎñµÄ×´Ì¬|
-|event Action(Mission) onLock|ÈÎÎñËø¶¨Ê±´¥·¢|
-|event Action(Mission) onReset|ÈÎÎñ³õÊ¼»¯Ê±´¥·¢|
-|event Action(Mission) onCompleted|ÈÎÎñÍê³ÉÊ±´¥·¢|
-|event Action(Mission) onFailed|ÈÎÎñÊ§°ÜÊ±´¥·¢|
-|event Action(Mission,object[]) onStart|ÈÎÎñÆô¶¯Ê±´¥·¢|
+|Mission Mission { get; }|æ§åˆ¶å™¨ç»‘å®šçš„ä»»åŠ¡æ•°æ®|
+|IReadOnlyList(Mission) Parents { get; }|ä»»åŠ¡æ‰€æœ‰çš„çˆ¶ä»»åŠ¡|
+|IReadOnlyList(Mission) Childs { get; }|ä»»åŠ¡æ‰€æœ‰çš„å­ä»»åŠ¡|
+|MissionTreeSO MissionTreeSO { get; }|ä»»åŠ¡æ‰€ç»‘å®šçš„å›¾é…ç½®(å…‹éš†,ä¸å½±å“Editor)|
+|MissionTree MissionTree { get; }|ä»»åŠ¡ç»‘å®šçš„è¿è¡Œæ—¶ä»»åŠ¡æ ‘|
+|bool IsChild { get; }|ä»»åŠ¡æ˜¯å¦æ˜¯å­ä»»åŠ¡|
+|Dictionary<string, MissionParam> MissionAwards|ä»»åŠ¡æ‰€æœ‰çš„å¥–åŠ±å‚æ•°(è¿è¡Œæ—¶å¯è‡ªç”±åŠ¨æ€æ·»åŠ )|
+|Dictionary<string, MissionParam> MissionTargets { get; }|ä»»åŠ¡æ‰€æœ‰çš„ç›®æ ‡å‚æ•°(è¿è¡Œæ—¶å¯è‡ªç”±åŠ¨æ€æ·»åŠ )|
+|IReadOnlyList(MissionController) ChildControllers { get; }|ä»»åŠ¡æ‰€æœ‰çš„å­ä»»åŠ¡æ§åˆ¶å™¨|
+|IReadOnlyList(MissionController) ParentControllers { get; }|ä»»åŠ¡æ‰€æœ‰çš„çˆ¶ä»»åŠ¡æ§åˆ¶å™¨|
+|MissionStatus MissionStatus { get; }|ä»»åŠ¡çš„çŠ¶æ€|
+|event Action(Mission) onLock|ä»»åŠ¡é”å®šæ—¶è§¦å‘|
+|event Action(Mission) onReset|ä»»åŠ¡åˆå§‹åŒ–æ—¶è§¦å‘|
+|event Action(Mission) onCompleted|ä»»åŠ¡å®Œæˆæ—¶è§¦å‘|
+|event Action(Mission) onFailed|ä»»åŠ¡å¤±è´¥æ—¶è§¦å‘|
+|event Action(Mission,object[]) onStart|ä»»åŠ¡å¯åŠ¨æ—¶è§¦å‘|
 |Method API||
-|bool ParentContains(MissionController parent)|ÅĞ¶Ï¸ÃÈÎÎñÊÇ·ñÎª×ÔÉíµÄ¸¸ÈÎÎñ|
-|void ForEachChildrens(Action(MissionController) each)|±éÀú×Ô¼ºËùÓĞµÄ×ÓÈÎÎñ¿ØÖÆÆ÷|
-|void ForEachChildrens(Action(MissionController) each, Func(bool) condition)|¿ÉÉè¶¨±éÀúµÄÌõ¼şÈçÉÏ|
-|void ForEachParents(Action(MissionController) each)|±éÀú×Ô¼ºËùÓĞµÄ¸¸ÈÎÎñ¿ØÖÆÆ÷|
-|void ForEachParents(Action(MissionController) each,Func(bool) condition)|¿ÉÉè¶¨±éÀúµÄÌõ¼şÈçÉÏ|
-|MissionController FindChildMissionController(int missionId)|¸ù¾İ±êÊ¶²éÕÒ×ÔÉíµÄ×ÓÈÎÎñ¿ØÖÆÆ÷|
-|bool TryFindChildMissionController(int missionId, out MissionController missionController)|²»»áÅ×³öÒì³£µÄÈçÉÏ|
-|MissionController FindParentMissionController(int missionId)|¸ù¾İ±êÊ¶²éÕÒ×ÔÉíµÄ¸¸ÈÎÎñ¿ØÖÆÆ÷|
-|bool TryFindParentMissionController(int missionId, out MissionController missionController)|²»»áÅ×³öÒì³£µÄÈçÉÏ|
-|ÉúÃüÖÜÆÚ (ĞèÒªÊµÏÖµÄAPI)||
-|void OnCreate(params object[] param)|µ±ÈÎÎñÊ÷±»´´½¨ºó´¥·¢ËùÓĞÈÎÎñ¿ØÖÆÆ÷µÄ´´½¨|
-|void OnLock()|µ±ÈÎÎñËø¶¨ºó´¥·¢|
-|void OnStart(params object[] param)|µ±ÈÎÎñ¿ªÊ¼´¥·¢|
-|void OnMissionCompleted()|µ±ÈÎÎñÍê³Éºó´¥·¢|
-|void OnMissionFailed()|µ±ÈÎÎñÊ§°Üºó´¥·¢|
-|bool IsCompleted()|ÅĞ¶ÏÈÎÎñÍê³ÉµÄÌõ¼ş|
-|bool IsFailed()|ÅĞ¶ÏÈÎÎñÊ§°ÜµÄÌõ¼ş||
-|bool IsUnLock()|ÅĞ¶ÏÈÎÎñÊÇ·ñÄÜ±»½âËø|
-|void OnUpdate() |µ±ÈÎÎñÖ´ĞĞÊ±³ÖĞøµ÷ÓÃ|
-|void OnLateUpdate()|ÈçÉÏ|
-|void OnFixedUpdate()|ÈçÉÏ|
-|void OnReset()|µ±ÈÎÎñ½âËø/ÖØÖÃ»Ø´ı»úÊ±´¥·¢|
-|void Dispose()|µ±ÈÎÎñ¿ØÖÆÆ÷±»ÊÍ·ÅÊ±´¥·¢|
+|bool ParentContains(MissionController parent)|åˆ¤æ–­è¯¥ä»»åŠ¡æ˜¯å¦ä¸ºè‡ªèº«çš„çˆ¶ä»»åŠ¡|
+|void ForEachChildrens(Action(MissionController) each)|éå†è‡ªå·±æ‰€æœ‰çš„å­ä»»åŠ¡æ§åˆ¶å™¨|
+|void ForEachChildrens(Action(MissionController) each, Func(bool) condition)|å¯è®¾å®šéå†çš„æ¡ä»¶å¦‚ä¸Š|
+|void ForEachParents(Action(MissionController) each)|éå†è‡ªå·±æ‰€æœ‰çš„çˆ¶ä»»åŠ¡æ§åˆ¶å™¨|
+|void ForEachParents(Action(MissionController) each,Func(bool) condition)|å¯è®¾å®šéå†çš„æ¡ä»¶å¦‚ä¸Š|
+|MissionController FindChildMissionController(int missionId)|æ ¹æ®æ ‡è¯†æŸ¥æ‰¾è‡ªèº«çš„å­ä»»åŠ¡æ§åˆ¶å™¨|
+|bool TryFindChildMissionController(int missionId, out MissionController missionController)|ä¸ä¼šæŠ›å‡ºå¼‚å¸¸çš„å¦‚ä¸Š|
+|MissionController FindParentMissionController(int missionId)|æ ¹æ®æ ‡è¯†æŸ¥æ‰¾è‡ªèº«çš„çˆ¶ä»»åŠ¡æ§åˆ¶å™¨|
+|bool TryFindParentMissionController(int missionId, out MissionController missionController)|ä¸ä¼šæŠ›å‡ºå¼‚å¸¸çš„å¦‚ä¸Š|
+|ç”Ÿå‘½å‘¨æœŸ (éœ€è¦å®ç°çš„API)||
+|void OnCreate(params object[] param)|å½“ä»»åŠ¡æ ‘è¢«åˆ›å»ºåè§¦å‘æ‰€æœ‰ä»»åŠ¡æ§åˆ¶å™¨çš„åˆ›å»º|
+|void OnLock()|å½“ä»»åŠ¡é”å®šåè§¦å‘|
+|void OnStart(params object[] param)|å½“ä»»åŠ¡å¼€å§‹è§¦å‘|
+|void OnMissionCompleted()|å½“ä»»åŠ¡å®Œæˆåè§¦å‘|
+|void OnMissionFailed()|å½“ä»»åŠ¡å¤±è´¥åè§¦å‘|
+|bool IsCompleted()|åˆ¤æ–­ä»»åŠ¡å®Œæˆçš„æ¡ä»¶|
+|bool IsFailed()|åˆ¤æ–­ä»»åŠ¡å¤±è´¥çš„æ¡ä»¶||
+|bool IsUnLock()|åˆ¤æ–­ä»»åŠ¡æ˜¯å¦èƒ½è¢«è§£é”|
+|void OnUpdate() |å½“ä»»åŠ¡æ‰§è¡Œæ—¶æŒç»­è°ƒç”¨|
+|void OnLateUpdate()|å¦‚ä¸Š|
+|void OnFixedUpdate()|å¦‚ä¸Š|
+|void OnReset()|å½“ä»»åŠ¡è§£é”/é‡ç½®å›å¾…æœºæ—¶è§¦å‘|
+|void Dispose()|å½“ä»»åŠ¡æ§åˆ¶å™¨è¢«é‡Šæ”¾æ—¶è§¦å‘|
 
-Æô¶¯ÈÎÎñÊ÷Ê¾ÀıÈçÏÂ:
+å¯åŠ¨ä»»åŠ¡æ ‘ç¤ºä¾‹å¦‚ä¸‹:
 
 ``` csharp
 
@@ -141,27 +141,27 @@ using YukiFrameWork.Missions;
 
         void Start()
         {
-            MissionTree missionTree = MissionTree.Create(missionTreeSO,param:);//param¿É´«µİ²ÎÊı
+            MissionTree missionTree = MissionTree.Create(missionTreeSO,param:);//paramå¯ä¼ é€’å‚æ•°
             
-            //½âËøÈÎÎñ
+            //è§£é”ä»»åŠ¡
             missionTree.UnLockMission(1001);
 
-            //´«µİÈÎÎñIdÆô¶¯ÈÎÎñ
-            bool success = missionTree.StartMission(1001,out string failedTip,param:);//param¿É´«µİ²ÎÊı
+            //ä¼ é€’ä»»åŠ¡Idå¯åŠ¨ä»»åŠ¡
+            bool success = missionTree.StartMission(1001,out string failedTip,param:);//paramå¯ä¼ é€’å‚æ•°
 
             if(!success)
             {
                 Debug.LogError(failedTip);
             }
 
-            //ÖØÖÃÈÎÎñ
+            //é‡ç½®ä»»åŠ¡
             missionTree.ResetMission(1001);
 
-            //Ëø¶¨ÈÎÎñ
+            //é”å®šä»»åŠ¡
             missionTree.UnLockMission(1001);
 
-            //Æô¶¯ËùÓĞµÄÈÎÎñ
-            missionTree.StartMissions();//ÖØÔØ¿É´«µİFunc»Øµ÷ÅĞ¶ÏÆô¶¯Ìõ¼ş ÖØÖÃÓë½âËøĞÎÊ½Ò»Ñù¡£
+            //å¯åŠ¨æ‰€æœ‰çš„ä»»åŠ¡
+            missionTree.StartMissions();//é‡è½½å¯ä¼ é€’Funcå›è°ƒåˆ¤æ–­å¯åŠ¨æ¡ä»¶ é‡ç½®ä¸è§£é”å½¢å¼ä¸€æ ·ã€‚
 
             
         }
@@ -170,51 +170,51 @@ using YukiFrameWork.Missions;
 
 ```
 
-|MissionTree API|ÔËĞĞÊ±ÈÎÎñÊ÷APIËµÃ÷|
+|MissionTree API|è¿è¡Œæ—¶ä»»åŠ¡æ ‘APIè¯´æ˜|
 |--|--|
-|static API|¾²Ì¬APiËµÃ÷|
-|void Init(string projectName)|³õÊ¼»¯¼ÓÔØÆ÷(Ä¬ÈÏXFABManager)|
-|void Init(IMissionLoader missionLoader)|¸ù¾İ×Ô¶¨ÒåµÄ¼ÓÔØÆ÷³õÊ¼»¯|
-|string PersistenceMissionData { get; }|ÈÎÎñÊ÷µÄ³Ö¾Ã»¯Êı¾İ|
-|bool IsPersistence { get; }|ÊÇ·ñ´¦ÓÚ³Ö¾Ã»¯»ñÈ¡Êı¾İÖĞ,µ±¸ÃÊôĞÔÎªTrueÊ±,MissionTreeÈÎºÎ¶ÔÈÎÎñµÄ½âËøÆô¶¯ÖØÖÃ¶¼²»»áÉúĞ§|
-|MissionTree Create(MissionTreeSO missionTreeSO,params object[] param)|´´½¨ÈÎÎñÊ÷|
-|MissionTree Create(string nameOrPath, params object[] param)|Í¨¹ı¼ÓÔØÆ÷´´½¨ÈÎÎñÊ÷|
-|YieldTask(MissionTree) CreateAsync(string nameOrPath, params object[] param)|Òì²½´´½¨ÈÎÎñÊ÷|
-|MissionTree GetMissionTree(string key)|¸ù¾İ±êÊ¶»ñÈ¡ÈÎÎñÊ÷|
-|bool TryGetMissionTree(string key, out MissionTree missionTree)|²»»áÅ×³öÒì³££¬ÈçÉÏ|
-|void LoadPersistenceMissionTrees(string persistence)|¼ÓÔØĞĞÎªÊ÷³Ö¾Ã»¯Êı¾İ|
-|bool ReleaseMissionTree(string key)|ÊÍ·ÅÖ¸¶¨±êÊ¶µÄÈÎÎñÊ÷|
+|static API|é™æ€APiè¯´æ˜|
+|void Init(string projectName)|åˆå§‹åŒ–åŠ è½½å™¨(é»˜è®¤XFABManager)|
+|void Init(IMissionLoader missionLoader)|æ ¹æ®è‡ªå®šä¹‰çš„åŠ è½½å™¨åˆå§‹åŒ–|
+|string PersistenceMissionData { get; }|ä»»åŠ¡æ ‘çš„æŒä¹…åŒ–æ•°æ®|
+|bool IsPersistence { get; }|æ˜¯å¦å¤„äºæŒä¹…åŒ–è·å–æ•°æ®ä¸­,å½“è¯¥å±æ€§ä¸ºTrueæ—¶,MissionTreeä»»ä½•å¯¹ä»»åŠ¡çš„è§£é”å¯åŠ¨é‡ç½®éƒ½ä¸ä¼šç”Ÿæ•ˆ|
+|MissionTree Create(MissionTreeSO missionTreeSO,params object[] param)|åˆ›å»ºä»»åŠ¡æ ‘|
+|MissionTree Create(string nameOrPath, params object[] param)|é€šè¿‡åŠ è½½å™¨åˆ›å»ºä»»åŠ¡æ ‘|
+|YieldTask(MissionTree) CreateAsync(string nameOrPath, params object[] param)|å¼‚æ­¥åˆ›å»ºä»»åŠ¡æ ‘|
+|MissionTree GetMissionTree(string key)|æ ¹æ®æ ‡è¯†è·å–ä»»åŠ¡æ ‘|
+|bool TryGetMissionTree(string key, out MissionTree missionTree)|ä¸ä¼šæŠ›å‡ºå¼‚å¸¸ï¼Œå¦‚ä¸Š|
+|void LoadPersistenceMissionTrees(string persistence)|åŠ è½½è¡Œä¸ºæ ‘æŒä¹…åŒ–æ•°æ®|
+|bool ReleaseMissionTree(string key)|é‡Šæ”¾æŒ‡å®šæ ‡è¯†çš„ä»»åŠ¡æ ‘|
 |Property API|---|
-|string Key { get; }|ÈÎÎñÊ÷±êÊ¶|
-|bool IsMarkIdle { get; set; }|Õâ¸öÈÎÎñÊ÷ÊÇ·ñÕıÔÚ±»Ê¹ÓÃ(¿ò¼Ü¶ÔÏó³Ø¿ØÖÆ)|
-|MissionTreeSO MissionTreeSO { get; }|¸ÃĞĞÎªÊ÷ÒÀÀµµÄsoÅäÖÃ,Êı¾İÎª¿ËÂ¡Êı¾İ£¬ÈÎºÎĞŞ¸Ä¶¼²»»á×÷ÓÃÓÚEditor»·¾³ÏÂµÄ±¾ÅäÖÃ|
-|MissionController FindMissionController(int missionId)|¸ù¾İ±êÊ¶²éÕÒÈÎÎñ¿ØÖÆÆ÷|
-|MissionController FindMissionController(Mission mission)|ÈçÉÏÖØÔØ|
-|bool TryFindMissionController(int missionId, out MissionController missionController)|²»»áÅ×³öÒì³£ÈçÉÏ|
-|bool TryFindMissionController(Mission mission, out MissionController missionController)|²»»áÅ×³öÒì³£ÈçÉÏ|
-|void ForEach(Action(MissionController) each)|±éÀúËùÓĞÈÎÎñ¿ØÖÆÆ÷|
-|void StartMissions()|Æô¶¯ËùÓĞÈÎÎñ|
-|void UnLockMissions()|½âËøËùÓĞÈÎÎñ|
-|void ResetMissions()|ÖØÖÃËùÓĞÈÎÎñ|
-|void LockMissions()|Ëø¶¨ËùÓĞÈÎÎñ|
-|void UnLockMissions(Func(bool) condition)|½âËøËùÓĞÈÎÎñ(ÉèÖÃÌõ¼ş)|
-|void StartMissions(Func(bool) condition)|Æô¶¯ËùÓĞÈÎÎñ(ÉèÖÃÌõ¼ş)|
-|void ResetMissions(Func(bool) condition))|ÖØÖÃËùÓĞÈÎÎñ(ÉèÖÃÌõ¼ş)|
-|void LockMissions(Func(bool) condition)|Ëø¶¨ËùÓĞÈÎÎñ(ÉèÖÃÌõ¼ş)|
-|bool UnLockMission(int missionId, out string failedTip)|¸ù¾İ±êÊ¶½âËøÈÎÎñ|
-|bool UnLockMission(Mission mission, out string failedTip)|ÖØÔØ|
-|bool UnLockMission(Mission mission)|ÖØÔØ|
-|bool UnLockMission(int missionId|ÖØÔØ|
-|bool LockMission(int missionId, out string failedTip)|¸ù¾İ±êÊ¶Ëø¶¨ÈÎÎñ|
-|bool LockMission(Mission mission, out string failedTip)|ÖØÔØ|
-|bool LockMission(Mission mission)|ÖØÔØ|
-|bool LockMission(int missionId|ÖØÔØ|
-|bool StartMission(int missionId, out string failedTip)|¸ù¾İ±êÊ¶Æô¶¯ÈÎÎñ|
-|bool StartMission(Mission mission, out string failedTip)|ÖØÔØ|
-|bool StartMission(Mission mission)|ÖØÔØ|
-|bool StartMission(int missionId|ÖØÔØ|
-|bool ResetMission(int missionId, out string failedTip)|¸ù¾İ±êÊ¶ÖØÖÃÈÎÎñ|
-|bool ResetMission(Mission mission, out string failedTip)|ÖØÔØ|
-|bool ResetMission(Mission mission)|ÖØÔØ|
-|bool ResetMission(int missionId|ÖØÔØ|
+|string Key { get; }|ä»»åŠ¡æ ‘æ ‡è¯†|
+|bool IsMarkIdle { get; set; }|è¿™ä¸ªä»»åŠ¡æ ‘æ˜¯å¦æ­£åœ¨è¢«ä½¿ç”¨(æ¡†æ¶å¯¹è±¡æ± æ§åˆ¶)|
+|MissionTreeSO MissionTreeSO { get; }|è¯¥è¡Œä¸ºæ ‘ä¾èµ–çš„soé…ç½®,æ•°æ®ä¸ºå…‹éš†æ•°æ®ï¼Œä»»ä½•ä¿®æ”¹éƒ½ä¸ä¼šä½œç”¨äºEditorç¯å¢ƒä¸‹çš„æœ¬é…ç½®|
+|MissionController FindMissionController(int missionId)|æ ¹æ®æ ‡è¯†æŸ¥æ‰¾ä»»åŠ¡æ§åˆ¶å™¨|
+|MissionController FindMissionController(Mission mission)|å¦‚ä¸Šé‡è½½|
+|bool TryFindMissionController(int missionId, out MissionController missionController)|ä¸ä¼šæŠ›å‡ºå¼‚å¸¸å¦‚ä¸Š|
+|bool TryFindMissionController(Mission mission, out MissionController missionController)|ä¸ä¼šæŠ›å‡ºå¼‚å¸¸å¦‚ä¸Š|
+|void ForEach(Action(MissionController) each)|éå†æ‰€æœ‰ä»»åŠ¡æ§åˆ¶å™¨M
+|void StartMissions()|å¯åŠ¨æ‰€æœ‰ä»»åŠ¡|
+|void UnLockMissions()|è§£é”æ‰€æœ‰ä»»åŠ¡|
+|void ResetMissions()|é‡ç½®æ‰€æœ‰ä»»åŠ¡|
+|void LockMissions()|é”å®šæ‰€æœ‰ä»»åŠ¡|
+|void UnLockMissions(Func(bool) condition)|è§£é”æ‰€æœ‰ä»»åŠ¡(è®¾ç½®æ¡ä»¶)|
+|void StartMissions(Func(bool) condition)|å¯åŠ¨æ‰€æœ‰ä»»åŠ¡(è®¾ç½®æ¡ä»¶)|
+|void ResetMissions(Func(bool) condition))|é‡ç½®æ‰€æœ‰ä»»åŠ¡(è®¾ç½®æ¡ä»¶)|
+|void LockMissions(Func(bool) condition)|é”å®šæ‰€æœ‰ä»»åŠ¡(è®¾ç½®æ¡ä»¶)|
+|bool UnLockMission(int missionId, out string failedTip)|æ ¹æ®æ ‡è¯†è§£é”ä»»åŠ¡|
+|bool UnLockMission(Mission mission, out string failedTip)|é‡è½½|
+|bool UnLockMission(Mission mission)|é‡è½½|
+|bool UnLockMission(int missionId|é‡è½½|
+|bool LockMission(int missionId, out string failedTip)|æ ¹æ®æ ‡è¯†é”å®šä»»åŠ¡|
+|bool LockMission(Mission mission, out string failedTip)|é‡è½½|
+|bool LockMission(Mission mission)|é‡è½½|
+|bool LockMission(int missionId|é‡è½½|
+|bool StartMission(int missionId, out string failedTip)|æ ¹æ®æ ‡è¯†å¯åŠ¨ä»»åŠ¡|
+|bool StartMission(Mission mission, out string failedTip)|é‡è½½|
+|bool StartMission(Mission mission)|é‡è½½|
+|bool StartMission(int missionId|é‡è½½|
+|bool ResetMission(int missionId, out string failedTip)|æ ¹æ®æ ‡è¯†é‡ç½®ä»»åŠ¡|
+|bool ResetMission(Mission mission, out string failedTip)|é‡è½½|
+|bool ResetMission(Mission mission)|é‡è½½|
+|bool ResetMission(int missionId|é‡è½½|
 

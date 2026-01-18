@@ -37,6 +37,7 @@ namespace YukiFrameWork.Missions
             {              
                 inspectorView.Update_InspectorView(v);
             };
+
             onValidate += () =>
             {
                 backGroundView.Init(this);

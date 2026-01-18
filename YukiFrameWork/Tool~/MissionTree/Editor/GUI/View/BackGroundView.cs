@@ -30,7 +30,7 @@ namespace YukiFrameWork.Missions
             Insert(0, new GridBackground()); //格子背景
 
             //添加背景网格样式
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ImportSettingWindow.GetData().path + "/BehaviourTree/Editor/GUI/BackGround.uss");
+            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ImportSettingWindow.GetData().path + "/MissionTree/Editor/GUI/BackGround.uss");
             styleSheets.Add(styleSheet);
            // MissionTreeGraphWindow.onUpdate += Update;
             SetupZoom(ContentZoomer.DefaultMinScale, ContentZoomer.DefaultMaxScale); //可缩放            
@@ -211,7 +211,8 @@ namespace YukiFrameWork.Missions
         {
             foreach (Mission node in allNodes)
             {
-                GraphMissionView nodeView = new GraphMissionView(missionTree, node);             
+                GraphMissionView nodeView = new GraphMissionView(missionTree, node);
+                nodeView.onNodeSelected -= BehaviourSelected;
                 nodeView.onNodeSelected += BehaviourSelected;
                 AddElement(nodeView);
                 nodeDict.Add(node.MissionId, nodeView);
