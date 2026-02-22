@@ -194,7 +194,7 @@ namespace YukiFrameWork
 		/// </summary>
 		public static void LoadPersistenceReddotPath(string persistence)
 		{
-			var reddotPaths = SerializationTool.DeserializedObject<Dictionary<string, IList<string>>>(persistence);
+			var reddotPaths = SerializationTool.DeserializedObject<Dictionary<string, List<string>>>(persistence);
 			if (reddotPaths == null)
 				throw new NullReferenceException("读取数据为空,请检查字符串是否是正确的Json数据");
 

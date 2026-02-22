@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections;
+using UnityEngine;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork
 {           
@@ -179,7 +180,39 @@ namespace YukiFrameWork
         public static IActionUpdateNode OnLateUpdate()
         {
             return YukiFrameWork.ActionUpdateNode.Get(UpdateStatus.OnLateUpdate);
-        }      
+        }
 
+        [MethodAPI("释放指定对象的Action")]
+        public static void Dispose<T>(T component, ActionDisposeMode actionDisposeMode = ActionDisposeMode.Action) where T : Component
+        {
+            Dispose(component.gameObject,actionDisposeMode);
+        }
+        [MethodAPI("释放指定对象的Action")]
+        public static void Dispose(GameObject gameObject, ActionDisposeMode actionDisposeMode = ActionDisposeMode.Action)
+        {
+            switch (actionDisposeMode)
+            {
+                case ActionDisposeMode.Action:
+                    if (gameObject.TryGetComponent<OnGameObjectTrigger>(out var trigger))
+                    {
+                        trigger.ActionDispose();
+                    }
+                    break;
+                case ActionDisposeMode.Update:
+                    if (gameObject.TryGetComponent<MonoExecute>(out MonoExecute execute))
+                    {
+                        execute.UpdateDispose();
+                    }
+                    break;
+                case ActionDisposeMode.All:
+                    Dispose(gameObject, ActionDisposeMode.Action);
+                    Dispose(gameObject, ActionDisposeMode.Update);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        
     }
 }

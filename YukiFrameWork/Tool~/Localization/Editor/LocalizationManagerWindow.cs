@@ -78,6 +78,7 @@ namespace YukiFrameWork
 
                     AssetDatabase.AddObjectToAsset(localizationConfig, tBase);
                     localizationConfig.name = temp.ToString();
+                    localizationConfig.language = temp;
                     tBase.localizationConfig_language_dict.Add(temp, localizationConfig);
                     tBase.onValidate?.Invoke();
                     tBase.Save();

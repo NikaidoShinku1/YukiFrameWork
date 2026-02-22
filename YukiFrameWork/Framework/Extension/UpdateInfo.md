@@ -1,6 +1,18 @@
 ﻿#### 框架更新日志、
 
-V1.62.2 修复MissionTree编辑器无法拖拽，打开报空的问题。优化细节
+V1.62.1 基于Unity NavMesh拓展新增AI服务模块。可定制AI的行动模式
+
+V1.61.7 ReddotKit 修复反序列化在Android平台会异常的问题
+
+V1.61.6 修复AudioKit使用AudioInfo时音频无法循环组层级不正确的问题。优化细节
+
+V1.61.5 AudioKit优化底层，API规则细分化。更新文档
+
+V1.61.4 优化MissionTree,BuffKit,SkillKit,Localization模块可同步配置(当因为guid丢失时),修改更新日志的版本错误
+
+V1.61.3 ActionKit新增手动全局释放的方法。
+
+V1.61.2 修复MissionTree编辑器无法拖拽，打开报空的问题。优化细节
 
 V1.61.1 框架新增MissionTree模块，图结构任务树，废弃旧版MissionKit，优化细节，Excel转SO全局配置可支持Sprite导出路径。优化部分细节。同步更新XFABManager
 

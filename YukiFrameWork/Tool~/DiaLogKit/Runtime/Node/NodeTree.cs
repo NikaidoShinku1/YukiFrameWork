@@ -109,6 +109,7 @@ namespace YukiFrameWork.DiaLogue
             .Select(x => new ValueDropdownItem() { Text = x.key, Value = x.key });
         public abstract INode DeleteNode(INode node);
         public abstract INode CreateNode(System.Type type);
+
 #endif
     }
 
@@ -230,6 +231,29 @@ namespace YukiFrameWork.DiaLogue
             Undo.DestroyObjectImmediate(node as T);
             AssetDatabase.SaveAssets();
             return node;
+        }
+
+        [Button("同步配置")]
+        [GUIColor("green")]
+        [PropertySpace(10)]
+        void SyncAllConfig()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+
+            nodes.Clear();
+            foreach (var item in assets)
+            {
+                if (item is T node)
+                {
+                    Undo.RecordObject(this, "Node Tree (SyncNode)");
+
+                    nodes.Add(node);
+                 
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssets();
+
+                }
+            }
         }
 #endif
 

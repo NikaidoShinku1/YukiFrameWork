@@ -124,7 +124,7 @@ namespace YukiFrameWork.Audio
         {
             base.OnDestroy();           
             audioListener = null;
-            AudioKit.Release();
+           // AudioKit.Release();
         }
 
     }

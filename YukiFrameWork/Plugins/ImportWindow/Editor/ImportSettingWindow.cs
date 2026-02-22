@@ -78,9 +78,16 @@ namespace YukiFrameWork.Extension
             public string dependUrl;
             public string version;
         }
+
+        public enum UpdateMode
+        {
+            Normal,
+            ForceUpdate,
+        }
         [Serializable]
         public class ToolDataInfo
         {
+            public bool isView;
             public string key;
             public string path;
             public bool active;
@@ -88,6 +95,7 @@ namespace YukiFrameWork.Extension
             public bool obstate;
             public string obstateTip = "该模块已被弃用";
             public DependInfo[] depends;
+            public UpdateMode updateMode;
            
         }
         /// <summary>
@@ -111,6 +119,15 @@ namespace YukiFrameWork.Extension
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md",
                 depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem", depend = "Unity.InputSystem" } }
 
+            },
+            ["AIServicesKit"] = new ToolDataInfo()
+            {
+                isView = true,
+                key = "AIServicesKit",
+                path = packagePath + "/Tool~/AIServicesKit",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/AIServicesKit/AIServicesKit.md",
+                depends = new DependInfo[] { new DependInfo(){ des = "Unity AI Navigation包,通过packageManager安装 \n如通过搜索AI Navigation无法找到，则导入URL:", depend = "Unity.AI.Navigation", dependUrl = "com.unity.ai.navigation" } }
             },
             ["Localization"] = new ToolDataInfo()
             {
@@ -353,29 +370,41 @@ namespace YukiFrameWork.Extension
                     string importPath = string.Format("{0}/{1}", data.path, select.Name);
                     TextAsset importVersionAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(importPath + "/Version.txt");
                     GUI.color = Color.yellow;
-                    if (!importVersionAsset)
+                    if (!info.isView)
                     {
-                        GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
-                    }
-                    else if (string.IsNullOrEmpty(packageVersion))
-                    {
-                        string importVersion = importVersionAsset?.text;
-                        GUILayout.Label("包原始版号丢失，请重新下载框架以恢复!", "flow varPin tooltip");
-                    }
-                    else if (packageVersion != importVersionAsset.text)
-                    {
-                        GUILayout.Label($"当前版本不是最新版,已导入版本:{importVersionAsset.text} --- 新版:{packageVersion} 如有需要可重新导入模块!", "flow varPin tooltip");
+                        if (!importVersionAsset)
+                        {
+                            GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
+                        }
+                        else if (string.IsNullOrEmpty(packageVersion))
+                        {
+                            string importVersion = importVersionAsset?.text;
+                            GUILayout.Label("包原始版号丢失，请重新下载框架以恢复!", "flow varPin tooltip");
+                        }
+                        else if (packageVersion != importVersionAsset.text)
+                        {
+                            GUILayout.Label(
+                                $"当前版本不是最新版,已导入版本:{importVersionAsset.text} --- 新版:{packageVersion} 如有需要可重新导入模块!",
+                                "flow varPin tooltip");
+                        }
+                        else
+                        {
+                            GUI.color = Color.green;
+                            GUILayout.Label($"已是最新版:{importVersionAsset.text}", "flow varPin tooltip");
+                        }
                     }
                     else
                     {
-                        GUI.color = Color.green;
-                        GUILayout.Label($"已是最新版:{importVersionAsset.text}", "flow varPin tooltip");
+                        GUI.color = Color.cyan;
+                        GUILayout.Label($"模块预览版", "flow varPin tooltip");
                     }
+
                     GUI.color = Color.white;
                     EditorGUILayout.Space(20);
                     GUILayout.Label(select.Name + "    " ,titleStyle);
                     EditorGUILayout.Space(10);
                     GUILayout.Label(ImportWindowInfo.GetModuleInfo(select.Name),desStyle);
+                    
                     EditorGUILayout.Space(20);
                    
                     bool isImport = info.active && !info.obstate;
@@ -385,6 +414,11 @@ namespace YukiFrameWork.Extension
                             EditorGUILayout.HelpBox("目前还尚未公开", MessageType.Warning);
                         else if (info.obstate)
                             EditorGUILayout.HelpBox(info.obstateTip, MessageType.Warning);
+                    }
+                    
+                    if (info.isView)
+                    {
+                        EditorGUILayout.HelpBox("该模块为预览模块,可能存在不稳定因素,请谨慎使用!", MessageType.Warning);
                     }
 
 
@@ -414,8 +448,14 @@ namespace YukiFrameWork.Extension
                     }
 
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(Color.white, importPath, select.Name, moduleInfo[select.Name].path, isImport);
+                    DrawBoxGUI(Color.white, importPath, select.Name, moduleInfo[select.Name].path, isImport,moduleInfo[select.Name].isView, info.updateMode);
                     EditorGUILayout.EndHorizontal();
+                    if (data.develop == 1 && info.active && !info.isView)
+                    {
+                        EditorGUILayout.Space();
+                        //EditorGUILayout.HelpBox("Normal为自动小版本更新,ForceUpdate则进行工具中版本更新,可自动同步文件版本号", MessageType.Info);
+                        info.updateMode = (UpdateMode)EditorGUILayout.EnumPopup("更新模式:", info.updateMode);
+                    }
                     EditorGUILayout.EndVertical();
 
                     Button(moduleInfo[select.Name].url);
@@ -458,16 +498,16 @@ namespace YukiFrameWork.Extension
             }
         }   
 
-        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "",bool isImport = true)
+        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "",bool isImport = true,bool isView = false,UpdateMode updateMode = UpdateMode.Normal)
         {         
             GUI.color = color;          
             EditorGUILayout.BeginHorizontal();           
-            DrawButtonGUI(path, name,copyPath,isImport);          
+            DrawButtonGUI(path, name,copyPath,isImport,isView,updateMode);          
             EditorGUILayout.EndHorizontal();
             GUI.color = Color.white;
         }
 
-        private void DrawButtonGUI(string path,string name,string copyPath,bool isImport)
+        private void DrawButtonGUI(string path,string name,string copyPath,bool isImport,bool isView,UpdateMode updateMode)
         {
                      
             EditorGUILayout.BeginHorizontal();
@@ -487,7 +527,7 @@ namespace YukiFrameWork.Extension
                 {
                     if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reverse Import {name} Module" : $"反导{name}模块", GUILayout.Height(20)))
                     {
-                        ReverImport(copyPath, name);
+                        ReverImport(copyPath, name,updateMode,isView);
                     }
                 }
 
@@ -546,7 +586,7 @@ namespace YukiFrameWork.Extension
         }
         
 
-        private void ReverImport(string copyPath, string name)
+        private void ReverImport(string copyPath, string name,UpdateMode updateMode,bool isView)
         {
             string checkPath = data.path + @"/" + name;
             if (!Directory.Exists(checkPath))
@@ -555,7 +595,41 @@ namespace YukiFrameWork.Extension
                 GUIUtility.ExitGUI();
                 return;
             }
+           
             var rootPath = data.path + "/" + name;
+            if(!isView)
+            {
+                string version = string.Empty;
+                try
+                {
+                    version = File.ReadAllText(rootPath + "/Version.txt");
+                    switch (updateMode)
+                    {
+                        case UpdateMode.Normal:
+                        {
+                            float versionF = float.Parse(version);
+                            versionF += 0.1f;
+                            version = versionF.ToString();
+                        }
+                            break;
+                        case UpdateMode.ForceUpdate:
+                        {
+                            float versionF = float.Parse(version);
+                            versionF += 1;
+                            version = versionF.ToString();
+                        }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch
+                {
+                    version = "1.0";
+                }
+
+                File.WriteAllText(rootPath + "/Version.txt", version);
+            }
             var files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories);
             foreach (var file in files)
             {
@@ -569,6 +643,7 @@ namespace YukiFrameWork.Extension
                 }
                 catch (Exception ex) { throw ex; }
             }
+            
             AssetDatabase.Refresh();
         }
     }

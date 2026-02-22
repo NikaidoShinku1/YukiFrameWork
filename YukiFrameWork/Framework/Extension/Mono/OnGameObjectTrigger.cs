@@ -117,13 +117,8 @@ namespace YukiFrameWork
         }
 
         private void OnDestroy()
-        {         
-            queueActionNodes.Clear();
-            foreach (var action in executeNodeDict.Keys)
-            {
-                action.OnFinish();
-            }
-
+        {
+            ActionDispose();
             foreach (var register in unRegisters)
             {
 #if UNITY_2022_1_OR_NEWER
@@ -141,11 +136,21 @@ namespace YukiFrameWork
             onFinishEvents.Clear();
 
             unRegisters.Clear();
+           
+        }
 
+        public void ActionDispose()
+        {
+            queueActionNodes.Clear();
+            foreach (var action in executeNodeDict.Keys)
+            {
+                action.OnFinish();
+            }
             executeNodeDict.Clear();
 
             actionNodes.Clear();
         }
+
     }
 
 }

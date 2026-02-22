@@ -415,6 +415,13 @@ namespace YukiFrameWork
         }
     }
 
+    public enum ActionDisposeMode
+    {
+        Action,
+        Update,
+        All
+    }
+
     public static class BindGameObjectExtension
     {
         public static IActionNodeController Start<TComponent>(this IActionNode action, TComponent component, Action onFinish = null) where TComponent : Component

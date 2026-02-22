@@ -144,6 +144,7 @@ namespace YukiFrameWork
                     localizationConfig = ScriptableObject.CreateInstance<LocalizationConfig>();
                     localizationConfig.name = language.ToString();
                     AssetDatabase.AddObjectToAsset(localizationConfig, localizationManager);
+                    localizationConfig.language = language;
                     localizationManager.localizationConfig_language_dict.Add(language, localizationConfig);
                     localizationManager.onValidate?.Invoke();
                     localizationManager.Save();

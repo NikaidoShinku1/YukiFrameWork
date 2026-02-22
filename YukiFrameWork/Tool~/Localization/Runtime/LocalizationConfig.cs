@@ -18,12 +18,18 @@ namespace YukiFrameWork
     public class LocalizationConfig : ScriptableObject
     {
         protected const string groupName = "本地设置:";
+        [ReadOnly,SerializeField]
+        internal Language language;
+
+        public Language Language => language;
+
         //[DictionaryDrawerSettings(KeyLabel = "标识", ValueLabel = "配置信息"), BoxGroup(groupName)]       
         [LabelText("本地数据配置:"), BoxGroup(groupName)]
         [JsonProperty]
         [TableList(NumberOfItemsPerPage = 5, DrawScrollView = true), Searchable]
         [SerializeField]
-        public List<LocalizationData> localizations = new List<LocalizationData>();    
+        public List<LocalizationData> localizations = new List<LocalizationData>();
+
         internal IList ExcelArray => localizations;
     }
 }

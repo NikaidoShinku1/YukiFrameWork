@@ -112,6 +112,35 @@ namespace YukiFrameWork.Audio
         {
             return Sound(DEFAULT_SOUND_GROUP_NAME);
         }
+        
+        /// <summary>
+        /// 遍历指定层级标识的所有分组
+        /// </summary>
+        /// <param name="audioPlayType"></param>
+        /// <param name="each"></param>
+        public static void ForEachGroup(AudioPlayType audioPlayType,Action<AudioGroup> each)
+        {
+            var groups = FindGroups(audioPlayType);
+
+            foreach (var item in groups)
+            {
+                each?.Invoke(item);
+            }
+
+        }
+
+        /// <summary>
+        /// 获取到指定层级标识的所有分组
+        /// </summary>
+        /// <param name="audioPlayType"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        public static IEnumerable<AudioGroup> FindGroups(AudioPlayType audioPlayType)
+        {
+            if (!AudioGroup.runtimeAudioGroups.TryGetValue(audioPlayType, out var groups))
+                throw new NullReferenceException("分组类型标记丢失! AudioPlayType:" + audioPlayType);
+            return groups.Values;
+        }
 
         /// <summary>
         /// 添加或创建新的分组。

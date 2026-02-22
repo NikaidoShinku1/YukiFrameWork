@@ -12,8 +12,6 @@ using System;
 using System.Collections.Generic;
 using RuntimeAudioGroups = System.Collections.Generic.Dictionary<YukiFrameWork.Audio.AudioPlayType, System.Collections.Generic.Dictionary<string, YukiFrameWork.Audio.AudioGroup>>;
 using YukiFrameWork.Pools;
-using System.Collections;
-using System.Linq;
 namespace YukiFrameWork.Audio
 {
     public enum AudioPlayType
@@ -73,7 +71,7 @@ namespace YukiFrameWork.Audio
 
             if (dict.TryGetValue(name, out var group))
                 return group;
-            group = new AudioGroup() { GroupName = name };
+            group = new AudioGroup() { GroupName = name,AudioGroupVolumeScale = new BindablePropertyPlayerPrefsByFloat($"AUDIOGROUP_DEFAULT_SCALEKEY_{name}_{audioPlayType}",1) };
             var Setting = new DefaultAudioGroupSetting();
             group.AudioPlayType = audioPlayType;
             Setting.Create(group);
@@ -104,16 +102,24 @@ namespace YukiFrameWork.Audio
         }
 
         /// <summary>
-        /// 这个音频分组所绑定的音频缩放
+        /// 这个音频分组的音频缩放
         /// </summary>
         public BindablePropertyPlayerPrefsByFloat AudioGroupVolumeScale
+        {
+            get;private set;
+        }
+
+        /// <summary>
+        /// 这个音频分组所绑定的音频缩放(来源AudioKit的缩放)
+        /// </summary>
+        public BindablePropertyPlayerPrefsByFloat BindAudioGroupVolumeScale
         {
             get => AudioPlayType switch
             {
                 AudioPlayType.Music => AudioKit.MusicVolumeScale,
                 AudioPlayType.Voice => AudioKit.VoiceVolumeScale,
                 AudioPlayType.Sound => AudioKit.SoundVolumeScale,
-                _ => throw new Exception("未知的分组")
+                _ => throw new Exception("未知分组")
             };
         }
 
@@ -136,157 +142,184 @@ namespace YukiFrameWork.Audio
                 return true;
             }
         }
+       
+        [Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
+        public AudioPlayer Play(string name)
+        {
+            return BuildAndPlay(name);
+        }
+
         /// <summary>
         /// 播放音频
         /// </summary>
         /// <param name="name">音频名称/路径</param>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        public AudioPlayer Play(string name)
+        public AudioPlayer BuildAndPlay(string name)
         {
-            if (name.IsNullOrEmpty()) return null;
-            if (!CheckPlaySound(name)) return null;
-            if (!groupInfo.parent)
-                groupInfo.parent = AudioManager.Instance.transform;
-            IAudioLoader audioLoader = AudioKit.GetOrAddAudioLoader(name);
-            if (audioLoader == null) throw new NullReferenceException("丢失加载器，请检查AudioClip是否可以正确加载 name:" + name);
-            return PlayInternal(name, (audioLoader.Clip != null ? audioLoader.Clip : audioLoader.LoadClip(name)),audioLoader);
+            return Build(name).Play();
         }
+
         /// <summary>
-        /// 传递AudioClip播放音频
-        /// </summary>
-        /// <param name="clip"></param>
-        /// <returns></returns>
-        /// <exception cref="NullReferenceException"></exception>
-        public AudioPlayer Play(AudioClip clip,Transform parent = null)
-        {
-            if (clip == null)
-                throw new NullReferenceException("丢失音频无法播放");
-            if (!CheckPlaySound(clip.name)) return null;
-            if (!groupInfo.parent)           
-                groupInfo.parent = parent ? parent : AudioManager.Instance.transform;          
-            return PlayInternal(clip.name, clip, null);
-        }
-        /// <summary>
-        /// 异步播放音频
+        /// 构建音频播放器
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="callBack"></param>
+        /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        public void PlayAsync(string name, Action<AudioPlayer> callBack)
+        public AudioPlayer Build(string name)
         {
-            if (name.IsNullOrEmpty()) return;
-            if (!CheckPlaySound(name)) return;
-            if (!groupInfo.parent)
-                groupInfo.parent = AudioManager.Instance.transform;
+            if (name.IsNullOrEmpty()) return null;
+            //if (!CheckPlaySound(name)) return null;
+            IAudioLoader audioLoader = AudioKit.GetOrAddAudioLoader(name);
+            if (audioLoader == null) throw new NullReferenceException("丢失加载器，请检查AudioClip是否可以正确加载 name:" + name);
+
+            return FindPlayerByGroup(name).SetNameOrPath(name).Clip(audioLoader.LoadClip(name)).SetLoader(audioLoader);
+        }
+
+        public AudioPlayer Build(AudioInfo audioInfo)
+        {
+            return Build(audioInfo.Clip).Parent(audioInfo.position == AudioInfo.Position.IgnorePosition ? audioInfo.transform : AudioManager.Instance.transform);
+        }
+
+        public void BuildAsync(string name,Action<AudioPlayer> callBack)
+        {
+            if (name.IsNullOrEmpty()) return;          
+            //Debug.LogError(groupInfo.parent);
             IAudioLoader audioLoader = AudioKit.GetOrAddAudioLoader(name);
             if (audioLoader == null) throw new NullReferenceException("丢失加载器，请检查AudioClip是否可以正确加载 name:" + name);
             if (audioLoader.Clip != null)
             {
-                var audioPlayer = PlayInternal(name, audioLoader.Clip, audioLoader);
+                var audioPlayer = FindPlayerByGroup(name).SetNameOrPath(name).Clip(audioLoader.Clip).SetLoader(audioLoader);
                 callBack?.Invoke(audioPlayer);
             }
             else
                 audioLoader.LoadClipAsync(name, clip =>
                 {
-                   var audioPlayer = PlayInternal(name, clip, audioLoader);
+                    var audioPlayer = FindPlayerByGroup(name).SetNameOrPath(name).Clip(clip).SetLoader(audioLoader);
                     callBack?.Invoke(audioPlayer);
                 });
         }
+
+       
+        [Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
+        public AudioPlayer Play(AudioClip clip)
+        {
+            return BuildAndPlay(clip);
+        }
+        /// <summary>
+        /// 传递AudioClip构建并播放音频
+        /// </summary>
+        /// <param name="clip"></param>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException"></exception>
+        public AudioPlayer BuildAndPlay(AudioClip clip)
+        {
+            if (clip == null)
+                throw new NullReferenceException("丢失音频无法播放");
+            //if (!CheckPlaySound(clip.name)) return null;
+
+            return Build(clip).Play();
+        }
+
+        public AudioPlayer Build(AudioClip clip)
+        {
+            if (clip == null)
+                throw new NullReferenceException("丢失音频无法播放");
+           // if (!CheckPlaySound(clip.name)) return null;
+            return FindPlayerByGroup(clip.name).SetNameOrPath(clip.name).Clip(clip);
+        }
+        
+        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public void PlayAsync(string name, Action<AudioPlayer> callBack)
+        {
+            BuildAndPlayAsync(name, callBack);
+        }
+
+        /// <summary>
+        /// 异步播放音频,不能设定规则
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="callBack"></param>
+        /// <exception cref="NullReferenceException"></exception>
+        public void BuildAndPlayAsync(string name, Action<AudioPlayer> callBack)
+        {
+            if (name.IsNullOrEmpty()) return;
+            BuildAsync(name, player =>
+            {
+                player.Play();
+                callBack?.Invoke(player);
+            });
+        }
+
+#if UNITY_2021_1_OR_NEWER
+       
+        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public async YieldTask<AudioPlayer> PlayAsync(string name)
+        {
+            return await BuildAndPlayAsync(name);
+        }
+
         /// <summary>
         /// 异步播放音频
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public IEnumerator PlayAsync(string name)
+        public async YieldTask<AudioPlayer> BuildAndPlayAsync(string name)
         {
             bool isCompleted = false;
-            PlayAsync(name, _ => isCompleted = true);
+            AudioPlayer audioPlayer = null;
+            BuildAndPlayAsync(name, player =>
+            {
+                audioPlayer = player;
+                isCompleted = true;
+            });
+            await CoroutineTool.WaitUntil(() => isCompleted);
+            return audioPlayer;
+        }
+        public async YieldTask<AudioPlayer> BuildAsync(string name)
+        {
+            bool isCompleted = false;
+            AudioPlayer audioPlayer = null;
+            BuildAsync(name, player =>
+            {
+                audioPlayer = player;
+                isCompleted = true;
+            });
+            await CoroutineTool.WaitUntil(() => isCompleted);
+            return audioPlayer;
+        }
+#else
+         
+        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public IEnumerator PlayAsync(string name)
+        {
+            return BuildAndPlayAsync(name);
+        }
+
+        /// <summary>
+        /// 异步播放音频
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public IEnumerator BuildAndPlayAsync(string name)
+        {
+            bool isCompleted = false;
+            BuildAndPlayAsync(name, _ => isCompleted = true);
             yield return CoroutineTool.WaitUntil(() => isCompleted);
         }
-      
-        /// <summary>
-        /// 该音频播放开启循环
+
+         /// <summary>
+        /// 异步播放音频
         /// </summary>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public AudioGroup Loop()
+        public IEnumerator BuildAsync(string name,Transform parent = null)
         {
-            groupInfo.loop = true;
-            return this;
+            bool isCompleted = false;
+            BuildAsync(name, _ => isCompleted = true,parent);
+            yield return CoroutineTool.WaitUntil(() => isCompleted);
         }
-
-        /// <summary>
-        /// 开始播放的事件注册
-        /// </summary>
-        /// <param name="onStartCallBack"></param>
-        /// <returns></returns>
-        public AudioGroup OnStartCallBack(Action<float> onStartCallBack)
-        {
-            groupInfo.onStartCallBack += onStartCallBack;
-            return this;
-        }
-
-        /// <summary>
-        /// 结束播放的事件注册,如果音频被中断,或者释放则不会执行，必须是正常播放结束
-        /// </summary>
-        /// <param name="onEndCallBack"></param>
-        /// <returns></returns>
-        public AudioGroup OnEndCallBack(Action<float> onEndCallBack)
-        {
-            groupInfo.onEndCallBack += onEndCallBack;
-            return this;
-        }
-
-        /// <summary>
-        /// 传递AudioSource的根节点，不设置时默认由AudioManager托管
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public AudioGroup Parent(Transform parent)
-        {
-            groupInfo.parent = parent;
-            return this;
-        }
-        /// <summary>
-        /// 是否不受Time.TimeScale影响，当调用后，TimeScale为0时Clip Time仍会进行累加，正常播放到结束
-        /// <para>适用于非循环音频</para>
-        /// </summary>
-        /// <returns></returns>
-        public AudioGroup OnRealTime()
-        {
-            groupInfo.isRealTime = true;
-            return this;
-        }
-        /// <summary>
-        /// 传递AudioSourceSoundSetting设置类，以同步AudioSource的3dSoundSetting
-        /// </summary>
-        /// <param name="audioSourceSoundSetting"></param>
-        /// <returns></returns>
-        public AudioGroup AudioSource3DSetting(AudioSourceSoundSetting audioSourceSoundSetting)
-        {
-            groupInfo.soundSetting = audioSourceSoundSetting;
-            return this;
-        }
-
-        internal AudioGroup SetAudioInfo(AudioInfo audioInfo)
-        {
-            if (audioInfo.Clip == null)
-                throw new NullReferenceException("AudioInfo丢失音频!");
-
-            audioInfo.currentClipName = audioInfo.Clip.name;
-
-            if (audioInfo.position == AudioInfo.Position.IgnorePosition)
-                groupInfo.parent = audioInfo.transform;
-            else groupInfo.parent = AudioManager.Instance.transform;
-
-            groupInfo.loop = audioInfo.Loop;
-            groupInfo.onStartCallBack = value => audioInfo.onStartCallBack?.Invoke(value);
-            groupInfo.onEndCallBack = value => audioInfo.onEndCallBack?.Invoke(value);
-            groupInfo.soundSetting = audioInfo.SoundSetting;
-            groupInfo.isRealTime = audioInfo.IsRealTime;
-            return this;
-        }
-
+#endif   
         /// <summary>
         /// 暂停音频
         /// </summary>
@@ -419,6 +452,7 @@ namespace YukiFrameWork.Audio
             {
                 foreach (var sound in item)
                 {
+                    Debug.Log(sound.ClipName);
                     if (sound.ClipName == name)
                         sound.Stop();
                 }
@@ -429,8 +463,7 @@ namespace YukiFrameWork.Audio
         /// 释放分组
         /// </summary>
         public void Dispose()
-        {
-            groupInfo.Reset();
+        {          
             if (AudioPlayType == AudioPlayType.Sound)
             {
                 foreach (var sounds in soundActivities.Values)
@@ -451,7 +484,7 @@ namespace YukiFrameWork.Audio
 
         private static Dictionary<string, int> mSoundFrameCountForName = new Dictionary<string, int>();
         private static int mGlobalFrameCount = 0;
-        private static bool CheckPlaySound(string name)
+        internal static bool CheckPlaySound(string name)
         {
             if (AudioKit.PlaySoundMode == AudioKit.PlaySoundModes.EveryOne)
                 return true;
@@ -473,47 +506,73 @@ namespace YukiFrameWork.Audio
             return true;
         }
 
-        internal AudioPlayer PlayInternal(string clipNameOrPath, AudioClip audioClip, IAudioLoader audioLoader)
+        internal bool CheckPlaySounding(string name)
+        {
+            if (AudioPlayType != AudioPlayType.Sound)
+                return true;
+
+            if (!soundActivities.TryGetValue(name, out var list))
+                return true;
+
+            foreach (var item in list)
+            {
+                if (item.IsAudioFree) continue;
+
+                if (item.AudioSource && item.AudioSource.clip)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private AudioPlayer FindPlayerByGroup(string name)
         {
             AudioPlayer audioPlayer = null;
-
             if (AudioPlayType == AudioPlayType.Sound)
-            {              
-                audioPlayer = SoundActivitiesExist(clipNameOrPath);
+            {
+                audioPlayer = SoundActivitiesExist(name);
                 if (audioPlayer == null)
                 {
                     audioPlayer = AudioManager.Instance.GetAudio();
-                    soundActivities[clipNameOrPath].Add(audioPlayer);
+                    soundActivities[name].Add(audioPlayer);
                 }
             }
             else
                 audioPlayer = this.audioPlayer;
-            void SetAudioVolume(float value)
-            {
-                audioPlayer.Volume = value * AudioKit.AudioVolumeScale.Value * AudioGroupVolumeScale.Value;
-            }
 
-            this.Setting.IsOn.Register(value =>
-            {
-                audioPlayer.Mute = !value;
-            }).UnRegisterWaitGameObjectDestroy(groupInfo.parent);
-
-            groupInfo.onStartCallBack += _ =>
-            {
-                this.Setting.Volume.UnRegister(SetAudioVolume);
-                this.Setting.Volume
-                .RegisterWithInitValue(SetAudioVolume)
-                .UnRegisterWaitGameObjectDestroy(groupInfo.parent);
-            };
-            AudioManager.Instance.CheckLoaderCache(audioLoader);
-            audioPlayer.SetAudio(groupInfo.parent, audioClip, groupInfo.loop, groupInfo.onStartCallBack
-             , groupInfo.onEndCallBack, groupInfo.isRealTime, audioLoader, groupInfo.soundSetting);
-            audioPlayer.Mute = !this.Setting.IsOn.Value;
-            //最后初始化
-            ResetInfo();
-
-            return audioPlayer;
+            return audioPlayer.SetAudioGroup(this);
         }
+
+       //internal AudioPlayer PlayInternal(string clipNameOrPath, AudioClip audioClip, IAudioLoader audioLoader)
+       //{
+       //    AudioPlayer audioPlayer = FindPlayerByGroup(clipNameOrPath);
+       //
+       //    void SetAudioVolume(float value)
+       //    {
+       //        audioPlayer.Volume = value * AudioKit.AudioVolumeScale.Value * AudioGroupVolumeScale.Value;
+       //    }
+       //
+       //    this.Setting.IsOn.Register(value =>
+       //    {
+       //        audioPlayer.Mute = !value;
+       //    }).UnRegisterWaitGameObjectDestroy(groupInfo.parent);
+       //
+       //    groupInfo.onStartCallBack += _ =>
+       //    {
+       //        this.Setting.Volume.UnRegister(SetAudioVolume);
+       //        this.Setting.Volume
+       //        .RegisterWithInitValue(SetAudioVolume)
+       //        .UnRegisterWaitGameObjectDestroy(groupInfo.parent);
+       //    };
+       //    AudioManager.Instance.CheckLoaderCache(audioLoader);
+       //    audioPlayer.SetAudio(groupInfo.parent, audioClip, groupInfo.loop, groupInfo.onStartCallBack
+       //     , groupInfo.onEndCallBack, groupInfo.isRealTime, audioLoader, groupInfo.soundSetting);
+       //    audioPlayer.Mute = !this.Setting.IsOn.Value;
+       //    //最后初始化
+       //    ResetInfo();
+       //
+       //    return audioPlayer;
+       //}
 
         internal AudioPlayer AudioPlayer => audioPlayer;
 
@@ -531,11 +590,7 @@ namespace YukiFrameWork.Audio
             var player = players.Count > 0 ? players.Find(x => x.IsAudioFree) : null;
             return player;
         }
-        private AudioGroupInfo groupInfo = new AudioGroupInfo();
-        internal void ResetInfo()
-        {
-            groupInfo.Reset();
-        }
+       
 
     }
 
@@ -566,20 +621,27 @@ namespace YukiFrameWork.Audio
 
     internal class AudioGroupInfo
     {
+        public string nameOrPath;
         public bool loop;
         public bool isRealTime;
         public Action<float> onStartCallBack;
         public Action<float> onEndCallBack;
         public Transform parent;      
         public AudioSourceSoundSetting soundSetting;
-
+        public AudioClip audioClip;
+        public IAudioLoader loader;
+        public bool interval;
         public void Reset()
         {
+            nameOrPath = string.Empty;
             loop = isRealTime = false;
             onStartCallBack = null;
             onEndCallBack = null;
             parent = null;
-            soundSetting = null;            
+            soundSetting = null;
+            audioClip = null;
+            loader = null;
+            interval = false;
         }
     }
   

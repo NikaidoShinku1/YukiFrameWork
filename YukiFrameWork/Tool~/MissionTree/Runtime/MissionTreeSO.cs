@@ -30,7 +30,7 @@ namespace YukiFrameWork.Missions
         public string missionTreeKey;
         [SerializeField, HideInInspector]
         public Rect ViewportRect;
-        [SerializeField, HideInInspector]
+        [SerializeField, ReadOnly]
         internal List<Mission> AllMissions = new List<Mission>();
 
         /*[SerializeField, HideInInspector]
@@ -129,9 +129,8 @@ namespace YukiFrameWork.Missions
 
 
 #if UNITY_EDITOR
-
         [InfoBox("导入完成后如编辑器没刷新则点击右上角刷新脚本")]
-        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx"), PropertySpace(50), LabelText("Excel路径")]
+        [Sirenix.OdinInspector.FilePath(Extensions = "xlsx",AbsolutePath = true), PropertySpace(50), LabelText("Excel路径")]
         public string excelPath;
 
         [Button("导出Excel"), HorizontalGroup("Excel")]
@@ -189,7 +188,29 @@ namespace YukiFrameWork.Missions
             return behaviour;
         }
 
+        [Button("同步配置")]
+        [GUIColor("green")]
+        [InfoBox("当配置丢失数据时可使用")]
+        [PropertySpace(10)]
+        void SyncAllConfig()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
 
+            AllMissions.Clear();
+            foreach (var item in assets)
+            {
+                if (item is Mission node)
+                {
+                    Undo.RecordObject(this, "MissionTree (SyncNode)");
+
+                    AllMissions.Add(node);
+                    onValidate?.Invoke();
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssets();
+
+                }
+            }
+        }
 #endif
 
 

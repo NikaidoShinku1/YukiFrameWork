@@ -96,8 +96,9 @@ namespace YukiFrameWork.Buffer
             }
             codeCore.CodeSetting(nameSpace, buffInfoScriptNames, string.Empty, writer).Create(buffInfoScriptNames, filePath);
         }
+
 #endif
-       
+
         [SerializeField,LabelText("Buff配置")]      
         [InfoBox("添加Buff配置需要选择Buff的类型，当项目中没有任何Buff类文件时，无法新建Buff配置，且删除对应文件时，会自动消除对应的类",InfoMessageType.Warning)]
         [VerticalGroup("配置")]
@@ -198,6 +199,30 @@ namespace YukiFrameWork.Buffer
             if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
             {
                 Debug.Log("导入成功");
+            }
+        }
+
+        [Button("同步配置")]
+        [GUIColor("green")]
+        [InfoBox("当配置丢失数据时可使用")]
+        [PropertySpace(10)]
+        void SyncAllConfig()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+
+            buffConfigs.Clear();
+            foreach (var item in assets)
+            {
+                if (item is Buff node)
+                {
+                    Undo.RecordObject(this, "BuffKit (SyncNode)");
+
+                    buffConfigs.Add(node);
+                    onValidate?.Invoke();
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssets();
+
+                }
             }
         }
 #endif

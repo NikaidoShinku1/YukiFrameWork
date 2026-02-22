@@ -63,6 +63,31 @@ namespace YukiFrameWork
 
             LocalizationExcelConvertTool.ImportExcel(this);
         }
+
+
+        [InfoBox("当配置丢失数据时可使用")]
+        [Button("同步配置")]
+        [GUIColor("green")]
+        [PropertySpace(10)]
+        void SyncAllConfig()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+
+            localizationConfig_language_dict.Clear();
+            foreach (var item in assets)
+            {
+                if (item is LocalizationConfig node)
+                {
+                    Undo.RecordObject(this, "SkillKit (SyncNode)");
+
+                    localizationConfig_language_dict.Add(node.language, node);
+                    onValidate?.Invoke();
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssets();
+
+                }
+            }
+        }
 #endif        
         private void OnValidate()
         {   

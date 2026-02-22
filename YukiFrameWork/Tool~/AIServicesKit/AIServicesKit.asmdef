@@ -1,9 +1,10 @@
 {
-    "name": "AudioKit",
+    "name": "AIServicesKit",
     "rootNamespace": "",
     "references": [
+        "YukiFrameWork",
         "Plugins",
-        "YukiFrameWork"
+        "Unity.AI.Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

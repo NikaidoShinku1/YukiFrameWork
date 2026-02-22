@@ -138,22 +138,25 @@ namespace YukiFrameWork
 
         private void OnDestroy()
         {
+            UpdateDispose();
+            while (onFinishEvents.Count > 0)
+            {
+                PopFinishEvent()?.Invoke();
+            }      
+           
+        }
+
+        public void UpdateDispose()
+        {
             queueActionNodes.Clear();
             foreach (var node in updateExecuteDict.Keys)
             {
                 node.OnFinish();
             }
-
-            while (onFinishEvents.Count > 0)
-            {
-                PopFinishEvent()?.Invoke();
-            }
-
             updateExecuteDict.Clear();
-
             actionUpdateNodes.Clear();
         }
-
     }
+
 
 }

@@ -102,6 +102,7 @@ namespace YukiFrameWork.Skill
         [InfoBox("添加SkillData配置需要选择SkillData的类型，当项目中没有任何SkillData类文件时，无法新建SkillData配置，且删除对应文件时，会自动消除对应的类", InfoMessageType.Warning)]
         [VerticalGroup("配置")]
         [ListDrawerSettings(HideAddButton = true,DraggableItems = false)]
+        [ReadOnly]
         public List<SkillData> SkillDataConfigs = new List<SkillData>();
 
 
@@ -200,6 +201,30 @@ namespace YukiFrameWork.Skill
             if (SerializationTool.ExcelToScriptableObject(excelPath, 3, this))
             {
                 Debug.Log("导入成功");
+            }
+        }
+
+        [Button("同步配置")]
+        [GUIColor("green")]
+        [PropertySpace(10)]
+        [InfoBox("当配置丢失数据时可使用")]
+        void SyncAllConfig()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(this));
+
+            SkillDataConfigs.Clear();
+            foreach (var item in assets)
+            {
+                if (item is SkillData node)
+                {
+                    Undo.RecordObject(this, "SkillKit (SyncNode)");
+
+                    SkillDataConfigs.Add(node);
+                    onValidate?.Invoke();
+                    EditorUtility.SetDirty(this);
+                    AssetDatabase.SaveAssets();
+
+                }
             }
         }
 #endif

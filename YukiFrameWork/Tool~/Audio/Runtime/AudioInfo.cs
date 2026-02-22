@@ -192,22 +192,27 @@ namespace YukiFrameWork.Audio
         }
 
         public void Play()
-		{
-			
+        {
+	        AudioPlayer audioPlayer = null;
             switch (playType)
             {
                 case AudioPlayType.Music:
 
-					AudioKit.Music(GroupName).SetAudioInfo(this).Play(Clip);
+					audioPlayer = AudioKit.Music(GroupName).Build(this).AudioSourceSoundSetting(SoundSetting);
                     break;
                 case AudioPlayType.Voice:
-					AudioKit.Voice(GroupName).SetAudioInfo(this).Play(Clip);
+					audioPlayer = AudioKit.Voice(GroupName).Build(this).AudioSourceSoundSetting(SoundSetting);
                     break;
                 case AudioPlayType.Sound:
-					AudioKit.Sound(GroupName).SetAudioInfo(this).Play(Clip);
+					audioPlayer = AudioKit.Sound(GroupName).Build(this).AudioSourceSoundSetting(SoundSetting);
 
                     break;
             }
+
+            if (Loop)
+	            audioPlayer?.Loop().Play();
+            else audioPlayer?.Play();
+
         }
 
 		public void Stop()
@@ -232,13 +237,13 @@ namespace YukiFrameWork.Audio
             switch (playType)
             {
                 case AudioPlayType.Music:
-                    AudioKit.Music().Pause();
+                    AudioKit.Music(GroupName).Pause();
                     break;
                 case AudioPlayType.Voice:
-                    AudioKit.Voice().Pause();
+                    AudioKit.Voice(GroupName).Pause();
                     break;
                 case AudioPlayType.Sound:
-                    AudioKit.Sound().Pause(currentClipName);
+                    AudioKit.Sound(GroupName).Pause(currentClipName);
                     break;
             }
 
@@ -249,13 +254,13 @@ namespace YukiFrameWork.Audio
             switch (playType)
             {
                 case AudioPlayType.Music:
-                    AudioKit.Music().Resume();
+                    AudioKit.Music(GroupName).Resume();
                     break;
                 case AudioPlayType.Voice:
-                    AudioKit.Voice().Resume();
+                    AudioKit.Voice(GroupName).Resume();
                     break;
                 case AudioPlayType.Sound:
-                    AudioKit.Sound().Resume(currentClipName);
+                    AudioKit.Sound(GroupName).Resume(currentClipName);
                     break;
             }
 
