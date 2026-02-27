@@ -34,6 +34,7 @@ namespace YukiFrameWork.AI
 
             private RuntimeAIServices()
             {
+                
             }
 
             public RuntimeAIServices(IAIServices services, AIServicesInfo servicesInfo)
@@ -42,26 +43,44 @@ namespace YukiFrameWork.AI
                 this.AIServicesInfo = servicesInfo;
                 Services.Agent.speed = servicesInfo.speed;
                 this.InstanceId = Services.Agent.GetInstanceID();
-
-                for (int i = 0; i < servicesInfo.areaCastInfos.Count; i++)
-                {
-                    var castInfo = servicesInfo.areaCastInfos[i];
-                    if (castInfo == null) continue;
-                    int areaIndex = NavMesh.GetAreaFromName(castInfo.areaName);
-                    this.Services.Agent.SetAreaCost(areaIndex,castInfo.cast);
-                }
                 
                 Services.ServicesInit();
-                
             }
+            
 
-            internal void Enable()
+            internal async void Enable()
             {
                 if (IsRunning) return;
                 IsRunning = true;
                 Services.Enable();
+                
+                //启动后等待Agent成功同步到NavMesh上再设置区域权重，避免在Agent未同步到NavMesh上时设置区域权重导致的异常
+#if UNITY_2021_1_OR_NEWER
+                await CoroutineTool.WaitWhile(() => IsOnNavMesh);
+                for (int i = 0; i < AIServicesInfo.areaCastInfos.Count; i++)
+                {
+                    var castInfo = AIServicesInfo.areaCastInfos[i];
+                    if (castInfo == null) continue;
+                    int areaIndex = NavMesh.GetAreaFromName(castInfo.areaName);
+                    this.Services.Agent.SetAreaCost(areaIndex,castInfo.cast);
+                }
+#else
+                MonoHelper.Start(WaitAgentOnNavMesh());
+#endif
             }
-
+#if !UNITY_2021_1_OR_NEWER
+            private IEnumerator WaitAgentOnNavMesh()
+            {
+                yield return CoroutineTool.WaitUntil(() => IsOnNavMesh);
+                for (int i = 0; i < AIServicesInfo.areaCastInfos.Count; i++)
+                {
+                    var castInfo = AIServicesInfo.areaCastInfos[i];
+                    if (castInfo == null) continue;
+                    int areaIndex = NavMesh.GetAreaFromName(castInfo.areaName);
+                    this.Services.Agent.SetAreaCost(areaIndex,castInfo.cast);
+                }
+            }
+#endif
             internal void Disable()
             {
                 if (!IsRunning) return;
@@ -89,6 +108,9 @@ namespace YukiFrameWork.AI
 
                 if (!HasPath)
                     Services.Agent.SetDestination(Services.EndPos);
+                
+                if(IsOnOffMeshLink && Services.IsLinkIgnore)
+                    Services.Agent.CompleteOffMeshLink();
 
                 Vector3 direction = HasPath ? Services.Agent.nextPosition - Services.Agent.transform.position : Vector3.zero;
                 Services.NavMeshUpdate(direction);
@@ -113,6 +135,18 @@ namespace YukiFrameWork.AI
             public bool IsOnNavMesh => Services.Agent.isOnNavMesh;
             public bool HasPath => Services.Agent.hasPath;
 
+            public bool IsOnOffMeshLink => Services.Agent.isOnOffMeshLink;
+
+        }
+
+        static AIServicesKit()
+        {
+            MonoHelper.Update_RemoveListener(Update);
+            MonoHelper.Update_AddListener(Update);
+            MonoHelper.FixedUpdate_RemoveListener(FixedUpdate);
+            MonoHelper.FixedUpdate_AddListener(FixedUpdate);
+            MonoHelper.LateUpdate_RemoveListener(LateUpdate);
+            MonoHelper.LateUpdate_AddListener(LateUpdate);
         }
 
         public static void Init(string projectName)
@@ -277,17 +311,17 @@ namespace YukiFrameWork.AI
             return runtime_Services.TryGetValue(services.Agent.GetInstanceID(), out result);
         }
 
-        internal static void Update()
+        internal static void Update(MonoHelper _)
         {
             Execute(NavMeshUpdateMode.Update);
         }
 
-        internal static void FixedUpdate()
+        internal static void FixedUpdate(MonoHelper _)
         {
             Execute(NavMeshUpdateMode.FixedUpdate);
         }
 
-        internal static void LateUpdate()
+        internal static void LateUpdate(MonoHelper _)
         {
 
             Execute(NavMeshUpdateMode.LateUpdate);

@@ -19,6 +19,12 @@ namespace YukiFrameWork.AI
         Vector3 EndPos { get; }
 
         /// <summary>
+        /// 是否忽略NavMeshLink移动，瞬发赋值
+        /// Tips:开启此项后，当AI经过NavMeshLink时Agent的计算将被强制移动到Link的终点位置
+        /// </summary>
+        bool IsLinkIgnore { get; }
+
+        /// <summary>
         /// 当服务被注册时触发
         /// </summary>
         void ServicesInit();
