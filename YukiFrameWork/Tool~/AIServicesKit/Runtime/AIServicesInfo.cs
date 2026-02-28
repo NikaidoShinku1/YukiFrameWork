@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;
@@ -10,8 +11,14 @@ namespace YukiFrameWork.AI
     {
         [LabelText("AI的唯一Id")]
         public int id;
-        [LabelText("AI的移动速度")]
+        
+        [LabelText("AI的导航速度")]
+        public float agentSpeed = 3.5f;
+        [HideInInspector,Obsolete("已丢弃的参数,请使用agentSpeed属性来设置AI的导航速度")]
         public float speed = 3.5f;
+        
+        [LabelText("AI的参数列表")]
+        public AIServicesParam[] parameters = new AIServicesParam[0];
         
         [LabelText("ai的喜好区域")]
         [InfoBox("如果在信息中没有设置区域，那么AI将会默认应用全局设置")]
@@ -37,5 +44,42 @@ namespace YukiFrameWork.AI
             public float cast = 1;
         }
 
+    }
+
+    public enum AIServicesParamType
+    {
+        Float,
+        Intger,
+        String,
+        Boolan
+    }
+
+    [Serializable]
+    public class AIServicesParam
+    {
+        [SerializeField,LabelText("参数的唯一标识")]
+        internal string paramKey;
+        [SerializeField,LabelText("参数类型")]
+        internal AIServicesParamType paramType;
+        [SerializeField,ShowIf(nameof(paramType),AIServicesParamType.String)]private string stringValue;
+        [SerializeField,ShowIf(nameof(paramType),AIServicesParamType.Intger)]private int intValue;
+        [SerializeField,ShowIf(nameof(paramType),AIServicesParamType.Float)]private float floatValue;
+        [SerializeField,ShowIf(nameof(paramType),AIServicesParamType.Boolan)]private bool boolValue;
+        
+        [JsonIgnore]public object Value
+        {
+            get => paramType switch
+            {
+                AIServicesParamType.Boolan => boolValue,
+                AIServicesParamType.Float => floatValue,
+                AIServicesParamType.Intger => intValue,
+                AIServicesParamType.String => stringValue,
+                _ => throw new Exception("未定义的参数类型")
+            };
+        }
+        [JsonIgnore]public string StringValue => paramType == AIServicesParamType.String ? stringValue : throw new Exception("参数类型不匹配");
+        [JsonIgnore]public int IntValue => paramType == AIServicesParamType.Intger ? intValue : throw new Exception("参数类型不匹配");
+        [JsonIgnore]public float FloatValue => paramType == AIServicesParamType.Float ? floatValue : throw new Exception("参数类型不匹配");
+        [JsonIgnore]public bool BoolValue => paramType == AIServicesParamType.Boolan ? boolValue : throw new Exception("参数类型不匹配");
     }
 }

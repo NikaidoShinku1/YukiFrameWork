@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
@@ -31,6 +32,8 @@ namespace YukiFrameWork.AI
             public AIServicesInfo AIServicesInfo { get; }
 
             public bool IsRunning { get; internal set; }
+            
+            public Dictionary<string,AIServicesParam> RuntimeParams { get; } = new Dictionary<string, AIServicesParam>();
 
             private RuntimeAIServices()
             {
@@ -43,6 +46,8 @@ namespace YukiFrameWork.AI
                 this.AIServicesInfo = servicesInfo;
                 Services.Agent.speed = servicesInfo.speed;
                 this.InstanceId = Services.Agent.GetInstanceID();
+
+                RuntimeParams = servicesInfo.parameters.ToDictionary(x => x.paramKey, x => x);
                 
                 Services.ServicesInit();
             }
@@ -56,7 +61,7 @@ namespace YukiFrameWork.AI
                 
                 //启动后等待Agent成功同步到NavMesh上再设置区域权重，避免在Agent未同步到NavMesh上时设置区域权重导致的异常
 #if UNITY_2021_1_OR_NEWER
-                await CoroutineTool.WaitWhile(() => IsOnNavMesh);
+                await CoroutineTool.WaitUntil(() => IsOnNavMesh);
                 for (int i = 0; i < AIServicesInfo.areaCastInfos.Count; i++)
                 {
                     var castInfo = AIServicesInfo.areaCastInfos[i];
@@ -452,7 +457,7 @@ namespace YukiFrameWork.AI
         public static RuntimeAIServices AsRuntime(this IAIServices services)
         {
             if (!CheckAIServices(services, out var result))
-                throw new System.Exception("未注册指定的AI服务 GameObject:" + services.Agent.gameObject.name);
+                return null;
 
             return result;
         }

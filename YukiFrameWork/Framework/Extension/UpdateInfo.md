@@ -1,5 +1,9 @@
 ﻿#### 框架更新日志、
 
+V1.62.3 AI服务模块新增参数配置。添加NavMeshLink的跳过兼容，版本转正
+
+V1.62.2 修复AIServicesKit不触发Update的问题。修复设置区域时因为Agent不处于NavMesh中而抛出异常的问题
+
 V1.62.1 基于Unity NavMesh拓展新增AI服务模块。可定制AI的行动模式
 
 V1.61.7 ReddotKit 修复反序列化在Android平台会异常的问题

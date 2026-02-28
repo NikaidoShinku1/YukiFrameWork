@@ -122,7 +122,7 @@ namespace YukiFrameWork.Extension
             },
             ["AIServicesKit"] = new ToolDataInfo()
             {
-                isView = true,
+                isView = false,
                 key = "AIServicesKit",
                 path = packagePath + "/Tool~/AIServicesKit",
                 active = true,
