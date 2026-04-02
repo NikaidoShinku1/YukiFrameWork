@@ -11,8 +11,21 @@ using UnityEngine;
 using System;
 namespace YukiFrameWork.Machine
 {
+    /// <summary>
+    /// 状态机参数类，通过初始化或者设置参数的方式传递，每次设置都会同步给指定状态机下所有的状态脚本！
+    /// </summary>
+    public abstract class StateUserData
+    {
+        
+    }
+
     public abstract class StateBehaviour : IController,IDynamicMonoBehaviour
     {
+        
+        /// <summary>
+        /// 状态机参数(通过外部初始化传递)
+        /// </summary>
+        public StateUserData UserData { get; internal set; }
         /// <summary>
         /// 这个状态所属的状态机
         /// </summary>

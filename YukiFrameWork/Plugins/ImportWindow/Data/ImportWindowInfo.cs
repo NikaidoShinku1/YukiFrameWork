@@ -62,9 +62,15 @@ namespace YukiFrameWork.Extension
                 return EquipmentKitInfo;
             else if (key == "MissionTree")
                 return MissionTreeInfo;
+            else if (key == "AIServicesKit")
+                return AIServicesInfo;
+            else if (key == "SignKit")
+                return SignInfo;
             return default;
         }
 
+        public static string AIServicesInfo => "AI服务套件，基于NavMeshAgent的寻路包含了AI的基础数据结构以及一些基础的AI功能实现";
+        public static string SignInfo => "签到系统，基础通用式签到系统";
         public static string MissionTreeInfo => "框架图结构任务树。对任务系统的高度封装以及自由定义,上手简单具有完整示例包";
 
         public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";

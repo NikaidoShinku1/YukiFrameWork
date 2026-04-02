@@ -1,5 +1,11 @@
 ﻿#### 框架更新日志、
 
+V1.62.6 StateMachine新增参数设置功能，优化文档
+
+V1.62.5 AIServicesKit新增移动模式选择，UI模块新增面板分辨率适配
+
+V1.62.4 修复ActionKit Repeat循环设定次数也会无限循环的问题
+
 V1.62.3 AI服务模块新增参数配置。添加NavMeshLink的跳过兼容，版本转正
 
 V1.62.2 修复AIServicesKit不触发Update的问题。修复设置区域时因为Agent不处于NavMesh中而抛出异常的问题

@@ -20,7 +20,8 @@ namespace YukiFrameWork.Machine
     public enum StateInitializeType
     {
         Awake,
-        Start
+        Start,
+        Custom
     }
     [DisableViewWarning]
     public class StateManager : SerializedMonoBehaviour,IController,IEnumerable<StateMachineCore>
@@ -171,7 +172,7 @@ namespace YukiFrameWork.Machine
         /// <summary>
         /// 状态机组件初始化方法
         /// </summary>
-        private void Init()
+        public void Init(StateUserData userData = null)
         {
             //没有配置就不初始化
             if (runtime_StateMachineCore_Datas.Count == 0)
@@ -181,7 +182,7 @@ namespace YukiFrameWork.Machine
             if (IsInitialized) return;
             foreach (var item in runtime_StateMachineCore_Datas)
             {
-                StateMachineCore stateMachineCore = new StateMachineCore(this,item.Value);
+                StateMachineCore stateMachineCore = new StateMachineCore(this,item.Value,userData);
 
                 string key = string.Empty;
                 if (item.Key.IsNullOrEmpty())
@@ -214,6 +215,28 @@ namespace YukiFrameWork.Machine
         {
             runtime_StateMachineCores.TryGetValue(layerName, out var core);
             return core;
+        }
+        
+        /// <summary>
+        /// 设置指定的状态机集合参数
+        /// </summary>
+        /// <param name="layerName"></param>
+        /// <param name="userData"></param>
+        public void SetUserData(string layerName,StateUserData userData)
+        {
+            var core = GetRuntimeMachineCore(layerName);
+            if (core == null) return;
+            SetUserData(core,userData);
+        }
+        
+        /// <summary>
+        /// 设置指定的状态机集合参数
+        /// </summary>
+        /// <param name="layerName"></param>
+        /// <param name="userData"></param>
+        public void SetUserData(StateMachineCore stateMachineCore,StateUserData userData)
+        {
+            stateMachineCore.SetUserData(userData);
         }
 
         /// <summary>
@@ -406,14 +429,14 @@ namespace YukiFrameWork.Machine
         /// <param name="stateMachineCore">这个状态机需要用到的配置</param>     
         /// <param name="archectureType">可依赖的框架架构类型</param>
         /// <returns></returns>
-        public static StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default)
+        public static StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default,StateUserData data = null)
         {           
             return StartMachine(machineName, stateMachineCore, typeof(IArchitecture).IsAssignableFrom(archectureType) 
                 ? ArchitectureConstructor.Instance.GetOrAddArchitecture(archectureType)
-                : null);
+                : null,data);
         }
 
-        public static StateManager StartMachine(string machineName, RuntimeStateMachineCore stateMachineCore, IArchitecture architecture = null)
+        public static StateManager StartMachine(string machineName, RuntimeStateMachineCore stateMachineCore, IArchitecture architecture = null,StateUserData data = null)
         {
             if (static_runtime_Machines.ContainsKey(machineName))
             {
@@ -426,7 +449,7 @@ namespace YukiFrameWork.Machine
             stateManager.runtime_StateMachineCore_Datas.Add(string.Empty, stateMachineCore);
             static_runtime_Machines.Add(machineName, stateManager);            
             stateManager.runtime_Architecture = architecture;
-            stateManager.Init();
+            stateManager.Init(data);
 
             return stateManager;
         }

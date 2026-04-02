@@ -46,14 +46,14 @@ namespace YukiFrameWork.Machine
         /// </summary>
         private Dictionary<int, int> trigger_count = new Dictionary<int, int>();
 
-        public StateMachineCore(StateManager stateManager,RuntimeStateMachineCore runtimeStateMachineCore)
+        public StateMachineCore(StateManager stateManager,RuntimeStateMachineCore runtimeStateMachineCore,StateUserData userData)
         {        
             this.stateManager = stateManager;
             this.runtimeStateMachineCore = runtimeStateMachineCore.Instantiate();
 #if UNITY_EDITOR
             this.runtimeStateMachineCore.runtime_GUID = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(runtimeStateMachineCore));
 #endif            
-            Init();
+            Init(userData);
         }
 
         private StateManager stateManager;
@@ -69,7 +69,7 @@ namespace YukiFrameWork.Machine
             return stateManager.GetArchitecture();
         }
 
-        void Init()
+        void Init(StateUserData userData)
         {
             foreach (var item in runtimeStateMachineCore.all_runtime_parameters)
             {
@@ -101,7 +101,7 @@ namespace YukiFrameWork.Machine
                                 stateMachine.AddChildMachine(subMachine);
                             }
                         }
-                        stateMachine.AddState(new StateBase(item,stateMachine));
+                        stateMachine.AddState(new StateBase(item,stateMachine,userData));
                     }
                     
                 }
@@ -134,6 +134,18 @@ namespace YukiFrameWork.Machine
             //状态机启动后触发的事件
             onStateMachineStarted?.Invoke();           
             onStateMachineStarted = null;
+        }
+        
+        /// <summary>
+        /// 设置状态机参数
+        /// </summary>
+        /// <param name="userData"></param>
+        public void SetUserData(StateUserData userData)
+        {
+            foreach (var item in runtime_Machines.Values)
+            {
+                item.SetUserData(userData);
+            }
         }
 
         /// <summary>

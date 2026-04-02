@@ -32,6 +32,8 @@ namespace YukiFrameWork.Machine
             {
                 var stateManager = runtime_All_StateManagers[i];
                 if (!stateManager) continue;
+                
+                if(!stateManager.IsInitialized)continue;
 
                 foreach (var core in stateManager)
                 {
@@ -49,7 +51,7 @@ namespace YukiFrameWork.Machine
             {
                 var stateManager = runtime_All_StateManagers[i];
                 if (!stateManager) continue;
-
+                if(!stateManager.IsInitialized)continue;
                 foreach (var core in stateManager)
                 {
                     core.FixedUpdate();
@@ -63,7 +65,7 @@ namespace YukiFrameWork.Machine
             {
                 var stateManager = runtime_All_StateManagers[i];
                 if (!stateManager) continue;
-
+                if(!stateManager.IsInitialized)continue;
                 foreach (var core in stateManager)
                 {
                     core.LateUpdate();

@@ -16,6 +16,14 @@ namespace YukiFrameWork.AI
         LateUpdate = 2
     }
 
+    public enum PathingMoveMode
+    {
+        Direction,
+        DirectionNormalized,
+        Velocity,
+        None
+    }
+
     public static class AIServicesKit
     {
         private static IAIServicesLoader _aiServicesLoader = null;
@@ -114,27 +122,45 @@ namespace YukiFrameWork.AI
                 if (!HasPath)
                     Services.Agent.SetDestination(Services.EndPos);
                 
-                if(IsOnOffMeshLink && Services.IsLinkIgnore)
+                if(IsOnOffMeshLink && AIServicesInfo.isLinkIgnore)
                     Services.Agent.CompleteOffMeshLink();
+                
+                Services.NavMeshUpdate(GetMovingDirection());
 
-                Vector3 direction = HasPath ? Services.Agent.nextPosition - Services.Agent.transform.position : Vector3.zero;
-                Services.NavMeshUpdate(direction);
+            }
 
+            private Vector3 GetMovingDirection()
+            {
+                Vector3 direction = Vector3.zero;
+                switch (AIServicesInfo.pathingMoveMode)
+                {
+                    case PathingMoveMode.Direction:
+                        if(HasPath)
+                            direction = Services.Agent.nextPosition - Services.Agent.transform.position;
+                        return direction;
+                    case PathingMoveMode.DirectionNormalized:
+                        if(HasPath)
+                            direction = Services.Agent.nextPosition - Services.Agent.transform.position;
+                        return direction.normalized;
+                    case PathingMoveMode.Velocity:
+                        return Services.Agent.velocity;
+                }
+
+                return direction;
             }
 
             internal void FixedUpdate()
             {
                 if (!IsRunning || !IsOnNavMesh) return;
-                Vector3 direction = HasPath ? Services.Agent.nextPosition - Services.Agent.transform.position : Vector3.zero;
-                Services.NavMeshFixedUpdate(direction);
+                
+                Services.NavMeshFixedUpdate(GetMovingDirection());
             }
 
             internal void LateUpdate()
             {
                 if (!IsRunning || !IsOnNavMesh) return;
-
-                Vector3 direction = HasPath ? Services.Agent.nextPosition - Services.Agent.transform.position : Vector3.zero;
-                Services.NavMeshLateUpdate(direction);
+                
+                Services.NavMeshLateUpdate(GetMovingDirection());
             }
 
             public bool IsOnNavMesh => Services.Agent.isOnNavMesh;
@@ -177,6 +203,7 @@ namespace YukiFrameWork.AI
             {
                 var info = config.aiServicesInfos[i];
                 if (!info)continue;
+                
 
                 runtime_AllAIServicesInfos[config.groupName].Add(info.id,info.Instantiate());
             }

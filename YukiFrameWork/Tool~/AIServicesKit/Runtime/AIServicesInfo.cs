@@ -36,6 +36,17 @@ namespace YukiFrameWork.AI
             }
         };
 
+        /// <summary>
+        /// 是否忽略NavMeshLink移动，瞬发赋值
+        /// Tips:开启此项后，当AI经过NavMeshLink时Agent的计算将被强制移动到Link的终点位置
+        /// </summary>
+        [LabelText("是否忽略NavMeshLink移动")]
+        public bool isLinkIgnore;
+        
+        [LabelText("AI的移动模式")]
+        [InfoBox("移动模式决定了IAIServices接口的Update更新传递的参数,如果选择了None，则需要自行更新或开启NavMeshAgent的自动寻路")]
+        public PathingMoveMode pathingMoveMode;
+
         [Serializable]
         public class AIAreaCastInfo
         {

@@ -67,40 +67,41 @@ public class IdleState : StateBehaviour
 
 对于配置RuntimeStateMachineCore类，在运行时会被转换为StateMachineCore类。作为状态机集合本体类使用。保存这个配置下所有的状态机
 
-|StateMachineCore API|状态机集合本体API说明|
-|---|---|
-|Property API|属性API|
-|bool IsActive { get; }|这个状态机集合本体是否激活|
-|StateManager StateManager { get; }|这个集合所在的StateManager|
-|Action onStateMachineStarted|当这个本体启动时触发的回调|
-|---|---|
-|Method API|方法API说明|
-|void Start()|启动运行状态机集合|
-|StateBase GetCurrentStateInfo()|获取当前正在运行的状态信息(这个方法下会精确到子状态机的状态信息)|
-|StateBase GetCurrentMachineStateInfo(string name)|获取指定状态机下的运行状态信息|
-|void Cancel()|关闭这个状态机集合|
-|StateParameterData GetStateParameterData(string parameterName)|根据名称获取到指定的参数信息|
-|StateMachine GetRuntimeMachine(string machineName)|根据状态机名称获取到指定的状态机。默认层的状态机名称为:"Base Layer"|
-|---|---|
-|Parameter API|参数设置API|
-|void SetBool(string name, bool value)|--|
-|void SetBool(int nameToHash,bool value)|--|
-|void SetFloat(string name,float value)|--|
-|void SetFloat(int nameToHash,float value)|--|
-|void SetInt(string name,int value)|--|
-|void SetInt(int nameToHash,int value)|--|
-|void SetTrigger(string name)|--|
-|void SetTrigger(int nameToHash)|--|
-|void ResetTrigger(string name)|重置Trigger|
-|void ResetTrigger(int nameToHash)|如上|
-|bool GetBool(string name)|--|
-|bool GetBool(int nameToHash)|--|
-|float GetFloat(string name)|--|
-|float GetFloat(int nameToHash)|--|
-|int GetInt(string name)|--|
-|int GetInt(int nameToHash)|--|
-|bool GetTrigger(string name)|--|
-|bool GetTrigger(int nameToHash)|--|
+| StateMachineCore API                                           | 状态机集合本体API说明                             |
+|----------------------------------------------------------------|------------------------------------------|
+| Property API                                                   | 属性API                                    |
+| bool IsActive { get; }                                         | 这个状态机集合本体是否激活                            |
+| StateManager StateManager { get; }                             | 这个集合所在的StateManager                      |
+| Action onStateMachineStarted                                   | 当这个本体启动时触发的回调                            |
+| ---                                                            | ---                                      |
+| Method API                                                     | 方法API说明                                  |
+| void Start()                                                   | 启动运行状态机集合                                |
+| StateBase GetCurrentStateInfo()                                | 获取当前正在运行的状态信息(这个方法下会精确到子状态机的状态信息)        |
+| StateBase GetCurrentMachineStateInfo(string name)              | 获取指定状态机下的运行状态信息                          |
+| void Cancel()                                                  | 关闭这个状态机集合                                |
+| void SetUserData(StateUserData userData)                       | 设置状态机集合参数                                |
+| StateParameterData GetStateParameterData(string parameterName) | 根据名称获取到指定的参数信息                           |
+| StateMachine GetRuntimeMachine(string machineName)             | 根据状态机名称获取到指定的状态机。默认层的状态机名称为:"Base Layer" |
+| ---                                                            | ---                                      |
+| Parameter API                                                  | 参数设置API                                  |
+| void SetBool(string name, bool value)                          | --                                       |
+| void SetBool(int nameToHash,bool value)                        | --                                       |
+| void SetFloat(string name,float value)                         | --                                       |
+| void SetFloat(int nameToHash,float value)                      | --                                       |
+| void SetInt(string name,int value)                             | --                                       |
+| void SetInt(int nameToHash,int value)                          | --                                       |
+| void SetTrigger(string name)                                   | --                                       |
+| void SetTrigger(int nameToHash)                                | --                                       |
+| void ResetTrigger(string name)                                 | 重置Trigger                                |
+| void ResetTrigger(int nameToHash)                              | 如上                                       |
+| bool GetBool(string name)                                      | --                                       |
+| bool GetBool(int nameToHash)                                   | --                                       |
+| float GetFloat(string name)                                    | --                                       |
+| float GetFloat(int nameToHash)                                 | --                                       |
+| int GetInt(string name)                                        | --                                       |
+| int GetInt(int nameToHash)                                     | --                                       |
+| bool GetTrigger(string name)                                   | --                                       |
+| bool GetTrigger(int nameToHash)                                | --                                       |
 
 Tip：对于上述参数API 名称会被转换为Hash，可用StateManager.HashToString进行转换。
 
@@ -121,37 +122,39 @@ Tip：对于上述参数API 名称会被转换为Hash，可用StateManager.HashT
 
 对于挂载组件StateManager，API如下:
 
-|StateManager API|状态机管理组件API|
-|--|--|
-|UnityEvent onInitialized|当状态机初始化完成后调用|
-|UnityEvent<StateMachineCore,StateMachine, string>|当状态机切换状态后调用.会传递状态机集合类与状态机类以及切换状态的名称|
-|StateMachineCore DefaultStateMachineCore { get; }|当状态机配置仅存一个时，运行时获取到这个默认的状态机集合|
-|bool IsInitialized { get; }|状态机管理器是否已经初始化完成|
-|StateBase GetCurrentStateInfo(string layerName)|根据唯一标识获取状态机集合本体后查找当前运行状态信息|
-|StateMachineCore GetRuntimeMachineCore(string layerName)|根据唯一标识获取指定的运行时状态机集合|
-|void ForEach(Action< StateMachineCore > each)|遍历所有的状态机集合(StateManager实现IEnumerable方法，可直接foreach)|
-|---|---|
-|static Method API|状态机管理器静态API|
-|int StringToHash(string event_name)|将名称转换为哈希值|
-|StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default)|启动一个不进行StateManager组件挂载的状态机并返回|
-|StateManager GetGlobalStateManager(string machineName)|获取一个通过StartMachine方法启动的状态机管理器|
-|bool RemoveMachine(string machineName)|根据StartMachine方法创建的状态机名称进行对全局状态机的移除|
-|--|StateManager也可进行参数的设置|
-|void SetBool(StateMachineCore stateMachineCore,int nameToHash,bool value)|--|
-|void SetFloat(StateMachineCore stateMachineCore,string name,float value)|--|
-|void SetFloat(StateMachineCore stateMachineCore,int nameToHash,float value)|--|
-|void SetInt(StateMachineCore stateMachineCore,string name,int value)|--|
-|void SetInt(StateMachineCore stateMachineCore,int nameToHash,int value)|--|
-|void SetTrigger(StateMachineCore stateMachineCore,string name)|--|
-|void SetTrigger(StateMachineCore stateMachineCore,int nameToHash)|--|
-|void ResetTrigger(StateMachineCore stateMachineCore,string name)|重置Trigger|
-|void ResetTrigger(StateMachineCore stateMachineCore,int nameToHash)|如上|
-|bool GetBool(StateMachineCore stateMachineCore,string name)|--|
-|bool GetBool(StateMachineCore stateMachineCore,int nameToHash)|--|
-|float GetFloat(StateMachineCore stateMachineCore,string name)|--|
-|float GetFloat(StateMachineCore stateMachineCore,int nameToHash)|--|
-|int GetInt(StateMachineCore stateMachineCore,string name)|--|
-|int GetInt(StateMachineCore stateMachineCore,int nameToHash)|--|
-|bool GetTrigger(StateMachineCore stateMachineCore,string name)|--|
-|bool GetTrigger(StateMachineCore stateMachineCore,int nameToHash)|--|
+| StateManager API                                                                                                     | 状态机管理组件API                                        |
+|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| UnityEvent onInitialized                                                                                             | 当状态机初始化完成后调用                                      |
+| UnityEvent<StateMachineCore,StateMachine, string>                                                                    | 当状态机切换状态后调用.会传递状态机集合类与状态机类以及切换状态的名称               |
+| StateMachineCore DefaultStateMachineCore { get; }                                                                    | 当状态机配置仅存一个时，运行时获取到这个默认的状态机集合                      |
+| bool IsInitialized { get; }                                                                                          | 状态机管理器是否已经初始化完成                                   |
+| void Init(StateUserData userData = null)                                                                             | 状态机初始化方法，当选择Custom时需要手动触发                         |
+| StateBase GetCurrentStateInfo(string layerName)                                                                      | 根据唯一标识获取状态机集合本体后查找当前运行状态信息                        |
+| StateMachineCore GetRuntimeMachineCore(string layerName)                                                             | 根据唯一标识获取指定的运行时状态机集合                               |
+| void ForEach(Action< StateMachineCore > each)                                                                        | 遍历所有的状态机集合(StateManager实现IEnumerable方法，可直接foreach) |
+| void SetUserData(string layerName,StateUserData userData)                                                            | 在指定的状态机集合上设置参数                                    |
+| ---                                                                                                                  | ---                                               |
+| static Method API                                                                                                    | 状态机管理器静态API                                       |
+| int StringToHash(string event_name)                                                                                  | 将名称转换为哈希值                                         |
+| StateManager StartMachine(string machineName,RuntimeStateMachineCore stateMachineCore,Type archectureType = default) | 启动一个不进行StateManager组件挂载的状态机并返回                    |
+| StateManager GetGlobalStateManager(string machineName)                                                               | 获取一个通过StartMachine方法启动的状态机管理器                     |
+| bool RemoveMachine(string machineName)                                                                               | 根据StartMachine方法创建的状态机名称进行对全局状态机的移除               |
+| --                                                                                                                   | StateManager也可进行参数的设置                             |
+| void SetBool(StateMachineCore stateMachineCore,int nameToHash,bool value)                                            | --                                                |
+| void SetFloat(StateMachineCore stateMachineCore,string name,float value)                                             | --                                                |
+| void SetFloat(StateMachineCore stateMachineCore,int nameToHash,float value)                                          | --                                                |
+| void SetInt(StateMachineCore stateMachineCore,string name,int value)                                                 | --                                                |
+| void SetInt(StateMachineCore stateMachineCore,int nameToHash,int value)                                              | --                                                |
+| void SetTrigger(StateMachineCore stateMachineCore,string name)                                                       | --                                                |
+| void SetTrigger(StateMachineCore stateMachineCore,int nameToHash)                                                    | --                                                |
+| void ResetTrigger(StateMachineCore stateMachineCore,string name)                                                     | 重置Trigger                                         |
+| void ResetTrigger(StateMachineCore stateMachineCore,int nameToHash)                                                  | 如上                                                |
+| bool GetBool(StateMachineCore stateMachineCore,string name)                                                          | --                                                |
+| bool GetBool(StateMachineCore stateMachineCore,int nameToHash)                                                       | --                                                |
+| float GetFloat(StateMachineCore stateMachineCore,string name)                                                        | --                                                |
+| float GetFloat(StateMachineCore stateMachineCore,int nameToHash)                                                     | --                                                |
+| int GetInt(StateMachineCore stateMachineCore,string name)                                                            | --                                                |
+| int GetInt(StateMachineCore stateMachineCore,int nameToHash)                                                         | --                                                |
+| bool GetTrigger(StateMachineCore stateMachineCore,string name)                                                       | --                                                |
+| bool GetTrigger(StateMachineCore stateMachineCore,int nameToHash)                                                    | --                                                |
 

@@ -50,15 +50,15 @@ namespace YukiFrameWork.Machine
         /// </summary>
         public StateBase LastState { get; internal set; }
 
-        public StateBase(StateNodeData runtime_StateData,StateMachine stateMachine)
+        public StateBase(StateNodeData runtime_StateData,StateMachine stateMachine,StateUserData userData)
         {
             this.runtime_StateData = runtime_StateData;
             this.stateMachine = stateMachine;
             runtime_StateBehaviours = new List<StateBehaviour>();
-            CreateBehaviours();
+            CreateBehaviours(userData);
         }
 
-        private void CreateBehaviours()
+        private void CreateBehaviours(StateUserData userData)
         {
             var infos = runtime_StateData.behaviourInfos;
             foreach (var info in infos) 
@@ -70,6 +70,7 @@ namespace YukiFrameWork.Machine
                 StateBehaviour stateBehaviour = type.CreateInstance() as StateBehaviour;
 
                 stateBehaviour.CurrentStateInfo = this;
+                stateBehaviour.UserData = userData; 
                 stateBehaviour.Type = type;
                 runtime_StateBehaviours.Add(stateBehaviour);
             }

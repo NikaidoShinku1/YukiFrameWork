@@ -22,7 +22,7 @@ namespace YukiFrameWork.Machine
 
         public const string BaseLayer = "Base Layer";
 
-        public const string initializeDisplay = "状态机初始化时机";
+        public const string initializeDisplay = "状态机初始化时机\n当选择Custom时,需要手动调用Init方法";
         public const string initializeEventDisplay = "当状态机初始化完成后执行的回调";
         public const string resetDisableDisplay = "(是否在对象失活(Disable)重置状态机)";
         public const string onChangeStateEventDisplay = "当状态机切换某一个状态时触发的回调,会传递所属状态机集合与其实际执行切换的状态机与切换前后的状态名称参数";

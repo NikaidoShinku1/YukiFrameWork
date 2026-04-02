@@ -19,12 +19,6 @@ namespace YukiFrameWork.AI
         Vector3 EndPos { get; }
 
         /// <summary>
-        /// 是否忽略NavMeshLink移动，瞬发赋值
-        /// Tips:开启此项后，当AI经过NavMeshLink时Agent的计算将被强制移动到Link的终点位置
-        /// </summary>
-        bool IsLinkIgnore { get; }
-
-        /// <summary>
         /// 当服务被注册时触发
         /// </summary>
         void ServicesInit();
@@ -53,17 +47,17 @@ namespace YukiFrameWork.AI
         /// <summary>
         /// 当服务启动后持续更新
         /// </summary>
-        /// <param name="direction">寻路数据给出的下一个方向</param>
-        void NavMeshUpdate(Vector3 direction);
+        /// <param name="location">根据配置给出的下一个方向</param>
+        void NavMeshUpdate(Vector3 location);
         /// <summary>
         /// 当服务启动后持续更新
         /// </summary>
-        /// <param name="direction">寻路数据给出的下一个方向</param>
-        void NavMeshFixedUpdate(Vector3 direction);
+        /// <param name="location">根据配置给出的下一个方向</param>
+        void NavMeshFixedUpdate(Vector3 location);
         /// <summary>
         /// 当服务启动后持续更新
         /// </summary>
-        /// <param name="direction">寻路数据给出的下一个方向</param>
-        void NavMeshLateUpdate(Vector3 direction);
+        /// <param name="location">根据配置给出的下一个方向</param>
+        void NavMeshLateUpdate(Vector3 location);
     }
 }

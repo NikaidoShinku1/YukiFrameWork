@@ -158,7 +158,7 @@ using YukiFrameWork.Missions;
             missionTree.ResetMission(1001);
 
             //锁定任务
-            missionTree.UnLockMission(1001);
+            missionTree.LockMission(1001);
 
             //启动所有的任务
             missionTree.StartMissions();//重载可传递Func回调判断启动条件 重置与解锁形式一样。

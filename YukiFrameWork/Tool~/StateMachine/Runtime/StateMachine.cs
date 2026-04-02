@@ -101,9 +101,23 @@ namespace YukiFrameWork.Machine
             runtime_States.Add(stateBase);
         }
 
+      
+
         internal void RemoveState(StateBase stateBase)
         {
             runtime_States.Remove(stateBase);
+        }
+
+        internal void SetUserData(StateUserData userData)
+        {
+            foreach (var item in runtime_States)
+            {
+                var behaviours = item.GetAllBehaviours();
+                foreach (var behaviour in behaviours)
+                {
+                    behaviour.UserData = userData;
+                }
+            }
         }
 
         /// <summary>
