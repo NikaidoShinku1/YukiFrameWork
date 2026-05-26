@@ -20,6 +20,7 @@ namespace YukiFrameWork
         public override IUnRegister RegisterEvent(Action onEvent)
         {
             OnEasyEvent += onEvent;
+            NotifyRegistered(onEvent);
             return this;
         }
 
@@ -30,6 +31,7 @@ namespace YukiFrameWork
 
         public override void UnRegister(Action onEvent)
         {
+            NotifyUnregistered(onEvent);
             OnEasyEvent -= onEvent;
         }
     }
@@ -39,6 +41,7 @@ namespace YukiFrameWork
         public override IUnRegister RegisterEvent(Action<T, K> onEvent)
         {
             OnEasyEvent += onEvent;
+            NotifyRegistered(onEvent);
             return this;
         }
 
@@ -47,6 +50,7 @@ namespace YukiFrameWork
 
         public override void UnRegister(Action<T, K> onEvent)
         {
+            NotifyUnregistered(onEvent);
             OnEasyEvent -= onEvent;
         }
     }
@@ -56,6 +60,7 @@ namespace YukiFrameWork
         public override IUnRegister RegisterEvent(Action<T, K, Q> onEvent)
         {
             OnEasyEvent += onEvent;
+            NotifyRegistered(onEvent);
             return this;
         }
         public void SendEvent(T t, K k, Q q)
@@ -63,6 +68,7 @@ namespace YukiFrameWork
 
         public override void UnRegister(Action<T, K, Q> onEvent)
         {
+            NotifyUnregistered(onEvent);
             OnEasyEvent -= onEvent;
         }
     }
@@ -72,6 +78,7 @@ namespace YukiFrameWork
         public override IUnRegister RegisterEvent(Action<T, K, Q, P> onEvent)
         {
             OnEasyEvent += onEvent;
+            NotifyRegistered(onEvent);
             return this;
         }
 
@@ -80,6 +87,7 @@ namespace YukiFrameWork
 
         public override void UnRegister(Action<T, K, Q, P> onEvent)
         {
+            NotifyUnregistered(onEvent);
             OnEasyEvent -= onEvent;
         }
     }
@@ -89,6 +97,7 @@ namespace YukiFrameWork
         public override IUnRegister RegisterEvent(Action<T> onEvent)
         {
             OnEasyEvent += onEvent;
+            NotifyRegistered(onEvent);
             return this;
         }
 
@@ -99,21 +108,25 @@ namespace YukiFrameWork
 
         public override void UnRegister(Action<T> onEvent)
         {
+            NotifyUnregistered(onEvent);
             OnEasyEvent -= onEvent;
         }
     }
 
     public class AsyncEasyEvent<T> : EasyEventBase<Func<T, Task>>
     {
-        private List<Func<T, Task>> onAsyncEvent = new List<Func<T, Task>>();
+        private readonly List<Func<T, Task>> onAsyncEvent = new List<Func<T, Task>>();
+
         public override IUnRegister RegisterEvent(Func<T, Task> onEvent)
         {
             onAsyncEvent.Add(onEvent);
+            NotifyRegistered(onEvent);
             return this;
         }    
     
         public override void UnRegister(Func<T, Task> onEvent)
         {
+            NotifyUnregistered(onEvent);
             onAsyncEvent.Remove(onEvent);            
         }
 
@@ -130,8 +143,21 @@ namespace YukiFrameWork
 
         public override void UnRegisterAllEvent()
         {
+            NotifyUnregisteredAll();
             onAsyncEvent.Clear();          
-        } 
+        }
+
+        public override int GetListenerCount()
+            => onAsyncEvent.Count;
+
+        public override IEnumerable<Delegate> GetHandlers()
+        {
+            foreach (var handler in onAsyncEvent)
+            {
+                if (handler != null)
+                    yield return handler;
+            }
+        }
     }
 
 

@@ -133,7 +133,7 @@ namespace YukiFrameWork
 			builder.AppendLine($"/// - NameSpace:     " + config.NameSpace);
 			builder.AppendLine($"/// - Description:   高级定制脚本生成");
 			builder.AppendLine($"/// - Creation Time: " + System.DateTime.Now.ToString());
-			builder.AppendLine($"/// -  (C) Copyright 2008 - 2025");
+			builder.AppendLine($"/// -  (C) Copyright 2008 - 2030");
 			builder.AppendLine($"/// -  All Rights Reserved.");
 			builder.AppendLine($"///=====================================================</color>");
 

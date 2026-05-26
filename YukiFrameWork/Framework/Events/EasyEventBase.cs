@@ -20,16 +20,54 @@ namespace YukiFrameWork
         OnDisable,
         OnDestroy
     }
-    public abstract class EasyEventBase<T> : IEasyEvent where T : Delegate
+    public abstract class EasyEventBase<T> : IEasyEvent, IEventChannelOwner where T : Delegate
     {     
         protected T OnEasyEvent;
 #if UNITY_2022_1_OR_NEWER
         EventRegisterType IUnRegister.RegisterType { get; set; }
 #endif
+        EventChannelKey IEventChannelOwner.ChannelKey { get; set; }
+
         public abstract IUnRegister RegisterEvent(T onEvent);
         public abstract void UnRegister(T onEvent);
-        public virtual void UnRegisterAllEvent() => OnEasyEvent = null;
-        
+        public virtual void UnRegisterAllEvent()
+        {
+            NotifyUnregisteredAll();
+            OnEasyEvent = null;
+        }
+
+        public virtual int GetListenerCount()
+            => OnEasyEvent?.GetInvocationList()?.Length ?? 0;
+
+        public virtual IEnumerable<Delegate> GetHandlers()
+        {
+            if (OnEasyEvent == null)
+                yield break;
+
+            foreach (var handler in OnEasyEvent.GetInvocationList())
+                yield return handler;
+        }
+
+        protected void NotifyRegistered(T onEvent)
+        {
+#if UNITY_EDITOR
+            EventDiagnostics.NotifyRegistered(((IEventChannelOwner)this).ChannelKey, onEvent);
+#endif
+        }
+
+        protected void NotifyUnregistered(T onEvent)
+        {
+#if UNITY_EDITOR
+            EventDiagnostics.NotifyUnregistered(((IEventChannelOwner)this).ChannelKey, onEvent);
+#endif
+        }
+
+        protected void NotifyUnregisteredAll()
+        {
+#if UNITY_EDITOR
+            EventDiagnostics.NotifyUnregisteredAll(((IEventChannelOwner)this).ChannelKey, GetHandlers());
+#endif
+        }
     }
     public abstract class ListenerAttribute : Attribute
     {

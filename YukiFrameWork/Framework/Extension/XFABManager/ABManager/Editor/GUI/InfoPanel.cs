@@ -81,10 +81,10 @@ namespace XFABManager
             {
                 if (EditorUtility.DisplayDialog("删除项目", string.Format("确定要删除项目:{0} 吗？",project.name), "确定", "取消")) {
 
-                    if (XFABProjectManager.Instance.IsHaveProjectDependence(project.name)) {
-                        EditorUtility.DisplayDialog("删除项目", "删除失败!有其他的项目依赖此项目,请删除依赖后重试!", "ok");
-                        return;
-                    }
+                    //if (XFABProjectManager.Instance.IsHaveProjectDependence(project.name)) {
+                    //    EditorUtility.DisplayDialog("删除项目", "删除失败!有其他的项目依赖此项目,请删除依赖后重试!", "ok");
+                    //    return;
+                    //}
                     
                     // 删除
                     AssetDatabase.MoveAssetToTrash( AssetDatabase.GetAssetPath( project ) );

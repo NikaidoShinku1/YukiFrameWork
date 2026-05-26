@@ -67,7 +67,13 @@ namespace YukiFrameWork
 
             if (sceneValueAttribute.SceneObjLabel.IsNullOrEmpty())
             {
+#if UNITY_2021_1_OR_NEWER   
                 var obj = UnityEngine.Object.FindAnyObjectByType(fieldType, sceneValueAttribute.OnlyMonoEnable ? FindObjectsInactive.Exclude : FindObjectsInactive.Include);
+#else
+                var obj = UnityEngine.Object.FindObjectOfType(fieldType, sceneValueAttribute.OnlyMonoEnable);
+#endif
+
+
                 return obj;
             }
             else
@@ -91,8 +97,9 @@ namespace YukiFrameWork
             }
         }
 
-        private static IDynamicRegulation GetDynamicRegulation(Type type)
+        private static IDynamicRegulation GetDynamicRegulation(DynamicRegulationAttribute attribute)
         {
+            var type = attribute.RegulationType;
             if (type == null)
             {
                 throw new Exception("检测到自定义参数注入的规则器类型为空,无法进行赋值,请尝试重新编译 parameterRegulationType:Null");
@@ -107,7 +114,7 @@ namespace YukiFrameWork
             if (dynamicRegulationCache.TryGetValue(type, out var value))           
                 return value;
 
-            value = type.CreateInstance() as IDynamicRegulation;
+            value = type.CreateInstance(attribute.Params) as IDynamicRegulation;
 
             if (value != null)
                 dynamicRegulationCache[type] = value;
@@ -127,7 +134,7 @@ namespace YukiFrameWork
                 object obj = null;
                 if (parameter.HasCustomAttribute<DynamicRegulationAttribute>(true, out var parameterAttribute))
                 {
-                    IDynamicRegulation dynamicParameterRegulation = GetDynamicRegulation(parameterAttribute.RegulationType);
+                    IDynamicRegulation dynamicParameterRegulation = GetDynamicRegulation(parameterAttribute);
 
                     if (dynamicParameterRegulation != null)
                     {
@@ -191,7 +198,7 @@ namespace YukiFrameWork
                 object obj = null;
                 if (field.HasCustomAttribute<DynamicRegulationAttribute>(true, out var regulationAttribute))
                 {
-                    IDynamicRegulation dynamicParameterRegulation = GetDynamicRegulation(regulationAttribute.RegulationType);
+                    IDynamicRegulation dynamicParameterRegulation = GetDynamicRegulation(regulationAttribute);
 
                     if (dynamicParameterRegulation != null)                   
                         obj = dynamicParameterRegulation.Build(field.FieldType, monoBehaviour);                                           

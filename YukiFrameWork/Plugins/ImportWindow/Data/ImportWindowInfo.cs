@@ -66,6 +66,8 @@ namespace YukiFrameWork.Extension
                 return AIServicesInfo;
             else if (key == "SignKit")
                 return SignInfo;
+            else if(key == "TimeRewinder")
+                return TimeRewinderInfo;
             return default;
         }
 
@@ -73,6 +75,7 @@ namespace YukiFrameWork.Extension
         public static string SignInfo => "签到系统，基础通用式签到系统";
         public static string MissionTreeInfo => "框架图结构任务树。对任务系统的高度封装以及自由定义,上手简单具有完整示例包";
 
+        public static string TimeRewinderInfo => "时光回溯模块,可以记录指定时间的数据";
         public static string UINAvigation => "UIKit拓展输入导航(该包依赖Unity新输入系统InputSystem、框架的InputSystemExtension拓展模块、与UIKit模块)";
 
         public static string EntitiesInfo => !IsEN ? "Unity Entities拓展模块。该模块拓展Unity ECS与Mono的交互桥梁。在原生Scene即可完美发挥ECS。支持热更新" +

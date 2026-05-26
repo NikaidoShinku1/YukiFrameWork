@@ -144,7 +144,6 @@ namespace YukiFrameWork
                     localizationConfig = ScriptableObject.CreateInstance<LocalizationConfig>();
                     localizationConfig.name = language.ToString();
                     AssetDatabase.AddObjectToAsset(localizationConfig, localizationManager);
-                    localizationConfig.language = language;
                     localizationManager.localizationConfig_language_dict.Add(language, localizationConfig);
                     localizationManager.onValidate?.Invoke();
                     localizationManager.Save();
@@ -171,13 +170,26 @@ namespace YukiFrameWork
 
 
                     object imageLoadType = sheet.GetValue(i, 3);
+                    Debug.Log(imageLoadType);
                     if (imageLoadType != null)
                         localizationData.Image.LocalizationImageLoadType = (LocalizationImageLoadType)Enum.Parse(typeof(LocalizationImageLoadType),imageLoadType.ToString());
 
-                    object imageGUID = sheet.GetValue(i, 4);
-                    if (imageGUID != null)
+                    if (localizationManager.loadType == SpriteLoadType.GUID)
                     {
-                        localizationData.Image.Icon = YukiAssetDataBase.GUIDToInstance<Sprite>(imageGUID.ToString());
+                        object imageGUID = sheet.GetValue(i, 4);
+                        if (imageGUID != null)
+                        {
+                            localizationData.Image.Icon = YukiAssetDataBase.GUIDToInstance<Sprite>(imageGUID.ToString());
+                        }
+                    }
+                    else
+                    {
+                        object imageGUID = sheet.GetValue(i, 4);
+                        Debug.Log(imageGUID);
+                        if (imageGUID != null)
+                        {
+                            localizationData.Image.Icon = AssetDatabase.LoadAssetAtPath<Sprite>(imageGUID.ToString());
+                        }
                     }
 
                     object imageLoaderAB = sheet.GetValue(i, 5);

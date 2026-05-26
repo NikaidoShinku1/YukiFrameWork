@@ -172,5 +172,28 @@ namespace YukiFrameWork
         void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9);
     }
 
+    public interface IDynamicBuilder<T1, T2, T3, T4, T5, T6, T7, T8, T9,T10> : IDynamicBuilder
+    {
+        void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9,T10 authoring10);
+    }
     
+    public interface IDynamicBuilder<T1, T2, T3, T4, T5, T6, T7, T8, T9,T10,T11> : IDynamicBuilder
+    {
+        void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9,T10 authoring10,T11 authoring11);
+    }
+
+    public interface IDynamicBuilder<T1, T2, T3, T4, T5, T6, T7, T8, T9,T10,T11,T12> : IDynamicBuilder
+    {
+        void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9,T10 authoring10,T11 authoring11,T12 authoring12);
+    }
+    
+    public interface IDynamicBuilder<T1, T2, T3, T4, T5, T6, T7, T8, T9,T10,T11,T12,T13> : IDynamicBuilder
+    {
+        void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9,T10 authoring10,T11 authoring11,T12 authoring12,T13 authoring13);
+    }
+    
+    public interface IDynamicBuilder<T1, T2, T3, T4, T5, T6, T7, T8, T9,T10,T11,T12,T13,T14> : IDynamicBuilder
+    {
+        void Builder(T1 authoring1, T2 authoring2, T3 authoring3, T4 authoring4, T5 authoring5, T6 authoring6, T7 authoring7, T8 authoring8,T9 authoring9,T10 authoring10,T11 authoring11,T12 authoring12,T13 authoring13,T14 authoring14);
+    }
 }

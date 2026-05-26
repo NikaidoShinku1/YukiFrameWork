@@ -91,8 +91,8 @@ namespace YukiFrameWork.Skill
                 if (item == null) continue;
                 if (string.IsNullOrEmpty(item.SkillKey)) continue;
 
-                writer.CustomCode($"public static string {item.SkillKey}_Key = \"{item.SkillKey}\";");
-                writer.CustomCode($"public static ISkillData {item.SkillKey} => SkillKit.GetSkillDataByKey(\"{item.SkillKey}\");");
+                writer.CustomCode($"public static string Skill_{item.SkillKey}_Key = \"{item.SkillKey}\";");
+                writer.CustomCode($"public static ISkillData Skill_{item.SkillKey} => SkillKit.GetSkillData(\"{item.SkillKey}\");");
             }
             codeCore.CodeSetting(nameSpace, InfoScriptNames, string.Empty, writer,false,true).Create(InfoScriptNames, filePath);
         }

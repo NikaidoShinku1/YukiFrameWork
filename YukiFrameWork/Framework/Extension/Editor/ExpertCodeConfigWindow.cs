@@ -24,7 +24,7 @@ namespace YukiFrameWork
 	public class ExpertCodeConfigWindow : EditorWindow
 	{
         //AttributesExampleWindow
-		[MenuItem("YukiFrameWork/" + nameof(ExpertCodeConfigWindow),false,-1000)]
+		[MenuItem("YukiFrameWork/LocalWindow/" + "高级脚本定制窗口",false,-1000)]
 		public static void OpenWindow()
 		{
 			GetWindow<ExpertCodeConfigWindow>().titleContent = new GUIContent("高级脚本生成设置");

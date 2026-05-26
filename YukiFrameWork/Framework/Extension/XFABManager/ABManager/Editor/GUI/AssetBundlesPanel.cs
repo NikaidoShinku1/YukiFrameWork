@@ -152,7 +152,7 @@ namespace XFABManager
 
 
 
-            EditorGUI.BeginDisabledGroup(!bundleListTree.HasSelection());
+           
 
 
             assetListRect.Set(position.x + position.width * HorizontalSplitPercent + padding,
@@ -173,32 +173,28 @@ namespace XFABManager
                 position.width * HorizontalSplitPercent - padding,
                 position.height * (1 - VerticalLeftSplitPercent) - padding * 2);
             bundleInfoTree.OnGUI(bundleInfoRect);
-
             VerticalResize();
             HorizontalResize();
-
-
-            EditorGUI.EndDisabledGroup();
-
+            EditorGUI.BeginDisabledGroup(!bundleListTree.HasSelection());
             if (!bundleListTree.HasSelection())
             {
                 if (empty_label_style == null)
                 {
-                    empty_label_style = new GUIStyle("NotificationBackground");
+                    empty_label_style = new GUIStyle(GUI.skin.label);
                     empty_label_style.richText = true;
-                    //empty_label_style.fontSize = 20;
+                    empty_label_style.fontSize = 30;
                     empty_label_style.alignment = TextAnchor.MiddleCenter;
                 }
 
-                Rect r = new Rect();
+               // Rect r = new Rect();
+//
+               // r.width = 350;
+               // r.height = 130;
+               // r.center = assetListRect.center;
 
-                r.width = 350;
-                r.height = 130;
-                r.center = assetListRect.center;
-
-                GUI.Label(r, "未选中AssetBundle!", empty_label_style);
+                GUI.Label(assetListRect, "未选中AssetBundle!", empty_label_style);
             }
-
+            EditorGUI.EndDisabledGroup();
 
             //GUILayout.Label(Input.mousePosition.ToString());
 

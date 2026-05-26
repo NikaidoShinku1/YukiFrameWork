@@ -1,5 +1,33 @@
 ﻿#### 框架更新日志、
 
+V1.66.4 修复事件分析器不支持2021的问题，优化AudioKit编辑器样式
+
+V1.66.3 AudioKit编辑器新增父节点绑定,优化布局细节
+
+V1.66.2 优化AudioKit的编辑器布局
+
+V1.66.1 重构多个模块的编辑器 优化底层细节框架全面化
+
+V1.65.2 补充倒带器文档,优化细节
+
+V1.65.1 优化YukiFrameWork的本地窗口索引,改为中文,倒带器升级为正式版
+
+V1.64.1 TimeRewinder模块新增预览版
+
+V1.63.6 优化Addressablekit模块部分细节
+
+V1.63.5 UIKit优化Canvas缩放组件与UI缩放组件
+
+V1.63.4 优化UI模块细节,动态字段注入自定义特性可进行简单的构造参数传递
+
+V1.63.3 UI模块通过YukiFrameWork/UI检索窗口可以打开窗口进行对UI的定位
+
+V1.63.2 修复UI模块面板被释放后无法重复打开的问题
+
+V1.63.1 新增Addressable拓展模块,UniTask集成,添加部分GameObject拓展,修复ActionKit Repeat的循环问题,本地化支持图片路径写入
+
+V1.62.7 BuffKit修复因时序导致的移除buff异常问题
+
 V1.62.6 StateMachine新增参数设置功能，优化文档
 
 V1.62.5 AIServicesKit新增移动模式选择，UI模块新增面板分辨率适配
@@ -84,8 +112,6 @@ V1.55.2 修复SkillKit模块中查询技能状态冷却返回Success的bug，优
 
 V1.55.1 重构对于模式为Multiple的Texture转换AnimationCliip的功能并解除对窗口的屏蔽，现在可以正常使用
 
-补充更新XFABManager
-
 V1.54.1 SkillKit新增配置自定义参数，修复SkillController无法进行动态自定义数据的问题，BuffKit新增自定义配置参数，MissionKit优化细节
 
 V1.53.15 优化ActionKit细节，优化SkillKit与BuffKit可以在配置中打开已绑定的单独的控制器脚本
@@ -99,7 +125,7 @@ V1.53.12 UINavigation模块的手柄导航拓展适配添加默认键盘导航�
 V1.53.11 UINavigation模块优化代码细节，新增部分API，UIColor小工具脚本优化
 
 V1.53.10 BindableProperty新增代码模式匹配，BuffKit新增查询BuffController的API
- 
+
 V1.53.9 对象池优化细节，作为全局类，优化PoolInfo的调试信息，ItemKit新增物品移除插槽的API，优化细节
 
 V1.53.8 修复BuffKit移除Buff提示无法操作迭代器的bug
@@ -115,8 +141,6 @@ V1.53.4 BindablePropertyStruct新增默认构造函数，屏蔽Texture2d转Anima
 V1.53.3 新增Toggle的纯净事件监听，新增XFABManager的LoadSceneRequest的await语法糖
 
 V1.53.2 同步更新XFABManager
-
-V1.53.1修复BuffKit与SkillKit中偶现图片添加失败的问题，DiaLogKit重构升级2.0版本，更加自由通用
 
 V1.52.1 SkillKit底层重构进入2.0版本，BuffKit API优化为拓展方法。文档更新
 
@@ -176,8 +200,6 @@ V1.46.3 修复StateMachine模块中 AnyState条件判断成功后会循环进入
 
 V1.46.2 输入系统拓展，为InputAction的动态绑定添加Cancel回调
 
-V1.46.1简单对象池回收一定触发回调。输入拓展更新3.0版本，直接支持InputAction的改键操作，修复ActionKit Lerp无法在Repeat使用的问题  优化部分代码细节。MissionKit支持直接调用完成任务/失败。UI解决编辑器结束运行的抽象丢失报错。
-
 V1.45.4 UI模块新增IUIAnimation动画模式接口可使用。优化部分代码细节
 
 V1.45.3 移除已不再使用的插件，优化部分代码细节
@@ -228,4 +250,7 @@ V1.40.2 原Excel转So仅对自定的序列化类生效。修复在配置中不�
 
 V1.40.1 移除老版本有限状态机，新增全新纯粹有限状态机。文档已在官网标注。框架工具导入窗口样式优化。打开文档链接更醒目。同步更新XFABManager
 
+补充更新XFABManager
+V1.53.1修复BuffKit与SkillKit中偶现图片添加失败的问题，DiaLogKit重构升级2.0版本，更加自由通用
+V1.46.1简单对象池回收一定触发回调。输入拓展更新3.0版本，直接支持InputAction的改键操作，修复ActionKit Lerp无法在Repeat使用的问题  优化部分代码细节。MissionKit支持直接调用完成任务/失败。UI解决编辑器结束运行的抽象丢失报错。
 其余均为不稳定版功能的修正，不以浏览。

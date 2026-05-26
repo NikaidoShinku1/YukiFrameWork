@@ -34,10 +34,13 @@ namespace XFABManager
 
             if (columnIndex == 2)
             {
-                column3.Set(headerRect.x + 3, headerRect.y + 7, headerRect.width, headerRect.height);
+                column3.Set(headerRect.x + 3, headerRect.y + 3, headerRect.width, headerRect.height);
                 //GUI.Label(headerRect, "TestA");
-                isSelectAll = GUI.Toggle(column3, isSelectAll, column.headerContent);
+                isSelectAll = GUI.Toggle(column3, isSelectAll, string.Empty);
 
+                Rect rect = new Rect(column3);
+                rect.x += 15;
+                GUI.Label(rect, column.headerContent);
                 if (lastSelect != isSelectAll && this.treeView != null)
                 {
                     this.treeView.SelectAll(isSelectAll);
@@ -130,7 +133,7 @@ namespace XFABManager
             retVal[2].minWidth = 30;
             retVal[2].width = 100;
             retVal[2].maxWidth = 1000;
-            retVal[2].headerTextAlignment = TextAlignment.Left;
+            retVal[2].headerTextAlignment = TextAlignment.Center;
             retVal[2].canSort = false;
             retVal[2].autoResize = true;
 

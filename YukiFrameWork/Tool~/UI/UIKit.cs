@@ -425,10 +425,14 @@ namespace YukiFrameWork.UI
                             if (item as BasePanel && item.gameObject)
                             {
                                 UIKit.ClosePanel(item);
+                                
                                 item.gameObject.Destroy();
                             }
                         }
+                        
+                        Table.RemoveActivityPanel(type, level);
                     }
+                    
                 }
                 //卸载缓存。
                 UIManager.Instance.panelCore.Remove(type);

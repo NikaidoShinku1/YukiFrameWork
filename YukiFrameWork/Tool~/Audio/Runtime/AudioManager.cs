@@ -112,7 +112,7 @@ namespace YukiFrameWork.Audio
                 audioListener = FindObjectOfType<AudioListener>();
 #endif
             }
-            if (audioListener == null)
+            if (!audioListener && gameObject)
                 audioListener = gameObject.AddComponent<AudioListener>();
         } 
 

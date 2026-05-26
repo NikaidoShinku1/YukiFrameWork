@@ -119,9 +119,12 @@ namespace YukiFrameWork
     public class DynamicRegulationAttribute : PropertyAttribute
     {
         public Type RegulationType { get; }
-        public DynamicRegulationAttribute(Type regulationType)
+        
+        public object[] Params { get; }
+        public DynamicRegulationAttribute(Type regulationType,params object[] param)
         {
             this.RegulationType = regulationType;
+            this.Params = param;
         }
     }
 }

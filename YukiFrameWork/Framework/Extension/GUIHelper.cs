@@ -452,8 +452,117 @@ namespace YukiFrameWork
                 return this;
             }
             #endregion
+            #region Field
+            public IGUIDepend IntField(string label, int value, GUIStyle style, Action<int> callBack, params GUILayoutOption[] options)
+            {
+                var target = GUIHelper.IntField(label, value, style, options);
+                callBack?.Invoke(target);
+                return this;
+            }
+
+            public IGUIDepend IntField(string label, int value,Action<int> callBack, params GUILayoutOption[] options)
+            {
+                return IntField(label, value, GUI.skin.textField, callBack, options);
+            }
+            
+            public IGUIDepend IntField(GUIContent label, int value, GUIStyle style, Action<int> callBack, params GUILayoutOption[] options)
+            {
+                var target = GUIHelper.IntField(label, value, style, options);
+                callBack?.Invoke(target);
+                return this;
+            }
+
+            public IGUIDepend IntField(GUIContent label, int value,Action<int> callBack, params GUILayoutOption[] options)
+            {
+                return IntField(label, value, GUI.skin.textField, callBack, options);
+            }
+
+            public IGUIDepend FloatField(string label, float value, GUIStyle style, Action<float> callBack, params GUILayoutOption[] options)
+            {
+                var target = GUIHelper.FloatField(label, value, style, options);
+                callBack?.Invoke(target);
+                return this;
+            }
+
+            public IGUIDepend FloatField(string label, float value,Action<float> callBack, params GUILayoutOption[] options)
+            {
+                return FloatField(label, value, GUI.skin.textField, callBack, options);
+            }
+            
+            public IGUIDepend FloatField(GUIContent label, float value, GUIStyle style, Action<float> callBack, params GUILayoutOption[] options)
+            {
+                var target = GUIHelper.FloatField(label, value, style, options);
+                callBack?.Invoke(target);
+                return this;
+            }
+
+            public IGUIDepend FloatField(GUIContent label, float value,Action<float> callBack, params GUILayoutOption[] options)
+            {
+                return FloatField(label, value, GUI.skin.textField, callBack, options);
+            }
+
+            #endregion
         }
 
+        public static int IntField(string label, int value, GUIStyle style, params GUILayoutOption[] options)
+        {
+            var valueToString = value.ToString();
+            GUILayout.BeginHorizontal(options);
+            GUILayout.Label(label,GUI.skin.label);
+            var targetString =GUILayout.TextField(valueToString, style);
+            if(int.TryParse(targetString,out var targetInt))
+            {
+                value = targetInt;
+            }
+            
+            GUILayout.EndHorizontal();
+            return value;
+        }
+        
+        public static int IntField(string label, int value, params GUILayoutOption[] options)
+        {
+            return IntField(label, value, GUI.skin.textField, options);
+        }
+        
+        public static int IntField(GUIContent label, int value, params GUILayoutOption[] options)
+        {
+            return IntField(label.text, value, options);
+        }
+        
+        public static int IntField(GUIContent label, int value,GUIStyle style, params GUILayoutOption[] options)
+        {
+            return IntField(label.text, value, options);
+        }
+
+        public static float FloatField(string label, float value, GUIStyle style, params GUILayoutOption[] options)
+        {
+            var valueToString = value.ToString();
+            GUILayout.BeginHorizontal(options);
+            GUILayout.Label(label,GUI.skin.label);
+            var targetString =GUILayout.TextField(valueToString);
+            if(float.TryParse(targetString,out var targetFloat))
+            {
+                value = targetFloat;
+            }
+            
+            GUILayout.EndHorizontal();
+            return value;
+        }
+        
+        public static float FloatField(string label, float value, params GUILayoutOption[] options)
+        {
+            return FloatField(label, value,  GUI.skin.textField, options);
+        }
+        
+        public static float FloatField(GUIContent label, float value, params GUILayoutOption[] options)
+        {
+            return FloatField(label.text, value, options);
+        }
+        
+        public static float FloatField(GUIContent label, float value,GUIStyle style, params GUILayoutOption[] options)
+        {
+            return FloatField(label.text, value, options);
+        }
         public static void SetDesignResolution(float width, float height)
         {
             var scaleX = Screen.width / width;

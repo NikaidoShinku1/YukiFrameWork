@@ -12,6 +12,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using YukiFrameWork.Extension;
 
 namespace YukiFrameWork
 {
@@ -242,6 +243,20 @@ namespace YukiFrameWork
                 PlayerPrefs.Save();
             });
         }
-    }    
+    }
+
+    public class BindablePropertyPlayerPrefs<T> : BindableProperty<T>
+    {
+        public BindablePropertyPlayerPrefs(string key, T value) : base(value)
+        {
+            this.Value = SerializationTool.DeserializedObject<T>(PlayerPrefs.GetString(key, SerializationTool.SerializedObject(value)));
+            this.Register(item => 
+            { 
+                PlayerPrefs.SetString(key, SerializationTool.SerializedObject(value));
+                PlayerPrefs.Save();
+            });
+        }
+    }
+
     #endregion
 }

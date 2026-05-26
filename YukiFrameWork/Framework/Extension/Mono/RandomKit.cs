@@ -146,6 +146,8 @@ namespace YukiFrameWork
             // 返回前 count 个元素
             return copy.Take(count);
         }
+        
+
         //
         // 摘要:
         //     Generates a random color from HSV and alpha ranges.

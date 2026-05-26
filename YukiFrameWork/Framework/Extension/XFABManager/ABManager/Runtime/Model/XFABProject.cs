@@ -195,6 +195,59 @@ namespace XFABManager
 
 
         private Dictionary<string,string> asset_bundle_name_mapping = null; // 文件路径 和 所在AssetBundle的映射
+        
+         private Dictionary<string, string> asset_name_mapping= null; // 资源名称 和 资源路径
+
+
+        /// <summary>
+        /// key:资源名称 value:资源所在路径
+        /// </summary>
+        private Dictionary<string, string> AssetNameMapping 
+        {
+            get 
+            {
+
+                if (asset_name_mapping == null || asset_name_mapping.Count == 0) 
+                {
+                    if (asset_name_mapping == null)
+                        asset_name_mapping = new Dictionary<string, string>();
+
+                    List<XFABAssetBundle> allAssetBundle = GetAllAssetBundles();
+
+                    // 把所有的文件全都加进来
+                    foreach (var assetbundle in allAssetBundle)
+                    {
+                        foreach (var assetpath in assetbundle.GetAllAssetPaths())
+                        { 
+                            string asset_name = Path.GetFileNameWithoutExtension(assetpath);
+
+                            if (!asset_name_mapping.ContainsKey(asset_name))
+                                asset_name_mapping.Add(asset_name, assetpath);
+                            else
+                            {
+                                EditorUtility.ClearProgressBar();
+
+                                StringBuilder builder = new StringBuilder();
+                                builder.Append("文件:").Append(assetpath).AppendLine("同时存在多个AssetBundle中!");
+
+                                foreach (var item in assetBundles)
+                                {
+                                    bool contain = item.IsContainFile(AssetDatabase.AssetPathToGUID(assetpath));
+                                    if (!contain)
+                                        continue;
+                                    builder.AppendLine(item.bundle_name);
+                                }
+
+                                throw new Exception(builder.ToString());
+                            }
+                        }
+                    }
+                }
+                
+
+                return asset_name_mapping;
+            }
+        }
 
         /// <summary>
         /// asset_path和bundleName的映射
@@ -457,6 +510,7 @@ namespace XFABManager
         public void Save() 
         {
             EditorUtility.SetDirty(this);
+            asset_name_mapping = null;
 
             asset_bundle_name_mapping = null;
             asset_bundle_name_mapping_with_type = null; 
@@ -507,7 +561,18 @@ namespace XFABManager
             return false;
 
         }
+        public bool IsContainAsset(string asset_name) 
+        {  
+            return AssetNameMapping.ContainsKey(asset_name);
+        }
 
+        public string GetAssetPath(string asset_name) 
+        {
+            if(AssetNameMapping.ContainsKey(asset_name))
+                return AssetNameMapping[asset_name];
+
+            return string.Empty;
+        }
         // 判断这个Project 是不是包含某个文件
         public bool IsContainFile(string asset_path) {
             return AssetBundleNameMapping.ContainsKey(asset_path);

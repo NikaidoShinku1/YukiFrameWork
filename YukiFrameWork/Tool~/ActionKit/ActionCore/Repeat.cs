@@ -48,28 +48,27 @@ namespace YukiFrameWork
             if (!IsInit) OnInit();
             if (ActionNode == null)
                 return true;
-            if (CurrentCount == -1)
+            if (CurrentCount != -1 && CurrentCount > 0)
+            {
+                if (ActionNode.OnExecute(delta))
+                {
+                    if (CurrentCount != -1)
+                        CurrentCount--;
+                    ActionNode.OnInit();
+                }
+                else
+                {
+                    ActionNode.OnFinish();
+                    return true;
+                }
+            }
+            else
             {
                 if (ActionNode.OnExecute(delta))
                 {
                     ActionNode.OnInit();
                 }
-            }
-            else
-            {
-                if (CurrentCount == 0)
-                    return true;
-
-                if (ActionNode.OnExecute(delta))
-                {
-                    CurrentCount--;
-                    if (CurrentCount > 0)
-                    {
-                        ActionNode.OnInit();
-                    }
-                }
-            }
-
+            }           
             return false;
         }
 
@@ -84,6 +83,8 @@ namespace YukiFrameWork
 
         public override void OnInit()
         {
+            if(CurrentCount != -1)
+                CurrentCount--;
             if (ActionNode == null)
                 throw new Exception("ActionNode丢失，请检查调用ActionKit.Repeat是否有继续链式调用Action API！例如ActionKit.Repeat().Delay() //ToDo");
             ActionNode.OnInit();
@@ -94,7 +95,24 @@ namespace YukiFrameWork
         public override IEnumerator ToCoroutine()
         {
             if (!IsInit) OnInit();
-            yield return CoroutineTool.WaitUntil(() => OnExecute(Time.deltaTime));
+            while (CurrentCount >= 0 || CurrentCount == -1)
+            {
+                if (ActionNode.OnExecute(Time.deltaTime))
+                {
+                    if (CurrentCount != 0 || CurrentCount != -1)
+                    {
+                        if(CurrentCount != -1)
+                            CurrentCount--;
+                        ActionNode.OnInit();
+                    }
+                    else
+                    {
+                        ActionNode.OnFinish();
+                        break;
+                    }
+                }
+                yield return CoroutineTool.WaitForFrame();
+            }
             OnFinish();
         }
     }

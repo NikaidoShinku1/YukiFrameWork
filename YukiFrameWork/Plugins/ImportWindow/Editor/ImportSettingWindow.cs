@@ -47,7 +47,7 @@ namespace YukiFrameWork.Extension
             public Info author;
         }
 
-        [MenuItem("YukiFrameWork/Import Setting Window", false, -1000)]
+        [MenuItem("YukiFrameWork/LocalWindow/工具导入窗口", false, -1000)]
         public static void Open()
         {
             GetWindow<ImportSettingWindow>().titleContent = new GUIContent("框架高级导入窗口");
@@ -81,6 +81,7 @@ namespace YukiFrameWork.Extension
 
         public enum UpdateMode
         {
+            None,
             Normal,
             ForceUpdate,
         }
@@ -94,6 +95,7 @@ namespace YukiFrameWork.Extension
             public string url;
             public bool obstate;
             public string obstateTip = "该模块已被弃用";
+            public bool version = true;
             public DependInfo[] depends;
             public UpdateMode updateMode;
            
@@ -119,6 +121,14 @@ namespace YukiFrameWork.Extension
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/InputSystemExtension/Readme.md",
                 depends = new DependInfo[] { new DependInfo() { des = "Unity 新输入系统InputSystem", depend = "Unity.InputSystem" } }
 
+            },
+            ["TimeRewinder"] = new ToolDataInfo()
+            {
+                key = "TimeRewinder",
+                path = packagePath + "/Tool~/TimeRewinder",
+                active = true,
+                url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/TimeRewinder/TimeRewinder.md",
+                isView = false
             },
             ["AIServicesKit"] = new ToolDataInfo()
             {
@@ -155,6 +165,7 @@ namespace YukiFrameWork.Extension
                     new DependInfo() { des = "Unity Entities Graphics包 通过packageManager安装 \n如通过搜索Entities Graphics无法找到，则导入URL:", depend = "Unity.Entities.Graphics", dependUrl = "com.unity.entities.graphics", version = "1.0" },
                     new DependInfo() { des = "Unity Burst包 通过packageManager安装，如通过搜索Burst无法找到，则导入URL:", depend = "Unity.Burst", dependUrl = "com.unity.burst" } }
             },
+                
             ["SaveTool"] = new ToolDataInfo()
             {
                 key = "SaveTool",
@@ -240,6 +251,26 @@ namespace YukiFrameWork.Extension
                 active = true,
                 path = packagePath + "/Tool~/NavMeshPlus",
                 url = "https://gitee.com/NikaidoShinku/YukiFrameWork/blob/master/YukiFrameWork/Tool~/NavMeshPlus/README.md"
+            },
+            ["UniTask"] = new ToolDataInfo()
+            {
+                key = "UniTask",
+                active = true,
+                path =  packagePath + "/Tool~/UniTask",
+                url = "https://github.com/Cysharp/UniTask",
+                version = false
+            },
+            ["AddressableExtension"] = new ToolDataInfo()
+            {
+                key = "AddressableExtension",
+                active = true,
+                path = packagePath + "/Tool~/AddressableExtension",
+                url = string.Empty,
+                depends = new DependInfo[]
+                {
+                    new DependInfo() { des = "Unity Addressable包 通过packageManager安装 \n如通过搜索Addressable无法找到，则导入URL:", depend = "Unity.Addressables", dependUrl = "com.unity.addressables" ,},
+                    new DependInfo() { des = "UniTask模块", depend = "UniTask" }
+                }
             },
             ["MissionKit"] = new ToolDataInfo()
             {
@@ -372,25 +403,35 @@ namespace YukiFrameWork.Extension
                     GUI.color = Color.yellow;
                     if (!info.isView)
                     {
-                        if (!importVersionAsset)
+                        if (!info.version)
                         {
-                            GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
-                        }
-                        else if (string.IsNullOrEmpty(packageVersion))
-                        {
-                            string importVersion = importVersionAsset?.text;
-                            GUILayout.Label("包原始版号丢失，请重新下载框架以恢复!", "flow varPin tooltip");
-                        }
-                        else if (packageVersion != importVersionAsset.text)
-                        {
-                            GUILayout.Label(
-                                $"当前版本不是最新版,已导入版本:{importVersionAsset.text} --- 新版:{packageVersion} 如有需要可重新导入模块!",
-                                "flow varPin tooltip");
+                            GUILayout.Label("该模块不具备框架内置版本号");
                         }
                         else
                         {
-                            GUI.color = Color.green;
-                            GUILayout.Label($"已是最新版:{importVersionAsset.text}", "flow varPin tooltip");
+
+
+
+                            if (!importVersionAsset)
+                            {
+                                GUILayout.Label($"模块在V1.45.1版本之后会检测各个工具版本号,当前工具未检测到版本文件。重新导入即可参与检测", "flow varPin tooltip");
+                            }
+                            else if (string.IsNullOrEmpty(packageVersion))
+                            {
+                                string importVersion = importVersionAsset?.text;
+                                GUILayout.Label("包原始版号丢失，请重新下载框架以恢复!", "flow varPin tooltip");
+                            }
+                            else if (packageVersion != importVersionAsset.text)
+                            {
+                                GUILayout.Label(
+                                    $"当前版本不是最新版,已导入版本:{importVersionAsset.text} --- 新版:{packageVersion} 如有需要可重新导入模块!",
+                                    "flow varPin tooltip");
+                            }
+                            else
+                            {
+                                GUI.color = Color.green;
+                                GUILayout.Label($"已是最新版:{importVersionAsset.text}", "flow varPin tooltip");
+                            }
                         }
                     }
                     else
@@ -448,7 +489,7 @@ namespace YukiFrameWork.Extension
                     }
 
                     EditorGUILayout.BeginHorizontal();
-                    DrawBoxGUI(Color.white, importPath, select.Name, moduleInfo[select.Name].path, isImport,moduleInfo[select.Name].isView, info.updateMode);
+                    DrawBoxGUI(Color.white, importPath, select.Name, moduleInfo[select.Name].path, isImport,moduleInfo[select.Name].isView,moduleInfo[select.Name].version, info.updateMode);
                     EditorGUILayout.EndHorizontal();
                     if (data.develop == 1 && info.active && !info.isView)
                     {
@@ -498,16 +539,16 @@ namespace YukiFrameWork.Extension
             }
         }   
 
-        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "",bool isImport = true,bool isView = false,UpdateMode updateMode = UpdateMode.Normal)
+        private void DrawBoxGUI(Color color,string path,string name,string copyPath = "",bool isImport = true,bool isView = false,bool isVersion = true,UpdateMode updateMode = UpdateMode.Normal)
         {         
             GUI.color = color;          
             EditorGUILayout.BeginHorizontal();           
-            DrawButtonGUI(path, name,copyPath,isImport,isView,updateMode);          
+            DrawButtonGUI(path, name,copyPath,isImport,isView,isVersion, updateMode);          
             EditorGUILayout.EndHorizontal();
             GUI.color = Color.white;
         }
 
-        private void DrawButtonGUI(string path,string name,string copyPath,bool isImport,bool isView,UpdateMode updateMode)
+        private void DrawButtonGUI(string path,string name,string copyPath,bool isImport,bool isView,bool isVersion,UpdateMode updateMode)
         {
                      
             EditorGUILayout.BeginHorizontal();
@@ -527,7 +568,7 @@ namespace YukiFrameWork.Extension
                 {
                     if (GUILayout.Button(ImportWindowInfo.IsEN ? $"Reverse Import {name} Module" : $"反导{name}模块", GUILayout.Height(20)))
                     {
-                        ReverImport(copyPath, name,updateMode,isView);
+                        ReverImport(copyPath, name,updateMode,isView,isVersion);
                     }
                 }
 
@@ -586,7 +627,7 @@ namespace YukiFrameWork.Extension
         }
         
 
-        private void ReverImport(string copyPath, string name,UpdateMode updateMode,bool isView)
+        private void ReverImport(string copyPath, string name,UpdateMode updateMode,bool isView,bool isVersion)
         {
             string checkPath = data.path + @"/" + name;
             if (!Directory.Exists(checkPath))
@@ -597,39 +638,43 @@ namespace YukiFrameWork.Extension
             }
            
             var rootPath = data.path + "/" + name;
-            if(!isView)
+            if (updateMode != UpdateMode.None)
             {
-                string version = string.Empty;
-                try
+                if (!isView && isVersion)
                 {
-                    version = File.ReadAllText(rootPath + "/Version.txt");
-                    switch (updateMode)
+                    string version = string.Empty;
+                    try
                     {
-                        case UpdateMode.Normal:
+                        version = File.ReadAllText(rootPath + "/Version.txt");
+                        switch (updateMode)
                         {
-                            float versionF = float.Parse(version);
-                            versionF += 0.1f;
-                            version = versionF.ToString();
+                            case UpdateMode.Normal:
+                            {
+                                float versionF = float.Parse(version);
+                                versionF += 0.1f;
+                                version = versionF.ToString();
+                            }
+                                break;
+                            case UpdateMode.ForceUpdate:
+                            {
+                                float versionF = float.Parse(version);
+                                versionF += 1;
+                                version = versionF.ToString();
+                            }
+                                break;
+                            default:
+                                break;
                         }
-                            break;
-                        case UpdateMode.ForceUpdate:
-                        {
-                            float versionF = float.Parse(version);
-                            versionF += 1;
-                            version = versionF.ToString();
-                        }
-                            break;
-                        default:
-                            break;
                     }
-                }
-                catch
-                {
-                    version = "1.0";
-                }
+                    catch
+                    {
+                        version = "1.0";
+                    }
 
-                File.WriteAllText(rootPath + "/Version.txt", version);
+                    File.WriteAllText(rootPath + "/Version.txt", version);
+                }
             }
+
             var files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories);
             foreach (var file in files)
             {

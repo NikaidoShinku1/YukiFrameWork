@@ -46,7 +46,7 @@ namespace YukiFrameWork
             [LabelText("显示没有任何标记的模块")]
             NoAttribute
         }
-        [MenuItem("YukiFrameWork/Architecture Debugger",false,-1000)]
+        [MenuItem("YukiFrameWork/LocalWindow/架构本地调试器",false,-1000)]
         internal static void OpenWindow()
         {
             var window = GetWindow<ArchitectureDebuggerWindow>();

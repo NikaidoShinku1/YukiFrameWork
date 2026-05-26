@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
- 
+using UnityEditor.SearchService;
 
 namespace XFABManager
 {
@@ -21,7 +21,7 @@ namespace XFABManager
         private List<XFABProject> projects;
 
         private static XFABProjectManager _instance;
-
+        private Dictionary<string,XFABProject> projects_dic = new Dictionary<string,XFABProject>();
         private double lastRefreshTime;
 
         private string[] allAssets;
@@ -53,8 +53,56 @@ namespace XFABManager
         /// </summary>
         public List<XFABProject> Projects
         {
-            get { return projects; }
+            get
+            {
+                if (projects == null || projects.Count == 0) 
+                {
+                    if(projects == null)
+                        projects = new List<XFABProject>();
+                     
+                    // 查询 
+                    string[] assets = AssetDatabase.FindAssets(string.Format("t:{0}",typeof(XFABProject).FullName));
+
+                    for (int i = 0; i < assets.Length; i++)
+                    {
+                        XFABProject project = AssetDatabase.LoadAssetAtPath<XFABProject>(AssetDatabase.GUIDToAssetPath(assets[i]));
+                        if (project != null)
+                        {
+                            projects.Add( project); 
+                        }
+                    }
+                }
+
+                return projects; 
+            }
         } 
+        
+        private Dictionary<string, XFABProject> ProjectsDic 
+        {
+            get 
+            {
+                 
+                if (projects_dic == null || projects_dic.Count == 0)
+                {  
+                    if (projects_dic == null)
+                        projects_dic = new Dictionary<string, XFABProject>();
+
+                    foreach (var item in Projects)
+                    {
+
+                        if (projects_dic.ContainsKey(item.name))
+                        {
+                            Debug.LogError(string.Format("资源模块名称:{0}重复!", item.name));
+                            continue;
+                        }
+
+                        projects_dic.Add(item.name, item); 
+                    }
+                }
+                 
+                return projects_dic;
+            }
+        }
         #endregion
 
         #region 方法
@@ -86,31 +134,9 @@ namespace XFABManager
         /// </summary>
         public void RefreshProjects()
         {
-            //Debug.Log(" RefreshProjects ");
-            if (projects == null)
-            {
-                return;
-            }
-
-            if (EditorApplication.timeSinceStartup - lastRefreshTime < 0.1f) {
-                return;
-            }
-
-
-            projects.Clear();
+            projects?.Clear();
+            projects_dic?.Clear();
             // 读项目配置文件
-            allAssets = AssetDatabase.FindAssets("t:XFABProject" );
-
-            for (int i = 0; i < allAssets.Length; i++)
-            {
-                XFABProject project = AssetDatabase.LoadAssetAtPath<XFABProject>(AssetDatabase.GUIDToAssetPath(allAssets[i]));
-                if (project != null)
-                {
-                    AddProject(project);
-                }
-            }
-
-            lastRefreshTime = EditorApplication.timeSinceStartup;
         }
 
         /// <summary>
@@ -118,39 +144,10 @@ namespace XFABManager
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public bool IsContainProject(string name) {
-
-            if (projects != null) {
-
-                for (int i = 0; i < projects.Count; i++)
-                {
-                    if ( projects[i].name == name ) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+        public bool IsContainProject(string name) 
+        {  
+            return ProjectsDic != null && ProjectsDic.ContainsKey(name);
         }
- 
-        // 添加项目
-        private void AddProject(XFABProject project) {
-
-            if ( project == null ) 
-            {
-                Debug.LogError("不能添加空项目!");
-                return;
-            }
-
-            if (!IsContainProject(project.name))
-            {
-                projects.Add(project);
-            }
-            else {
-                Debug.LogError(string.Format("添加项目{0}失败,已存在!", project.name));
-            }
-        }
-
 
         /// <summary>
         /// 查询项目
@@ -160,42 +157,12 @@ namespace XFABManager
         public XFABProject GetProject(string name) 
         {
 
-            if (string.IsNullOrEmpty(name)) {
-                return null;
-            }
+            if(ProjectsDic.ContainsKey(name))
+                return ProjectsDic[name];
 
-            XFABProject project = null;
+            return null;
 
-            for (int i = 0; i < projects.Count; i++)
-            {
-                if ( name.Equals( projects[i].name ) ) {
-                    project = projects[i];
-                }
-            }
-
-            return project;
         }
-
-        /// <summary>
-        /// 是否有项目依赖这个项目
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        [Obsolete]
-        public bool IsHaveProjectDependence(string name) {
-
-            for (int i = 0; i < projects.Count; i++)
-            {
-                if ( !projects[i].name .Equals( name ) ) {
-                    if (projects[i].IsDependenceProject(name)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
- 
 #endregion
 
     }

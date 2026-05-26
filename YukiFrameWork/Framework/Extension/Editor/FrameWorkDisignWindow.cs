@@ -25,7 +25,7 @@ namespace YukiFrameWork
     {
         public static Rect LocalPosition => Instance.position;
 
-        [MenuItem("YukiFrameWork/Local Configuration", false, -1000)]
+        [MenuItem("YukiFrameWork/LocalWindow/本地配置", false, -1000)]
         public static void OpenWindow()
         {
             var instance = GetWindow<FrameWorkDisignWindow>();

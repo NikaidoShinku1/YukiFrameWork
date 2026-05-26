@@ -1698,17 +1698,19 @@ namespace XFABManager
             }
             else 
             {
-                try
-                {
-                    // 通过反射获取
-                    System.Reflection.PropertyInfo info = asset.GetType().GetProperty("name");
-                    if (info != null && info.GetValue(asset) != null)
-                        assetName = info.GetValue(asset).ToString();
+                Type asset_type = asset.GetType();
+
+                System.Reflection.PropertyInfo info = asset_type.GetProperty("name");
+                if (info != null && info.CanRead) 
+                { 
+                    object v = info.GetValue(asset);
+                    if(v != null)
+                        assetName = v.ToString();
                 }
-                catch (Exception)
+                else
                 {
-                    return;
-                } 
+                    Debug.LogException(new Exception(string.Format("未知的资源类型:{0}", asset_type.FullName)));
+                }
             }
              
             if (string.IsNullOrEmpty(assetName)) return;
@@ -2055,8 +2057,9 @@ namespace XFABManager
                 if(Directory.Exists(dir))
                     Directory.Delete(dir, true);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.LogException(e);
             }
         }
 

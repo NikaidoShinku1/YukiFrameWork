@@ -1,18 +1,14 @@
 ﻿///=====================================================
-/// - FileName:      EventListener.cs
+/// - FileName:      EventManager.cs
 /// - NameSpace:     YukiFrameWork.Events
-/// - Description:   通过本地的代码生成器创建的脚本
-/// - Creation Time: 2024/9/20 16:55:32
+/// - Description:   全局事件管理
 /// -  (C) Copyright 2008 - 2024
 /// -  All Rights Reserved.
 ///=====================================================
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using UnityEngine;
 using YukiFrameWork.Extension;
 namespace YukiFrameWork.Events
 {
@@ -23,139 +19,99 @@ namespace YukiFrameWork.Events
         Enum,
         AsyncType
     }
-    public class EventInfo
-	{
-        private Dictionary<Type, IEasyEvent> eventPools = new Dictionary<Type, IEasyEvent>();
-        private Dictionary<string, IEasyEvent> stringEventPools = new Dictionary<string, IEasyEvent>();
-		private Dictionary<Enum, IEasyEvent> enumEventPools = new Dictionary<Enum, IEasyEvent>();
-        private Dictionary<Type, IEasyEvent> asyncEventPools = new Dictionary<Type, IEasyEvent>();    
-		internal T GetOrAdd<T>() where T : IEasyEvent,new()
-		{
-			if (!eventPools.TryGetValue(typeof(T), out var value))
-			{
-				value = new T();
-				eventPools[typeof(T)] = value;
+
+    internal sealed class EventChannelTable<TKey> where TKey : notnull
+    {
+        private readonly Dictionary<TKey, IEasyEvent> pools = new Dictionary<TKey, IEasyEvent>();
+        private readonly EventRegisterType registerType;
+
+        internal EventChannelTable(EventRegisterType registerType)
+        {
+            this.registerType = registerType;
+        }
+
+        internal T GetOrAdd<T>(TKey key, Func<EventChannelKey> keyFactory) where T : IEasyEvent, new()
+        {
+            if (!pools.TryGetValue(key, out var value))
+            {
+                value = new T();
+                pools[key] = value;
 #if UNITY_2022_1_OR_NEWER
-                value.RegisterType = EventRegisterType.Type;
+                value.RegisterType = registerType;
 #endif
-            }          
-			return (T)value;
-		}
+                EventDiagnostics.BindChannel(value, keyFactory());
+            }
+
+            return (T)value;
+        }
+
+        internal T Get<T>(TKey key) where T : IEasyEvent, new()
+        {
+            if (!pools.TryGetValue(key, out var value))
+                return default;
+            return (T)value;
+        }
+
+        internal void RemoveByInstance(IUnRegister unRegister, Action<TKey, IEasyEvent> onRemove)
+        {
+            var key = pools.Keys.FirstOrDefault(x => pools[x] == unRegister);
+            if (key != null && pools.TryGetValue(key, out var easyEvent))
+                onRemove(key, easyEvent);
+        }
+    }
+
+    public class EventInfo
+    {
+        private readonly EventChannelTable<Type> typeEvents = new EventChannelTable<Type>(EventRegisterType.Type);
+        private readonly EventChannelTable<Type> asyncEvents = new EventChannelTable<Type>(EventRegisterType.AsyncType);
+        private readonly EventChannelTable<string> stringEvents = new EventChannelTable<string>(EventRegisterType.String);
+        private readonly EventChannelTable<Enum> enumEvents = new EventChannelTable<Enum>(EventRegisterType.Enum);
+
+        internal T GetOrAdd<T>() where T : IEasyEvent, new()
+            => typeEvents.GetOrAdd<T>(typeof(T), () => EventChannelKey.ForEasyEvent(typeof(T), EventRegisterType.Type));
 
         internal T GetOrAdd_Async<T>() where T : IEasyEvent, new()
-        {
-            if (!asyncEventPools.TryGetValue(typeof(T), out var value))
-            {
-                value = new T();
-                eventPools[typeof(T)] = value;
-#if UNITY_2022_1_OR_NEWER
-                value.RegisterType = EventRegisterType.AsyncType;
-#endif
-            }
+            => asyncEvents.GetOrAdd<T>(typeof(T), () => EventChannelKey.ForEasyEvent(typeof(T), EventRegisterType.AsyncType));
 
-            return (T)value;
-        }
-
-       
         internal T GetOrAdd<T>(string name) where T : IEasyEvent, new()
-        {
-            if (!stringEventPools.TryGetValue(name, out var value))
-            {
-                value = new T();
-				stringEventPools[name] = value;
-#if UNITY_2022_1_OR_NEWER
-                value.RegisterType = EventRegisterType.String;
-#endif
-            }
-
-            return (T)value;
-        }
+            => stringEvents.GetOrAdd<T>(name, () => EventChannelKey.ForEasyEvent(typeof(T), EventRegisterType.String, name));
 
         internal T GetOrAdd<T>(Enum e) where T : IEasyEvent, new()
-        {		
-            if (!enumEventPools.TryGetValue(e, out var value))
-            {
-                value = new T();
-				enumEventPools[e] = value;
-#if UNITY_2022_1_OR_NEWER
-                value.RegisterType = EventRegisterType.Enum;
-#endif
-            }
-            return (T)value;
-        }
+            => enumEvents.GetOrAdd<T>(e, () => EventChannelKey.ForEasyEvent(typeof(T), EventRegisterType.Enum, e?.ToString()));
 
         internal T Get<T>() where T : IEasyEvent, new()
-        {
-            if (!eventPools.TryGetValue(typeof(T), out var value))
-            {
-                return default;
-            }          
-            return (T)value;
-        }
+            => typeEvents.Get<T>(typeof(T));
 
         internal T Get_Async<T>() where T : IEasyEvent, new()
-        {
-            if (!asyncEventPools.TryGetValue(typeof(T), out var value))
-            {
-                return default;
-            }
-
-            return (T)value;
-        }
-     
+            => asyncEvents.Get<T>(typeof(T));
 
         internal T Get<T>(string name) where T : IEasyEvent, new()
-        {
-            if (!stringEventPools.TryGetValue(name, out var value))
-            {
-                return default;
-            }
-
-            return (T)value;
-        }
+            => stringEvents.Get<T>(name);
 
         internal T Get<T>(Enum e) where T : IEasyEvent, new()
-        {
-            if (!enumEventPools.TryGetValue(e, out var value))
-            {
-                return default;
-            }
+            => enumEvents.Get<T>(e);
 
-            return (T)value;
-        }
 #if UNITY_2022_1_OR_NEWER
         internal void RemoveEvent(IUnRegister unRegister)
         {
             switch (unRegister.RegisterType)
             {
                 case EventRegisterType.Type:
-                    {
-                        var key = eventPools.Keys.FirstOrDefault(x => eventPools[x] == unRegister);
-                        if (key != null)
-                            eventPools[key]?.UnRegisterAllEvent();
-                    }
+                    typeEvents.RemoveByInstance(unRegister, (_, easyEvent) => easyEvent?.UnRegisterAllEvent());
                     break;
                 case EventRegisterType.String:
+                    stringEvents.RemoveByInstance(unRegister, (key, easyEvent) =>
                     {
-                        var key = stringEventPools.Keys.FirstOrDefault(x => stringEventPools[x] == unRegister);
                         if (!key.IsNullOrEmpty())
-                            stringEventPools[key]?.UnRegisterAllEvent();
-                    }
+                            easyEvent?.UnRegisterAllEvent();
+                    });
                     break;
                 case EventRegisterType.Enum:
-                    {
-                        var key = enumEventPools.Keys.FirstOrDefault(x => enumEventPools[x] == unRegister);
-                        if (key != null)
-                            enumEventPools[key]?.UnRegisterAllEvent();
-                    }
+                    enumEvents.RemoveByInstance(unRegister, (_, easyEvent) => easyEvent?.UnRegisterAllEvent());
                     break;
                 case EventRegisterType.AsyncType:
-                    {
-                        var key = asyncEventPools.Keys.FirstOrDefault(x => asyncEventPools[x] == unRegister);
-                        if (key != null)
-                            asyncEventPools[key]?.UnRegisterAllEvent();
-                    }
-                    break;             
+                    asyncEvents.RemoveByInstance(unRegister, (_, easyEvent) => easyEvent?.UnRegisterAllEvent());
+                    break;
             }
 
             unRegister?.UnRegisterAllEvent();
@@ -165,44 +121,53 @@ namespace YukiFrameWork.Events
 
     public static class EventManager
     {
-        private static EventInfo eventInfo;
+        private static readonly EventInfo eventInfo = new EventInfo();
 
-        public static EventInfo Root => eventInfo;     
-        static EventManager()
-        {
-            eventInfo = new EventInfo();
-        }
+        public static EventInfo Root => eventInfo;
+
+#if UNITY_EDITOR
+        public static IReadOnlyList<EventChannelSnapshot> GetChannelSnapshots()
+            => EventDiagnostics.GetChannelSnapshots();
+
+        public static IReadOnlyList<EventDiagnosticRecord> GetDiagnosticHistory()
+            => EventDiagnostics.GetHistory();
+
+        public static int GetTotalSubscriptionCount()
+            => EventDiagnostics.GetTotalSubscriptionCount();
+
+        public static int GetRiskSubscriptionCount()
+            => EventDiagnostics.GetRiskSubscriptionCount();
+
+        public static IReadOnlyList<EventLifecycleReport> GetLifecycleReports()
+            => EventDiagnostics.GetLifecycleReports();
+
+        public static void ClearDiagnosticHistory()
+            => EventDiagnostics.ClearHistory();
+#endif
 
         public static void Send<T>(this T arg) where T : IEventArgs
         {
-            EventManager.SendEvent(arg);
+            SendEvent(arg);
         }
 
-        public static void Send<T>(this T arg,string eventName) where T : IEventArgs
+        public static void Send<T>(this T arg, string eventName) where T : IEventArgs
         {
-            EventManager.SendEvent(eventName, arg);
+            SendEvent(eventName, arg);
         }
-        public static void Send<T>(this T arg,Enum en) where T : IEventArgs
+
+        public static void Send<T>(this T arg, Enum en) where T : IEventArgs
         {
-            EventManager.SendEvent(en, arg);
+            SendEvent(en, arg);
         }
 
         public async static Task Send_Task<T>(this T arg) where T : IEventArgs
         {
-            await EventManager.SendEvent_Task(arg);
+            await SendEvent_Task(arg);
         }
 
-        /// <summary>
-        /// 注册事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="e"></param>
-        /// <returns></returns>
-		public static IUnRegister AddListener<T>(Action<T> e) where T : IEventArgs
+        public static IUnRegister AddListener<T>(Action<T> e) where T : IEventArgs
         {
-            var easyEvent = eventInfo.GetOrAdd<EasyEvent<T>>().RegisterEvent(e);
-            
-            return easyEvent;
+            return eventInfo.GetOrAdd<EasyEvent<T>>().RegisterEvent(e);
         }
 
         public static void RemoveListener<T>(Action<T> e) where T : IEventArgs
@@ -215,16 +180,9 @@ namespace YukiFrameWork.Events
             eventInfo.Get<EasyEvent<T>>()?.UnRegisterAllEvent();
         }
 
-        /// <summary>
-        /// 注册异步事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="e"></param>
-        /// <returns></returns>
         public static IUnRegister AddListener_Task<T>(Func<T, Task> e) where T : IEventArgs
         {
-            var easyEvent = eventInfo.GetOrAdd_Async<AsyncEasyEvent<T>>().RegisterEvent(e);
-            return easyEvent;
+            return eventInfo.GetOrAdd_Async<AsyncEasyEvent<T>>().RegisterEvent(e);
         }
 
         public static void RemoveListener_Task<T>(Func<T, Task> e) where T : IEventArgs
@@ -236,45 +194,27 @@ namespace YukiFrameWork.Events
         {
             eventInfo.Get_Async<AsyncEasyEvent<T>>()?.UnRegisterAllEvent();
         }
-        /// <summary>
-        /// 发送事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="e"></param>
-        public static void SendEvent<T>(T e = default,bool error = false) where T : IEventArgs
-		{
-            EasyEvent<T> easyEvent = eventInfo.Get<EasyEvent<T>>();        
-            Send(easyEvent, e, "事件没有注册，请检查 Event Type:" + typeof(T),error);
-        }  
 
-        /// <summary>
-        /// 发送返回值为Task的异步事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        public static async Task SendEvent_Task<T>(T e = default,bool error = false) where T : IEventArgs
+        public static void SendEvent<T>(T e = default, bool error = false) where T : IEventArgs
+        {
+            EasyEvent<T> easyEvent = eventInfo.Get<EasyEvent<T>>();
+            Send(easyEvent, e, "事件没有注册，请检查 Event Type:" + typeof(T), error);
+        }
+
+        public static async Task SendEvent_Task<T>(T e = default, bool error = false) where T : IEventArgs
         {
             AsyncEasyEvent<T> easyEvent = eventInfo.Get_Async<AsyncEasyEvent<T>>();
-            await Send(easyEvent, e, "事件没有注册，请检查 Event Type:" + typeof(T),error);
+            await Send(easyEvent, e, "事件没有注册，请检查 Event Type:" + typeof(T), error);
         }
-        /// <summary>
-        /// 注册以字符串为标识的事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        public static IUnRegister AddListener<T>(string name,Action<T> e) where T : IEventArgs
+
+        public static IUnRegister AddListener<T>(string name, Action<T> e) where T : IEventArgs
         {
-            var easyEvent = eventInfo.GetOrAdd<EasyEvent<T>>(name).RegisterEvent(e);
-            return easyEvent;
+            return eventInfo.GetOrAdd<EasyEvent<T>>(name).RegisterEvent(e);
         }
 
         public static void RemoveListener<T>(string name, Action<T> e) where T : IEventArgs
         {
             eventInfo.Get<EasyEvent<T>>(name)?.UnRegister(e);
-            
         }
 
         public static void RemoveAllListeners<T>(string name) where T : IEventArgs
@@ -282,29 +222,15 @@ namespace YukiFrameWork.Events
             eventInfo.Get<EasyEvent<T>>(name)?.UnRegisterAllEvent();
         }
 
-        /// <summary>
-        /// 发送以字符串为标识的事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <param name="e"></param>
-        public static void SendEvent<T>(string name,T e = default,bool error = false) where T : IEventArgs
+        public static void SendEvent<T>(string name, T e = default, bool error = false) where T : IEventArgs
         {
             EasyEvent<T> easyEvent = eventInfo.Get<EasyEvent<T>>(name);
-            Send(easyEvent, e, "事件没有注册，请检查 Event Name:" + name,error);
+            Send(easyEvent, e, "事件没有注册，请检查 Event Name:" + name, error);
         }
 
-        /// <summary>
-        /// 注册以枚举为标识的事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="en"></param>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        public static IUnRegister AddListener<T>(Enum en,Action<T> e) where T : IEventArgs
+        public static IUnRegister AddListener<T>(Enum en, Action<T> e) where T : IEventArgs
         {
-            var easyEvent = eventInfo.GetOrAdd<EasyEvent<T>>(en).RegisterEvent(e);
-            return easyEvent;
+            return eventInfo.GetOrAdd<EasyEvent<T>>(en).RegisterEvent(e);
         }
 
         public static void RemoveListener<T>(Enum en, Action<T> e) where T : IEventArgs
@@ -317,30 +243,13 @@ namespace YukiFrameWork.Events
             eventInfo.Get<EasyEvent<T>>(name)?.UnRegisterAllEvent();
         }
 
-        /// <summary>
-        /// 发送以枚举为标识的事件
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="en"></param>
-        /// <param name="e"></param>
-        public static void SendEvent<T>(Enum en,T e = default,bool error = false) where T : IEventArgs
+        public static void SendEvent<T>(Enum en, T e = default, bool error = false) where T : IEventArgs
         {
             EasyEvent<T> easyEvent = eventInfo.Get<EasyEvent<T>>(en);
-            Send(easyEvent, e,"事件没有注册，请检查 Event Enum:" + en,error);
+            Send(easyEvent, e, "事件没有注册，请检查 Event Enum:" + en, error);
         }
 
-        private static void Send<T>(EasyEvent<T> easyEvent,T t,string error,bool isError) where T : IEventArgs
-        {
-            if (easyEvent == default)
-            {
-                if(isError)
-                    throw new Exception(error);
-                return;
-            }
-            easyEvent.SendEvent(t);
-        }
-
-        private static async Task Send<T>(AsyncEasyEvent<T> easyEvent, T t, string error,bool isError) where T : IEventArgs
+        private static void Send<T>(EasyEvent<T> easyEvent, T t, string error, bool isError) where T : IEventArgs
         {
             if (easyEvent == default)
             {
@@ -348,9 +257,18 @@ namespace YukiFrameWork.Events
                     throw new Exception(error);
                 return;
             }
-            await easyEvent.SendEvent(t);           
-        }     
+            easyEvent.SendEvent(t);
+        }
+
+        private static async Task Send<T>(AsyncEasyEvent<T> easyEvent, T t, string error, bool isError) where T : IEventArgs
+        {
+            if (easyEvent == default)
+            {
+                if (isError)
+                    throw new Exception(error);
+                return;
+            }
+            await easyEvent.SendEvent(t);
+        }
     }
-
-
 }

@@ -606,9 +606,6 @@ namespace YukiFrameWork.Buffer
                     }
                 }
 
-                if (executor.Value.Count == 0)
-                     results.Add(executor.Key);
-
             }
         }
 

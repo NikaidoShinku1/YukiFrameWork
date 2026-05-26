@@ -140,7 +140,7 @@ namespace YukiFrameWork.Audio
             audioGroupInfo.soundSetting = audioSourceSoundSetting;
             return this;
         }
-        internal void PlayInternal(AudioClip audioClip, IAudioLoader audioLoader)
+        internal void  PlayInternal(AudioClip audioClip, IAudioLoader audioLoader)
         {                      
             void SetAudioVolume(float value)
             {
@@ -200,7 +200,7 @@ namespace YukiFrameWork.Audio
                     mAudioSource.maxDistance = soundSetting.MaxDistance;
                 }
                 IsAudioFree = false;
-                mAudioSource.Play();                             
+                mAudioSource.Play();                
                 //如果协程再走，则需要先进行终止
                 if (audioTimer?.IsRunning == true)
                     audioTimer.Cancel();
@@ -259,7 +259,7 @@ namespace YukiFrameWork.Audio
            
         }
 
-        public void Cancel()
+        public async void Cancel()
         {
             //释放多判断一次
             if (audioTimer?.IsRunning == true)
@@ -279,7 +279,8 @@ namespace YukiFrameWork.Audio
             audioGroupInfo.Reset();
             audioGroup = null;
             IsAudioFree = true;
-            AudioManager.Instance.AddLoaderCacheTime(loader);
+            if(AudioManager.Instance)
+                AudioManager.Instance.AddLoaderCacheTime(loader);
         }
     }
 }

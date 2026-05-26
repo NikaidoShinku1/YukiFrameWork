@@ -59,6 +59,11 @@ namespace YukiFrameWork.UI
         {
             activityTable.Remove(info);
         }
+        
+        internal void RemoveActivityPanel(Type type,UILevel level)
+        {
+            activityTable.RemovePanel(type, level);
+        }
 
         internal IPanel GetPanelByLevel(string name)
         {
@@ -225,6 +230,14 @@ namespace YukiFrameWork.UI
                     return null;
                 }
             }
+        }
+
+        public void RemovePanel(Type type,UILevel level)
+        {
+            if (!panelTypeDicts.ContainsKey(type))
+                return;
+            string name = panelTypeDicts[type];
+            container[level][name].Clear();
         }
     }
 

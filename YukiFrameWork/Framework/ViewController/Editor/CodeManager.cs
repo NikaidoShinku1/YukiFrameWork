@@ -188,7 +188,7 @@ namespace YukiFrameWork
             builder.AppendLine("/// - NameSpace:     " + nameSpace);
             builder.AppendLine("/// - Description:   " + description);
             builder.AppendLine("/// - Creation Time: " + dateTime);
-            builder.AppendLine("/// -  (C) Copyright 2008 - 2025");
+            builder.AppendLine("/// -  (C) Copyright 2008 - 2030");
             builder.AppendLine("/// -  All Rights Reserved.");
             builder.AppendLine("///=====================================================");
             return this;
@@ -498,121 +498,13 @@ namespace YukiFrameWork
             return !path.IsNullOrEmpty();
         }
 
-        public static void BindInspector(ISerializedFieldInfo info,Component target, Action GenericCallBack = null)
-        {       
-            EditorGUI.BeginDisabledGroup(IsPlaying);
-            EditorGUILayout.Space(20);
-            var value = PlayerPrefs.GetInt("BindFoldOut") == 1; 
-            EditorGUILayout.BeginHorizontal();          
-            PlayerPrefs.SetInt("BindFoldOut",EditorGUILayout.Foldout(PlayerPrefs.GetInt("BindFoldOut") == 1,string.Empty) ? 1 : 0);
-            GUILayout.Label(FrameWorkConfigData.BindExtensionInfo, "PreviewPackageInUse");
-            YukiBind[] binds = target.GetComponentsInChildren<YukiBind>();
-            if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
-            {
-                if (info.GetSerializeFields().Count() <= 0 && (binds != null && binds.Length > 0))
-                {
-                    EditorGUILayout.HelpBox("当前存在YukiBind,可以生成代码", MessageType.Info);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-            if (value)
-            {
-                var rect = EditorGUILayout.BeginVertical("FrameBox", GUILayout.Height(100 + info.GetSerializeFields().Count() * 20));
-                GUILayout.Label(FrameWorkConfigData.DragObjectInfo);
-                foreach (var data in info.GetSerializeFields())
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    string fieldName = EditorGUILayout.TextField(data.fieldName);
-
-                    if (data.fieldName != fieldName)
-                    {
-                        Undo.RecordObject(target, "Change Data");
-                        data.fieldName = fieldName;
-
-                        SaveData(target);
-                    }
-
-                    int levelIndex = EditorGUILayout.Popup(data.fieldLevelIndex, data.fieldLevel);
-
-                    if (data.fieldLevelIndex != levelIndex)
-                    {
-                        Undo.RecordObject(target, "Change Level");
-                        data.fieldLevelIndex = levelIndex;
-                        SaveData(target);
-                    }
-
-                    int typeIndex = EditorGUILayout.Popup(data.fieldTypeIndex, data.Components?.ToArray());
-
-                    if (typeIndex != data.fieldTypeIndex)
-                    {
-                        Undo.RecordObject(target, "Change TypeIndex");
-                        data.fieldTypeIndex = typeIndex;
-                        SaveData(target);
-                    }
-
-                    var obj = EditorGUILayout.ObjectField(data.target, typeof(UnityEngine.Object), true);
-
-                    if (data.target != obj)
-                    {
-                        Undo.RecordObject(target, "Change Object");
-                        data.target = obj;
-                        SaveData(target);
-                    }
-
-                    if (GUILayout.Button("", "ToggleMixed"))
-                    {
-                        Undo.RecordObject(target, "Remove Data");
-                        info.RemoveFieldData(data);
-
-                        SaveData(target);
-                        break;
-                    }
-
-                    EditorGUILayout.EndHorizontal();
-
-                }
-
-                DragObject(rect, target, info);
-
-                GUILayout.FlexibleSpace();
-                if (target.GetType().IsSubclassOf(typeof(YMonoBehaviour)))
-                {
-                    if (CheckViewBindder(info,binds) && GUILayout.Button("生成代码", GUILayout.Height(25)))
-                    {
-                        GenericCallBack?.Invoke();
-                    }
-                }
-                EditorGUILayout.EndVertical();
-                /* if (!target.GetType().Equals(targetType))
-                 {
-                     BindEventCallBack?.Invoke();
-                 }*/
-            }
-            EditorGUI.EndDisabledGroup();
-        }
-
-        private static void DragObject(Rect rect,Component target,ISerializedFieldInfo info)
+        public static void BindInspector(
+            ISerializedFieldInfo info,
+            Component target,
+            Action genericCallBack = null,
+            GenericDataBase bindData = null)
         {
-            Event e = Event.current;
-
-            if (rect.Contains(e.mousePosition))
-            {
-                DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
-
-                if (e.type == EventType.DragPerform)
-                {
-                    var assets = DragAndDrop.objectReferences;
-
-                    foreach (var asset in assets)
-                    {
-                        Undo.RecordObject(target, "Add Data");
-                        info.AddFieldData(new SerializeFieldData(asset));
-
-                        SaveData(infoAsset: target);
-                    }
-                    e.Use();
-                }
-            }
+            ViewControllerFieldBinderDrawer.Draw(info, target, genericCallBack, bindData);
         }
 
         public static bool CheckViewBindder(ISerializedFieldInfo info, YukiBind[] binds)

@@ -9,11 +9,12 @@ ViewController 字段绑定:
 绑定好字段后点击生成代码,对象会自动绑定到脚本中,最终如图所示:
 ![输入图片说明](Texture/Bind2.png)
 
-支持为对象添加YukiBind脚本，该脚本在创建后会自动将该对象所有的组件进行绑定，绑定后在ViewController中点击添加即可。
-![输入图片说明](Texture/Bind4.png)
 
 最后会生成该脚本的分写文件
 ![输入图片说明](Texture/Bind3.png)
 
+对于字段绑定,支持自动化字段处理一键添加
+![输入图片说明](Texture/Bind4.png)
 
+添加类型后点击自动构建生成即可构建字段
 

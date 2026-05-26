@@ -72,34 +72,10 @@ namespace YukiFrameWork.UI
             Object.DontDestroyOnLoad(Canvas.gameObject);
 
             LogKit.I("UIKit Initialization Succeeded!");           
-
-            UpdateScreenAspect();
-            ScreenTool.OnScreenChanged  .RegisterEvent(UpdateScreenAspect);
         }
         int currentWidth;
         int currentHeight;
-
-        /// <summary>
-        /// 可根据当前分辨率进行更新CanvasScaler画布比例方法
-        /// </summary>
-        public void UpdateScreenAspect()
-        {
-            if (Screen.width == currentWidth || Screen.height == currentHeight)
-                return;
-
-            // 计算出比例
-            float aspect = (float)Screen.width / Screen.height;
-            float inverse_lerp;
-            if (IsLandscape())
-                inverse_lerp = Mathf.InverseLerp(1.33f, 1.77f, aspect); // 12:9 ~ 16:9  
-            else
-                inverse_lerp = Mathf.InverseLerp(9.0f / 16, 9.0f / 12, aspect); // 
-
-            CanvasScaler.matchWidthOrHeight = inverse_lerp;
-
-            currentWidth = Screen.width;
-            currentHeight = Screen.height;
-        }
+        
 
         private bool IsLandscape()
         {
@@ -157,7 +133,7 @@ namespace YukiFrameWork.UI
         internal T GetPanelCore<T>() where T : class, IPanel
         {
             panelCore.TryGetValue(typeof(T),out var value);
-            return (T)value;
+            return value as T;
         }
 
         public IPanel GetPanelCore(string name)
@@ -175,8 +151,6 @@ namespace YukiFrameWork.UI
             reloadLevelSafe = false;
             reloadSystemSafe = false;
             IsLevelInited = false;
-
-            ScreenTool.OnScreenChanged.UnRegister(UpdateScreenAspect);
             Type[] panelTypes = panelCore.Keys.ToArray();
             foreach (var type in panelTypes)
                 UIKit.UnLoadPanel(type);

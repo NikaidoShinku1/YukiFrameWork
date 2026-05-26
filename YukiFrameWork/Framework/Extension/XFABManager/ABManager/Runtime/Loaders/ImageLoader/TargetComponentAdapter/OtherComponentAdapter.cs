@@ -10,19 +10,23 @@ namespace XFABManager
 
     public class OtherComponentAdapter : TargetComponentAdapter
     {
-        private static Dictionary<string,Type> typeCaches = new Dictionary<string,Type>();
+        private static Dictionary<string, Type> typeCaches = new Dictionary<string, Type>();
 
         public TargetComponentType TargetComponentType => TargetComponentType.Other;
 
-        public void SetColor(ImageLoader loader, Color color)
-        {
-            // 暂不实现设置颜色功能 TODO
-        }
         public Color GetColor(ImageLoader loader)
         {
             // 暂不实现获取颜色功能 TODO
             return Color.white;
         }
+
+        public void SetColor(ImageLoader loader, Color color)
+        {
+            // 暂不实现设置颜色功能 TODO
+        }
+
+
+
         public void SetValue(ImageLoader loader, ImageData imageData)
         {
             if (loader == null) return;
@@ -46,63 +50,48 @@ namespace XFABManager
             }
 
             //Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            
+
 
             Type type = GetTypeByFullName(loader.target_component_full_name);
 
-            if (type == null) {
-                Debug.LogErrorFormat("查询类型失败:{0} 请检查名称是否填写正确!", loader.target_component_full_name); 
+            if (type == null)
+            {
+                Debug.LogErrorFormat("查询类型失败:{0} 请检查名称是否填写正确!", loader.target_component_full_name);
                 return;
             }
 
             FieldInfo fieldInfo = null;
-            try
-            {
-                fieldInfo = type.GetField(loader.target_component_fields_name );
 
-                if (fieldInfo != null)
+            fieldInfo = type.GetField(loader.target_component_fields_name);
+
+            if (fieldInfo != null)
+            {
+                object obj = fieldInfo.GetValue(component);
+
+                if (fieldInfo.FieldType == typeof(Sprite))
                 {
-                    object obj = fieldInfo.GetValue(component); 
-
-                    if (fieldInfo.FieldType == typeof(Sprite))
-                    {
-                        fieldInfo.SetValue(component, imageData != null ? imageData.sprite : null);
-                    }
-                    else
-                    {
-                        fieldInfo.SetValue(component, imageData != null ? imageData.texture : null);
-                    }
+                    fieldInfo.SetValue(component, imageData != null ? imageData.sprite : null);
                 }
-                 
+                else
+                {
+                    fieldInfo.SetValue(component, imageData != null ? imageData.texture : null);
+                }
             }
-            catch (Exception e)
-            {
-                Debug.Log(e.ToString());
-            }
-
-
+             
             PropertyInfo propertyInfo = null;
-            try
+
+            propertyInfo = type.GetProperty(loader.target_component_fields_name);
+            if (propertyInfo != null && propertyInfo.CanWrite)
             {
-                propertyInfo = type.GetProperty(loader.target_component_fields_name);
-                if (propertyInfo != null)
-                {  
-                    if (propertyInfo.PropertyType == typeof(Sprite))
-                    {
-                        propertyInfo.SetValue(component, imageData != null ? imageData.sprite : null);
-                    }
-                    else
-                    {
-                        propertyInfo.SetValue(component, imageData != null ? imageData.texture : null);
-                    }
+                if (propertyInfo.PropertyType == typeof(Sprite))
+                {
+                    propertyInfo.SetValue(component, imageData != null ? imageData.sprite : null);
                 }
-                  
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.ToString());
-            }
-            
+                else
+                {
+                    propertyInfo.SetValue(component, imageData != null ? imageData.texture : null);
+                }
+            } 
         }
 
         public UnityEngine.Object TargetComponent(ImageLoader loader)
@@ -112,17 +101,19 @@ namespace XFABManager
         }
 
 
-        private Type GetTypeByFullName(string full_name) {
-            
-            if(typeCaches.ContainsKey(full_name)) return typeCaches[full_name];
+        private Type GetTypeByFullName(string full_name)
+        {
+
+            if (typeCaches.ContainsKey(full_name)) return typeCaches[full_name];
 
             Type type = null;
-             
+
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblies)
             {
                 type = assembly.GetType(full_name);
-                if (type != null) {
+                if (type != null)
+                {
                     break;
                 }
             }
@@ -130,7 +121,7 @@ namespace XFABManager
             return type;
         }
 
-    
+
     }
 
 }

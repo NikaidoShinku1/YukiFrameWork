@@ -60,7 +60,7 @@ namespace YukiFrameWork
         [SerializeField]private GameObject gameObject => target as GameObject;
         [SerializeField] private Component component => gameObject != null ? gameObject.transform : target as Component;
 
-        public string Name => target.name;
+        public string Name => target != null ? target.name : string.Empty;
         public string fieldName;
 
         public SerializeFieldData(Object target)
@@ -68,7 +68,14 @@ namespace YukiFrameWork
             mComponents = new List<string>();
             this.target = target;          
             fieldLevelIndex = 0;
-            this.fieldName = target.name.Replace(" ","");            
+            this.fieldName = target != null ? target.name.Replace(" ","") : string.Empty;            
+        }
+
+        public SerializeFieldData()
+        {
+            mComponents = new List<string>();
+            fieldLevelIndex = 0;
+            fieldName = string.Empty;
         }
 
         public T GetComponent<T>() where T : Component

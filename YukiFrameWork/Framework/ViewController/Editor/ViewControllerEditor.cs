@@ -13,14 +13,11 @@
 using UnityEngine;
 using UnityEditor;
 using YukiFrameWork.Events;
-using System.IO;
-using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.OdinInspector;
 using YukiFrameWork;
 namespace YukiFrameWork.Extension
 {
@@ -85,7 +82,11 @@ namespace YukiFrameWork.Extension
             controller.Data.ScriptNamespace = !info ? controller.Data.ScriptNamespace : info.nameSpace;
             
             if(controller.Data.IsPartialLoading)           
-                EditorApplication.delayCall = () => BindAllField(controller);
+                EditorApplication.delayCall = () =>
+                {
+                    SerializedFieldBinderUtility.BindAllFields(controller, controller);
+                    controller.Data.IsPartialLoading = false;
+                };
 
             list = controller.Data.AutoInfos;
             list.Clear();
@@ -157,53 +158,6 @@ namespace YukiFrameWork.Extension
             info.nameSpace = controller.Data.ScriptNamespace;
         }
 
-        private void BindAllField(ViewController controller)
-        {
-            if (Application.isPlaying) return;
-
-            controller.Data.IsPartialLoading = false;
-            IEnumerable<FieldInfo> fieldInfos = controller.GetType().GetRuntimeFields();
-
-            ISerializedFieldInfo serialized = controller;
-            foreach (FieldInfo fieldInfo in fieldInfos)
-            {
-                SerializeFieldData data = serialized.GetSerializeFields().FirstOrDefault(x => x.fieldName.Equals(fieldInfo.Name));                
-                if (data == null) continue;               
-                if (data.target == null) continue;
-                if (!fieldInfo.FieldType.IsSubclassOf(typeof(Component)))
-                    fieldInfo.SetValue(target, data.target);
-                else
-                {
-                    Component component = data.GetComponent(fieldInfo.FieldType);                 
-                    fieldInfo.SetValue(target, component);
-                }
-            }
-            YukiBind[] binds = controller.GetComponentsInChildren<YukiBind>();
-            if (binds != null && binds.Length > 0)
-            {
-
-                foreach (FieldInfo fieldInfo in fieldInfos)
-                {
-                    var b = binds.FirstOrDefault(x => x._fields.fieldName.Equals(fieldInfo.Name));
-                    if (b == null) continue;
-                    SerializeFieldData data = b._fields;
-                    if (data == null) continue;
-                    if (data.target == null) continue;
-                    if (!fieldInfo.FieldType.IsSubclassOf(typeof(Component)))
-                        fieldInfo.SetValue(target, data.target);
-                    else
-                    {
-                        Component component = data.GetComponent(fieldInfo.FieldType);
-                        fieldInfo.SetValue(target, component);
-                    }
-                }
-            }
-
-            EditorUtility.SetDirty(target);
-            AssetDatabase.SaveAssets();
-        }
-        public bool IsPlaying => Application.isPlaying;
-
         private void OnSceneGUI()
         {
             ViewController controller = target as ViewController;
@@ -217,6 +171,18 @@ namespace YukiFrameWork.Extension
                 EditorGUILayout.HelpBox("特殊警示:在预制件下生成脚本并不会自动进行挂载跟替换的操作，请自行处理。", MessageType.Warning);
             if(!controller.OnInspectorGUI())
                 base.OnInspectorGUI();
+
+            try
+            {
+                CodeManager.BindInspector(controller, controller, GenericPartialScripts, controller.Data);
+            }
+            catch { }
+
+            DrawScriptGenerationPanel(controller);
+        }
+
+        private void DrawScriptGenerationPanel(ViewController controller)
+        {
             EditorGUILayout.Space();
             EditorGUILayout.BeginVertical("OL box NoExpand");
             GUIStyle style = new GUIStyle("AM HeaderStyle")
@@ -235,11 +201,11 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
 
-            EditorGUI.BeginDisabledGroup(IsPlaying);
+            EditorGUI.BeginDisabledGroup(CodeManager.IsPlaying);
             EditorGUILayout.Space();
 
-            EditorGUILayout.BeginHorizontal();
             var Data = controller.Data;
+            EditorGUILayout.BeginHorizontal();
             GUILayout.Label(FrameWorkConfigData.Email, GUILayout.Width(200));
             Data.CreateEmail = EditorGUILayout.TextField(Data.CreateEmail);
             EditorGUILayout.EndHorizontal();
@@ -249,7 +215,6 @@ namespace YukiFrameWork.Extension
             Data.SystemNowTime = DateTime.Now.ToString();
 
             EditorGUILayout.BeginHorizontal();
-
             GUILayout.Label(FrameWorkConfigData.NameSpace, GUILayout.Width(200));
             Data.ScriptNamespace = EditorGUILayout.TextField(Data.ScriptNamespace);
             EditorGUILayout.EndHorizontal();
@@ -257,7 +222,6 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-
             GUILayout.Label(FrameWorkConfigData.Name, GUILayout.Width(200));
             Data.ScriptName = EditorGUILayout.TextField(Data.ScriptName);
             EditorGUILayout.EndHorizontal();
@@ -276,7 +240,6 @@ namespace YukiFrameWork.Extension
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-
             EditorGUI.BeginDisabledGroup(!target.GetType().Equals(typeof(ViewController)));          
             EditorGUILayout.EndHorizontal();            
             SelectParentClass(Data);
@@ -296,22 +259,12 @@ namespace YukiFrameWork.Extension
                 }
             });
 
-            EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(target);
                 AssetDatabase.SaveAssets();
             }
             EditorGUILayout.EndVertical();
-
-            try
-            {
-
-                CodeManager.BindInspector(controller, controller, GenericPartialScripts);
-                EditorGUILayout.Space();
-
-            }
-            catch { }
         }
 
         private void SelectParentClass(CustomData data)
@@ -346,53 +299,13 @@ namespace YukiFrameWork.Extension
         {
             ViewController controller = target as ViewController;
             if (controller == null) return;
-           
-            string examplePath = controller.Data.ScriptPath + "/" + controller.Data.ScriptName + ".Example.cs";
-            bool intited = File.Exists(examplePath);
-            FileMode fileMode = intited ? FileMode.Open : FileMode.Create;
-            if (intited)
-            {
-                File.WriteAllText(examplePath,string.Empty);
-                AssetDatabase.Refresh();
-            }
-            CodeCore codeCore = new CodeCore();
-            codeCore.Descripton("///=====================================================");
-            codeCore.Descripton("///这是由代码工具生成的代码文件,请勿手动改动此文件!");
-            codeCore.Descripton("///如果在代码里命名空间进行了变动,请在编辑器设置也对命名空间作出相同修改!");
-            codeCore.Descripton("///=====================================================");
 
-            CodeWriter codeWriter = new CodeWriter();
-            ISerializedFieldInfo serialized = controller as ISerializedFieldInfo;
-            foreach (var info in serialized.GetSerializeFields())
-            {
-                codeWriter.CustomCode($"[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};");
-            }
-            YukiBind[] binds = controller.GetComponentsInChildren<YukiBind>();
-
-            foreach (var b in binds)
-            {
-                var info = b._fields;
-                codeWriter.CustomCode($"[SerializeField]{info.fieldLevel[info.fieldLevelIndex]} {info.Components[info.fieldTypeIndex]} {info.fieldName};//Des:{(b.description.IsNullOrEmpty() ? string.Empty : b.description)}");
-            }
-
-            codeCore
-                .Using("YukiFrameWork")
-                .Using("UnityEngine")
-                .Using("System")
-                .EmptyLine()
-                .CodeSetting(controller.Data.ScriptNamespace, controller.Data.ScriptName, string.Empty, codeWriter, false, true);
-
-            using (FileStream stream = new FileStream(examplePath, fileMode, FileAccess.ReadWrite, FileShare.ReadWrite))
-            {
-                StreamWriter streamWriter = new StreamWriter(stream,Encoding.UTF8);
-
-                streamWriter.Write(codeCore.builder);
-
-                streamWriter.Close();
-                stream.Close();
-                controller.Data.IsPartialLoading = true;              
-                AssetDatabase.Refresh();
-            }
+            ViewControllerPartialCodeGenerator.Generate(
+                controller.Data,
+                controller,
+                controller.GetComponentsInChildren<YukiBind>(),
+                () => controller.Data.IsPartialLoading = true,
+                "System");
         }
 
         private bool Update_ScriptFrameWorkConfigData(string path,ViewController controller)

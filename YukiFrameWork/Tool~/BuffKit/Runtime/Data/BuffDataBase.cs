@@ -91,8 +91,8 @@ namespace YukiFrameWork.Buffer
                 if (item == null) continue;
                 if (string.IsNullOrEmpty(item.Key)) continue;
 
-                writer.CustomCode($"public static string {item.Key}_Key = \"{item.Key}\";");
-                writer.CustomCode($"public static IBuff {item.Key} => BuffKit.GetBuffData(\"{item.Key}\");");
+                writer.CustomCode($"public static string Buff_{item.Key}_Key = \"{item.Key}\";");
+                writer.CustomCode($"public static IBuff Buff_{item.Key} => BuffKit.GetBuffData(\"{item.Key}\");");
             }
             codeCore.CodeSetting(nameSpace, buffInfoScriptNames, string.Empty, writer).Create(buffInfoScriptNames, filePath);
         }

@@ -12,6 +12,9 @@ using System;
 using System.Collections.Generic;
 using RuntimeAudioGroups = System.Collections.Generic.Dictionary<YukiFrameWork.Audio.AudioPlayType, System.Collections.Generic.Dictionary<string, YukiFrameWork.Audio.AudioGroup>>;
 using YukiFrameWork.Pools;
+using System.Collections;
+using System.Linq;
+using System.Threading.Tasks;
 namespace YukiFrameWork.Audio
 {
     public enum AudioPlayType
@@ -142,20 +145,14 @@ namespace YukiFrameWork.Audio
                 return true;
             }
         }
-       
-        [Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
-        public AudioPlayer Play(string name)
-        {
-            return BuildAndPlay(name);
-        }
-
         /// <summary>
         /// 播放音频
         /// </summary>
         /// <param name="name">音频名称/路径</param>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        public AudioPlayer BuildAndPlay(string name)
+        //[Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
+        public AudioPlayer Play(string name)
         {
             return Build(name).Play();
         }
@@ -200,24 +197,17 @@ namespace YukiFrameWork.Audio
                 });
         }
 
-       
-        [Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
-        public AudioPlayer Play(AudioClip clip)
-        {
-            return BuildAndPlay(clip);
-        }
         /// <summary>
-        /// 传递AudioClip构建并播放音频
+        /// 传递AudioClip播放音频
         /// </summary>
         /// <param name="clip"></param>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        public AudioPlayer BuildAndPlay(AudioClip clip)
+        //[Obsolete("方法已弃用,请通过Build构建AudioPlayer后调用Play!")]
+        public AudioPlayer Play(AudioClip clip)
         {
             if (clip == null)
-                throw new NullReferenceException("丢失音频无法播放");
-            //if (!CheckPlaySound(clip.name)) return null;
-
+                throw new NullReferenceException("丢失音频无法播放");            
             return Build(clip).Play();
         }
 
@@ -225,50 +215,37 @@ namespace YukiFrameWork.Audio
         {
             if (clip == null)
                 throw new NullReferenceException("丢失音频无法播放");
-           // if (!CheckPlaySound(clip.name)) return null;
             return FindPlayerByGroup(clip.name).SetNameOrPath(clip.name).Clip(clip);
         }
-        
-        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
-        public void PlayAsync(string name, Action<AudioPlayer> callBack)
-        {
-            BuildAndPlayAsync(name, callBack);
-        }
-
         /// <summary>
-        /// 异步播放音频,不能设定规则
+        /// 异步播放音频
         /// </summary>
         /// <param name="name"></param>
         /// <param name="callBack"></param>
         /// <exception cref="NullReferenceException"></exception>
-        public void BuildAndPlayAsync(string name, Action<AudioPlayer> callBack)
+        //[Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public void PlayAsync(string name, Action<AudioPlayer> callBack)
         {
             if (name.IsNullOrEmpty()) return;
-            BuildAsync(name, player =>
-            {
+            BuildAsync(name, player => 
+            {                
                 player.Play();
                 callBack?.Invoke(player);
-            });
+            });         
         }
 
 #if UNITY_2021_1_OR_NEWER
-       
-        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
-        public async YieldTask<AudioPlayer> PlayAsync(string name)
-        {
-            return await BuildAndPlayAsync(name);
-        }
-
         /// <summary>
         /// 异步播放音频
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public async YieldTask<AudioPlayer> BuildAndPlayAsync(string name)
+        //[Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public async YieldTask<AudioPlayer> PlayAsync(string name)
         {
             bool isCompleted = false;
             AudioPlayer audioPlayer = null;
-            BuildAndPlayAsync(name, player =>
+            PlayAsync(name, player => 
             {
                 audioPlayer = player;
                 isCompleted = true;
@@ -276,6 +253,7 @@ namespace YukiFrameWork.Audio
             await CoroutineTool.WaitUntil(() => isCompleted);
             return audioPlayer;
         }
+
         public async YieldTask<AudioPlayer> BuildAsync(string name)
         {
             bool isCompleted = false;
@@ -289,22 +267,17 @@ namespace YukiFrameWork.Audio
             return audioPlayer;
         }
 #else
-         
-        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
-        public IEnumerator PlayAsync(string name)
-        {
-            return BuildAndPlayAsync(name);
-        }
-
+    
         /// <summary>
         /// 异步播放音频
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public IEnumerator BuildAndPlayAsync(string name)
+        [Obsolete("方法已弃用,请通过BuildAsync构建AudioPlayer后调用Play!")]
+        public IEnumerator PlayAsync(string name,Transform parent = null)
         {
             bool isCompleted = false;
-            BuildAndPlayAsync(name, _ => isCompleted = true);
+            PlayAsync(name, _ => isCompleted = true,parent);
             yield return CoroutineTool.WaitUntil(() => isCompleted);
         }
 
@@ -452,7 +425,6 @@ namespace YukiFrameWork.Audio
             {
                 foreach (var sound in item)
                 {
-                    Debug.Log(sound.ClipName);
                     if (sound.ClipName == name)
                         sound.Stop();
                 }

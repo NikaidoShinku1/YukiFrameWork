@@ -17,6 +17,13 @@ using UnityEditor;
 #endif
 namespace YukiFrameWork
 {
+
+    public enum SpriteLoadType
+    {
+        GUID,
+        AssetPath
+    }
+
     [CreateAssetMenu(fileName ="LocalizationManager",menuName = "YukiFrameWork/本地化配置管理器LocalizationManager")]
     public class LocalizationManager : ScriptableObject
     {      
@@ -88,6 +95,10 @@ namespace YukiFrameWork
                 }
             }
         }
+
+        [LabelText("图片的导入方式")]
+        [Space]
+        public SpriteLoadType loadType;
 #endif        
         private void OnValidate()
         {   

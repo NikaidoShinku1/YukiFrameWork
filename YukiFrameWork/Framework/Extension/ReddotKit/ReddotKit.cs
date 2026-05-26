@@ -177,6 +177,8 @@ namespace YukiFrameWork
 			//在拥有parent且path为空的情况下，默认标记为父级红点，会跟随打开
 			return path.IsNullOrEmpty();
 		}
+		
+		public static bool IsReddotActive(string parent) => IsReddotActive(parent, string.Empty);
 
 		/// <summary>
 		/// 红点路径序列化(Json字符串)

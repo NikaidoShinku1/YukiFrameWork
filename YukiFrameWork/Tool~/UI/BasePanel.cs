@@ -31,7 +31,7 @@ namespace YukiFrameWork.UI
         bool IsPanelCache { get; }
         GameObject gameObject { get; }
         CanvasGroup CanvasGroup { get; }
-        IUIAnimation Animation { get; set; }
+   
         UILevel Level { get; }
         PanelOpenType OpenType { get; }
 
@@ -103,6 +103,7 @@ namespace YukiFrameWork.UI
         /// <summary>
         /// 这个UI面板可用的UI动画模式
         /// </summary>
+        [Obsolete("过时的使用方式,更推荐自行实现进入退出的逻辑",true)]
         public IUIAnimation Animation
         {
             get => mAnimation;
@@ -209,18 +210,18 @@ namespace YukiFrameWork.UI
 
         #region IPanel
 
-        async void IPanel.Enter(params object[] param)
+        void IPanel.Enter(params object[] param)
         {           
             //进入先将Alpha设置为1，在动画播放完成后再设置可交互
             if(CanvasGroup)
                 CanvasGroup.alpha = 1;
-            if (Animation != null)
-            {
-                Animation.OnEnter(param);
-                await CoroutineTool
-                    .WaitUntil(Animation.OnEnterAnimation)
-                    .Token(uiTokenScoure.Token);
-            }
+           // if (Animation != null)
+           // {
+           //     Animation.OnEnter(param);
+           //     await CoroutineTool
+           //         .WaitUntil(Animation.OnEnterAnimation)
+           //         .Token(uiTokenScoure.Token);
+           // }
             if (CanvasGroup)
                 CanvasGroup.blocksRaycasts = true;       
             OnEnter(param);
@@ -259,20 +260,20 @@ namespace YukiFrameWork.UI
             IsPaused = true;
         }
 
-        async void IPanel.Exit()
+        void IPanel.Exit()
         {
 
             //退出先禁止交互，且等待动画播放后再直接把canvasGroup的alpha设置为0
             if (!this) return;
             if (!transform) return;
-            CanvasGroup.blocksRaycasts = false;
-            if (Animation != null)
-            {
-                Animation.OnExit();
-                await CoroutineTool
-                    .WaitUntil(Animation.OnExitAnimation)
-                    .Token(uiTokenScoure.Token);
-            }
+           // CanvasGroup.blocksRaycasts = false;
+           // if (Animation != null)
+           // {
+           //     Animation.OnExit();
+           //     await CoroutineTool
+           //         .WaitUntil(Animation.OnExitAnimation)
+           //         .Token(uiTokenScoure.Token);
+           // }
             CanvasGroup.alpha = 0;
                  
             OnExit();

@@ -75,6 +75,38 @@ namespace YukiFrameWork
             return component;
         }
 
+        public static T ChildShow<T>(this T component) where T : Component
+        {
+            ChildShow(component.gameObject);
+            return component;
+        }
+        
+        public static GameObject ChildShow(this GameObject gameObject)
+        {
+            for(int i = 0;i< gameObject.transform.childCount; i++)
+            {
+                gameObject.Show();
+            }
+
+            return gameObject;
+        }
+        
+        public static T ChildHide<T>(this T component) where T : Component
+        {
+            ChildHide(component.gameObject);
+            return component;
+        }
+        
+        public static GameObject ChildHide(this GameObject gameObject)
+        {
+            for(int i = 0;i< gameObject.transform.childCount; i++)
+            {
+                gameObject.transform.GetChild(i).Hide();
+            }
+
+            return gameObject;
+        }
+
         public static T Hide<T>(this T component) where T : Component
         {
             Hide(component.gameObject);
@@ -520,6 +552,49 @@ namespace YukiFrameWork
             SetLocalPosition(core.gameObject, localPosition);
             return core;
         }
+
+        public static RectTransform SetAnchoredPosition(this RectTransform core,Vector2 anchoredPosition)
+        {
+            core.anchoredPosition = anchoredPosition;
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPositionX(this RectTransform core,float x)
+        {
+            SetAnchoredPosition(core, new Vector3(x, core.anchoredPosition.y));
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPositionY(this RectTransform core,float y)
+        {
+            SetAnchoredPosition(core, new Vector3(core.anchoredPosition.x, y));
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPosition3D(this RectTransform core,Vector3 anchoredPosition)
+        {
+            core.anchoredPosition3D = anchoredPosition;
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPosition3DX(this RectTransform core,float x)
+        {
+            SetAnchoredPosition3D(core, new Vector3(x, core.anchoredPosition3D.y,core.anchoredPosition3D.z));
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPosition3DY(this RectTransform core,float y)
+        {
+            SetAnchoredPosition3D(core, new Vector3(core.anchoredPosition3D.x, y, core.anchoredPosition3D.z));
+            return core;
+        }
+        
+        public static RectTransform SetAnchoredPosition3DZ(this RectTransform core,float z)
+        {
+            SetAnchoredPosition3D(core, new Vector3(core.anchoredPosition3D.x, core.anchoredPosition3D.y, z));
+            return core;
+        }
+    
 
         public static GameObject SetLocalScale(this GameObject core, Vector3 localScale)
         {
@@ -1053,6 +1128,39 @@ namespace YukiFrameWork
                 Debug.LogWarning("Transform is held by default and does not trigger additions");
             }
             return FindRoot<T>(core, objName, true, includeInactive);
+        }
+        
+        public static T[] FindAll<T>(this GameObject core,string objName,bool includeInactive = false) where T : Component
+        {
+            Transform[] transforms = core.GetComponentsInChildren<Transform>(includeInactive);
+            FastList<T> list = new FastList<T>();
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                if (transforms[i].name.Equals(objName))
+                {
+                    T component = transforms[i].GetComponent<T>();
+                    if (component)
+                        list.Add(component);
+                }
+            }
+
+            return list.ToArray();
+        }
+        
+        public static Transform[] FindAll(this GameObject core, string objName, bool includeInactive = false)
+        {
+            return FindAll<Transform>(core, objName, includeInactive);
+        }
+        
+        public static Transform[] FindAll(this Component core, string objName, bool includeInactive = false)
+        {
+            return FindAll<Transform>(core, objName, includeInactive);
+        }
+
+        public static T[] FindAll<T>(this Component core, string objName, bool includeInactive = false)
+            where T : Component
+        {
+            return FindAll<T>(core.gameObject, objName, includeInactive);
         }
 
         private static T FindRoot<T>(this GameObject core, string objName, bool isAddComponent, bool includeInactive = false) where T : Component
@@ -1609,7 +1717,8 @@ namespace YukiFrameWork
         /// <param name="gameObject">GameObject</param>
         public static void UnRegisterWaitGameObjectDestroy<Component>(this IUnRegister property, Component component, Action onFinish = null) where Component : UnityEngine.Component
         {
-            UnRegisterWaitGameObjectDestroy(property, component.gameObject, onFinish);
+            if(component)
+                UnRegisterWaitGameObjectDestroy(property, component.gameObject, onFinish);
         }
 
         public static void AddUnRegisterToList(this IUnRegister property, IUnRegiserList list)
